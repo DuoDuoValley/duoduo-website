@@ -182,11 +182,29 @@ async function fileToCompressedDataURL(file,maxW=1800,maxH=1200,quality=.86){ret
   ? 'https://duoduo-website.onrender.com'
   : '';
 
-const token=sessionStorage.getItem('duoduo_admin_session')||'';
-const res=await fetch(`${API_BASE}/api/upload-image`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({dataUrl,filename:originalName||'event-image'})});
-  if(!res.ok) throw new Error('upload_failed');
-  const data=await res.json();
-  if(!data.ok||!data.path) throw new Error('upload_failed');
+  const token=sessionStorage.getItem('duoduo_admin_session')||'';
+  if(!token) throw new Error('登入已失效');
+
+  const res=await fetch(`${API_BASE}/api/upload-image`,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'Authorization':`Bearer ${token}`
+    },
+    body:JSON.stringify({dataUrl,filename:originalName||'event-image'})
+  });
+
+  const data=await res.json().catch(()=>({}));
+
+  if(res.status===401){
+    try{sessionStorage.removeItem('duoduo_admin_session')}catch{}
+    throw new Error('登入已失效');
+  }
+
+  if(!res.ok||!data.ok||!data.path){
+    throw new Error(data.error||'圖片上傳失敗');
+  }
+
   return data.path;
 }
 async function syncEventsToServer(){
@@ -278,8 +296,11 @@ $('#saveEvent').onclick=async()=>{
     }
 
   }catch(error){
-    console.error(error);
-    return alert('圖片上傳失敗，請確認圖片後再試一次。');
+    console.error('圖片上傳失敗:',error);
+    if(error.message==='登入已失效'){
+      return alert('登入已失效，請重新整理後重新登入管理後台。');
+    }
+    return alert(`圖片上傳失敗：${error.message||'請確認圖片後再試一次。'}`);
   }
 
   const data={
