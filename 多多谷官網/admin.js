@@ -79,28 +79,175 @@ const res=await fetch(`${API_BASE}/api/upload-image`,{method:'POST',headers:{'Co
   if(!data.ok||!data.path) throw new Error('upload_failed');
   return data.path;
 }
+async function syncEventsToServer(){
+  const API_BASE=window.location.hostname.endsWith('github.io')
+    ? 'https://duoduo-website.onrender.com'
+    : '';
+
+  const password=prompt('請輸入管理員密碼');
+
+  if(password===null){
+    throw new Error('cancelled');
+  }
+
+  const res=await fetch(`${API_BASE}/api/events`,{
+    method:'POST',
+    headers:{
+      'Content-Type':'application/json',
+      'X-Admin-Password':password
+    },
+    body:JSON.stringify({
+      events
+    })
+  });
+
+  const data=await res.json().catch(()=>({}));
+
+  if(!res.ok||!data.ok){
+    if(res.status===401){
+      throw new Error('密碼錯誤');
+    }
+
+    throw new Error(data.error||'活動同步失敗');
+  }
+
+  return true;
+}
 function renderEventUploadPreviews(){const cover=$('#eventImagePreview');if(cover)cover.innerHTML=pendingEventCoverImage?`<img src="${pendingEventCoverImage}" alt="">`:'<span>尚未選擇新圖片</span>';const box=$('#eventImagesPreview');if(box)box.innerHTML=pendingEventCarouselImages.length?pendingEventCarouselImages.map((src,i)=>`<div><img src="${src}" alt="輪播圖片 ${i+1}"><small>第 ${i+1} 張</small></div>`).join(''):'<span>尚未選擇新輪播圖片</span>';}
 $('#eventImageFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{pendingEventCoverImage=await fileToCompressedDataURL(f);renderEventUploadPreviews();}catch{alert('圖片讀取失敗，請重新選擇。');e.target.value='';}};
 $('#eventImagesFiles').onchange=async e=>{const files=[...(e.target.files||[])];if(!files.length)return;try{pendingEventCarouselImages=await Promise.all(files.map(f=>fileToCompressedDataURL(f)));renderEventUploadPreviews();}catch{alert('輪播圖片讀取失敗，請重新選擇。');e.target.value='';}};
-$('#saveEvent').onclick=async()=>{const name=$('#eventName').value.trim();if(!name)return alert('請輸入活動名稱');const existing=editingEventId?events.find(d=>d.id===editingEventId):null;let cover=$('#eventImage').value.trim()||existing?.image||existing?.images?.[0]||'assets/ad3.png';
-const typedImages=$('#eventImages').value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
-let finalImages=typedImages.length?typedImages:(existing?.images?.length?existing.images:[cover]);
-try{
-  if(pendingEventCoverImage) {
-    cover=await uploadImageDataURL(pendingEventCoverImage,$('#eventImageFile').files?.[0]?.name||'event-cover');
-    // 編輯既有活動時，只補換封面就應該同步替換第一張圖片，避免沿用舊的 file:/// 本機路徑。
-    if(!pendingEventCarouselImages.length) finalImages=[cover];
+$('#saveEvent').onclick=async()=>{
+  const name=$('#eventName').value.trim();
+  if(!name)return alert('請輸入活動名稱');
+
+  const existing=editingEventId?events.find(d=>d.id===editingEventId):null;
+  let cover=$('#eventImage').value.trim()||existing?.image||existing?.images?.[0]||'assets/ad3.png';
+
+  const typedImages=$('#eventImages').value
+    .split(/\r?\n/)
+    .map(x=>x.trim())
+    .filter(Boolean);
+
+  let finalImages=typedImages.length
+    ? typedImages
+    : (existing?.images?.length?existing.images:[cover]);
+
+  try{
+    if(pendingEventCoverImage){
+      cover=await uploadImageDataURL(
+        pendingEventCoverImage,
+        $('#eventImageFile').files?.[0]?.name||'event-cover'
+      );
+
+      if(!pendingEventCarouselImages.length){
+        finalImages=[cover];
+      }
+    }
+
+    if(pendingEventCarouselImages.length){
+      const files=[...($('#eventImagesFiles').files||[])];
+      finalImages=[];
+
+      for(let i=0;i<pendingEventCarouselImages.length;i++){
+        finalImages.push(
+          await uploadImageDataURL(
+            pendingEventCarouselImages[i],
+            files[i]?.name||`event-${i+1}`
+          )
+        );
+      }
+
+      if(pendingEventCoverImage){
+        cover=finalImages[0]||cover;
+      }
+    }
+
+    if(!finalImages.length){
+      finalImages=[cover];
+    }
+
+  }catch(error){
+    console.error(error);
+    return alert('圖片上傳失敗，請確認圖片後再試一次。');
   }
-  if(pendingEventCarouselImages.length){
-    const files=[...($('#eventImagesFiles').files||[])];
-    finalImages=[];
-    for(let i=0;i<pendingEventCarouselImages.length;i++) finalImages.push(await uploadImageDataURL(pendingEventCarouselImages[i],files[i]?.name||`event-${i+1}`));
-    if(pendingEventCoverImage) cover=finalImages[0]||cover;
+
+  const data={
+    name,
+    image:cover,
+    images:finalImages,
+    interval:Math.max(2000,Number($('#eventInterval').value||5)*1000),
+    desc:$('#eventDesc').value.trim(),
+    detail:$('#eventDetail').value.trim(),
+    start:$('#eventStart').value,
+    end:$('#eventEnd').value,
+    url:$('#eventUrl').value.trim(),
+    published:$('#eventPublished').checked
+  };
+
+  const previous=[...events];
+
+  try{
+    if(editingEventId){
+      const target=events.find(d=>d.id===editingEventId);
+      if(target)Object.assign(target,data);
+    }else{
+      events.unshift({
+        id:'e_'+Date.now(),
+        ...data
+      });
+    }
+
+    save('duoduo_events',events);
+    await syncEventsToServer();
+
+  }catch(error){
+    console.error(error);
+    events=previous;
+    save('duoduo_events',events);
+    render();
+
+    if(error.message==='cancelled')return;
+    if(error.message==='密碼錯誤'){
+      return alert('管理員密碼錯誤，活動尚未同步到雲端。');
+    }
+    return alert('活動同步到雲端失敗，請稍後再試。');
   }
-  // 優先使用這次實際上傳的圖片；只有完全沒有新圖片時才保留原本網址。
-  if(!finalImages.length) finalImages=[cover];
-}catch(error){console.error(error);return alert('圖片上傳失敗，請確認你是從 http://localhost:3000 開啟官網，並重新啟動 start.bat 後再試一次。')}const data={name,image:cover,images:finalImages,interval:Math.max(2000,Number($('#eventInterval').value||5)*1000),desc:$('#eventDesc').value.trim(),detail:$('#eventDetail').value.trim(),start:$('#eventStart').value,end:$('#eventEnd').value,url:$('#eventUrl').value.trim(),published:$('#eventPublished').checked};try{if(editingEventId){const target=events.find(d=>d.id===editingEventId);if(target)Object.assign(target,data)}else{events.unshift({id:'e_'+Date.now(),...data})}save('duoduo_events',events);}catch(error){console.error(error);return alert('圖片資料太大，請減少圖片數量或改用較小的圖片後再儲存。')}clearEventForm();render();alert('檔期活動已儲存。')};
-window.removeEvent=i=>{const ordered=sortEventsByStart(events),target=ordered[i];if(!target)return;if(confirm('確定刪除這個檔期活動？')){const idx=events.indexOf(target);if(idx>-1)events.splice(idx,1);save('duoduo_events',events);render()}};let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';$('#eventStart').value=e.start||'';$('#eventEnd').value=e.end||'';$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventEnd','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
+
+  clearEventForm();
+  render();
+  alert('檔期活動已儲存，並同步到雲端。');
+};
+
+window.removeEvent=async i=>{
+  const ordered=sortEventsByStart(events),target=ordered[i];
+  if(!target)return;
+  if(!confirm('確定刪除這個檔期活動？'))return;
+
+  const previous=[...events];
+  const idx=events.indexOf(target);
+  if(idx>-1)events.splice(idx,1);
+
+  save('duoduo_events',events);
+
+  try{
+    await syncEventsToServer();
+  }catch(error){
+    console.error(error);
+    events=previous;
+    save('duoduo_events',events);
+    render();
+
+    if(error.message==='cancelled')return;
+    if(error.message==='密碼錯誤'){
+      return alert('管理員密碼錯誤，活動尚未同步到雲端。');
+    }
+    return alert('活動同步到雲端失敗，活動已恢復。');
+  }
+
+  render();
+  alert('檔期活動已刪除，並同步到雲端。');
+};
+let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';$('#eventStart').value=e.start||'';$('#eventEnd').value=e.end||'';$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventEnd','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
 window.saveLinks=()=>{const saved={};document.querySelectorAll('#linksForm input').forEach(i=>saved[i.dataset.key]=i.value.trim());localStorage.setItem('duoduo_links',JSON.stringify(saved));alert('網址已儲存到此瀏覽器。')};
 function renderItems(){const box=$('#itemsAdmin');const q=($('#itemSearch')?.value||'').trim().toLowerCase();const f=items.filter(x=>`${x.name} ${x.category} ${x.description||''}`.toLowerCase().includes(q));box.innerHTML=f.length?f.map(x=>`<div class="item-row"><div class="item-thumb">${x.image?`<img src="${x.image}" alt="">`:'無圖片'}</div><div class="item-meta"><b>${esc(x.name)}</b><small>${esc(x.description||'尚未填寫描述')}</small></div><div class="item-category">${esc(x.category)}</div><div class="item-actions"><button onclick="editItem('${x.id}')">編輯</button><button class="danger" onclick="removeItem('${x.id}')">刪除</button></div></div>`).join(''):'<div class="note">目前沒有符合條件的道具。</div>'}
 function resetItemForm(){editingItemId=null;pendingItemImage='';$('#itemFormTitle').textContent='新增道具';$('#itemName').value='';$('#itemCategory').value='裝備';$('#itemDescription').value='';$('#itemImage').value='';$('#itemImagePreview').innerHTML='<span>尚未選擇圖片</span>';$('#itemForm').hidden=true}
