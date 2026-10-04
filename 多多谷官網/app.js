@@ -108,9 +108,53 @@ function eventStartTime(e){const t=Date.parse(e?.start||"");return Number.isNaN(
 function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTime(a)-eventStartTime(b));}
 function formatEventDate(value){if(!value)return "";const d=new Date(value);if(Number.isNaN(d.getTime()))return String(value);const pad=n=>String(n).padStart(2,"0");return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;}
 function formatEventDateRange(e){const a=formatEventDate(e?.start),b=formatEventDate(e?.end);return a&&b?`${a} ～ ${b}`:(a||b||"");}
-const news=getJSONSafe("duoduo_news",defaultNews),events=sortEventsByStart(getJSONSafe("duoduo_events",defaultEvents).filter(e=>e.published!==false)),bosses=getJSONSafe("duoduo_bosses",defaultBosses),reviews=getJSONSafe("duoduo_reviews",defaultReviews);
+const news=getJSONSafe("duoduo_news",defaultNews),bosses=getJSONSafe("duoduo_bosses",defaultBosses),reviews=getJSONSafe("duoduo_reviews",defaultReviews);
+let events=sortEventsByStart(getJSONSafe("duoduo_events",defaultEvents).filter(e=>e.published!==false));
+
 const newsTagShort=t=>({"重要消息":"重要","維護通知":"維護","更新說明":"更新","活動資訊":"活動","序號發放":"序號","處分名單":"處分"}[t]||t);const newsList=document.getElementById("news-list");if(newsList)newsList.innerHTML=news.slice(0,6).map((n,i)=>`<a class="news-item" href="news.html#n-${i}"><span class="tag">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3><p>${esc(n.body||"")}</p></div><time>${esc(n.date)}</time></a>`).join("");
-const eventGrid=document.getElementById("event-grid");if(eventGrid){eventGrid.innerHTML=events.slice(0,3).map(e=>`<article class="event-card"><div class="event-image">${eventCarouselHTML(e)}</div><div class="event-copy"><span class="tag">檔期活動</span><h3>${esc(e.name)}</h3><p>${esc(e.desc)}</p><a class="text-link" href="event-detail.html?id=${encodeURIComponent(e.id||e.name)}">查看檔期活動 →</a></div></article>`).join("")||`<div class="empty">目前沒有公開活動。</div>`;initEventCarousels(eventGrid)}
+
+function renderPublicEvents(){
+  const eventGrid=document.getElementById("event-grid");
+  if(!eventGrid)return;
+  eventGrid.innerHTML=events.slice(0,3).map(e=>`<article class="event-card"><div class="event-image">${eventCarouselHTML(e)}</div><div class="event-copy"><span class="tag">檔期活動</span><h3>${esc(e.name)}</h3><p>${esc(e.desc)}</p><a class="text-link" href="event-detail.html?id=${encodeURIComponent(e.id||e.name)}">查看檔期活動 →</a></div></article>`).join("")||`<div class="empty">目前沒有公開活動。</div>`;
+  initEventCarousels(eventGrid);
+}
+
+renderPublicEvents();
+
+async function loadCloudEvents(){
+  const API_BASE=window.location.hostname.endsWith("github.io")
+    ? "https://duoduo-website.onrender.com"
+    : "";
+
+  try{
+    const res=await fetch(`${API_BASE}/api/events`,{
+      method:"GET",
+      headers:{"Accept":"application/json"},
+      cache:"no-store"
+    });
+
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+
+    const data=await res.json();
+    const cloudEvents=Array.isArray(data.events)
+      ? data.events.map(row=>row?.data||row).filter(e=>e&&e.published!==false)
+      : [];
+
+    if(cloudEvents.length){
+      events=sortEventsByStart(cloudEvents);
+      try{
+        localStorage.setItem("duoduo_events",JSON.stringify(events));
+      }catch{}
+
+      renderPublicEvents();
+    }
+  }catch(error){
+    console.warn("雲端活動讀取失敗，使用本機活動資料。",error);
+  }
+}
+
+loadCloudEvents();
 const bossHome=document.getElementById("boss-home-image");if(bossHome&&bosses[0])bossHome.src=bosses[0].image;
 const reviewGrid=document.getElementById("review-grid");
 if(reviewGrid){
