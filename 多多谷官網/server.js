@@ -45,30 +45,15 @@ function safeName(name){
 async function ensureSupabaseBucket(supabaseUrl,supabaseSecretKey){
   const headers={
     'apikey':supabaseSecretKey,
-    'Authorization':`Bearer ${supabaseSecretKey}`
+    'Authorization':`Bearer ${supabaseSecretKey}`,
+    'Content-Type':'application/json'
   };
-
-  // 先確認 Bucket 是否已存在。已存在時不要每次上傳都重複建立。
-  const checkResponse=await fetch(
-    `${supabaseUrl}/storage/v1/bucket/${encodeURIComponent(SUPABASE_BUCKET)}`,
-    {method:'GET',headers}
-  );
-
-  if(checkResponse.ok){
-    return true;
-  }
-
-  const checkText=await checkResponse.text();
-  if(checkResponse.status!==404 && !/not found|does not exist/i.test(checkText)){
-    console.error('Supabase Storage Bucket 檢查失敗:',checkResponse.status,checkText);
-    throw new Error('Supabase Storage Bucket 檢查失敗');
-  }
 
   const createResponse=await fetch(
     `${supabaseUrl}/storage/v1/bucket`,
     {
       method:'POST',
-      headers:{...headers,'Content-Type':'application/json'},
+      headers,
       body:JSON.stringify({
         id:SUPABASE_BUCKET,
         name:SUPABASE_BUCKET,
@@ -84,11 +69,13 @@ async function ensureSupabaseBucket(supabaseUrl,supabaseSecretKey){
   }
 
   const errorText=await createResponse.text();
+
+  // 如果 bucket 已經存在但 API 回傳其他「已存在」訊息，也視為可繼續。
   if(/already exists|duplicate|exists/i.test(errorText)){
     return true;
   }
 
-  console.error('Supabase Storage 建立 Bucket 失敗:',createResponse.status,errorText);
+  console.error('Supabase Storage 建立 Bucket 失敗:',errorText);
   throw new Error('Supabase Storage Bucket 建立失敗');
 }
 
@@ -285,14 +272,12 @@ async function handleUpload(req,res){
 
         console.error(
           'Supabase Storage 圖片上傳失敗:',
-          uploadResponse.status,
           errorText
         );
 
         return sendJSON(res,500,{
           ok:false,
-          error:'Supabase Storage 圖片上傳失敗',
-          code:'SUPABASE_UPLOAD_FAILED'
+          error:'Supabase Storage 圖片上傳失敗'
         });
       }
 
@@ -310,8 +295,7 @@ async function handleUpload(req,res){
 
       return sendJSON(res,500,{
         ok:false,
-        error:err?.message||'圖片上傳失敗',
-        code:'UPLOAD_FAILED'
+        error:'圖片上傳失敗'
       });
     }
   });
@@ -355,10 +339,11 @@ async function handleGetEvents(req,res){
     }
 
     const rows=JSON.parse(text);
+    const events=rows.filter(row=>String(row.id)!=='__boss_config__');
 
     return sendJSON(res,200,{
       ok:true,
-      events:rows
+      events
     });
 
   }catch(err){
@@ -445,6 +430,7 @@ async function handleSaveEvents(req,res){
         );
 
         for(const row of existingRows){
+          if(String(row.id)==='__boss_config__')continue;
           if(!newIds.has(String(row.id))){
             const deleteUrl=
               `${supabaseUrl}/rest/v1/events?id=eq.${encodeURIComponent(row.id)}`;
@@ -526,6 +512,58 @@ async function handleSaveEvents(req,res){
   }
 }
 
+async function handleGetBosses(req,res){
+  try{
+    const supabaseUrl=process.env.SUPABASE_URL;
+    const supabaseSecretKey=process.env.SUPABASE_SECRET_KEY;
+    if(!supabaseUrl||!supabaseSecretKey){
+      return sendJSON(res,500,{ok:false,error:'Supabase 環境變數尚未設定'});
+    }
+    const url=`${supabaseUrl}/rest/v1/events?id=eq.__boss_config__&select=data`;
+    const response=await fetch(url,{method:'GET',headers:{'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json'}});
+    const text=await response.text();
+    if(!response.ok){
+      console.error('Supabase 讀取 BOSS 設定失敗:',text);
+      return sendJSON(res,500,{ok:false,error:'BOSS 設定讀取失敗'});
+    }
+    const rows=JSON.parse(text);
+    const data=rows[0]?.data;
+    return sendJSON(res,200,{ok:true,bosses:data?.bosses||[],interval:Number(data?.interval)||5000});
+  }catch(err){
+    console.error('BOSS API 讀取失敗:',err);
+    return sendJSON(res,500,{ok:false,error:'BOSS API 發生錯誤'});
+  }
+}
+
+async function handleSaveBosses(req,res){
+  try{
+    if(!getAdminSession(req))return sendJSON(res,401,{ok:false,error:'未登入'});
+    const supabaseUrl=process.env.SUPABASE_URL;
+    const supabaseSecretKey=process.env.SUPABASE_SECRET_KEY;
+    if(!supabaseUrl||!supabaseSecretKey)return sendJSON(res,500,{ok:false,error:'Supabase 環境變數尚未設定'});
+    let body='';
+    req.on('data',chunk=>{body+=chunk;if(body.length>10*1024*1024){res.writeHead(413);res.end('Payload Too Large');req.destroy();}});
+    req.on('end',async()=>{
+      try{
+        const payload=JSON.parse(body||'{}');
+        const bosses=Array.isArray(payload.bosses)?payload.bosses:[];
+        const interval=Math.max(2000,Number(payload.interval)||5000);
+        const row={id:'__boss_config__',data:{type:'boss-config',bosses,interval},updated_at:new Date().toISOString()};
+        const url=`${supabaseUrl}/rest/v1/events`;
+        const response=await fetch(url,{method:'POST',headers:{'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([row])});
+        if(!response.ok){const text=await response.text();console.error('Supabase 儲存 BOSS 設定失敗:',text);return sendJSON(res,500,{ok:false,error:'BOSS 設定儲存失敗'});}
+        return sendJSON(res,200,{ok:true,count:bosses.length});
+      }catch(err){
+        console.error('BOSS 設定格式錯誤:',err);
+        return sendJSON(res,400,{ok:false,error:'BOSS 設定格式錯誤'});
+      }
+    });
+  }catch(err){
+    console.error('BOSS 儲存 API 發生錯誤:',err);
+    return sendJSON(res,500,{ok:false,error:'BOSS 儲存 API 發生錯誤'});
+  }
+}
+
 const server=http.createServer((req,res)=>{
 
   res.setHeader(
@@ -570,6 +608,20 @@ const server=http.createServer((req,res)=>{
   ){
     return handleGetEvents(req,res);
   }
+  if(
+    req.method==='GET' &&
+    requestPath==='/api/bosses'
+  ){
+    return handleGetBosses(req,res);
+  }
+
+  if(
+    req.method==='POST' &&
+    requestPath==='/api/bosses'
+  ){
+    return handleSaveBosses(req,res);
+  }
+
 
   if(
     req.method==='POST' &&
