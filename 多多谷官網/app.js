@@ -1,11 +1,9 @@
 /* ===== 多多谷雲端網站資料同步 ===== */
 (function(){
   const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
-  const FLAG='duoduo_site_cloud_bootstrap_v1';
   const KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_links'];
-  let skipBootstrap=false;
-  try{skipBootstrap=sessionStorage.getItem(FLAG)==='1'}catch{}
-  if(skipBootstrap) return;
+  const SESSION_PREFIX='duoduo_cloud_';
+  const FLAG='duoduo_cloud_snapshot_v2';
   (async()=>{
     try{
       const res=await fetch(`${API_BASE}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
@@ -16,20 +14,28 @@
       for(const key of KEYS){
         if(!Object.prototype.hasOwnProperty.call(payload.data,key))continue;
         const next=JSON.stringify(payload.data[key]);
-        const current=localStorage.getItem(key);
-        if(current!==next){localStorage.setItem(key,next);changed=true;}
+        let current='';
+        try{current=sessionStorage.getItem(SESSION_PREFIX+key)||''}catch{}
+        if(current!==next){
+          try{sessionStorage.setItem(SESSION_PREFIX+key,next)}catch{}
+          changed=true;
+        }
       }
-      if(changed){
+      let alreadyReloaded=false;
+      try{alreadyReloaded=sessionStorage.getItem(FLAG)==='1'}catch{}
+      if(changed&&!alreadyReloaded){
         try{sessionStorage.setItem(FLAG,'1')}catch{}
         location.reload();
+      }else if(!changed){
+        try{sessionStorage.removeItem(FLAG)}catch{}
       }
-    }catch(error){console.warn('雲端網站資料讀取失敗，使用本機快取。',error)}
+    }catch(error){console.warn('雲端網站資料讀取失敗，使用本機資料。',error)}
   })();
 })();
 /* ===== 多多谷雲端網站資料同步結束 ===== */
 
 const DEFAULT_LINKS={discord:"https://discord.gg/duoduovalley",topup:"https://fd-pay.com/ARrbXO",guide:"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing",rates:"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing",products:"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing",checklist:"https://duoduovalley.github.io/duoduo-checklist/",launcher:"https://mega.nz/file/d3IVHYZY#iIv2Y93Y2tPy2zORnDUUEWY-q4wO6PkdTqNZG3cYlM",pack:"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing"};
-function getJSONSafe(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"null")??fallback}catch{return fallback}}
+function getJSONSafe(key,fallback){try{const cloud=sessionStorage.getItem("duoduo_cloud_"+key);if(cloud!==null)return JSON.parse(cloud);return JSON.parse(localStorage.getItem(key)||"null")??fallback}catch{return fallback}}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function eventImages(e){const list=Array.isArray(e?.images)?e.images.filter(Boolean):[];return list.length?list:(e?.image?[e.image]:["assets/ad3.png"])}
 function eventCarouselHTML(e,extraClass=""){const imgs=eventImages(e);const interval=Math.max(2000,Number(e?.interval)||5000);return `<div class="event-carousel ${extraClass}" data-images='${esc(JSON.stringify(imgs))}' data-interval="${interval}"><div class="event-carousel-track">${imgs.map((src,i)=>`<img class="event-slide${i===0?" active":""}" src="${esc(src)}" alt="" loading="lazy">`).join("")}</div>${imgs.length>1?`<button class="event-carousel-arrow prev" type="button" aria-label="上一張">‹</button><button class="event-carousel-arrow next" type="button" aria-label="下一張">›</button><div class="event-carousel-bottom"><div class="event-carousel-dots">${imgs.map((_,i)=>`<button type="button" class="event-carousel-dot${i===0?" active":""}" data-slide="${i}" aria-label="第 ${i+1} 張"></button>`).join("")}</div><span class="event-carousel-count">01 / ${String(imgs.length).padStart(2,"0")}</span><button class="event-carousel-pause" type="button" aria-label="暫停輪播">Ⅱ</button></div>`:""}</div>`}
@@ -243,7 +249,7 @@ renderBossCarousel();
 renderBossPage();
 async function loadCloudBosses(){
   const API_BASE=window.location.hostname.endsWith("github.io")?"https://duoduo-website.onrender.com":"";
-  try{const res=await fetch(`${API_BASE}/api/bosses`,{headers:{Accept:"application/json"},cache:"no-store"});if(!res.ok)throw new Error(`HTTP ${res.status}`);const data=await res.json();if(Array.isArray(data.bosses)&&data.bosses.length){BOSS_CONFIG={interval:Math.max(2000,Number(data.interval)||5000),slides:data.bosses};try{localStorage.setItem("duoduo_boss_config",JSON.stringify(BOSS_CONFIG));}catch{}renderBossCarousel();renderBossPage();}}catch(error){console.warn("雲端 BOSS 設定讀取失敗，使用本機 BOSS 設定。",error);}
+  try{const res=await fetch(`${API_BASE}/api/bosses`,{headers:{Accept:"application/json"},cache:"no-store"});if(!res.ok)throw new Error(`HTTP ${res.status}`);const data=await res.json();if(Array.isArray(data.bosses)&&data.bosses.length){BOSS_CONFIG={interval:Math.max(2000,Number(data.interval)||5000),slides:data.bosses};try{sessionStorage.setItem("duoduo_cloud_duoduo_boss_config",JSON.stringify(BOSS_CONFIG));}catch{}renderBossCarousel();renderBossPage();}}catch(error){console.warn("雲端 BOSS 設定讀取失敗，使用本機 BOSS 設定。",error);}
 }
 loadCloudBosses();
 const reviewGrid=document.getElementById("review-grid");
