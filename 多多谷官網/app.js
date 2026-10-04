@@ -1,3 +1,30 @@
+/* ===== 多多谷雲端網站資料同步 ===== */
+(function(){
+  const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+  const FLAG='duoduo_site_cloud_bootstrap_v1';
+  const KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_links','duoduo_events','duoduo_boss_config'];
+  (async()=>{
+    try{
+      const res=await fetch(`${API_BASE}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
+      if(!res.ok)return;
+      const payload=await res.json();
+      if(payload?.initialized!==true||!payload.data||typeof payload.data!=='object')return;
+      let changed=false;
+      for(const key of KEYS){
+        if(!Object.prototype.hasOwnProperty.call(payload.data,key))continue;
+        const next=JSON.stringify(payload.data[key]);
+        const current=localStorage.getItem(key);
+        if(current!==next){localStorage.setItem(key,next);changed=true;}
+      }
+      if(changed){
+        try{sessionStorage.setItem(FLAG,'1')}catch{}
+        location.reload();
+      }
+    }catch(error){console.warn('雲端網站資料讀取失敗，使用本機快取。',error)}
+  })();
+})();
+/* ===== 多多谷雲端網站資料同步結束 ===== */
+
 const DEFAULT_LINKS={discord:"https://discord.gg/duoduovalley",topup:"https://fd-pay.com/ARrbXO",guide:"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing",rates:"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing",products:"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing",checklist:"https://duoduovalley.github.io/duoduo-checklist/",launcher:"https://mega.nz/file/d3IVHYZY#iIv2Y93Y2tPy2zORnDUUEWY-q4wO6PkdTqNZG3cYlM",pack:"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing"};
 function getJSONSafe(key,fallback){try{return JSON.parse(localStorage.getItem(key)||"null")??fallback}catch{return fallback}}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
@@ -128,7 +155,7 @@ let BOSS_CONFIG=getJSONSafe("duoduo_boss_config",defaultBossConfig);
 BOSS_CONFIG={interval:Math.max(2000,Number(BOSS_CONFIG.interval)||5000),slides:Array.isArray(BOSS_CONFIG.slides)&&BOSS_CONFIG.slides.length?BOSS_CONFIG.slides:defaultBossConfig.slides};
 let events=sortEventsByStart(getJSONSafe("duoduo_events",defaultEvents).filter(e=>e.published!==false));
 
-const newsTagShort=t=>({"重要消息":"重要","維護通知":"維護","更新說明":"更新","活動資訊":"活動","序號發放":"序號","處分名單":"處分"}[t]||t);const newsTagClass=t=>({"重要消息":"category-important","維護通知":"category-maintenance","更新說明":"category-update","活動資訊":"category-event","序號發放":"category-code","處分名單":"category-punishment"}[String(t||"")]||"category-default");const newsList=document.getElementById("news-list");if(newsList){const isHomeNews=!!newsList.closest("#news");newsList.innerHTML=news.slice(0,6).map((n,i)=>isHomeNews?`<a class="news-item" href="news.html#n-${i}" aria-label="查看公告：${esc(n.title)}"><span class="tag ${newsTagClass(n.tag)}">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3></div><time>${esc(n.date)}</time></a>`:`<a class="news-item" href="news.html#n-${i}"><span class="tag ${newsTagClass(n.tag)}">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3><p>${esc(n.body||"")}</p></div><time>${esc(n.date)}</time></a>`).join("");if(isHomeNews&&!document.getElementById("homeNewsCompactStyles")){const style=document.createElement("style");style.id="homeNewsCompactStyles";style.textContent=`#news #news-list .news-item{min-height:0;height:auto;} #news #news-list .news-item h3{margin-bottom:0;} #news #news-list .news-item p{display:none;} #news #news-list .tag{border:1px solid transparent;} #news #news-list .tag.category-important{color:#ff8f9a;background:rgba(220,65,82,.16);border-color:rgba(255,115,130,.30);} #news #news-list .tag.category-maintenance{color:#ffb65c;background:rgba(230,135,35,.16);border-color:rgba(255,180,85,.30);} #news #news-list .tag.category-update{color:#65c9ff;background:rgba(45,145,220,.16);border-color:rgba(75,175,240,.30);} #news #news-list .tag.category-event{color:#72d69a;background:rgba(48,170,100,.16);border-color:rgba(85,200,130,.30);} #news #news-list .tag.category-code{color:#c9a5ff;background:rgba(125,75,210,.17);border-color:rgba(170,125,245,.30);} #news #news-list .tag.category-punishment{color:#ff79c6;background:rgba(220,65,145,.16);border-color:rgba(245,100,175,.30);} #news #news-list .tag.category-default{color:#9cc4d8;background:rgba(95,145,170,.14);border-color:rgba(120,175,200,.28);} :root[data-theme="light"] #news #news-list .tag.category-important{color:#a9273a;background:#ffe9ed;border-color:#f3a9b5;} :root[data-theme="light"] #news #news-list .tag.category-maintenance{color:#a85a00;background:#fff0db;border-color:#efc27c;} :root[data-theme="light"] #news #news-list .tag.category-update{color:#075f91;background:#e5f4ff;border-color:#a9d7f2;} :root[data-theme="light"] #news #news-list .tag.category-event{color:#187345;background:#e6f8ee;border-color:#a7dfbf;} :root[data-theme="light"] #news #news-list .tag.category-code{color:#6840a8;background:#f1e9ff;border-color:#cbb4ee;} :root[data-theme="light"] #news #news-list .tag.category-punishment{color:#a52c70;background:#ffe8f4;border-color:#efafd0;} :root[data-theme="light"] #news #news-list .tag.category-default{color:#35657a;background:#e9f5fa;border-color:#b7d8e4;}`;document.head.appendChild(style);}}
+const newsTagShort=t=>({"重要消息":"重要","維護通知":"維護","更新說明":"更新","活動資訊":"活動","序號發放":"序號","處分名單":"處分"}[t]||t);const newsList=document.getElementById("news-list");if(newsList){const isHomeNews=!!newsList.closest("#news");newsList.innerHTML=news.slice(0,6).map((n,i)=>isHomeNews?`<a class="news-item" href="news.html#n-${i}" aria-label="查看公告：${esc(n.title)}"><span class="tag">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3></div><time>${esc(n.date)}</time></a>`:`<a class="news-item" href="news.html#n-${i}"><span class="tag">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3><p>${esc(n.body||"")}</p></div><time>${esc(n.date)}</time></a>`).join("");if(isHomeNews&&!document.getElementById("homeNewsCompactStyles")){const style=document.createElement("style");style.id="homeNewsCompactStyles";style.textContent=`#news #news-list .news-item{min-height:0;height:auto;} #news #news-list .news-item h3{margin-bottom:0;} #news #news-list .news-item p{display:none;}`;document.head.appendChild(style);}}
 
 function renderPublicEvents(){
   const eventGrid=document.getElementById("event-grid");
