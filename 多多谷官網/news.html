@@ -21,58 +21,56 @@
 <main class="content-wrap news-wrap">
   <div class="news-filter" role="tablist" aria-label="公告分類">
     <button class="news-filter-btn active" data-category="全部">全部</button>
-    <button class="news-filter-btn" data-category="重要消息">重要消息</button>
-    <button class="news-filter-btn" data-category="維護通知">維護通知</button>
-    <button class="news-filter-btn" data-category="更新說明">更新說明</button>
-    <button class="news-filter-btn" data-category="活動資訊">活動資訊</button>
-    <button class="news-filter-btn" data-category="序號發放">序號發放</button>
-    <button class="news-filter-btn" data-category="處分名單">處分名單</button>
+    <button class="news-filter-btn" data-category="重要消息">重要</button>
+    <button class="news-filter-btn" data-category="維護通知">維護</button>
+    <button class="news-filter-btn" data-category="更新說明">更新</button>
+    <button class="news-filter-btn" data-category="活動資訊">活動</button>
+    <button class="news-filter-btn" data-category="序號發放">序號</button>
+    <button class="news-filter-btn" data-category="處分名單">處分</button>
   </div>
   <div id="news-page" class="news-title-list"></div>
   <div id="news-detail" class="news-detail" hidden></div>
 </main>
 <script src="app.js"></script><script>
-const defaultNews=[
+(function(){
+const pageDefaultNews=[
   {tag:'重要消息',title:'DuoDuo Valley 官方網站持續完善中',date:'2026/10/04',body:'多多谷官方網站正在持續整理遊戲資訊、活動與玩家資源。'},
   {tag:'活動資訊',title:'多多谷最新活動與福利，持續更新中',date:'2026/10/04',body:'活動檔期與福利資訊請以官方公告為準。'},
   {tag:'更新說明',title:'遊戲內容與系統資訊請留意官方公告',date:'2026/10/04',body:'後續將持續補充更多遊戲系統與版本資訊。'}
 ];
-const categories=['全部','重要消息','維護通知','更新說明','活動資訊','序號發放','處分名單'];
-const list=document.getElementById('news-page'), detail=document.getElementById('news-detail');
-const buttons=[...document.querySelectorAll('.news-filter-btn')];
-const escHtml=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-function loadNews(){
-  try{
-    const raw=localStorage.getItem('duoduo_news');
-    const parsed=raw?JSON.parse(raw):null;
-    if(Array.isArray(parsed)) return parsed.filter(n=>n&&typeof n==='object');
-  }catch(e){}
-  return defaultNews.slice();
+const pageList=document.getElementById('news-page'), pageDetail=document.getElementById('news-detail');
+const pageButtons=[...document.querySelectorAll('.news-filter-btn')];
+const pageEsc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pageTagShort=t=>({'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'}[t]||t);
+const pageTagClass=t=>({'重要消息':'category-important','維護通知':'category-maintenance','更新說明':'category-update','活動資訊':'category-event','序號發放':'category-code','處分名單':'category-punishment'}[String(t||'')]||'category-default');
+function pageLoadNews(){try{const raw=localStorage.getItem('duoduo_news');const parsed=raw?JSON.parse(raw):null;if(Array.isArray(parsed))return parsed.filter(n=>n&&typeof n==='object');}catch(e){}return pageDefaultNews.slice();}
+function pageDateValue(n){
+  const raw=String(n?.date??'').trim();
+  if(!raw)return Number.MIN_SAFE_INTEGER;
+  const normalized=raw.replace(/\s+/g,' ').replace(/\s*([\/\-])\s*/g,'$1');
+  const m=normalized.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?(?::(\d{1,2}))?)?$/);
+  if(m){
+    const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));
+    const t=d.getTime();
+    if(Number.isFinite(t))return t;
+  }
+  const t=Date.parse(normalized);
+  return Number.isFinite(t)?t:Number.MIN_SAFE_INTEGER;
 }
-let news=loadNews();
-function dateValue(n){const t=Date.parse(String(n?.date||'').replace(/\//g,'-'));return Number.isFinite(t)?t:0;}
-function categoryClass(tag){
-  const map={'重要消息':'category-important','維護通知':'category-maintenance','更新說明':'category-update','活動資訊':'category-event','序號發放':'category-code','處分名單':'category-punishment'};
-  return map[String(tag||'')]||'category-default';
+const pageNewsData=pageLoadNews().map((item,index)=>({item,index})).sort((a,b)=>{const dt=pageDateValue(b.item)-pageDateValue(a.item);if(dt)return dt;const cb=Number(b.item?.createdAt)||0,ca=Number(a.item?.createdAt)||0;if(cb!==ca)return cb-ca;return a.index-b.index;}).map(x=>x.item);
+function pageRenderList(category='全部'){
+  pageDetail.hidden=true; pageList.hidden=false;
+  pageButtons.forEach(b=>b.classList.toggle('active',b.dataset.category===category));
+  const filtered=pageNewsData.map((n,i)=>({n,i})).filter(x=>category==='全部'||String(x.n.tag||'')===category).sort((a,b)=>{const dt=pageDateValue(b.n)-pageDateValue(a.n);if(dt)return dt;const cb=Number(b.n?.createdAt)||0,ca=Number(a.n?.createdAt)||0;if(cb!==ca)return cb-ca;return a.i-b.i;});
+  if(!filtered.length){pageList.innerHTML='<div class="news-empty">目前沒有這個分類的公告。</div>';return;}
+  pageList.innerHTML=filtered.map(({n,i})=>`<button class="news-title-row" data-index="${i}" type="button"><span class="tag ${pageTagClass(n.tag)}">${pageEsc(pageTagShort(n.tag||'未分類'))}</span><span class="news-title-text">${pageEsc(n.title||'未命名公告')}</span><time>${pageEsc(n.date||'')}</time><span class="news-arrow">→</span></button>`).join('');
 }
-function renderList(category='全部'){
-  detail.hidden=true; list.hidden=false;
-  buttons.forEach(b=>b.classList.toggle('active',b.dataset.category===category));
-  const filtered=news.map((n,i)=>({n,i})).filter(x=>category==='全部'||String(x.n.tag||'')===category).sort((a,b)=>dateValue(b.n)-dateValue(a.n));
-  if(!filtered.length){list.innerHTML='<div class="news-empty">目前沒有這個分類的公告。</div>';return;}
-  list.innerHTML=filtered.map(({n,i})=>`<button class="news-title-row" data-index="${i}" type="button"><span class="tag ${categoryClass(n.tag)}">${escHtml(n.tag||'未分類')}</span><span class="news-title-text">${escHtml(n.title||'未命名公告')}</span><time>${escHtml(n.date||'')}</time><span class="news-arrow">→</span></button>`).join('');
-}
-function showDetail(index){
-  const n=news[index]; if(!n)return;
-  list.hidden=true; detail.hidden=false;
-  detail.innerHTML=`<button class="news-back" type="button">← 返回公告列表</button><article class="news-detail-card"><span class="tag ${categoryClass(n.tag)}">${escHtml(n.tag||'未分類')}</span><h2>${escHtml(n.title||'未命名公告')}</h2><div class="meta">${escHtml(n.date||'')}</div><div class="news-body">${escHtml(n.body||'').replace(/\n/g,'<br>')}</div></article>`;
-  detail.querySelector('.news-back').addEventListener('click',()=>{history.pushState({},'',location.pathname);renderList(document.querySelector('.news-filter-btn.active')?.dataset.category||'全部');});
-  history.pushState({},'',`${location.pathname}?id=${index}`);
-}
-buttons.forEach(b=>b.addEventListener('click',()=>renderList(b.dataset.category)));
-list.addEventListener('click',e=>{const row=e.target.closest('.news-title-row');if(row)showDetail(Number(row.dataset.index));});
-function openFromUrl(){const id=new URLSearchParams(location.search).get('id');if(id!==null&&news[Number(id)])showDetail(Number(id));else renderList('全部');}
-window.addEventListener('popstate',openFromUrl); openFromUrl();
+function pageShowDetail(index){const n=pageNewsData[index];if(!n)return;pageList.hidden=true;pageDetail.hidden=false;pageDetail.innerHTML=`<button class="news-back" type="button">← 返回公告列表</button><article class="news-detail-card"><span class="tag ${pageTagClass(n.tag)}">${pageEsc(pageTagShort(n.tag||'未分類'))}</span><h2>${pageEsc(n.title||'未命名公告')}</h2><div class="meta">${pageEsc(n.date||'')}</div><div class="news-body">${pageEsc(n.body||'').replace(/\n/g,'<br>')}</div></article>`;pageDetail.querySelector('.news-back').addEventListener('click',()=>{history.pushState({},'',location.pathname);pageRenderList(document.querySelector('.news-filter-btn.active')?.dataset.category||'全部');});history.pushState({},'',`${location.pathname}?id=${index}`);}
+pageButtons.forEach(b=>b.addEventListener('click',()=>pageRenderList(b.dataset.category)));
+pageList.addEventListener('click',e=>{const row=e.target.closest('.news-title-row');if(row)pageShowDetail(Number(row.dataset.index));});
+function pageOpenFromUrl(){const params=new URLSearchParams(location.search);let id=params.get('id');if(id===null&&location.hash.startsWith('#n-'))id=location.hash.slice(3);if(id!==null&&pageNewsData[Number(id)])pageShowDetail(Number(id));else pageRenderList('全部');}
+window.addEventListener('popstate',pageOpenFromUrl);pageOpenFromUrl();
+})();
 </script>
 <style>
 .news-wrap{padding-top:10px}
@@ -92,7 +90,9 @@ window.addEventListener('popstate',openFromUrl); openFromUrl();
 .news-detail-card .meta{color:var(--muted2);font-size:13px;margin-bottom:28px}
 .news-body{color:var(--muted);font-size:17px;line-height:2;white-space:normal}
 .news-back{border:1px solid var(--line);background:transparent;color:var(--text);padding:10px 16px;border-radius:999px;cursor:pointer;font:inherit}
-/* News category colors: each category keeps a distinct hue in both themes. */
+@media(max-width:700px){.news-title-row{grid-template-columns:auto 1fr auto}.news-title-row time{grid-column:2}.news-arrow{grid-column:3;grid-row:1/3}.news-title-text{font-size:16px}}
+
+/* 只新增公告分類顏色；其餘公告列表、日期排序、詳細頁邏輯保持原版不變。 */
 .news-title-row .tag,.news-detail-card .tag{border:1px solid transparent}
 .news-title-row .tag.category-important,.news-detail-card .tag.category-important{color:#ff8f9a;background:rgba(220,65,82,.16);border-color:rgba(255,115,130,.30)}
 .news-title-row .tag.category-maintenance,.news-detail-card .tag.category-maintenance{color:#ffb65c;background:rgba(230,135,35,.16);border-color:rgba(255,180,85,.30)}
@@ -108,6 +108,5 @@ window.addEventListener('popstate',openFromUrl); openFromUrl();
 :root[data-theme="light"] .news-title-row .tag.category-code,:root[data-theme="light"] .news-detail-card .tag.category-code{color:#6840a8;background:#f1e9ff;border-color:#cbb4ee}
 :root[data-theme="light"] .news-title-row .tag.category-punishment,:root[data-theme="light"] .news-detail-card .tag.category-punishment{color:#a52c70;background:#ffe8f4;border-color:#efafd0}
 :root[data-theme="light"] .news-title-row .tag.category-default,:root[data-theme="light"] .news-detail-card .tag.category-default{color:#35657a;background:#e9f5fa;border-color:#b7d8e4}
-@media(max-width:700px){.news-title-row{grid-template-columns:auto 1fr auto}.news-title-row time{grid-column:2}.news-arrow{grid-column:3;grid-row:1/3}.news-title-text{font-size:16px}}
 </style>
 </body></html>
