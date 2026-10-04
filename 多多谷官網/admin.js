@@ -107,7 +107,6 @@
 })();
 /* ===== 管理後台登入保護結束 ===== */
 
-if(!document.getElementById('heroUploadStyles')){const st=document.createElement('style');st.id='heroUploadStyles';st.textContent='.hero-slide-preview{margin:10px 0 0;min-height:90px;border:1px dashed var(--line,#294057);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(0,0,0,.12);color:#8ea5bd}.hero-slide-preview img{display:block;width:180px;height:100px;object-fit:cover}.hero-slide-fields label{margin-bottom:8px}.field-note{display:block;margin-top:4px;opacity:.72;font-size:.8em}';document.head.appendChild(st)}
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const defaultLinks={"Discord":"https://discord.gg/duoduovalley","儲值入口":"https://fd-pay.com/ARrbXO","遊玩指南":"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing","機率型道具說明":"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing","上架商品":"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing","每日 Checklist":"https://duoduovalley.github.io/duoduo-checklist/","登入器下載":"https://mega.nz/file/d3IVHYZY#iIv2y93Y2tPy2zORnDUUEWY-q4wO6PkdTqNZG3cYlM","整合包下載":"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing"};
 const newsTagShort=t=>({'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'}[t]||t); const defaults={news:[{tag:'重要消息',title:'DuoDuo Valley 官方網站持續完善中',date:'2026/10/04',body:'多多谷官方網站正在持續整理遊戲資訊、活動與玩家資源。'}],events:[{id:'e1',name:'多多谷活動',image:'assets/ad3.png',desc:'持續更新的活動與玩法。',detail:'活動詳細內容會在這裡完整呈現。',start:'2026-10-01T00:00',end:'2026-10-31T23:59',url:'',published:true},{id:'e2',name:'福利活動',image:'assets/birthday.png',desc:'多多谷福利與社群活動資訊。',detail:'福利活動的完整說明與注意事項。',start:'2026-10-01T00:00',end:'2026-10-31T23:59',url:'',published:true}],items:[]};
@@ -139,8 +138,21 @@ let pendingBossUploads=[];
 let layout=read('duoduo_layout',defaultLayout);let editingItemId=null,pendingItemImage='';let pendingEventCoverImage='';let pendingEventCarouselImages=[];
 function read(k,f){try{return JSON.parse(localStorage.getItem(k)||'null')??structuredClone(f)}catch{return structuredClone(f)}}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
-function eventStartTimestamp(e){const t=Date.parse(e?.start||'');return Number.isFinite(t)?t:Number.MAX_SAFE_INTEGER}
-function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTimestamp(a)-eventStartTimestamp(b))}
+function parseAdminDate(value){
+  const raw=String(value??'').trim();
+  if(!raw)return Number.MIN_SAFE_INTEGER;
+  const normalized=raw.replace(/\s+/g,' ').replace(/\s*([\/\-])\s*/g,'$1');
+  const m=normalized.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?(?::(\d{1,2}))?)?$/);
+  if(m){
+    const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));
+    const t=d.getTime();
+    if(Number.isFinite(t))return t;
+  }
+  const t=Date.parse(normalized);
+  return Number.isFinite(t)?t:Number.MIN_SAFE_INTEGER;
+}
+function eventStartTimestamp(e){return parseAdminDate(e?.start)}
+function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTimestamp(b)-eventStartTimestamp(a))}
 function formatEventDateRange(e){const fmt=v=>{if(!v)return '';const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v).replace('T',' ');const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`};return `${fmt(e?.start)} ～ ${fmt(e?.end)}`}
 document.querySelectorAll('.nav').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');$('#'+btn.dataset.panel).classList.add('active');render()});
 const contentFields=[
@@ -238,49 +250,11 @@ async function loadCloudBosses(){
 }
 
 function renderLayout(){$('#layoutList').innerHTML=layout.sections.map((s,i)=>`<div class="layout-row" draggable="true" data-index="${i}"><span class="drag">☰</span><div class="layout-copy"><b>${esc(s.name)}</b><small>${esc(s.desc)}</small></div><button class="visibility ${s.visible?'on':''}" onclick="toggleSection(${i})">${s.visible?'👁':'◌'}</button></div>`).join('');$('#heroEyebrow').value=layout.heroEyebrow;$('#heroTitle').value=layout.heroTitle;$('#heroSubtitle').value=layout.heroSubtitle;$('#aboutTitle').value=layout.aboutTitle;$('#featureColumns').value=String(layout.featureColumns);$('#heroInterval').value=String(Math.round(hero.interval/1000));renderHeroSlides();setupDrag()}
-function renderHeroSlides(){const box=$('#heroSlidesAdmin');if(!box)return;box.innerHTML=hero.slides.map((slide,i)=>`<div class="hero-slide-admin" draggable="true" data-hero-index="${i}"><span class="drag">☰</span><div class="hero-slide-fields"><label>圖片<input data-hero-field="image" value="${esc(slide.image||'')}" placeholder="assets/ad3.png 或圖片網址"></label><label>瀏覽檔案<input data-hero-file="${i}" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><small class="field-note">選擇圖片後會先預覽，按「儲存版面」才會正式上傳。</small></label><label>標題<input data-hero-field="title" value="${esc(slide.title||'')}" placeholder="例如：生日活動"></label><label>點擊連結<input data-hero-field="link" value="${esc(slide.link||'')}" placeholder="可留空"></label></div><div class="hero-slide-preview">${(slide._pendingDataUrl||slide.image)?`<img src="${esc(slide._pendingDataUrl||slide.image)}" alt="">`:'<span>尚未選擇圖片</span>'}</div><label class="hero-enabled"><input type="checkbox" data-hero-field="enabled" ${slide.enabled!==false?'checked':''}> 顯示</label><button class="danger" type="button" onclick="removeHeroSlide(${i})">刪除</button></div>`).join('')||'<div class="note">目前沒有輪播圖片。</div>';box.querySelectorAll('.hero-slide-admin').forEach(row=>{row.addEventListener('dragstart',()=>{row.classList.add('dragging');hero._dragFrom=Number(row.dataset.heroIndex)});row.addEventListener('dragend',()=>row.classList.remove('dragging'));row.addEventListener('dragover',e=>e.preventDefault());row.addEventListener('drop',e=>{e.preventDefault();const from=hero._dragFrom,to=Number(row.dataset.heroIndex);if(Number.isInteger(from)&&from!==to){const m=hero.slides.splice(from,1)[0];hero.slides.splice(to,1);hero.slides.splice(to,0,m);renderHeroSlides()}})});box.querySelectorAll('[data-hero-file]').forEach(input=>{input.addEventListener('change',async e=>{const i=Number(input.dataset.heroFile),file=input.files?.[0],slide=hero.slides[i];if(!file||!slide)return;try{slide._pendingDataUrl=await fileToCompressedDataURL(file);slide._pendingName=file.name;slide.image='';renderHeroSlides()}catch{alert('圖片讀取失敗，請重新選擇。');input.value='';}})})}
+function renderHeroSlides(){const box=$('#heroSlidesAdmin');if(!box)return;box.innerHTML=hero.slides.map((slide,i)=>`<div class="hero-slide-admin" draggable="true" data-hero-index="${i}"><span class="drag">☰</span><div class="hero-slide-fields"><label>圖片<input data-hero-field="image" value="${esc(slide.image)}" placeholder="assets/ad3.png 或圖片網址"></label><label>標題<input data-hero-field="title" value="${esc(slide.title)}" placeholder="例如：生日活動"></label><label>點擊連結<input data-hero-field="link" value="${esc(slide.link)}" placeholder="可留空"></label></div><label class="hero-enabled"><input type="checkbox" data-hero-field="enabled" ${slide.enabled!==false?'checked':''}> 顯示</label><button class="danger" type="button" onclick="removeHeroSlide(${i})">刪除</button></div>`).join('')||'<div class="note">目前沒有輪播圖片。</div>';box.querySelectorAll('.hero-slide-admin').forEach(row=>{row.addEventListener('dragstart',()=>{row.classList.add('dragging');hero._dragFrom=Number(row.dataset.heroIndex)});row.addEventListener('dragend',()=>row.classList.remove('dragging'));row.addEventListener('dragover',e=>e.preventDefault());row.addEventListener('drop',e=>{e.preventDefault();const from=hero._dragFrom,to=Number(row.dataset.heroIndex);if(Number.isInteger(from)&&from!==to){const m=hero.slides.splice(from,1)[0];hero.slides.splice(to,0,m);renderHeroSlides()}})})}
 window.removeHeroSlide=i=>{hero.slides.splice(i,1);renderHeroSlides()};$('#addHeroSlide').onclick=()=>{hero.slides.push({image:'',title:'新的輪播圖片',link:'',enabled:true});renderHeroSlides()};
 window.toggleSection=i=>{layout.sections[i].visible=!layout.sections[i].visible;renderLayout()};
 function setupDrag(){let from=null;document.querySelectorAll('.layout-row').forEach(r=>{r.addEventListener('dragstart',()=>{from=+r.dataset.index;r.classList.add('dragging')});r.addEventListener('dragend',()=>r.classList.remove('dragging'));r.addEventListener('dragover',e=>e.preventDefault());r.addEventListener('drop',e=>{e.preventDefault();const to=+r.dataset.index;if(from===null||from===to)return;const m=layout.sections.splice(from,1)[0];layout.sections.splice(to,0,m);renderLayout()})})}
-$('#saveLayout').onclick=async()=>{
-  layout.heroEyebrow=$('#heroEyebrow').value.trim()||defaultLayout.heroEyebrow;
-  layout.heroTitle=$('#heroTitle').value.trim()||defaultLayout.heroTitle;
-  layout.heroSubtitle=$('#heroSubtitle').value.trim()||defaultLayout.heroSubtitle;
-  layout.aboutTitle=$('#aboutTitle').value.trim()||defaultLayout.aboutTitle;
-  layout.featureColumns=+$('#featureColumns').value||3;
-  document.querySelectorAll('[data-hero-index]').forEach(row=>{
-    const i=Number(row.dataset.heroIndex),slide=hero.slides[i];
-    if(!slide)return;
-    row.querySelectorAll('[data-hero-field]').forEach(el=>{
-      const f=el.dataset.heroField;
-      slide[f]=f==='enabled'?el.checked:el.value.trim();
-    });
-  });
-  const saveBtn=$('#saveLayout');
-  const oldText=saveBtn?.textContent||'';
-  try{
-    if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='圖片上傳中…';}
-    for(let i=0;i<hero.slides.length;i++){
-      const slide=hero.slides[i];
-      if(!slide?._pendingDataUrl)continue;
-      slide.image=await uploadImageDataURL(slide._pendingDataUrl,slide._pendingName||`hero-${i+1}`);
-      delete slide._pendingDataUrl;
-      delete slide._pendingName;
-    }
-    hero.slides=hero.slides.filter(x=>x.image);
-    hero.images=hero.slides.filter(x=>x.enabled!==false).map(x=>x.image);
-    hero.interval=Math.max(2000,(Number($('#heroInterval').value)||5)*1000);
-    save('duoduo_layout',layout);
-    save('duoduo_hero',hero);
-    renderHeroSlides();
-    alert('首頁版面與主視覺輪播已儲存。');
-  }catch(error){
-    console.error(error);
-    alert(error.message==='登入已失效'?'登入已失效，請重新登入後再試一次。':'圖片上傳失敗，請確認登入狀態與圖片後再試一次。');
-  }finally{
-    if(saveBtn){saveBtn.disabled=false;saveBtn.textContent=oldText||'儲存首頁版面';}
-  }
-};
+$('#saveLayout').onclick=()=>{layout.heroEyebrow=$('#heroEyebrow').value.trim()||defaultLayout.heroEyebrow;layout.heroTitle=$('#heroTitle').value.trim()||defaultLayout.heroTitle;layout.heroSubtitle=$('#heroSubtitle').value.trim()||defaultLayout.heroSubtitle;layout.aboutTitle=$('#aboutTitle').value.trim()||defaultLayout.aboutTitle;layout.featureColumns=+$('#featureColumns').value||3;document.querySelectorAll('[data-hero-index]').forEach(row=>{const i=Number(row.dataset.heroIndex),slide=hero.slides[i];if(!slide)return;row.querySelectorAll('[data-hero-field]').forEach(el=>{const f=el.dataset.heroField;slide[f]=f==='enabled'?el.checked:el.value.trim()})});hero.slides=hero.slides.filter(x=>x.image);hero.images=hero.slides.filter(x=>x.enabled!==false).map(x=>x.image);hero.interval=Math.max(2000,(Number($('#heroInterval').value)||5)*1000);save('duoduo_layout',layout);save('duoduo_hero',hero);alert('首頁版面與主視覺輪播已儲存。')};
 $('#resetLayout').onclick=()=>{if(confirm('恢復預設首頁版面？')){layout=structuredClone(defaultLayout);save('duoduo_layout',layout);renderLayout()}};
 $('#addReview').onclick=()=>{const text=$('#reviewText').value.trim();if(!text)return alert('請先貼上玩家心得內容');const data={rating:Number($('#reviewRating').value)||5,author:$('#reviewAuthor').value.trim()||'玩家心得',text,featured:$('#reviewFeatured')?.checked===true};const isEdit=!!editingReviewId;if(isEdit){const target=reviews.find(r=>r.id===editingReviewId);if(target)Object.assign(target,data);editingReviewId=null;$('#addReview').textContent='＋ 新增玩家心得'}else{reviews.push({id:'r_'+Date.now(),...data,createdAt:Date.now(),order:reviews.length})}save('duoduo_reviews',reviews);$('#reviewAuthor').value='';$('#reviewText').value='';$('#reviewRating').value='5';if($('#reviewFeatured'))$('#reviewFeatured').checked=false;render();alert(isEdit?'玩家心得已更新。':'玩家心得已新增。')};
 window.editReview=id=>{const r=reviews.find(x=>x.id===id);if(!r)return;editingReviewId=id;$('#reviewAuthor').value=r.author||'';$('#reviewRating').value=String(r.rating||5);$('#reviewText').value=r.text||'';if($('#reviewFeatured'))$('#reviewFeatured').checked=r.featured===true;$('#addReview').textContent='儲存玩家心得修改';document.querySelector('[data-panel="reviews"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};
@@ -293,9 +267,11 @@ async function fileToCompressedDataURL(file,maxW=1800,maxH=1200,quality=.86){ret
 
 const token=sessionStorage.getItem('duoduo_admin_session')||'';
 const res=await fetch(`${API_BASE}/api/upload-image`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({dataUrl,filename:originalName||'event-image'})});
-  if(!res.ok) throw new Error('upload_failed');
-  const data=await res.json();
-  if(!data.ok||!data.path) throw new Error('upload_failed');
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok||!data.ok||!data.path){
+    const detail=String(data.detail||data.error||'upload_failed');
+    throw new Error(detail);
+  }
   return data.path;
 }
 async function syncEventsToServer(){
@@ -388,7 +364,7 @@ $('#saveEvent').onclick=async()=>{
 
   }catch(error){
     console.error(error);
-    return alert('圖片上傳失敗，請確認圖片後再試一次。');
+    return alert(`圖片上傳失敗：${error?.message||'請確認圖片後再試一次。'}`);
   }
 
   const data={
