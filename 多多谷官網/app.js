@@ -186,14 +186,10 @@ async function loadCloudEvents(){
       ? data.events.map(row=>row?.data||row).filter(e=>e&&e.published!==false)
       : [];
 
-    if(cloudEvents.length){
-      events=sortEventsByStart(cloudEvents);
-      try{
-        localStorage.setItem("duoduo_events",JSON.stringify(events));
-      }catch{}
-
-      renderPublicEvents();
-    }
+    // 雲端檔期活動是前台唯一來源；空陣列也代表「目前沒有活動」。
+    // 不再把前台讀到的活動寫回 localStorage，避免前台舊資料反向污染後台。
+    events=sortEventsByStart(cloudEvents);
+    renderPublicEvents();
   }catch(error){
     console.warn("雲端活動讀取失敗，使用本機活動資料。",error);
   }
