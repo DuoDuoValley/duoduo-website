@@ -39,7 +39,13 @@ const pageDefaultNews=[
   {tag:'更新說明',title:'遊戲內容與系統資訊請留意官方公告',date:'2026/10/04',body:'後續將持續補充更多遊戲系統與版本資訊。'}
 ];
 const pageList=document.getElementById('news-page'), pageDetail=document.getElementById('news-detail');
+const pagePagination=document.createElement('div');
+pagePagination.className='news-pagination';
+pageList.insertAdjacentElement('afterend',pagePagination);
 const pageButtons=[...document.querySelectorAll('.news-filter-btn')];
+const NEWS_PER_PAGE=10;
+let currentCategory='全部';
+let currentPage=1;
 const pageEsc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const pageTagShort=t=>({'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'}[t]||t);
 const pageTagClass=t=>({'重要消息':'category-important','維護通知':'category-maintenance','更新說明':'category-update','活動資訊':'category-event','序號發放':'category-code','處分名單':'category-punishment'}[String(t||'')]||'category-default');
@@ -58,15 +64,27 @@ function pageDateValue(n){
   return Number.isFinite(t)?t:Number.MIN_SAFE_INTEGER;
 }
 const pageNewsData=pageLoadNews().map((item,index)=>({item,index})).sort((a,b)=>{const dt=pageDateValue(b.item)-pageDateValue(a.item);if(dt)return dt;const cb=Number(b.item?.createdAt)||0,ca=Number(a.item?.createdAt)||0;if(cb!==ca)return cb-ca;return a.index-b.index;}).map(x=>x.item);
-function pageRenderList(category='全部'){
+function pageRenderList(category='全部',requestedPage=1){
   pageDetail.hidden=true; pageList.hidden=false;
+  currentCategory=category;
   pageButtons.forEach(b=>b.classList.toggle('active',b.dataset.category===category));
   const filtered=pageNewsData.map((n,i)=>({n,i})).filter(x=>category==='全部'||String(x.n.tag||'')===category).sort((a,b)=>{const dt=pageDateValue(b.n)-pageDateValue(a.n);if(dt)return dt;const cb=Number(b.n?.createdAt)||0,ca=Number(a.n?.createdAt)||0;if(cb!==ca)return cb-ca;return a.i-b.i;});
-  if(!filtered.length){pageList.innerHTML='<div class="news-empty">目前沒有這個分類的公告。</div>';return;}
-  pageList.innerHTML=filtered.map(({n,i})=>`<button class="news-title-row" data-index="${i}" type="button"><span class="tag ${pageTagClass(n.tag)}">${pageEsc(pageTagShort(n.tag||'未分類'))}</span><span class="news-title-text">${pageEsc(n.title||'未命名公告')}</span><time>${pageEsc(n.date||'')}</time><span class="news-arrow">→</span></button>`).join('');
+  const totalPages=Math.max(1,Math.ceil(filtered.length/NEWS_PER_PAGE));
+  currentPage=Math.min(Math.max(1,Number(requestedPage)||1),totalPages);
+  if(!filtered.length){pageList.innerHTML='<div class="news-empty">目前沒有這個分類的公告。</div>';pagePagination.innerHTML='';return;}
+  const start=(currentPage-1)*NEWS_PER_PAGE;
+  const visible=filtered.slice(start,start+NEWS_PER_PAGE);
+  pageList.innerHTML=visible.map(({n,i})=>`<button class="news-title-row" data-index="${i}" type="button"><span class="tag ${pageTagClass(n.tag)}">${pageEsc(pageTagShort(n.tag||'未分類'))}</span><span class="news-title-text">${pageEsc(n.title||'未命名公告')}</span><time>${pageEsc(n.date||'')}</time><span class="news-arrow">→</span></button>`).join('');
+  if(totalPages<=1){pagePagination.innerHTML='';return;}
+  const buttons=[];
+  buttons.push(`<button type="button" class="news-page-btn" data-page="${currentPage-1}" ${currentPage===1?'disabled':''}>上一頁</button>`);
+  for(let p=1;p<=totalPages;p++) buttons.push(`<button type="button" class="news-page-btn${p===currentPage?' active':''}" data-page="${p}">${p}</button>`);
+  buttons.push(`<button type="button" class="news-page-btn" data-page="${currentPage+1}" ${currentPage===totalPages?'disabled':''}>下一頁</button>`);
+  pagePagination.innerHTML=buttons.join('');
+  pagePagination.querySelectorAll('.news-page-btn').forEach(btn=>btn.addEventListener('click',()=>{if(btn.disabled)return;pageRenderList(currentCategory,Number(btn.dataset.page));window.scrollTo({top:document.querySelector('.news-wrap')?.offsetTop||0,behavior:'smooth'});}));
 }
-function pageShowDetail(index){const n=pageNewsData[index];if(!n)return;pageList.hidden=true;pageDetail.hidden=false;pageDetail.innerHTML=`<button class="news-back" type="button">← 返回公告列表</button><article class="news-detail-card"><span class="tag ${pageTagClass(n.tag)}">${pageEsc(pageTagShort(n.tag||'未分類'))}</span><h2>${pageEsc(n.title||'未命名公告')}</h2><div class="meta">${pageEsc(n.date||'')}</div><div class="news-body">${pageEsc(n.body||'').replace(/\n/g,'<br>')}</div></article>`;pageDetail.querySelector('.news-back').addEventListener('click',()=>{history.pushState({},'',location.pathname);pageRenderList(document.querySelector('.news-filter-btn.active')?.dataset.category||'全部');});history.pushState({},'',`${location.pathname}?id=${index}`);}
-pageButtons.forEach(b=>b.addEventListener('click',()=>pageRenderList(b.dataset.category)));
+function pageShowDetail(index){const n=pageNewsData[index];if(!n)return;pageList.hidden=true;pagePagination.innerHTML='';pageDetail.hidden=false;pageDetail.innerHTML=`<button class="news-back" type="button">← 返回公告列表</button><article class="news-detail-card"><span class="tag ${pageTagClass(n.tag)}">${pageEsc(pageTagShort(n.tag||'未分類'))}</span><h2>${pageEsc(n.title||'未命名公告')}</h2><div class="meta">${pageEsc(n.date||'')}</div><div class="news-body">${pageEsc(n.body||'').replace(/\n/g,'<br>')}</div></article>`;pageDetail.querySelector('.news-back').addEventListener('click',()=>{history.pushState({},'',location.pathname);pageRenderList(currentCategory,currentPage);});history.pushState({},'',`${location.pathname}?id=${index}`);}
+pageButtons.forEach(b=>b.addEventListener('click',()=>pageRenderList(b.dataset.category,1)));
 pageList.addEventListener('click',e=>{const row=e.target.closest('.news-title-row');if(row)pageShowDetail(Number(row.dataset.index));});
 function pageOpenFromUrl(){const params=new URLSearchParams(location.search);let id=params.get('id');if(id===null&&location.hash.startsWith('#n-'))id=location.hash.slice(3);if(id!==null&&pageNewsData[Number(id)])pageShowDetail(Number(id));else pageRenderList('全部');}
 window.addEventListener('popstate',pageOpenFromUrl);pageOpenFromUrl();
@@ -84,6 +102,10 @@ window.addEventListener('popstate',pageOpenFromUrl);pageOpenFromUrl();
 .news-title-row time{font-size:13px;color:var(--muted2);white-space:nowrap}
 .news-arrow{font-size:20px;color:#66d8ff}
 .news-empty{padding:40px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px}
+.news-pagination{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:22px;flex-wrap:wrap}
+.news-page-btn{min-width:40px;height:40px;padding:0 14px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:10px;cursor:pointer;font:inherit;transition:.2s}
+.news-page-btn:hover:not(:disabled),.news-page-btn.active{color:#fff;border-color:#4ecbff;background:#123047}
+.news-page-btn:disabled{opacity:.4;cursor:not-allowed}
 .news-detail{max-width:900px;margin:0 auto}
 .news-detail-card{margin-top:16px;padding:34px;background:var(--panel);border:1px solid var(--line);border-radius:18px}
 .news-detail-card h2{font-size:clamp(28px,4vw,42px);margin:12px 0 8px}
