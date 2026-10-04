@@ -176,8 +176,8 @@ if(reviewGrid){
       .review-card p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;overflow:hidden;}
       .review-read-more{position:absolute;left:22px;right:22px;bottom:14px;font-size:12px;color:var(--gold,#eab44d);opacity:.9;}
       .review-card p{margin-bottom:30px;}
-      .review-card.featured-review{height:190px;min-height:190px;} .review-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(3,10,18,.72);backdrop-filter:blur(5px);}
-      .review-modal[hidden]{display:none;}
+      .review-card.featured-review{height:190px;min-height:190px;} .review-modal{position:fixed;inset:0;z-index:9999;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:24px;box-sizing:border-box;border:0;background:rgba(3,10,18,.72);align-items:center;justify-content:center;}
+      
       .review-modal-box{width:min(680px,calc(100vw - 40px));max-height:min(80vh,620px);overflow:auto;box-sizing:border-box;padding:28px;border:1px solid var(--line,#294057);border-radius:20px;background:var(--panel,#0d1827);box-shadow:0 24px 70px rgba(0,0,0,.4);position:relative;}
       .review-modal-close{position:absolute;top:14px;right:16px;width:34px;height:34px;border:1px solid var(--line,#294057);border-radius:50%;background:transparent;color:var(--text,#fff);font-size:22px;line-height:1;cursor:pointer;}
       .review-modal-stars{color:var(--gold,#eab44d);letter-spacing:2px;font-size:18px;margin-bottom:14px;}
@@ -188,21 +188,20 @@ if(reviewGrid){
     document.head.appendChild(style);
   }
 
+  // 玩家心得彈窗：使用原生 <dialog> top-layer，絕不進入頁面正常排版流。
   let reviewModal=document.getElementById("reviewModal");
   if(!reviewModal){
-    reviewModal=document.createElement("div");
+    reviewModal=document.createElement("dialog");
     reviewModal.id="reviewModal";
     reviewModal.className="review-modal";
-    reviewModal.hidden=true;
-    reviewModal.innerHTML=`<div class="review-modal-box" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle"><button type="button" class="review-modal-close" aria-label="關閉">×</button><div id="reviewModalTitle" class="review-modal-stars"></div><p class="review-modal-text"></p><div class="review-modal-author"></div></div>`;
+    reviewModal.innerHTML=`<div class="review-modal-box" role="document"><button type="button" class="review-modal-close" aria-label="關閉">×</button><div class="review-modal-stars"></div><p class="review-modal-text"></p><div class="review-modal-author"></div></div>`;
     document.body.appendChild(reviewModal);
   }
 
-  // Use inline positioning as a hard fallback so the full review can never become
-  // a normal-flow element and force the page to jump to the bottom.
   Object.assign(reviewModal.style,{
-    position:"fixed",inset:"0",zIndex:"99999",display:"none",alignItems:"center",justifyContent:"center",
-    padding:"24px",boxSizing:"border-box",background:"rgba(3,10,18,.72)",backdropFilter:"blur(5px)",WebkitBackdropFilter:"blur(5px)"
+    position:"fixed",inset:"0",zIndex:"99999",width:"100vw",height:"100vh",maxWidth:"none",maxHeight:"none",
+    margin:"0",padding:"24px",boxSizing:"border-box",border:"0",background:"rgba(3,10,18,.72)",
+    alignItems:"center",justifyContent:"center"
   });
   const reviewModalBox=reviewModal.querySelector(".review-modal-box");
   if(reviewModalBox){
@@ -217,7 +216,13 @@ if(reviewGrid){
     Object.assign(reviewClose.style,{position:"absolute",top:"14px",right:"16px",width:"34px",height:"34px",border:"1px solid var(--line,#294057)",borderRadius:"50%",background:"transparent",color:"var(--text,#fff)",fontSize:"22px",lineHeight:"1",cursor:"pointer"});
   }
 
-  let reviewScrollY=0;
+  if(!reviewModal.dataset.ready){
+    reviewModal.dataset.ready="1";
+    const style=document.createElement("style");
+    style.textContent=`#reviewModal{overflow:hidden;} #reviewModal::backdrop{background:rgba(3,10,18,.72);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);} #reviewModal .review-modal-box{margin:auto;}`;
+    document.head.appendChild(style);
+  }
+
   const openReview=(index)=>{
     const r=orderedReviews[index];
     if(!r)return;
@@ -225,19 +230,16 @@ if(reviewGrid){
     reviewModal.querySelector(".review-modal-stars").textContent="★".repeat(rating)+"☆".repeat(5-rating);
     reviewModal.querySelector(".review-modal-text").textContent=`「${r.text||""}」`;
     reviewModal.querySelector(".review-modal-author").textContent=`— ${r.author||"玩家心得"}`;
-    reviewScrollY=window.scrollY||window.pageYOffset||0;
-    reviewModal.hidden=false;
-    reviewModal.style.display="flex";
-    document.body.style.overflow="hidden";
-    if(reviewClose){
-      try{reviewClose.focus({preventScroll:true});}catch(_){reviewClose.focus();window.scrollTo(0,reviewScrollY);}
+    if(typeof reviewModal.showModal==="function"){
+      if(!reviewModal.open)reviewModal.showModal();
+    }else{
+      reviewModal.setAttribute("open","");
+      reviewModal.style.display="flex";
     }
   };
   const closeReview=()=>{
-    reviewModal.hidden=true;
-    reviewModal.style.display="none";
-    document.body.style.overflow="";
-    window.scrollTo(0,reviewScrollY);
+    if(typeof reviewModal.close==="function"&&reviewModal.open)reviewModal.close();
+    else{reviewModal.removeAttribute("open");reviewModal.style.display="none";}
   };
   reviewGrid.querySelectorAll(".review-card").forEach(card=>{
     const open=e=>{if(e){e.preventDefault();e.stopPropagation();}openReview(Number(card.dataset.reviewIndex));};
@@ -245,11 +247,12 @@ if(reviewGrid){
     card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();open();}});
   });
   if(reviewClose)reviewClose.onclick=e=>{e.preventDefault();e.stopPropagation();closeReview();};
-  reviewModal.onclick=e=>{if(e.target===reviewModal)closeReview();};
+  reviewModal.addEventListener("click",e=>{if(e.target===reviewModal)closeReview();});
   if(!reviewModal.dataset.escapeReady){
     reviewModal.dataset.escapeReady="1";
-    document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!reviewModal.hidden)closeReview();});
+    reviewModal.addEventListener("cancel",e=>{e.preventDefault();closeReview();});
   }
+
 }
 const DEFAULT_LAYOUT={sections:[{id:"hero",visible:true},{id:"new-player",visible:true},{id:"why",visible:true},{id:"about",visible:true},{id:"quick-intro",visible:true},{id:"features",visible:true},{id:"events",visible:true},{id:"boss",visible:true},{id:"community",visible:true},{id:"stay",visible:true},{id:"news",visible:true},{id:"versions",visible:true},{id:"start",visible:true},{id:"quick-links",visible:true}],featureColumns:3,heroEyebrow:"DUODUO VALLEY · V282",heroTitle:"同樣都是楓之谷，為什麼是多多谷？",heroSubtitle:"不是只換一個版本、調一組倍率。\n我們更在意：你上線之後，有沒有東西玩、有人一起玩，也有沒有值得留下來的理由。",aboutTitle:"一個正在慢慢變熱鬧的小小世界"};
 const siteLayout=getJSONSafe("duoduo_layout",DEFAULT_LAYOUT),main=document.querySelector("main");
