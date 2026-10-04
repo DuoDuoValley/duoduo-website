@@ -133,7 +133,7 @@ function toggleTheme(){const next=document.documentElement.dataset.theme==="ligh
 document.getElementById("themeToggle")?.addEventListener("click",toggleTheme);updateThemeButton();
 
 const defaultNews=[{tag:"重要消息",title:"DuoDuo Valley 官方網站持續完善中",date:"2026/10/04",body:"多多谷官方網站正在持續整理遊戲資訊、活動與玩家資源。"},{tag:"活動資訊",title:"多多谷最新活動與福利，持續更新中",date:"2026/10/04",body:"活動檔期與福利資訊請以官方公告為準。"},{tag:"更新說明",title:"遊戲內容與系統資訊請留意官方公告",date:"2026/10/04",body:"系統、玩法與內容更新會陸續整理至官網。"},{tag:"序號發放",title:"最新序號與福利請留意官方公告",date:"2026/10/04",body:"官方發放的序號與福利資訊會集中整理。"}];
-const defaultEvents=[{id:"e1",name:"多多谷活動",image:"assets/ad3.png",desc:"持續更新的活動與玩法，詳細內容請依官方公告為準。",start:"2026-10-01T00:00",end:"2026-10-31T23:59",url:"",published:true},{id:"e2",name:"福利活動",image:"assets/birthday.png",desc:"多多谷福利與社群活動資訊。",start:"2026-10-01T00:00",end:"2026-10-31T23:59",url:"",published:true}];
+const defaultEvents=[];
 const defaultBossConfig={interval:5000,slides:[{image:"assets/boss.png",title:"燦爛的凶星",link:"",enabled:true}]};
 const defaultReviews=[
   {id:"r1",rating:5,author:"玩家心得",text:"很多東西不用一直重複操作，玩起來比較舒服。"},
