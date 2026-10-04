@@ -45,15 +45,30 @@ function safeName(name){
 async function ensureSupabaseBucket(supabaseUrl,supabaseSecretKey){
   const headers={
     'apikey':supabaseSecretKey,
-    'Authorization':`Bearer ${supabaseSecretKey}`,
-    'Content-Type':'application/json'
+    'Authorization':`Bearer ${supabaseSecretKey}`
   };
+
+  // 先確認 Bucket 是否已存在。已存在時不要每次上傳都重複建立。
+  const checkResponse=await fetch(
+    `${supabaseUrl}/storage/v1/bucket/${encodeURIComponent(SUPABASE_BUCKET)}`,
+    {method:'GET',headers}
+  );
+
+  if(checkResponse.ok){
+    return true;
+  }
+
+  const checkText=await checkResponse.text();
+  if(checkResponse.status!==404 && !/not found|does not exist/i.test(checkText)){
+    console.error('Supabase Storage Bucket 檢查失敗:',checkResponse.status,checkText);
+    throw new Error('Supabase Storage Bucket 檢查失敗');
+  }
 
   const createResponse=await fetch(
     `${supabaseUrl}/storage/v1/bucket`,
     {
       method:'POST',
-      headers,
+      headers:{...headers,'Content-Type':'application/json'},
       body:JSON.stringify({
         id:SUPABASE_BUCKET,
         name:SUPABASE_BUCKET,
@@ -69,13 +84,11 @@ async function ensureSupabaseBucket(supabaseUrl,supabaseSecretKey){
   }
 
   const errorText=await createResponse.text();
-
-  // 如果 bucket 已經存在但 API 回傳其他「已存在」訊息，也視為可繼續。
   if(/already exists|duplicate|exists/i.test(errorText)){
     return true;
   }
 
-  console.error('Supabase Storage 建立 Bucket 失敗:',errorText);
+  console.error('Supabase Storage 建立 Bucket 失敗:',createResponse.status,errorText);
   throw new Error('Supabase Storage Bucket 建立失敗');
 }
 
@@ -272,12 +285,14 @@ async function handleUpload(req,res){
 
         console.error(
           'Supabase Storage 圖片上傳失敗:',
+          uploadResponse.status,
           errorText
         );
 
         return sendJSON(res,500,{
           ok:false,
-          error:'Supabase Storage 圖片上傳失敗'
+          error:'Supabase Storage 圖片上傳失敗',
+          code:'SUPABASE_UPLOAD_FAILED'
         });
       }
 
@@ -295,7 +310,8 @@ async function handleUpload(req,res){
 
       return sendJSON(res,500,{
         ok:false,
-        error:'圖片上傳失敗'
+        error:err?.message||'圖片上傳失敗',
+        code:'UPLOAD_FAILED'
       });
     }
   });
