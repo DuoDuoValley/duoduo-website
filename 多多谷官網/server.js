@@ -1,6 +1,7 @@
 const http=require('http'),fs=require('fs'),path=require('path');
 
 const root=__dirname,port=3000;
+const SUPABASE_BUCKET='event-images';
 
 const types={
   '.html':'text/html; charset=utf-8',
@@ -36,11 +37,44 @@ function safeName(name){
     .slice(0,80);
 }
 
-/* =========================
-   圖片上傳
-========================= */
+async function ensureSupabaseBucket(supabaseUrl,supabaseSecretKey){
+  const headers={
+    'apikey':supabaseSecretKey,
+    'Authorization':`Bearer ${supabaseSecretKey}`,
+    'Content-Type':'application/json'
+  };
 
-function handleUpload(req,res){
+  const createResponse=await fetch(
+    `${supabaseUrl}/storage/v1/bucket`,
+    {
+      method:'POST',
+      headers,
+      body:JSON.stringify({
+        id:SUPABASE_BUCKET,
+        name:SUPABASE_BUCKET,
+        public:true,
+        allowed_mime_types:['image/*'],
+        file_size_limit:10*1024*1024
+      })
+    }
+  );
+
+  if(createResponse.ok||createResponse.status===409){
+    return true;
+  }
+
+  const errorText=await createResponse.text();
+
+  // 如果 bucket 已經存在但 API 回傳其他「已存在」訊息，也視為可繼續。
+  if(/already exists|duplicate|exists/i.test(errorText)){
+    return true;
+  }
+
+  console.error('Supabase Storage 建立 Bucket 失敗:',errorText);
+  throw new Error('Supabase Storage Bucket 建立失敗');
+}
+
+async function handleUpload(req,res){
   let body='';
 
   req.on('data',chunk=>{
@@ -53,8 +87,18 @@ function handleUpload(req,res){
     }
   });
 
-  req.on('end',()=>{
+  req.on('end',async()=>{
     try{
+      const supabaseUrl=process.env.SUPABASE_URL;
+      const supabaseSecretKey=process.env.SUPABASE_SECRET_KEY;
+
+      if(!supabaseUrl||!supabaseSecretKey){
+        return sendJSON(res,500,{
+          ok:false,
+          error:'Supabase 環境變數尚未設定'
+        });
+      }
+
       const data=JSON.parse(body);
 
       const match=String(data.dataUrl||'')
@@ -67,45 +111,70 @@ function handleUpload(req,res){
         });
       }
 
-      const ext=
-        match[1]==='jpeg'||match[1]==='jpg'
-          ? 'jpg'
-          : match[1];
+      await ensureSupabaseBucket(
+        supabaseUrl,
+        supabaseSecretKey
+      );
 
       const base=safeName(
         data.filename||`event_${Date.now()}`
       );
 
+      // 前端目前會將圖片壓成 WebP，因此統一以 WebP 儲存。
       const filename=
-        `${Date.now()}_${Math.random().toString(36).slice(2,8)}_`+
-        `${base.replace(/\.[^.]+$/,'')}.${ext}`;
+        `${Date.now()}_${Math.random().toString(36).slice(2,10)}_`+
+        `${base.replace(/\.[^.]+$/,'')}.webp`;
 
-      const file=path.join(uploadDir,filename);
+      const storagePath=`events/${filename}`;
 
-      fs.writeFileSync(
-        file,
-        Buffer.from(match[2],'base64')
+      const uploadResponse=await fetch(
+        `${supabaseUrl}/storage/v1/object/${SUPABASE_BUCKET}/${encodeURIComponent(storagePath).replace(/%2F/g,'/')}`,
+        {
+          method:'POST',
+          headers:{
+            'apikey':supabaseSecretKey,
+            'Authorization':`Bearer ${supabaseSecretKey}`,
+            'Content-Type':'image/webp',
+            'x-upsert':'false',
+            'Cache-Control':'31536000'
+          },
+          body:Buffer.from(match[2],'base64')
+        }
       );
 
-      sendJSON(res,200,{
+      if(!uploadResponse.ok){
+        const errorText=await uploadResponse.text();
+
+        console.error(
+          'Supabase Storage 圖片上傳失敗:',
+          errorText
+        );
+
+        return sendJSON(res,500,{
+          ok:false,
+          error:'Supabase Storage 圖片上傳失敗'
+        });
+      }
+
+      const publicUrl=
+        `${supabaseUrl}/storage/v1/object/public/`+
+        `${SUPABASE_BUCKET}/${storagePath}`;
+
+      return sendJSON(res,200,{
         ok:true,
-        path:`https://duoduo-website.onrender.com/assets/uploads/${filename}`
+        path:publicUrl
       });
 
     }catch(err){
       console.error('圖片上傳失敗:',err);
 
-      sendJSON(res,500,{
+      return sendJSON(res,500,{
         ok:false,
         error:'圖片上傳失敗'
       });
     }
   });
 }
-
-/* =========================
-   Supabase：讀取活動
-========================= */
 
 async function handleGetEvents(req,res){
   try{
@@ -160,10 +229,6 @@ async function handleGetEvents(req,res){
     });
   }
 }
-
-/* =========================
-   Supabase：儲存活動
-========================= */
 
 async function handleSaveEvents(req,res){
   try{
@@ -220,7 +285,6 @@ async function handleSaveEvents(req,res){
           'Prefer':'resolution=merge-duplicates,return=minimal'
         };
 
-        /* 取得目前資料庫活動 */
         const getUrl=
           `${supabaseUrl}/rest/v1/events?select=id`;
 
@@ -249,7 +313,6 @@ async function handleSaveEvents(req,res){
           events.map(e=>String(e.id))
         );
 
-        /* 刪除 Supabase 裡已不存在的活動 */
         for(const row of existingRows){
           if(!newIds.has(String(row.id))){
             const deleteUrl=
@@ -276,7 +339,6 @@ async function handleSaveEvents(req,res){
           }
         }
 
-        /* 新增／更新活動 */
         if(events.length){
           const rows=events.map(event=>({
             id:String(event.id),
@@ -333,10 +395,6 @@ async function handleSaveEvents(req,res){
   }
 }
 
-/* =========================
-   HTTP Server
-========================= */
-
 const server=http.createServer((req,res)=>{
 
   res.setHeader(
@@ -361,7 +419,6 @@ const server=http.createServer((req,res)=>{
 
   const requestPath=(req.url||'').split('?')[0];
 
-  /* Supabase 活動 API：讀取 */
   if(
     req.method==='GET' &&
     requestPath==='/api/events'
@@ -369,7 +426,6 @@ const server=http.createServer((req,res)=>{
     return handleGetEvents(req,res);
   }
 
-  /* Supabase 活動 API：儲存 */
   if(
     req.method==='POST' &&
     requestPath==='/api/events'
@@ -377,7 +433,6 @@ const server=http.createServer((req,res)=>{
     return handleSaveEvents(req,res);
   }
 
-  /* 圖片上傳 API */
   if(
     req.method==='POST' &&
     requestPath==='/api/upload-image'
@@ -385,7 +440,6 @@ const server=http.createServer((req,res)=>{
     return handleUpload(req,res);
   }
 
-  /* 靜態網站 */
   let urlPath=decodeURIComponent(requestPath);
 
   if(urlPath==='/'){
