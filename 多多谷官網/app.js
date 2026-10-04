@@ -159,52 +159,33 @@ const bossHome=document.getElementById("boss-home-image");if(bossHome&&bosses[0]
 const reviewGrid=document.getElementById("review-grid");
 if(reviewGrid){
   const orderedReviews=[...reviews].sort((a,b)=>{if(Boolean(b.featured)!==Boolean(a.featured))return b.featured?1:-1;return (Number(a.order)||0)-(Number(b.order)||0) || (Number(b.createdAt)||0)-(Number(a.createdAt)||0);});
-  // 首頁只固定展示少量心得，避免評論越多把整個社群區塊撐高。
-  const visibleReviews=orderedReviews.slice(0,4);
-  reviewGrid.innerHTML=visibleReviews.map((r,i)=>{
+  reviewGrid.innerHTML=orderedReviews.map((r,i)=>{
     const rating=Math.max(1,Math.min(5,Number(r.rating)||5));
     const stars="★".repeat(rating)+"☆".repeat(5-rating);
-    return `<article class="review-card${i===0&&visibleReviews.length>2?" featured-review":""}" tabindex="0" role="button" data-review-index="${i}" aria-label="查看完整玩家心得"><div class="review-stars" aria-label="${rating} 顆星">${stars}</div><p>「${esc(r.text||"")}」</p><small>— ${esc(r.author||"玩家心得")}</small><span class="review-read-more">點擊查看完整心得 →</span></article>`;
+    return `<article class="review-card${i===0&&orderedReviews.length>2?" featured-review":""}" tabindex="0" role="button" data-review-index="${i}" aria-label="查看完整玩家心得"><div class="review-stars" aria-label="${rating} 顆星">${stars}</div><p>「${esc(r.text||"")}」</p><small>— ${esc(r.author||"玩家心得")}</small><span class="review-read-more">點擊查看完整心得 →</span></article>`;
   }).join("")||`<div class="empty">目前還沒有玩家心得。</div>`;
 
-  // 玩家心得固定在自己的內容高度，不允許評論數量把左側內容一起拉長。
+  // 玩家心得：固定卡片高度，長文以摘要呈現，點擊後用彈窗查看完整內容。
   if(!document.getElementById("reviewExpandStyles")){
     const style=document.createElement("style");
     style.id="reviewExpandStyles";
     style.textContent=`
-      .community-grid{align-items:start;}
-      .community-copy{align-self:start;height:max-content;min-height:0;}
-      .reviews{align-content:start;align-self:start;min-height:0;}
-      .review-card{height:175px;min-height:175px;box-sizing:border-box;overflow:hidden;position:relative;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;}
+      .community-grid{align-items:start;} .reviews{align-content:start;} .review-card{height:175px;min-height:175px;box-sizing:border-box;overflow:hidden;position:relative;cursor:pointer;transition:transform .18s ease,border-color .18s ease,box-shadow .18s ease;}
       .review-card:hover{transform:translateY(-2px);}
       .review-card:focus-visible{outline:2px solid var(--gold,#eab44d);outline-offset:3px;}
-      .review-card p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:5;overflow:hidden;margin-bottom:30px;}
+      .review-card p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:6;overflow:hidden;}
       .review-read-more{position:absolute;left:22px;right:22px;bottom:14px;font-size:12px;color:var(--gold,#eab44d);opacity:.9;}
-      .review-card.featured-review{height:185px;min-height:185px;}
-      .review-more-wrap{display:flex;justify-content:center;margin-top:4px;}
-      .review-more-btn{appearance:none;border:1px solid var(--line,#294057);border-radius:999px;background:transparent;color:var(--text,#fff);padding:10px 18px;font:inherit;font-size:13px;cursor:pointer;transition:.18s;}
-      .review-more-btn:hover{border-color:var(--gold,#eab44d);color:var(--gold,#eab44d);}
-      .review-all-modal{position:fixed;inset:0;z-index:10000;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(3,10,18,.72);backdrop-filter:blur(5px);}
-      .review-all-modal[hidden]{display:none;}
-      .review-all-box{width:min(820px,calc(100vw - 40px));max-height:min(82vh,720px);overflow:auto;box-sizing:border-box;padding:28px;border:1px solid var(--line,#294057);border-radius:20px;background:var(--panel,#0d1827);box-shadow:0 24px 70px rgba(0,0,0,.4);position:relative;}
-      .review-all-title{margin:0 44px 20px 0;font-size:22px;color:var(--text,#fff);}
-      .review-all-close{position:absolute;top:14px;right:16px;width:34px;height:34px;border:1px solid var(--line,#294057);border-radius:50%;background:transparent;color:var(--text,#fff);font-size:22px;line-height:1;cursor:pointer;}
-      .review-all-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
-      .review-all-item{padding:20px;border:1px solid var(--line,#294057);border-radius:16px;background:var(--soft,#101d2d);}
-      .review-all-item-stars{color:var(--gold,#eab44d);letter-spacing:2px;font-size:16px;margin-bottom:8px;}
-      .review-all-item-text{margin:0 0 12px;color:var(--text,#fff);font-size:14px;line-height:1.8;white-space:pre-wrap;word-break:break-word;}
-      .review-all-item-author{color:var(--muted,#9fb0c5);font-size:12px;}
-      @media(max-width:700px){.review-card{height:165px;min-height:165px}.review-card.featured-review{height:175px;min-height:175px}.review-read-more{left:20px;right:20px}.review-modal,.review-all-modal{padding:16px}.review-modal-box,.review-all-box{padding:24px 20px;border-radius:16px}.review-all-list{grid-template-columns:1fr;}}
+      .review-card p{margin-bottom:30px;}
+      .review-card.featured-review{height:190px;min-height:190px;} .review-modal{position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(3,10,18,.72);backdrop-filter:blur(5px);}
+      .review-modal[hidden]{display:none;}
+      .review-modal-box{width:min(680px,calc(100vw - 40px));max-height:min(80vh,620px);overflow:auto;box-sizing:border-box;padding:28px;border:1px solid var(--line,#294057);border-radius:20px;background:var(--panel,#0d1827);box-shadow:0 24px 70px rgba(0,0,0,.4);position:relative;}
+      .review-modal-close{position:absolute;top:14px;right:16px;width:34px;height:34px;border:1px solid var(--line,#294057);border-radius:50%;background:transparent;color:var(--text,#fff);font-size:22px;line-height:1;cursor:pointer;}
+      .review-modal-stars{color:var(--gold,#eab44d);letter-spacing:2px;font-size:18px;margin-bottom:14px;}
+      .review-modal-text{margin:0 34px 18px 0;color:var(--text,#fff);font-size:15px;line-height:1.9;white-space:pre-wrap;word-break:break-word;}
+      .review-modal-author{color:var(--muted,#9fb0c5);font-size:13px;}
+      @media(max-width:700px){.review-card{height:165px;min-height:165px}.review-card.featured-review{height:180px;min-height:180px}.review-read-more{left:20px;right:20px}.review-modal{padding:16px}.review-modal-box{padding:24px 20px;border-radius:16px;}}
     `;
     document.head.appendChild(style);
-  }
-
-  // 評論超過首頁展示數量時，只在右欄底部增加一個查看更多按鈕；不增加首頁高度。
-  if(orderedReviews.length>visibleReviews.length){
-    const wrap=document.createElement("div");
-    wrap.className="review-more-wrap";
-    wrap.innerHTML=`<button type="button" class="review-more-btn" id="reviewMoreBtn">查看更多評論（共 ${orderedReviews.length} 則）</button>`;
-    reviewGrid.appendChild(wrap);
   }
 
   let reviewModal=document.getElementById("reviewModal");
@@ -216,6 +197,27 @@ if(reviewGrid){
     reviewModal.innerHTML=`<div class="review-modal-box" role="dialog" aria-modal="true" aria-labelledby="reviewModalTitle"><button type="button" class="review-modal-close" aria-label="關閉">×</button><div id="reviewModalTitle" class="review-modal-stars"></div><p class="review-modal-text"></p><div class="review-modal-author"></div></div>`;
     document.body.appendChild(reviewModal);
   }
+
+  // Use inline positioning as a hard fallback so the full review can never become
+  // a normal-flow element and force the page to jump to the bottom.
+  Object.assign(reviewModal.style,{
+    position:"fixed",inset:"0",zIndex:"99999",display:"none",alignItems:"center",justifyContent:"center",
+    padding:"24px",boxSizing:"border-box",background:"rgba(3,10,18,.72)",backdropFilter:"blur(5px)",WebkitBackdropFilter:"blur(5px)"
+  });
+  const reviewModalBox=reviewModal.querySelector(".review-modal-box");
+  if(reviewModalBox){
+    Object.assign(reviewModalBox.style,{
+      position:"relative",width:"min(680px,calc(100vw - 40px))",maxHeight:"min(80vh,620px)",overflow:"auto",
+      boxSizing:"border-box",padding:"28px",border:"1px solid var(--line,#294057)",borderRadius:"20px",
+      background:"var(--panel,#0d1827)",boxShadow:"0 24px 70px rgba(0,0,0,.4)"
+    });
+  }
+  const reviewClose=reviewModal.querySelector(".review-modal-close");
+  if(reviewClose){
+    Object.assign(reviewClose.style,{position:"absolute",top:"14px",right:"16px",width:"34px",height:"34px",border:"1px solid var(--line,#294057)",borderRadius:"50%",background:"transparent",color:"var(--text,#fff)",fontSize:"22px",lineHeight:"1",cursor:"pointer"});
+  }
+
+  let reviewScrollY=0;
   const openReview=(index)=>{
     const r=orderedReviews[index];
     if(!r)return;
@@ -223,51 +225,32 @@ if(reviewGrid){
     reviewModal.querySelector(".review-modal-stars").textContent="★".repeat(rating)+"☆".repeat(5-rating);
     reviewModal.querySelector(".review-modal-text").textContent=`「${r.text||""}」`;
     reviewModal.querySelector(".review-modal-author").textContent=`— ${r.author||"玩家心得"}`;
+    reviewScrollY=window.scrollY||window.pageYOffset||0;
     reviewModal.hidden=false;
+    reviewModal.style.display="flex";
     document.body.style.overflow="hidden";
-    reviewModal.querySelector(".review-modal-close").focus();
+    if(reviewClose){
+      try{reviewClose.focus({preventScroll:true});}catch(_){reviewClose.focus();window.scrollTo(0,reviewScrollY);}
+    }
   };
-  const closeReview=()=>{reviewModal.hidden=true;document.body.style.overflow="";};
+  const closeReview=()=>{
+    reviewModal.hidden=true;
+    reviewModal.style.display="none";
+    document.body.style.overflow="";
+    window.scrollTo(0,reviewScrollY);
+  };
   reviewGrid.querySelectorAll(".review-card").forEach(card=>{
-    const open=()=>openReview(Number(card.dataset.reviewIndex));
+    const open=e=>{if(e){e.preventDefault();e.stopPropagation();}openReview(Number(card.dataset.reviewIndex));};
     card.addEventListener("click",open);
-    card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();open();}});
+    card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();open();}});
   });
-  reviewModal.querySelector(".review-modal-close").onclick=closeReview;
+  if(reviewClose)reviewClose.onclick=e=>{e.preventDefault();e.stopPropagation();closeReview();};
   reviewModal.onclick=e=>{if(e.target===reviewModal)closeReview();};
-
-  // 「查看更多評論」獨立顯示全部心得，不改變首頁左側區塊尺寸。
-  if(orderedReviews.length>visibleReviews.length){
-    let allModal=document.getElementById("reviewAllModal");
-    if(!allModal){
-      allModal=document.createElement("div");
-      allModal.id="reviewAllModal";
-      allModal.className="review-all-modal";
-      allModal.hidden=true;
-      allModal.innerHTML=`<div class="review-all-box" role="dialog" aria-modal="true" aria-labelledby="reviewAllTitle"><button type="button" class="review-all-close" aria-label="關閉">×</button><h3 id="reviewAllTitle" class="review-all-title">全部玩家心得</h3><div class="review-all-list"></div></div>`;
-      document.body.appendChild(allModal);
-    }
-    const allList=allModal.querySelector(".review-all-list");
-    allList.innerHTML=orderedReviews.map(r=>{
-      const rating=Math.max(1,Math.min(5,Number(r.rating)||5));
-      return `<article class="review-all-item"><div class="review-all-item-stars">${"★".repeat(rating)+"☆".repeat(5-rating)}</div><p class="review-all-item-text">「${esc(r.text||"")}」</p><div class="review-all-item-author">— ${esc(r.author||"玩家心得")}</div></article>`;
-    }).join("");
-    const openAll=()=>{allModal.hidden=false;document.body.style.overflow="hidden";allModal.querySelector(".review-all-close").focus();};
-    const closeAll=()=>{allModal.hidden=true;if(reviewModal.hidden)document.body.style.overflow="";};
-    document.getElementById("reviewMoreBtn")?.addEventListener("click",openAll);
-    allModal.querySelector(".review-all-close").onclick=closeAll;
-    allModal.onclick=e=>{if(e.target===allModal)closeAll();};
-    if(!allModal.dataset.escapeReady){
-      allModal.dataset.escapeReady="1";
-      document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!allModal.hidden)closeAll();});
-    }
-  }
   if(!reviewModal.dataset.escapeReady){
     reviewModal.dataset.escapeReady="1";
     document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!reviewModal.hidden)closeReview();});
   }
 }
-
 const DEFAULT_LAYOUT={sections:[{id:"hero",visible:true},{id:"new-player",visible:true},{id:"why",visible:true},{id:"about",visible:true},{id:"quick-intro",visible:true},{id:"features",visible:true},{id:"events",visible:true},{id:"boss",visible:true},{id:"community",visible:true},{id:"stay",visible:true},{id:"news",visible:true},{id:"versions",visible:true},{id:"start",visible:true},{id:"quick-links",visible:true}],featureColumns:3,heroEyebrow:"DUODUO VALLEY · V282",heroTitle:"同樣都是楓之谷，為什麼是多多谷？",heroSubtitle:"不是只換一個版本、調一組倍率。\n我們更在意：你上線之後，有沒有東西玩、有人一起玩，也有沒有值得留下來的理由。",aboutTitle:"一個正在慢慢變熱鬧的小小世界"};
 const siteLayout=getJSONSafe("duoduo_layout",DEFAULT_LAYOUT),main=document.querySelector("main");
 // Keep older saved layouts compatible when new homepage sections are added.
