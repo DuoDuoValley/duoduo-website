@@ -1,7 +1,9 @@
-const http=require('http'),fs=require('fs'),path=require('path');
+const http=require('http'),fs=require('fs'),path=require('path'),crypto=require('crypto');
 
 const root=__dirname,port=3000;
 const SUPABASE_BUCKET='event-images';
+const adminSessions=new Map();
+const ADMIN_SESSION_TTL=12*60*60*1000;
 
 const types={
   '.html':'text/html; charset=utf-8',
@@ -72,6 +74,77 @@ async function ensureSupabaseBucket(supabaseUrl,supabaseSecretKey){
 
   console.error('Supabase Storage 建立 Bucket 失敗:',errorText);
   throw new Error('Supabase Storage Bucket 建立失敗');
+}
+
+function cleanupAdminSessions(){
+  const now=Date.now();
+  for(const [token,session] of adminSessions){
+    if(now-session.createdAt>ADMIN_SESSION_TTL){
+      adminSessions.delete(token);
+    }
+  }
+}
+
+function getAdminSession(req){
+  cleanupAdminSessions();
+  const header=String(req.headers.authorization||'');
+  const match=header.match(/^Bearer\s+(.+)$/i);
+  if(!match)return null;
+  const session=adminSessions.get(match[1]);
+  if(!session)return null;
+  if(Date.now()-session.createdAt>ADMIN_SESSION_TTL){
+    adminSessions.delete(match[1]);
+    return null;
+  }
+  return session;
+}
+
+function handleAdminLogin(req,res){
+  let body='';
+
+  req.on('data',chunk=>{
+    body+=chunk;
+    if(body.length>64*1024){
+      res.writeHead(413);
+      res.end('Payload Too Large');
+      req.destroy();
+    }
+  });
+
+  req.on('end',()=>{
+    try{
+      const payload=JSON.parse(body||'{}');
+      const username=String(payload.username||'');
+      const password=String(payload.password||'');
+      const expectedUsername=String(process.env.ADMIN_USERNAME||'');
+      const expectedPassword=String(process.env.ADMIN_PASSWORD||'');
+
+      if(!expectedUsername||!expectedPassword){
+        return sendJSON(res,500,{ok:false,error:'管理員登入環境變數尚未設定'});
+      }
+
+      if(username!==expectedUsername||password!==expectedPassword){
+        return sendJSON(res,401,{ok:false,error:'帳號或密碼錯誤'});
+      }
+
+      cleanupAdminSessions();
+      const token=crypto.randomBytes(32).toString('hex');
+      adminSessions.set(token,{createdAt:Date.now()});
+
+      return sendJSON(res,200,{ok:true,token});
+    }catch(err){
+      console.error('管理員登入失敗:',err);
+      return sendJSON(res,400,{ok:false,error:'登入資料格式錯誤'});
+    }
+  });
+}
+
+function handleAdminMe(req,res){
+  const session=getAdminSession(req);
+  if(!session){
+    return sendJSON(res,401,{ok:false,error:'未登入'});
+  }
+  return sendJSON(res,200,{ok:true});
 }
 
 async function handleUpload(req,res){
@@ -232,20 +305,14 @@ async function handleGetEvents(req,res){
 
 async function handleSaveEvents(req,res){
   try{
+    const adminSession=getAdminSession(req);
     const adminPassword=process.env.ADMIN_PASSWORD;
     const requestPassword=req.headers['x-admin-password'];
 
-    if(!adminPassword){
+    if(!adminSession && (!adminPassword || !requestPassword || requestPassword!==adminPassword)){
       return sendJSON(res,500,{
         ok:false,
         error:'ADMIN_PASSWORD 尚未設定'
-      });
-    }
-
-    if(!requestPassword || requestPassword!==adminPassword){
-      return sendJSON(res,401,{
-        ok:false,
-        error:'未授權'
       });
     }
 
@@ -409,7 +476,7 @@ const server=http.createServer((req,res)=>{
 
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'Content-Type, X-Admin-Password'
+    'Content-Type, X-Admin-Password, Authorization'
   );
 
   if(req.method==='OPTIONS'){
@@ -418,6 +485,20 @@ const server=http.createServer((req,res)=>{
   }
 
   const requestPath=(req.url||'').split('?')[0];
+
+  if(
+    req.method==='POST' &&
+    requestPath==='/api/admin/login'
+  ){
+    return handleAdminLogin(req,res);
+  }
+
+  if(
+    req.method==='GET' &&
+    requestPath==='/api/admin/me'
+  ){
+    return handleAdminMe(req,res);
+  }
 
   if(
     req.method==='GET' &&
@@ -437,6 +518,9 @@ const server=http.createServer((req,res)=>{
     req.method==='POST' &&
     requestPath==='/api/upload-image'
   ){
+    if(!getAdminSession(req)){
+      return sendJSON(res,401,{ok:false,error:'未登入'});
+    }
     return handleUpload(req,res);
   }
 
