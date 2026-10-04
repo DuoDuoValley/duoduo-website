@@ -1,0 +1,40 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>檔期活動詳細說明｜DuoDuo Valley</title><link rel="stylesheet" href="styles.css"></head><body><header class="site-header">
+  <a class="brand" href="index.html"><img src="assets/logo1.png" alt="多多谷"><span>DuoDuo Valley</span></a>
+  <nav class="main-nav">
+    <a class="nav-pill" data-nav="home" href="index.html">首頁</a>
+    <a class="nav-pill" data-nav="why" href="index.html#why">為什麼選多多谷</a>
+    <a class="nav-pill" data-nav="features" href="index.html#features">特色系統</a>
+    <a class="nav-pill" data-nav="events" href="events.html">檔期活動</a>
+    <a class="nav-pill" data-nav="boss" href="boss.html">BOSS</a>
+    <a class="nav-pill" data-nav="news" href="news.html">最新消息</a>
+    <a class="nav-pill" data-nav="guide" href="guide.html">遊玩指南</a><a class="nav-pill" data-nav="downloads" href="downloads.html">下載專區</a>
+  </nav>
+  <div class="header-status"><span class="status-dot"></span><span>V282 持續更新</span></div>
+  <div class="header-actions">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="切換深色模式與淺色模式"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button>
+    <a class="btn btn-gold" data-link="topup" target="_blank">儲值</a>
+    <a class="btn btn-discord" data-link="discord" target="_blank">加入 Discord</a>
+  </div>
+</header>
+<section class="page-hero"><span class="eyebrow">EVENT DETAIL</span><h1 id="detailTitle">檔期活動詳細說明</h1><p id="detailSummary">載入活動資訊中…</p></section><main class="content-wrap"><article class="event-detail"><div id="detailCarousel" class="event-detail-carousel"></div><div class="event-detail-copy"><div class="event-meta"><span class="tag" id="detailTag">檔期活動</span><span id="detailDate"></span></div><h2 id="detailName"></h2><div id="detailBody" class="detail-body"></div><div id="detailActions" class="detail-actions"></div></div></article><a class="btn btn-outline" href="events.html">← 返回活動列表</a></main><footer class="site-footer">
+  <div class="footer-brand">
+    <b>DuoDuo Valley｜多多谷</b>
+    <p data-footer="description">一個正在慢慢變熱鬧的小小世界。遊戲資訊、檔期活動與最新公告，都在這裡整理。</p>
+  </div>
+  <div class="footer-column">
+    <strong data-footer="navTitle">網站導覽</strong>
+    <div class="footer-links">
+      <a href="index.html">首頁</a><a href="index.html#why">為什麼選多多谷</a><a href="index.html#features">特色系統</a><a href="events.html" data-nav="events">檔期活動</a><a href="boss.html">BOSS</a><a href="news.html">最新消息</a><a href="guide.html">遊玩指南</a>
+    </div>
+  </div>
+  <div class="footer-column">
+    <strong data-footer="resourceTitle">玩家資源</strong>
+    <div class="footer-links">
+      <a data-link="topup" target="_blank">儲值入口</a><a data-link="guide" target="_blank">完整遊玩指南</a><a data-link="rates" target="_blank">機率型道具說明</a><a data-link="products" target="_blank">上架商品</a><a data-link="checklist" target="_blank">每日 Checklist</a><a data-link="discord" target="_blank">加入 Discord</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span data-footer="copyright">© 2026 DuoDuo Valley · 多多谷</span>
+    <span class="footer-legal"><a href="privacy.html">隱私權政策</a><a href="terms.html">使用條款</a></span>
+  </div>
+</footer><script src="app.js"></script><script>(function(){const q=new URLSearchParams(location.search),id=q.get('id');const defaults=[{id:'e1',name:'多多谷活動',image:'assets/ad3.png',images:['assets/ad3.png'],desc:'持續更新的活動與玩法。',detail:'活動詳細內容會在這裡完整呈現。',start:'2026-10-01T00:00',end:'2026-10-31T23:59',published:true},{id:'e2',name:'福利活動',image:'assets/birthday.png',images:['assets/birthday.png'],desc:'福利活動的完整說明與注意事項。',detail:'福利活動的完整說明與注意事項。',start:'2026-10-01T00:00',end:'2026-10-31T23:59',published:true}];let events=(()=>{try{return JSON.parse(localStorage.getItem('duoduo_events')||'null')}catch{return null}})()||defaults;const e=events.find(x=>String(x.id||x.name)===String(id))||events.find(x=>x.published!==false);if(!e)return;document.title=`${e.name}｜DuoDuo Valley`;document.getElementById('detailTitle').textContent=e.name;document.getElementById('detailSummary').textContent=e.desc||'';document.getElementById('detailName').textContent=e.name;document.getElementById('detailCarousel').innerHTML=eventCarouselHTML(e,'detail-carousel');document.getElementById('detailDate').textContent=formatEventDateRange(e);document.getElementById('detailBody').innerHTML=esc(e.detail||e.desc||'').replace(/\n/g,'<br>');if(e.url)document.getElementById('detailActions').innerHTML=`<a class="btn btn-gold" href="${esc(e.url)}" target="_blank">前往活動連結 →</a>`;initEventCarousels(document.getElementById('detailCarousel'));const dc=document.getElementById('detailCarousel');if(dc){dc.addEventListener('click',e=>{const img=e.target.closest('.event-slide');if(!img)return;const src=img.currentSrc||img.src;if(!src)return;const layer=document.createElement('div');layer.className='event-image-lightbox';layer.innerHTML=`<button type="button" class="event-image-lightbox-close" aria-label="關閉">×</button><img src="${esc(src)}" alt="">`;document.body.appendChild(layer);requestAnimationFrame(()=>layer.classList.add('show'));const close=()=>{layer.classList.remove('show');setTimeout(()=>layer.remove(),180)};layer.addEventListener('click',ev=>{if(ev.target===layer||ev.target.closest('.event-image-lightbox-close'))close()});document.addEventListener('keydown',function onKey(ev){if(ev.key==='Escape'){close();document.removeEventListener('keydown',onKey)}})});}})();</script></body></html>
