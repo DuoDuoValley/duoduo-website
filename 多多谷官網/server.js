@@ -439,7 +439,7 @@ async function handleSaveEvents(req,res){
         );
 
         for(const row of existingRows){
-          if(String(row.id)==='__boss_config__')continue;
+          if(['__boss_config__','__site_data__'].includes(String(row.id)))continue;
           if(!newIds.has(String(row.id))){
             const deleteUrl=
               `${supabaseUrl}/rest/v1/events?id=eq.${encodeURIComponent(row.id)}`;
@@ -573,6 +573,76 @@ async function handleSaveBosses(req,res){
   }
 }
 
+
+
+const SITE_DATA_KEYS=[
+  'duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero',
+  'duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads',
+  'duoduo_items','duoduo_links'
+];
+
+async function handleGetSiteData(req,res){
+  try{
+    const supabaseUrl=process.env.SUPABASE_URL;
+    const supabaseSecretKey=process.env.SUPABASE_SECRET_KEY;
+    if(!supabaseUrl||!supabaseSecretKey)return sendJSON(res,500,{ok:false,error:'Supabase 環境變數尚未設定'});
+    const headers={'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json'};
+    const siteResponse=await fetch(`${supabaseUrl}/rest/v1/events?id=eq.__site_data__&select=data`,{method:'GET',headers});
+    const siteText=await siteResponse.text();
+    if(!siteResponse.ok){console.error('Supabase 讀取網站資料失敗:',siteText);return sendJSON(res,500,{ok:false,error:'網站資料讀取失敗'});}
+    const siteRows=JSON.parse(siteText);
+    const record=siteRows[0]?.data;
+    if(record?.initialized!==true)return sendJSON(res,200,{ok:true,initialized:false,data:{}});
+
+    const data={...(record.values||{})};
+
+    const eventsResponse=await fetch(`${supabaseUrl}/rest/v1/events?select=id,data,updated_at&order=updated_at.desc`,{method:'GET',headers});
+    if(eventsResponse.ok){
+      const rows=await eventsResponse.json();
+      const eventRows=rows.filter(row=>!['__boss_config__','__site_data__'].includes(String(row.id)));
+      data.duoduo_events=eventRows.map(row=>row.data).filter(Boolean);
+    }
+
+    const bossResponse=await fetch(`${supabaseUrl}/rest/v1/events?id=eq.__boss_config__&select=data`,{method:'GET',headers});
+    if(bossResponse.ok){
+      const rows=await bossResponse.json();
+      const boss=rows[0]?.data;
+      if(boss)data.duoduo_boss_config={interval:Number(boss.interval)||5000,slides:Array.isArray(boss.bosses)?boss.bosses:[]};
+    }
+
+    return sendJSON(res,200,{ok:true,initialized:true,data});
+  }catch(err){
+    console.error('網站資料 API 讀取失敗:',err);
+    return sendJSON(res,500,{ok:false,error:'網站資料 API 發生錯誤'});
+  }
+}
+
+async function handleSaveSiteData(req,res){
+  try{
+    if(!getAdminSession(req))return sendJSON(res,401,{ok:false,error:'未登入'});
+    const supabaseUrl=process.env.SUPABASE_URL;
+    const supabaseSecretKey=process.env.SUPABASE_SECRET_KEY;
+    if(!supabaseUrl||!supabaseSecretKey)return sendJSON(res,500,{ok:false,error:'Supabase 環境變數尚未設定'});
+    let body='';
+    req.on('data',chunk=>{body+=chunk;if(body.length>10*1024*1024){res.writeHead(413);res.end('Payload Too Large');req.destroy();}});
+    req.on('end',async()=>{
+      try{
+        const payload=JSON.parse(body||'{}');
+        const incoming=payload.values&&typeof payload.values==='object'?payload.values:{};
+        const values={};
+        for(const key of SITE_DATA_KEYS){
+          if(Object.prototype.hasOwnProperty.call(incoming,key))values[key]=incoming[key];
+        }
+        const row={id:'__site_data__',data:{type:'site-data',initialized:true,values},updated_at:new Date().toISOString()};
+        const url=`${supabaseUrl}/rest/v1/events`;
+        const response=await fetch(url,{method:'POST',headers:{'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([row])});
+        if(!response.ok){const text=await response.text();console.error('Supabase 儲存網站資料失敗:',text);return sendJSON(res,500,{ok:false,error:'網站資料儲存失敗'});}
+        return sendJSON(res,200,{ok:true,count:Object.keys(values).length});
+      }catch(err){console.error('網站資料格式錯誤:',err);return sendJSON(res,400,{ok:false,error:'網站資料格式錯誤'});}
+    });
+  }catch(err){console.error('網站資料儲存 API 發生錯誤:',err);return sendJSON(res,500,{ok:false,error:'網站資料 API 發生錯誤'});}
+}
+
 const server=http.createServer((req,res)=>{
 
   res.setHeader(
@@ -625,10 +695,24 @@ const server=http.createServer((req,res)=>{
   }
 
   if(
+    req.method==='GET' &&
+    requestPath==='/api/site-data'
+  ){
+    return handleGetSiteData(req,res);
+  }
+
+  if(
     req.method==='POST' &&
     requestPath==='/api/bosses'
   ){
     return handleSaveBosses(req,res);
+  }
+
+  if(
+    req.method==='POST' &&
+    requestPath==='/api/site-data'
+  ){
+    return handleSaveSiteData(req,res);
   }
 
 
