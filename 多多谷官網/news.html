@@ -56,11 +56,11 @@ function pageDateValue(n){
   const t=Date.parse(normalized);
   return Number.isFinite(t)?t:Number.MIN_SAFE_INTEGER;
 }
-const pageNewsData=pageLoadNews().sort((a,b)=>pageDateValue(b)-pageDateValue(a));
+const pageNewsData=pageLoadNews().map((item,index)=>({item,index})).sort((a,b)=>{const dt=pageDateValue(b.item)-pageDateValue(a.item);if(dt)return dt;const cb=Number(b.item?.createdAt)||0,ca=Number(a.item?.createdAt)||0;if(cb!==ca)return cb-ca;return a.index-b.index;}).map(x=>x.item);
 function pageRenderList(category='全部'){
   pageDetail.hidden=true; pageList.hidden=false;
   pageButtons.forEach(b=>b.classList.toggle('active',b.dataset.category===category));
-  const filtered=pageNewsData.map((n,i)=>({n,i})).filter(x=>category==='全部'||String(x.n.tag||'')===category).sort((a,b)=>pageDateValue(b.n)-pageDateValue(a.n));
+  const filtered=pageNewsData.map((n,i)=>({n,i})).filter(x=>category==='全部'||String(x.n.tag||'')===category).sort((a,b)=>{const dt=pageDateValue(b.n)-pageDateValue(a.n);if(dt)return dt;const cb=Number(b.n?.createdAt)||0,ca=Number(a.n?.createdAt)||0;if(cb!==ca)return cb-ca;return a.i-b.i;});
   if(!filtered.length){pageList.innerHTML='<div class="news-empty">目前沒有這個分類的公告。</div>';return;}
   pageList.innerHTML=filtered.map(({n,i})=>`<button class="news-title-row" data-index="${i}" type="button"><span class="tag">${pageEsc(pageTagShort(n.tag||'未分類'))}</span><span class="news-title-text">${pageEsc(n.title||'未命名公告')}</span><time>${pageEsc(n.date||'')}</time><span class="news-arrow">→</span></button>`).join('');
 }
