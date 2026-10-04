@@ -17,7 +17,10 @@ const types={
 };
 
 const uploadDir=path.join(root,'assets','uploads');
-if(!fs.existsSync(uploadDir))fs.mkdirSync(uploadDir,{recursive:true});
+
+if(!fs.existsSync(uploadDir)){
+  fs.mkdirSync(uploadDir,{recursive:true});
+}
 
 function sendJSON(res,status,data){
   res.writeHead(status,{
@@ -58,12 +61,16 @@ function handleUpload(req,res){
         .match(/^data:image\/(png|jpeg|jpg|webp|gif);base64,(.+)$/);
 
       if(!match){
-        return sendJSON(res,400,{ok:false,error:'無效的圖片資料'});
+        return sendJSON(res,400,{
+          ok:false,
+          error:'無效的圖片資料'
+        });
       }
 
-      const ext=match[1]==='jpeg'||match[1]==='jpg'
-        ? 'jpg'
-        : match[1];
+      const ext=
+        match[1]==='jpeg'||match[1]==='jpg'
+          ? 'jpg'
+          : match[1];
 
       const base=safeName(
         data.filename||`event_${Date.now()}`
@@ -155,6 +162,178 @@ async function handleGetEvents(req,res){
 }
 
 /* =========================
+   Supabase：儲存活動
+========================= */
+
+async function handleSaveEvents(req,res){
+  try{
+    const adminPassword=process.env.ADMIN_PASSWORD;
+    const requestPassword=req.headers['x-admin-password'];
+
+    if(!adminPassword){
+      return sendJSON(res,500,{
+        ok:false,
+        error:'ADMIN_PASSWORD 尚未設定'
+      });
+    }
+
+    if(!requestPassword || requestPassword!==adminPassword){
+      return sendJSON(res,401,{
+        ok:false,
+        error:'未授權'
+      });
+    }
+
+    const supabaseUrl=process.env.SUPABASE_URL;
+    const supabaseSecretKey=process.env.SUPABASE_SECRET_KEY;
+
+    if(!supabaseUrl||!supabaseSecretKey){
+      return sendJSON(res,500,{
+        ok:false,
+        error:'Supabase 環境變數尚未設定'
+      });
+    }
+
+    let body='';
+
+    req.on('data',chunk=>{
+      body+=chunk;
+
+      if(body.length>10*1024*1024){
+        res.writeHead(413);
+        res.end('Payload Too Large');
+        req.destroy();
+      }
+    });
+
+    req.on('end',async()=>{
+      try{
+        const payload=JSON.parse(body);
+        const events=Array.isArray(payload.events)
+          ? payload.events
+          : [];
+
+        const headers={
+          'apikey':supabaseSecretKey,
+          'Authorization':`Bearer ${supabaseSecretKey}`,
+          'Content-Type':'application/json',
+          'Prefer':'resolution=merge-duplicates,return=minimal'
+        };
+
+        /* 取得目前資料庫活動 */
+        const getUrl=
+          `${supabaseUrl}/rest/v1/events?select=id`;
+
+        const existingResponse=await fetch(getUrl,{
+          method:'GET',
+          headers
+        });
+
+        if(!existingResponse.ok){
+          const errorText=await existingResponse.text();
+
+          console.error(
+            'Supabase 取得既有活動失敗:',
+            errorText
+          );
+
+          return sendJSON(res,500,{
+            ok:false,
+            error:'無法取得既有活動'
+          });
+        }
+
+        const existingRows=await existingResponse.json();
+
+        const newIds=new Set(
+          events.map(e=>String(e.id))
+        );
+
+        /* 刪除 Supabase 裡已不存在的活動 */
+        for(const row of existingRows){
+          if(!newIds.has(String(row.id))){
+            const deleteUrl=
+              `${supabaseUrl}/rest/v1/events?id=eq.${encodeURIComponent(row.id)}`;
+
+            const deleteResponse=await fetch(deleteUrl,{
+              method:'DELETE',
+              headers
+            });
+
+            if(!deleteResponse.ok){
+              const errorText=await deleteResponse.text();
+
+              console.error(
+                'Supabase 刪除活動失敗:',
+                errorText
+              );
+
+              return sendJSON(res,500,{
+                ok:false,
+                error:'刪除活動失敗'
+              });
+            }
+          }
+        }
+
+        /* 新增／更新活動 */
+        if(events.length){
+          const rows=events.map(event=>({
+            id:String(event.id),
+            data:event,
+            updated_at:new Date().toISOString()
+          }));
+
+          const saveUrl=
+            `${supabaseUrl}/rest/v1/events`;
+
+          const saveResponse=await fetch(saveUrl,{
+            method:'POST',
+            headers,
+            body:JSON.stringify(rows)
+          });
+
+          if(!saveResponse.ok){
+            const errorText=await saveResponse.text();
+
+            console.error(
+              'Supabase 儲存活動失敗:',
+              errorText
+            );
+
+            return sendJSON(res,500,{
+              ok:false,
+              error:'儲存活動失敗'
+            });
+          }
+        }
+
+        return sendJSON(res,200,{
+          ok:true,
+          count:events.length
+        });
+
+      }catch(err){
+        console.error('活動資料處理失敗:',err);
+
+        return sendJSON(res,500,{
+          ok:false,
+          error:'活動資料格式錯誤'
+        });
+      }
+    });
+
+  }catch(err){
+    console.error('活動儲存 API 失敗:',err);
+
+    return sendJSON(res,500,{
+      ok:false,
+      error:'活動儲存 API 發生錯誤'
+    });
+  }
+}
+
+/* =========================
    HTTP Server
 ========================= */
 
@@ -167,12 +346,12 @@ const server=http.createServer((req,res)=>{
 
   res.setHeader(
     'Access-Control-Allow-Methods',
-    'GET, POST, OPTIONS'
+    'GET, POST, DELETE, OPTIONS'
   );
 
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'Content-Type'
+    'Content-Type, X-Admin-Password'
   );
 
   if(req.method==='OPTIONS'){
@@ -182,13 +361,27 @@ const server=http.createServer((req,res)=>{
 
   const requestPath=(req.url||'').split('?')[0];
 
-  /* Supabase 活動 API */
-  if(req.method==='GET' && requestPath==='/api/events'){
+  /* Supabase 活動 API：讀取 */
+  if(
+    req.method==='GET' &&
+    requestPath==='/api/events'
+  ){
     return handleGetEvents(req,res);
   }
 
+  /* Supabase 活動 API：儲存 */
+  if(
+    req.method==='POST' &&
+    requestPath==='/api/events'
+  ){
+    return handleSaveEvents(req,res);
+  }
+
   /* 圖片上傳 API */
-  if(req.method==='POST' && requestPath==='/api/upload-image'){
+  if(
+    req.method==='POST' &&
+    requestPath==='/api/upload-image'
+  ){
     return handleUpload(req,res);
   }
 
