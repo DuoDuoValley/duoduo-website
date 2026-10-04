@@ -242,7 +242,45 @@ function renderHeroSlides(){const box=$('#heroSlidesAdmin');if(!box)return;box.i
 window.removeHeroSlide=i=>{hero.slides.splice(i,1);renderHeroSlides()};$('#addHeroSlide').onclick=()=>{hero.slides.push({image:'',title:'新的輪播圖片',link:'',enabled:true});renderHeroSlides()};
 window.toggleSection=i=>{layout.sections[i].visible=!layout.sections[i].visible;renderLayout()};
 function setupDrag(){let from=null;document.querySelectorAll('.layout-row').forEach(r=>{r.addEventListener('dragstart',()=>{from=+r.dataset.index;r.classList.add('dragging')});r.addEventListener('dragend',()=>r.classList.remove('dragging'));r.addEventListener('dragover',e=>e.preventDefault());r.addEventListener('drop',e=>{e.preventDefault();const to=+r.dataset.index;if(from===null||from===to)return;const m=layout.sections.splice(from,1)[0];layout.sections.splice(to,0,m);renderLayout()})})}
-$('#saveLayout').onclick=()=>{layout.heroEyebrow=$('#heroEyebrow').value.trim()||defaultLayout.heroEyebrow;layout.heroTitle=$('#heroTitle').value.trim()||defaultLayout.heroTitle;layout.heroSubtitle=$('#heroSubtitle').value.trim()||defaultLayout.heroSubtitle;layout.aboutTitle=$('#aboutTitle').value.trim()||defaultLayout.aboutTitle;layout.featureColumns=+$('#featureColumns').value||3;document.querySelectorAll('[data-hero-index]').forEach(row=>{const i=Number(row.dataset.heroIndex),slide=hero.slides[i];if(!slide)return;row.querySelectorAll('[data-hero-field]').forEach(el=>{const f=el.dataset.heroField;slide[f]=f==='enabled'?el.checked:el.value.trim()})});hero.slides=hero.slides.filter(x=>x.image);hero.images=hero.slides.filter(x=>x.enabled!==false).map(x=>x.image);hero.interval=Math.max(2000,(Number($('#heroInterval').value)||5)*1000);save('duoduo_layout',layout);save('duoduo_hero',hero);alert('首頁版面與主視覺輪播已儲存。')};
+$('#saveLayout').onclick=async()=>{
+  layout.heroEyebrow=$('#heroEyebrow').value.trim()||defaultLayout.heroEyebrow;
+  layout.heroTitle=$('#heroTitle').value.trim()||defaultLayout.heroTitle;
+  layout.heroSubtitle=$('#heroSubtitle').value.trim()||defaultLayout.heroSubtitle;
+  layout.aboutTitle=$('#aboutTitle').value.trim()||defaultLayout.aboutTitle;
+  layout.featureColumns=+$('#featureColumns').value||3;
+  document.querySelectorAll('[data-hero-index]').forEach(row=>{
+    const i=Number(row.dataset.heroIndex),slide=hero.slides[i];
+    if(!slide)return;
+    row.querySelectorAll('[data-hero-field]').forEach(el=>{
+      const f=el.dataset.heroField;
+      slide[f]=f==='enabled'?el.checked:el.value.trim();
+    });
+  });
+  const saveBtn=$('#saveLayout');
+  const oldText=saveBtn?.textContent||'';
+  try{
+    if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='圖片上傳中…';}
+    for(let i=0;i<hero.slides.length;i++){
+      const slide=hero.slides[i];
+      if(!slide?._pendingDataUrl)continue;
+      slide.image=await uploadImageDataURL(slide._pendingDataUrl,slide._pendingName||`hero-${i+1}`);
+      delete slide._pendingDataUrl;
+      delete slide._pendingName;
+    }
+    hero.slides=hero.slides.filter(x=>x.image);
+    hero.images=hero.slides.filter(x=>x.enabled!==false).map(x=>x.image);
+    hero.interval=Math.max(2000,(Number($('#heroInterval').value)||5)*1000);
+    save('duoduo_layout',layout);
+    save('duoduo_hero',hero);
+    renderHeroSlides();
+    alert('首頁版面與主視覺輪播已儲存。');
+  }catch(error){
+    console.error(error);
+    alert(error.message==='登入已失效'?'登入已失效，請重新登入後再試一次。':'圖片上傳失敗，請確認登入狀態與圖片後再試一次。');
+  }finally{
+    if(saveBtn){saveBtn.disabled=false;saveBtn.textContent=oldText||'儲存首頁版面';}
+  }
+};
 $('#resetLayout').onclick=()=>{if(confirm('恢復預設首頁版面？')){layout=structuredClone(defaultLayout);save('duoduo_layout',layout);renderLayout()}};
 $('#addReview').onclick=()=>{const text=$('#reviewText').value.trim();if(!text)return alert('請先貼上玩家心得內容');const data={rating:Number($('#reviewRating').value)||5,author:$('#reviewAuthor').value.trim()||'玩家心得',text,featured:$('#reviewFeatured')?.checked===true};const isEdit=!!editingReviewId;if(isEdit){const target=reviews.find(r=>r.id===editingReviewId);if(target)Object.assign(target,data);editingReviewId=null;$('#addReview').textContent='＋ 新增玩家心得'}else{reviews.push({id:'r_'+Date.now(),...data,createdAt:Date.now(),order:reviews.length})}save('duoduo_reviews',reviews);$('#reviewAuthor').value='';$('#reviewText').value='';$('#reviewRating').value='5';if($('#reviewFeatured'))$('#reviewFeatured').checked=false;render();alert(isEdit?'玩家心得已更新。':'玩家心得已新增。')};
 window.editReview=id=>{const r=reviews.find(x=>x.id===id);if(!r)return;editingReviewId=id;$('#reviewAuthor').value=r.author||'';$('#reviewRating').value=String(r.rating||5);$('#reviewText').value=r.text||'';if($('#reviewFeatured'))$('#reviewFeatured').checked=r.featured===true;$('#addReview').textContent='儲存玩家心得修改';document.querySelector('[data-panel="reviews"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};
