@@ -3,6 +3,9 @@
   const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
   const FLAG='duoduo_site_cloud_bootstrap_v1';
   const KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_links','duoduo_events','duoduo_boss_config'];
+  let skipBootstrap=false;
+  try{skipBootstrap=sessionStorage.getItem(FLAG)==='1'}catch{}
+  if(skipBootstrap) return;
   (async()=>{
     try{
       const res=await fetch(`${API_BASE}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
