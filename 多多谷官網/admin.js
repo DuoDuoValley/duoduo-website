@@ -1,3 +1,112 @@
+/* ===== 管理後台登入保護 ===== */
+(function(){
+  const API_BASE=window.location.hostname.endsWith('github.io')
+    ? 'https://duoduo-website.onrender.com'
+    : '';
+  const TOKEN_KEY='duoduo_admin_session';
+
+  const style=document.createElement('style');
+  style.textContent=`
+    #duoduo-admin-auth{position:fixed;inset:0;z-index:999999;background:#0b1118;color:#fff;display:flex;align-items:center;justify-content:center;padding:24px;font-family:inherit}
+    #duoduo-admin-auth .auth-card{width:min(420px,100%);background:#111a24;border:1px solid #26384b;border-radius:16px;padding:30px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
+    #duoduo-admin-auth h1{margin:0 0 8px;font-size:24px}
+    #duoduo-admin-auth p{margin:0 0 22px;color:#9eacbb;line-height:1.6}
+    #duoduo-admin-auth label{display:block;margin:14px 0 7px;color:#cbd6e2;font-size:14px}
+    #duoduo-admin-auth input{box-sizing:border-box;width:100%;padding:12px 13px;border:1px solid #34485d;border-radius:9px;background:#0b1118;color:#fff;outline:none;font:inherit}
+    #duoduo-admin-auth input:focus{border-color:#6f8daa}
+    #duoduo-admin-auth button{width:100%;margin-top:18px;padding:12px;border:0;border-radius:9px;background:#fff;color:#101820;font-weight:700;cursor:pointer;font:inherit}
+    #duoduo-admin-auth .auth-error{min-height:22px;margin-top:12px;color:#ff8f8f;font-size:14px}
+    body.duoduo-auth-lock{overflow:hidden}
+  `;
+  document.head.appendChild(style);
+
+  const overlay=document.createElement('div');
+  overlay.id='duoduo-admin-auth';
+  overlay.innerHTML=`
+    <div class="auth-card">
+      <h1>🔐 多多谷管理後台</h1>
+      <p>請輸入管理員帳號與密碼後進入後台。</p>
+      <form id="duoduo-admin-login-form" autocomplete="off">
+        <label>管理員帳號</label>
+        <input id="duoduo-admin-username" type="text" autocomplete="username" required>
+        <label>管理員密碼</label>
+        <input id="duoduo-admin-password" type="password" autocomplete="current-password" required>
+        <div id="duoduo-admin-auth-error" class="auth-error"></div>
+        <button type="submit">登入後台</button>
+      </form>
+    </div>`;
+
+  document.body.classList.add('duoduo-auth-lock');
+  document.body.appendChild(overlay);
+
+  function getToken(){
+    try{return sessionStorage.getItem(TOKEN_KEY)||''}catch{return ''}
+  }
+  function setToken(token){
+    try{sessionStorage.setItem(TOKEN_KEY,token)}catch{}
+  }
+  function clearToken(){
+    try{sessionStorage.removeItem(TOKEN_KEY)}catch{}
+  }
+  function unlock(){
+    overlay.remove();
+    document.body.classList.remove('duoduo-auth-lock');
+    window.dispatchEvent(new CustomEvent('duoduo-admin-authenticated'));
+  }
+
+  async function verify(token){
+    if(!token)return false;
+    try{
+      const res=await fetch(`${API_BASE}/api/admin/me`,{
+        headers:{Authorization:`Bearer ${token}`},
+        cache:'no-store'
+      });
+      return res.ok;
+    }catch{return false}
+  }
+
+  async function login(username,password){
+    const res=await fetch(`${API_BASE}/api/admin/login`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username,password})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||!data.ok||!data.token)throw new Error(data.error||'登入失敗');
+    setToken(data.token);
+    unlock();
+  }
+
+  document.getElementById('duoduo-admin-login-form').addEventListener('submit',async e=>{
+    e.preventDefault();
+    const errorBox=document.getElementById('duoduo-admin-auth-error');
+    const button=e.currentTarget.querySelector('button');
+    const username=document.getElementById('duoduo-admin-username').value.trim();
+    const password=document.getElementById('duoduo-admin-password').value;
+    errorBox.textContent='';
+    button.disabled=true;
+    button.textContent='登入中…';
+    try{
+      await login(username,password);
+    }catch(error){
+      errorBox.textContent='帳號或密碼錯誤，請重新輸入。';
+      document.getElementById('duoduo-admin-password').value='';
+    }finally{
+      if(document.body.contains(button)){
+        button.disabled=false;
+        button.textContent='登入後台';
+      }
+    }
+  });
+
+  (async()=>{
+    const token=getToken();
+    if(await verify(token))unlock();
+    else clearToken();
+  })();
+})();
+/* ===== 管理後台登入保護結束 ===== */
+
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const defaultLinks={"Discord":"https://discord.gg/duoduovalley","儲值入口":"https://fd-pay.com/ARrbXO","遊玩指南":"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing","機率型道具說明":"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing","上架商品":"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing","每日 Checklist":"https://duoduovalley.github.io/duoduo-checklist/","登入器下載":"https://mega.nz/file/d3IVHYZY#iIv2y93Y2tPy2zORnDUUEWY-q4wO6PkdTqNZG3cYlM","整合包下載":"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing"};
 const newsTagShort=t=>({'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'}[t]||t); const defaults={news:[{tag:'重要消息',title:'DuoDuo Valley 官方網站持續完善中',date:'2026/10/04',body:'多多谷官方網站正在持續整理遊戲資訊、活動與玩家資源。'}],events:[{id:'e1',name:'多多谷活動',image:'assets/ad3.png',desc:'持續更新的活動與玩法。',detail:'活動詳細內容會在這裡完整呈現。',start:'2026-10-01T00:00',end:'2026-10-31T23:59',url:'',published:true},{id:'e2',name:'福利活動',image:'assets/birthday.png',desc:'多多谷福利與社群活動資訊。',detail:'福利活動的完整說明與注意事項。',start:'2026-10-01T00:00',end:'2026-10-31T23:59',url:'',published:true}],items:[]};
@@ -73,7 +182,8 @@ async function fileToCompressedDataURL(file,maxW=1800,maxH=1200,quality=.86){ret
   ? 'https://duoduo-website.onrender.com'
   : '';
 
-const res=await fetch(`${API_BASE}/api/upload-image`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dataUrl,filename:originalName||'event-image'})});
+const token=sessionStorage.getItem('duoduo_admin_session')||'';
+const res=await fetch(`${API_BASE}/api/upload-image`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({dataUrl,filename:originalName||'event-image'})});
   if(!res.ok) throw new Error('upload_failed');
   const data=await res.json();
   if(!data.ok||!data.path) throw new Error('upload_failed');
@@ -84,17 +194,17 @@ async function syncEventsToServer(){
     ? 'https://duoduo-website.onrender.com'
     : '';
 
-  const password=prompt('請輸入管理員密碼');
+  const token=sessionStorage.getItem('duoduo_admin_session')||'';
 
-  if(password===null){
-    throw new Error('cancelled');
+  if(!token){
+    throw new Error('未登入');
   }
 
   const res=await fetch(`${API_BASE}/api/events`,{
     method:'POST',
     headers:{
       'Content-Type':'application/json',
-      'X-Admin-Password':password
+      'Authorization':`Bearer ${token}`
     },
     body:JSON.stringify({
       events
@@ -105,7 +215,8 @@ async function syncEventsToServer(){
 
   if(!res.ok||!data.ok){
     if(res.status===401){
-      throw new Error('密碼錯誤');
+      try{sessionStorage.removeItem('duoduo_admin_session')}catch{}
+      throw new Error('登入已失效');
     }
 
     throw new Error(data.error||'活動同步失敗');
@@ -207,8 +318,8 @@ $('#saveEvent').onclick=async()=>{
     render();
 
     if(error.message==='cancelled')return;
-    if(error.message==='密碼錯誤'){
-      return alert('管理員密碼錯誤，活動尚未同步到雲端。');
+    if(error.message==='登入已失效'){
+      return alert('登入已失效，請重新整理後重新登入管理後台。');
     }
     return alert('活動同步到雲端失敗，請稍後再試。');
   }
@@ -238,8 +349,8 @@ window.removeEvent=async i=>{
     render();
 
     if(error.message==='cancelled')return;
-    if(error.message==='密碼錯誤'){
-      return alert('管理員密碼錯誤，活動尚未同步到雲端。');
+    if(error.message==='登入已失效'){
+      return alert('登入已失效，請重新整理後重新登入管理後台。');
     }
     return alert('活動同步到雲端失敗，活動已恢復。');
   }
