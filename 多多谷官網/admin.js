@@ -137,7 +137,47 @@ let pendingBossUploads=[];
 
 let layout=read('duoduo_layout',defaultLayout);let editingItemId=null,pendingItemImage='';let pendingEventCoverImage='';let pendingEventCarouselImages=[];
 function read(k,f){try{return JSON.parse(localStorage.getItem(k)||'null')??structuredClone(f)}catch{return structuredClone(f)}}
-function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
+const CLOUD_SITE_KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_links'];
+let cloudSaveTimer=null;
+function getAdminToken(){try{return sessionStorage.getItem('duoduo_admin_session')||''}catch{return ''}}
+async function pushSiteDataToCloud(keys=CLOUD_SITE_KEYS){
+  const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+  const token=getAdminToken();
+  if(!token)throw new Error('未登入');
+  const values={};
+  for(const key of keys){
+    const raw=localStorage.getItem(key);
+    if(raw===null)continue;
+    try{values[key]=JSON.parse(raw)}catch{values[key]=raw}
+  }
+  const res=await fetch(`${API_BASE}/api/site-data`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({values})});
+  const data=await res.json().catch(()=>({}));
+  if(!res.ok||!data.ok)throw new Error(res.status===401?'登入已失效':(data.error||'網站資料同步失敗'));
+  return data;
+}
+function queueSiteDataCloudSave(key){
+  if(!CLOUD_SITE_KEYS.includes(key))return;
+  clearTimeout(cloudSaveTimer);
+  cloudSaveTimer=setTimeout(async()=>{
+    try{await pushSiteDataToCloud(CLOUD_SITE_KEYS)}catch(error){console.warn('網站資料自動同步失敗:',error)}
+  },700);
+}
+function save(k,v){localStorage.setItem(k,JSON.stringify(v));queueSiteDataCloudSave(k)}
+function addCloudMigrationButton(){
+  if(document.getElementById('duoduo-cloud-migrate'))return;
+  const style=document.createElement('style');style.textContent='#duoduo-cloud-migrate{position:fixed;right:22px;bottom:22px;z-index:99990;padding:11px 16px;border:1px solid #39536d;border-radius:999px;background:#132234;color:#fff;font:600 14px/1.2 inherit;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.28)}#duoduo-cloud-migrate:hover{background:#1b3047}';document.head.appendChild(style);
+  const btn=document.createElement('button');btn.id='duoduo-cloud-migrate';btn.type='button';btn.textContent='☁️ 將目前資料同步到雲端';
+  btn.addEventListener('click',async()=>{
+    if(!confirm('會將這台瀏覽器目前已建立的公告、評論、首頁內容、主視覺、版面、網站設定、資源與下載資料同步到雲端。\n\n確定要開始嗎？'))return;
+    const old=btn.textContent;btn.disabled=true;btn.textContent='☁️ 同步中…';
+    try{await pushSiteDataToCloud();alert('目前瀏覽器資料已成功同步到雲端。之後玩家即可讀取這份資料。');}
+    catch(error){console.error(error);alert(error.message==='登入已失效'?'登入已失效，請重新整理後登入再試。':'雲端同步失敗，原本瀏覽器資料沒有被刪除。')}
+    finally{btn.disabled=false;btn.textContent=old}
+  });
+  document.body.appendChild(btn);
+}
+window.addEventListener('duoduo-admin-authenticated',addCloudMigrationButton);
+setTimeout(()=>{if(document.getElementById('duoduo-admin-auth')===null)addCloudMigrationButton()},1000);
 function parseAdminDate(value){
   const raw=String(value??'').trim();
   if(!raw)return Number.MIN_SAFE_INTEGER;
@@ -259,7 +299,7 @@ $('#resetLayout').onclick=()=>{if(confirm('恢復預設首頁版面？')){layout
 $('#addReview').onclick=()=>{const text=$('#reviewText').value.trim();if(!text)return alert('請先貼上玩家心得內容');const data={rating:Number($('#reviewRating').value)||5,author:$('#reviewAuthor').value.trim()||'玩家心得',text,featured:$('#reviewFeatured')?.checked===true};const isEdit=!!editingReviewId;if(isEdit){const target=reviews.find(r=>r.id===editingReviewId);if(target)Object.assign(target,data);editingReviewId=null;$('#addReview').textContent='＋ 新增玩家心得'}else{reviews.push({id:'r_'+Date.now(),...data,createdAt:Date.now(),order:reviews.length})}save('duoduo_reviews',reviews);$('#reviewAuthor').value='';$('#reviewText').value='';$('#reviewRating').value='5';if($('#reviewFeatured'))$('#reviewFeatured').checked=false;render();alert(isEdit?'玩家心得已更新。':'玩家心得已新增。')};
 window.editReview=id=>{const r=reviews.find(x=>x.id===id);if(!r)return;editingReviewId=id;$('#reviewAuthor').value=r.author||'';$('#reviewRating').value=String(r.rating||5);$('#reviewText').value=r.text||'';if($('#reviewFeatured'))$('#reviewFeatured').checked=r.featured===true;$('#addReview').textContent='儲存玩家心得修改';document.querySelector('[data-panel="reviews"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};
 window.toggleFeaturedReview=id=>{const r=reviews.find(x=>x.id===id);if(!r)return;r.featured=!r.featured;save('duoduo_reviews',reviews);render()};window.removeReviewById=id=>{if(!confirm('確定刪除這則玩家心得？'))return;reviews=reviews.filter(r=>r.id!==id);save('duoduo_reviews',reviews);render()};function setupReviewDrag(ordered){document.querySelectorAll('.review-admin-item').forEach(row=>{row.addEventListener('dragstart',()=>{row.classList.add('dragging');row._from=Number(row.dataset.reviewIndex)});row.addEventListener('dragend',()=>row.classList.remove('dragging'));row.addEventListener('dragover',e=>e.preventDefault());row.addEventListener('drop',e=>{e.preventDefault();const from=row._from,to=Number(row.dataset.reviewIndex);if(from===to)return;const reordered=[...ordered];const moved=reordered.splice(from,1)[0];reordered.splice(to,0,moved);reordered.forEach((r,i)=>r.order=i);reviews.forEach(r=>{const x=reordered.find(v=>v.id===r.id);if(x)r.order=x.order});save('duoduo_reviews',reviews);render()})})}
-let editingNewsIndex=null;$('#addNews').onclick=()=>{const title=$('#newsTitle').value.trim();if(!title)return alert('請先輸入公告標題');const data={tag:$('#newsTag').value,title,date:$('#newsDate').value||new Date().toLocaleDateString('zh-TW'),body:$('#newsBody').value.trim(),createdAt:editingNewsIndex!==null&&news[editingNewsIndex]?.createdAt?news[editingNewsIndex].createdAt:Date.now()};if(editingNewsIndex!==null&&news[editingNewsIndex]){news[editingNewsIndex]=Object.assign({},news[editingNewsIndex],data);editingNewsIndex=null;$('#addNews').textContent='＋ 新增公告';alert('公告已更新。')}else{news.unshift(data);alert('公告已新增。')}save('duoduo_news',news);$('#newsTitle').value='';$('#newsDate').value='';$('#newsBody').value='';render()};window.editNews=i=>{const n=news[i];if(!n)return;editingNewsIndex=i;$('#newsTag').value=n.tag||'重要消息';$('#newsTitle').value=n.title||'';$('#newsDate').value=n.date||'';$('#newsBody').value=n.body||'';$('#addNews').textContent='儲存公告修改';document.querySelector('[data-panel="news"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};window.removeNews=i=>{if(confirm('確定刪除這則公告？')){news.splice(i,1);if(editingNewsIndex===i){editingNewsIndex=null;$('#addNews').textContent='＋ 新增公告'}save('duoduo_news',news);render()}};
+let editingNewsIndex=null;$('#addNews').onclick=()=>{const title=$('#newsTitle').value.trim();if(!title)return alert('請先輸入公告標題');const data={tag:$('#newsTag').value,title,date:$('#newsDate').value||new Date().toLocaleDateString('zh-TW'),body:$('#newsBody').value.trim()};if(editingNewsIndex!==null&&news[editingNewsIndex]){news[editingNewsIndex]=Object.assign({},news[editingNewsIndex],data);editingNewsIndex=null;$('#addNews').textContent='＋ 新增公告';alert('公告已更新。')}else{news.unshift(data);alert('公告已新增。')}save('duoduo_news',news);$('#newsTitle').value='';$('#newsDate').value='';$('#newsBody').value='';render()};window.editNews=i=>{const n=news[i];if(!n)return;editingNewsIndex=i;$('#newsTag').value=n.tag||'重要消息';$('#newsTitle').value=n.title||'';$('#newsDate').value=n.date||'';$('#newsBody').value=n.body||'';$('#addNews').textContent='儲存公告修改';document.querySelector('[data-panel="news"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};window.removeNews=i=>{if(confirm('確定刪除這則公告？')){news.splice(i,1);if(editingNewsIndex===i){editingNewsIndex=null;$('#addNews').textContent='＋ 新增公告'}save('duoduo_news',news);render()}};
 async function fileToCompressedDataURL(file,maxW=1800,maxH=1200,quality=.86){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.naturalWidth,maxH/img.naturalHeight);const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/webp',quality));};img.onerror=reject;img.src=reader.result;};reader.onerror=reject;reader.readAsDataURL(file)});}async function uploadImageDataURL(dataUrl,originalName){
   const API_BASE=window.location.hostname.endsWith('github.io')
   ? 'https://duoduo-website.onrender.com'
@@ -444,7 +484,7 @@ window.removeEvent=async i=>{
   alert('檔期活動已刪除，並同步到雲端。');
 };
 let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';$('#eventStart').value=e.start||'';$('#eventEnd').value=e.end||'';$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventEnd','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
-window.saveLinks=()=>{const saved={};document.querySelectorAll('#linksForm input').forEach(i=>saved[i.dataset.key]=i.value.trim());localStorage.setItem('duoduo_links',JSON.stringify(saved));alert('網址已儲存到此瀏覽器。')};
+window.saveLinks=()=>{const saved={};document.querySelectorAll('#linksForm input').forEach(i=>saved[i.dataset.key]=i.value.trim());localStorage.setItem('duoduo_links',JSON.stringify(saved));queueSiteDataCloudSave('duoduo_links');alert('網址已儲存，並同步到雲端。')};
 function renderItems(){const box=$('#itemsAdmin');const q=($('#itemSearch')?.value||'').trim().toLowerCase();const f=items.filter(x=>`${x.name} ${x.category} ${x.description||''}`.toLowerCase().includes(q));box.innerHTML=f.length?f.map(x=>`<div class="item-row"><div class="item-thumb">${x.image?`<img src="${x.image}" alt="">`:'無圖片'}</div><div class="item-meta"><b>${esc(x.name)}</b><small>${esc(x.description||'尚未填寫描述')}</small></div><div class="item-category">${esc(x.category)}</div><div class="item-actions"><button onclick="editItem('${x.id}')">編輯</button><button class="danger" onclick="removeItem('${x.id}')">刪除</button></div></div>`).join(''):'<div class="note">目前沒有符合條件的道具。</div>'}
 function resetItemForm(){editingItemId=null;pendingItemImage='';$('#itemFormTitle').textContent='新增道具';$('#itemName').value='';$('#itemCategory').value='裝備';$('#itemDescription').value='';$('#itemImage').value='';$('#itemImagePreview').innerHTML='<span>尚未選擇圖片</span>';$('#itemForm').hidden=true}
 function openNewItem(){resetItemForm();$('#itemForm').hidden=false;$('#itemName').focus()}window.editItem=id=>{const x=items.find(i=>i.id===id);if(!x)return;editingItemId=id;pendingItemImage=x.image||'';$('#itemFormTitle').textContent='編輯道具';$('#itemName').value=x.name||'';$('#itemCategory').value=x.category||'裝備';$('#itemDescription').value=x.description||'';$('#itemImagePreview').innerHTML=x.image?`<img src="${x.image}" alt="">`:'<span>尚未設定圖片</span>';$('#itemForm').hidden=false};window.removeItem=id=>{if(!confirm('確定刪除？'))return;items=items.filter(x=>x.id!==id);save('duoduo_items',items);renderItems()};
