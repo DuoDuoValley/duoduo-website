@@ -35,6 +35,13 @@ function handleUpload(req,res){
   });
 }
 const server=http.createServer((req,res)=>{
+    res.setHeader('Access-Control-Allow-Origin','https://duoduovalley.github.io');
+  res.setHeader('Access-Control-Allow-Methods','POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers','Content-Type');
+  if(req.method==='OPTIONS'){
+    res.writeHead(204);
+    return res.end();
+  }
   if(req.method==='POST' && (req.url||'').split('?')[0]==='/api/upload-image') return handleUpload(req,res);
   let urlPath=decodeURIComponent((req.url||'/').split('?')[0]);if(urlPath==='/')urlPath='/index.html';
   const file=path.normalize(path.join(root,urlPath));
