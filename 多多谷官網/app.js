@@ -104,19 +104,22 @@ const defaultReviews=[
   {id:"r2",rating:5,author:"玩家心得",text:"活動蠻多的，不是每天只有掛著打怪。"},
   {id:"r3",rating:5,author:"玩家心得",text:"遇到問題有官方入口可以處理，這點很重要。"}
 ];
-function eventStartTime(e){const t=Date.parse(e?.start||"");return Number.isNaN(t)?Number.MIN_SAFE_INTEGER:t;}
-function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTime(b)-eventStartTime(a));}
-function newsDateTime(n){
-  const raw=String(n?.date||"").trim();
-  const m=raw.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?$/);
+function parseDuoDuoDate(value){
+  const raw=String(value??"").trim();
+  if(!raw)return Number.MIN_SAFE_INTEGER;
+  const normalized=raw.replace(/\s+/g," ").replace(/\s*([\/\-])\s*/g,"$1");
+  const m=normalized.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?(?::(\d{1,2}))?)?$/);
   if(m){
-    const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0));
+    const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));
     const t=d.getTime();
     if(!Number.isNaN(t))return t;
   }
-  const t=Date.parse(raw);
+  const t=Date.parse(normalized);
   return Number.isNaN(t)?Number.MIN_SAFE_INTEGER:t;
 }
+function eventStartTime(e){return parseDuoDuoDate(e?.start);}
+function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTime(b)-eventStartTime(a));}
+function newsDateTime(n){return parseDuoDuoDate(n?.date);}
 function sortNewsByDate(list){return [...list].sort((a,b)=>newsDateTime(b)-newsDateTime(a));}
 function formatEventDate(value){if(!value)return "";const d=new Date(value);if(Number.isNaN(d.getTime()))return String(value);const pad=n=>String(n).padStart(2,"0");return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;}
 function formatEventDateRange(e){const a=formatEventDate(e?.start),b=formatEventDate(e?.end);return a&&b?`${a} ～ ${b}`:(a||b||"");}
@@ -237,6 +240,7 @@ if(reviewGrid){
       .review-card small{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:11px;}
       .review-read-more{display:none;}
       .review-card.featured-review{height:auto;min-height:0;}
+.reviews.has-more .review-card:nth-child(6){padding-right:145px;}
       .reviews-more-btn{position:absolute;right:10px;bottom:10px;padding:7px 13px;border:1px solid var(--line,#294057);border-radius:999px;background:rgba(13,24,39,.96);color:var(--gold,#eab44d);font:inherit;font-size:12px;cursor:pointer;z-index:5;}
       .reviews-more-btn:hover{background:rgba(234,180,77,.08);}
       .review-list-modal{position:fixed;inset:0;z-index:9998;width:100vw;height:100vh;max-width:none;max-height:none;margin:0;padding:24px;box-sizing:border-box;border:0;background:rgba(3,10,18,.72);align-items:center;justify-content:center;}
@@ -304,7 +308,8 @@ if(reviewGrid){
 
   const renderReviewCards=()=>{
     const list=orderedReviews.slice(0,6);
-    reviewGrid.innerHTML=list.map((r,i)=>{const rating=Math.max(1,Math.min(5,Number(r.rating)||5));const stars="★".repeat(rating)+"☆".repeat(5-rating);return `<article class="review-card featured-review" tabindex="0" role="button" data-review-index="${i}" aria-label="查看完整玩家心得"><div class="review-stars" aria-label="${rating} 顆星">${stars}</div><p>「${esc(r.text||"")}」</p><small>— ${esc(r.author||"玩家心得")}</small></article>`;}).join("")||`<div class="empty">目前還沒有玩家心得。</div>`;
+    reviewGrid.classList.toggle("has-more",orderedReviews.length>6);
+    reviewGrid.innerHTML=list.map((r,i)=>{const rating=Math.max(1,Math.min(5,Number(r.rating)||5));const stars="★".repeat(rating)+"☆".repeat(5-rating);return `<article class="review-card" tabindex="0" role="button" data-review-index="${i}" aria-label="查看完整玩家心得"><div class="review-stars" aria-label="${rating} 顆星">${stars}</div><p>「${esc(r.text||"")}」</p><small>— ${esc(r.author||"玩家心得")}</small></article>`;}).join("")||`<div class="empty">目前還沒有玩家心得。</div>`;
     if(orderedReviews.length>6){const more=document.createElement("button");more.type="button";more.className="reviews-more-btn";more.textContent=`查看更多評論（還有 ${orderedReviews.length-6} 則）`;more.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openReviewList();});reviewGrid.appendChild(more);}
     reviewGrid.querySelectorAll(".review-card").forEach(card=>{const open=e=>{e.preventDefault();e.stopPropagation();openReview(Number(card.dataset.reviewIndex));};card.addEventListener("click",open);card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();open(e);}});});
   };
