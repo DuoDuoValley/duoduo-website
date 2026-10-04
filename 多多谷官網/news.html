@@ -43,8 +43,20 @@ const pageButtons=[...document.querySelectorAll('.news-filter-btn')];
 const pageEsc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
 const pageTagShort=t=>({'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'}[t]||t);
 function pageLoadNews(){try{const raw=localStorage.getItem('duoduo_news');const parsed=raw?JSON.parse(raw):null;if(Array.isArray(parsed))return parsed.filter(n=>n&&typeof n==='object');}catch(e){}return pageDefaultNews.slice();}
-const pageNewsData=pageLoadNews();
-function pageDateValue(n){const t=Date.parse(String(n?.date||'').replace(/\//g,'-'));return Number.isFinite(t)?t:0;}
+function pageDateValue(n){
+  const raw=String(n?.date??'').trim();
+  if(!raw)return Number.MIN_SAFE_INTEGER;
+  const normalized=raw.replace(/\s+/g,' ').replace(/\s*([\/\-])\s*/g,'$1');
+  const m=normalized.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?(?::(\d{1,2}))?)?$/);
+  if(m){
+    const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0),Number(m[6]||0));
+    const t=d.getTime();
+    if(Number.isFinite(t))return t;
+  }
+  const t=Date.parse(normalized);
+  return Number.isFinite(t)?t:Number.MIN_SAFE_INTEGER;
+}
+const pageNewsData=pageLoadNews().sort((a,b)=>pageDateValue(b)-pageDateValue(a));
 function pageRenderList(category='全部'){
   pageDetail.hidden=true; pageList.hidden=false;
   pageButtons.forEach(b=>b.classList.toggle('active',b.dataset.category===category));
