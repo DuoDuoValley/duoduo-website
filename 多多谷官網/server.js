@@ -3,7 +3,10 @@ const http=require('http'),fs=require('fs'),path=require('path'),crypto=require(
 const root=__dirname,port=3000;
 const SUPABASE_BUCKET='event-images';
 const adminSessions=new Map();
-const ADMIN_SESSION_TTL=12*60*60*1000;
+const ADMIN_SESSION_TTL=8*60*60*1000;
+const LOGIN_MAX_FAILURES=5;
+const LOGIN_LOCK_MS=10*60*1000;
+const loginAttempts=new Map();
 
 const types={
   '.html':'text/html; charset=utf-8',
@@ -83,6 +86,40 @@ function cleanupAdminSessions(){
       adminSessions.delete(token);
     }
   }
+  for(const [key,attempt] of loginAttempts){
+    if(attempt.lockedUntil && attempt.lockedUntil<=now){
+      loginAttempts.delete(key);
+    }
+  }
+}
+
+function getClientIp(req){
+  const forwarded=String(req.headers['x-forwarded-for']||'').split(',')[0].trim();
+  return forwarded || req.socket?.remoteAddress || 'unknown';
+}
+
+function getLoginAttempt(key){
+  const now=Date.now();
+  const current=loginAttempts.get(key);
+  if(!current)return {failures:0,lockedUntil:0};
+  if(current.lockedUntil && current.lockedUntil>now)return current;
+  if(current.lockedUntil && current.lockedUntil<=now){
+    loginAttempts.delete(key);
+    return {failures:0,lockedUntil:0};
+  }
+  return current;
+}
+
+function recordLoginFailure(key){
+  const current=getLoginAttempt(key);
+  const failures=current.failures+1;
+  const lockedUntil=failures>=LOGIN_MAX_FAILURES?Date.now()+LOGIN_LOCK_MS:0;
+  loginAttempts.set(key,{failures,lockedUntil});
+  return {failures,lockedUntil};
+}
+
+function clearLoginFailure(key){
+  loginAttempts.delete(key);
 }
 
 function getAdminSession(req){
@@ -118,15 +155,30 @@ function handleAdminLogin(req,res){
       const password=String(payload.password||'');
       const expectedUsername=String(process.env.ADMIN_USERNAME||'');
       const expectedPassword=String(process.env.ADMIN_PASSWORD||'');
+      const attemptKey=`${getClientIp(req)}:${username}`;
+      const attempt=getLoginAttempt(attemptKey);
 
       if(!expectedUsername||!expectedPassword){
         return sendJSON(res,500,{ok:false,error:'管理員登入環境變數尚未設定'});
       }
 
+      if(attempt.lockedUntil> Date.now()){
+        const retryAfter=Math.max(1,Math.ceil((attempt.lockedUntil-Date.now())/1000));
+        res.setHeader('Retry-After',String(retryAfter));
+        return sendJSON(res,429,{ok:false,error:'登入嘗試次數過多，請稍後再試'});
+      }
+
       if(username!==expectedUsername||password!==expectedPassword){
+        const result=recordLoginFailure(attemptKey);
+        if(result.lockedUntil){
+          const retryAfter=Math.max(1,Math.ceil((result.lockedUntil-Date.now())/1000));
+          res.setHeader('Retry-After',String(retryAfter));
+          return sendJSON(res,429,{ok:false,error:'登入嘗試次數過多，請 10 分鐘後再試'});
+        }
         return sendJSON(res,401,{ok:false,error:'帳號或密碼錯誤'});
       }
 
+      clearLoginFailure(attemptKey);
       cleanupAdminSessions();
       const token=crypto.randomBytes(32).toString('hex');
       adminSessions.set(token,{createdAt:Date.now()});
@@ -305,14 +357,10 @@ async function handleGetEvents(req,res){
 
 async function handleSaveEvents(req,res){
   try{
-    const adminSession=getAdminSession(req);
-    const adminPassword=process.env.ADMIN_PASSWORD;
-    const requestPassword=req.headers['x-admin-password'];
-
-    if(!adminSession && (!adminPassword || !requestPassword || requestPassword!==adminPassword)){
-      return sendJSON(res,500,{
+    if(!getAdminSession(req)){
+      return sendJSON(res,401,{
         ok:false,
-        error:'ADMIN_PASSWORD 尚未設定'
+        error:'未登入'
       });
     }
 
