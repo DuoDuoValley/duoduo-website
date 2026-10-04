@@ -104,11 +104,23 @@ const defaultReviews=[
   {id:"r2",rating:5,author:"玩家心得",text:"活動蠻多的，不是每天只有掛著打怪。"},
   {id:"r3",rating:5,author:"玩家心得",text:"遇到問題有官方入口可以處理，這點很重要。"}
 ];
-function eventStartTime(e){const t=Date.parse(e?.start||"");return Number.isNaN(t)?Number.MAX_SAFE_INTEGER:t;}
-function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTime(a)-eventStartTime(b));}
+function eventStartTime(e){const t=Date.parse(e?.start||"");return Number.isNaN(t)?Number.MIN_SAFE_INTEGER:t;}
+function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTime(b)-eventStartTime(a));}
+function newsDateTime(n){
+  const raw=String(n?.date||"").trim();
+  const m=raw.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:\s+(\d{1,2}):(\d{2}))?$/);
+  if(m){
+    const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0));
+    const t=d.getTime();
+    if(!Number.isNaN(t))return t;
+  }
+  const t=Date.parse(raw);
+  return Number.isNaN(t)?Number.MIN_SAFE_INTEGER:t;
+}
+function sortNewsByDate(list){return [...list].sort((a,b)=>newsDateTime(b)-newsDateTime(a));}
 function formatEventDate(value){if(!value)return "";const d=new Date(value);if(Number.isNaN(d.getTime()))return String(value);const pad=n=>String(n).padStart(2,"0");return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;}
 function formatEventDateRange(e){const a=formatEventDate(e?.start),b=formatEventDate(e?.end);return a&&b?`${a} ～ ${b}`:(a||b||"");}
-const news=getJSONSafe("duoduo_news",defaultNews),reviews=getJSONSafe("duoduo_reviews",defaultReviews);
+const news=sortNewsByDate(getJSONSafe("duoduo_news",defaultNews)),reviews=getJSONSafe("duoduo_reviews",defaultReviews);
 let BOSS_CONFIG=getJSONSafe("duoduo_boss_config",defaultBossConfig);
 BOSS_CONFIG={interval:Math.max(2000,Number(BOSS_CONFIG.interval)||5000),slides:Array.isArray(BOSS_CONFIG.slides)&&BOSS_CONFIG.slides.length?BOSS_CONFIG.slides:defaultBossConfig.slides};
 let events=sortEventsByStart(getJSONSafe("duoduo_events",defaultEvents).filter(e=>e.published!==false));
