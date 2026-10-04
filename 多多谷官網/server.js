@@ -27,7 +27,7 @@ function handleUpload(req,res){
       const filename=`${Date.now()}_${Math.random().toString(36).slice(2,8)}_${base.replace(/\.[^.]+$/,'')}.${ext}`;
       const file=path.join(uploadDir,filename);
       fs.writeFileSync(file,Buffer.from(match[2],'base64'));
-      sendJSON(res,200,{ok:true,path:`assets/uploads/${filename}`});
+      sendJSON(res,200,{ok:true,path:`https://duoduo-website.onrender.com/assets/uploads/${filename}`});
     }catch(err){
       console.error('圖片上傳失敗:',err);
       sendJSON(res,500,{ok:false,error:'圖片上傳失敗'});
