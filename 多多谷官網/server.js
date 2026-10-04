@@ -49,6 +49,20 @@ async function ensureSupabaseBucket(supabaseUrl,supabaseSecretKey){
     'Content-Type':'application/json'
   };
 
+  // 先確認 Bucket 是否已存在；避免每次圖片上傳都重複建立 Bucket。
+  const checkResponse=await fetch(
+    `${supabaseUrl}/storage/v1/bucket/${encodeURIComponent(SUPABASE_BUCKET)}`,
+    {method:'GET',headers}
+  );
+
+  if(checkResponse.ok)return true;
+
+  if(checkResponse.status!==404){
+    const errorText=await checkResponse.text();
+    console.error('Supabase Storage Bucket 檢查失敗:',errorText);
+    throw new Error('Supabase Storage Bucket 檢查失敗');
+  }
+
   const createResponse=await fetch(
     `${supabaseUrl}/storage/v1/bucket`,
     {
@@ -64,16 +78,10 @@ async function ensureSupabaseBucket(supabaseUrl,supabaseSecretKey){
     }
   );
 
-  if(createResponse.ok||createResponse.status===409){
-    return true;
-  }
+  if(createResponse.ok||createResponse.status===409)return true;
 
   const errorText=await createResponse.text();
-
-  // 如果 bucket 已經存在但 API 回傳其他「已存在」訊息，也視為可繼續。
-  if(/already exists|duplicate|exists/i.test(errorText)){
-    return true;
-  }
+  if(/already exists|duplicate|exists/i.test(errorText))return true;
 
   console.error('Supabase Storage 建立 Bucket 失敗:',errorText);
   throw new Error('Supabase Storage Bucket 建立失敗');
@@ -277,7 +285,8 @@ async function handleUpload(req,res){
 
         return sendJSON(res,500,{
           ok:false,
-          error:'Supabase Storage 圖片上傳失敗'
+          error:'Supabase Storage 圖片上傳失敗',
+          detail:errorText.slice(0,500)
         });
       }
 
