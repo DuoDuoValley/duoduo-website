@@ -440,6 +440,91 @@
   }
 }
 </style>
+
+<style id="mobile-v21-final-layout">
+/* MOBILE ONLY — V21 story layout stabilization. Desktop is untouched. */
+@media (max-width:760px){
+  .v9-rebirth,.v9-upgrade,.v9-convenience,.v9-faction,.v9-discovery,.v9-play,.v9-home,.v9-boss{overflow:hidden!important;}
+
+  /* Shared mobile typography: keep copy above visual area. */
+  .v9-rebirth-copy,.v9-upgrade-copy,.v9-conv-copy,.v9-faction-copy,.v9-play-copy,.v9-home-copy,.v9-boss-copy{
+    left:7vw!important;right:auto!important;width:86vw!important;top:8vh!important;z-index:20!important;
+  }
+  .v9-rebirth-copy h3,.v9-upgrade-copy h3,.v9-conv-copy h3,.v9-faction-copy h3,.v9-play-copy h3,.v9-home-copy h3,.v9-boss-copy h3{
+    font-size:clamp(42px,11vw,62px)!important;line-height:.95!important;letter-spacing:-.055em!important;margin:16px 0 18px!important;
+  }
+  .v9-rebirth-copy p,.v9-upgrade-copy p,.v9-conv-copy p,.v9-faction-copy p,.v9-play-copy p,.v9-home-copy p,.v9-boss-copy p{
+    max-width:86vw!important;font-size:15px!important;line-height:1.75!important;margin:0!important;
+  }
+
+  /* 01 — Rebirth */
+  .v9-rebirth{height:205vh!important;}
+  .v9-rebirth-stage{width:88vw!important;height:88vw!important;right:6vw!important;top:62%!important;}
+  .v9-orbit-label{font-size:10px!important;}
+  .v9-rebirth-center{width:92px!important;height:92px!important;}
+
+  /* 02 — Upgrade */
+  .v9-upgrade{height:190vh!important;}
+  .v9-upgrade-board{left:5vw!important;top:63%!important;width:90vw!important;height:90vw!important;}
+  .v9-upgrade-slot{width:78px!important;height:78px!important;border-radius:20px!important;}
+  .v9-upgrade-slot.main{width:120px!important;height:120px!important;border-radius:28px!important;}
+  .v9-plus{font-size:72px!important;}
+
+  /* 03 — Convenience */
+  .v9-convenience{height:185vh!important;}
+  .v9-afk-frame{left:5vw!important;top:61%!important;width:90vw!important;}
+  .v9-afk-status{width:48%!important;right:-2%!important;bottom:-7%!important;}
+  .v9-conv-word{right:5vw!important;bottom:7vh!important;font-size:26vw!important;}
+
+  /* 04 — Faction */
+  .v9-faction{height:215vh!important;}
+  .v9-faction-stage{right:4vw!important;top:57%!important;width:92vw!important;height:92vw!important;}
+  .v9-faction-stage .f{width:62px!important;max-height:135px!important;}
+  .v9-faction-stage .f1{left:16%!important;top:23%!important}.v9-faction-stage .f2{right:14%!important;top:18%!important}
+  .v9-faction-stage .f3{left:21%!important;bottom:15%!important}.v9-faction-stage .f4{right:18%!important;bottom:12%!important}
+  .v9-dungeon{left:50%!important;right:auto!important;bottom:5vh!important;width:88%!important;min-width:0!important;}
+
+  /* 05 — Discovery: one clean vertical stack on phones. */
+  .v9-discovery{height:auto!important;min-height:2150px!important;padding:9vh 6vw 10vh!important;overflow:hidden!important;}
+  .v9-discovery-head{position:relative!important;left:auto!important;top:auto!important;width:100%!important;margin:0 0 42px!important;z-index:5!important;}
+  .v9-discovery-head h3{font-size:clamp(44px,11vw,62px)!important;line-height:.96!important;margin:14px 0 18px!important;}
+  .v9-discovery-head p{font-size:15px!important;line-height:1.75!important;margin:0!important;max-width:100%!important;}
+  .v9-discovery-stage{position:relative!important;left:auto!important;top:auto!important;width:100%!important;height:auto!important;max-width:none!important;margin:0!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:22px!important;}
+  .v9-discovery-item,.v9-discovery-item.i1,.v9-discovery-item.i2,.v9-discovery-item.i3,.v9-discovery-item.i4{
+    position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:min(100%,320px)!important;height:250px!important;flex:none!important;padding:20px!important;
+  }
+  .v9-discovery-item img{width:120px!important;height:120px!important;}
+  .v9-discovery-item.i4 img{width:100px!important;height:145px!important;}
+  .v9-discovery-item b{font-size:19px!important;}
+  .v9-discovery-line{display:none!important;}
+
+  /* 06 — Playground: stack cards instead of forcing desktop coordinates. */
+  .v9-play{height:auto!important;min-height:1450px!important;overflow:hidden!important;}
+  .v9-play-copy{position:relative!important;left:auto!important;top:auto!important;width:88vw!important;margin:0 auto!important;padding-top:8vh!important;z-index:20!important;}
+  .v9-play-copy h3{font-size:clamp(42px,11vw,62px)!important;line-height:.95!important;margin:16px 0 18px!important;}
+  .v9-play-copy p{font-size:15px!important;line-height:1.75!important;margin:0!important;}
+  .v9-play-stage{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:88vw!important;height:auto!important;margin:46px auto 0!important;display:flex!important;flex-direction:column!important;align-items:center!important;gap:22px!important;inset:auto!important;}
+  .v9-play-item,.v9-play-item.p1,.v9-play-item.p2,.v9-play-item.p3{
+    position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:100%!important;height:270px!important;flex:none!important;padding:18px!important;transform-origin:center!important;
+  }
+  .v9-play-item.p2{height:210px!important;}
+  .v9-play-item.p1 img,.v9-play-item.p2 img,.v9-play-item.p3 img{width:100%!important;height:calc(100% - 48px)!important;max-width:none!important;}
+  .v9-play-item b{left:16px!important;bottom:34px!important;font-size:16px!important;white-space:nowrap!important;}
+  .v9-play-item small{left:16px!important;bottom:14px!important;}
+
+  /* 07 — My House */
+  .v9-home{height:175vh!important;}
+  .v9-home-copy{top:8vh!important;width:86vw!important;}
+  .v9-home-image{left:5vw!important;top:61%!important;width:90vw!important;}
+
+  /* 08 — Boss */
+  .v9-boss{height:180vh!important;}
+  .v9-boss-copy{left:7vw!important;top:9vh!important;width:86vw!important;}
+  .v9-boss-video{object-position:center center!important;}
+  .v9-boss-progress{left:7vw!important;width:86%!important;bottom:7vh!important;}
+}
+</style>
+
 </head>
 <body>
 <header class="site-header">
