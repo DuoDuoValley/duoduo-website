@@ -1173,4 +1173,150 @@ let ticking=false;function scrollFX(){ticking=false;const about=document.querySe
 })();
 </script>
 
+
+<style id="mobile-apple-natural-story-v2">
+/* MOBILE V2 — Apple-inspired natural story flow. Desktop is intentionally untouched. */
+@media (max-width:760px){
+  #v9-story{overflow:visible!important;background:#f5f5f7!important}
+  #v9-story .v9-story-intro{
+    min-height:58svh!important;height:auto!important;padding:72px 22px 64px!important;
+    display:grid!important;place-content:center!important;
+  }
+  #v9-story .v9-story-intro h2{font-size:clamp(44px,12vw,60px)!important;line-height:.96!important;margin:18px 0!important}
+  #v9-story .v9-story-intro p{font-size:14px!important;line-height:1.7!important;max-width:330px!important}
+
+  /* Every story is content-driven: text → visual → next story. */
+  #v9-story > section:not(.v9-boss){
+    height:auto!important;min-height:0!important;margin:0!important;padding:64px 20px 72px!important;
+    overflow:visible!important;position:relative!important;
+  }
+  #v9-story > section .v9-pin{
+    position:relative!important;top:auto!important;left:auto!important;height:auto!important;min-height:0!important;
+    overflow:visible!important;display:flex!important;flex-direction:column!important;
+  }
+  #v9-story .v9-rebirth-copy,#v9-story .v9-upgrade-copy,#v9-story .v9-conv-copy,#v9-story .v9-faction-copy,#v9-story .v9-play-copy,#v9-story .v9-home-copy,#v9-story .v9-boss-copy{
+    position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:100%!important;
+    opacity:1!important;transform:none!important;filter:none!important;clip-path:none!important;z-index:5!important;
+  }
+  #v9-story .v9-rebirth-copy h3,#v9-story .v9-upgrade-copy h3,#v9-story .v9-conv-copy h3,#v9-story .v9-faction-copy h3,#v9-story .v9-play-copy h3,#v9-story .v9-home-copy h3,#v9-story .v9-boss-copy h3{
+    font-size:clamp(40px,10.8vw,56px)!important;line-height:.96!important;letter-spacing:-.055em!important;margin:14px 0 16px!important;
+    opacity:1!important;transform:none!important;filter:none!important;
+  }
+  #v9-story .v9-rebirth-copy p,#v9-story .v9-upgrade-copy p,#v9-story .v9-conv-copy p,#v9-story .v9-faction-copy p,#v9-story .v9-play-copy p,#v9-story .v9-home-copy p,#v9-story .v9-boss-copy p{
+    font-size:14px!important;line-height:1.75!important;margin:0!important;max-width:330px!important;color:#777!important;
+    opacity:1!important;transform:none!important;
+  }
+
+  /* 01 — compact orbit, no scroll-position dependency */
+  #v9-story .v9-rebirth{background:#090a0d!important;color:#fff!important}
+  #v9-story .v9-rebirth-stage{position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:280px!important;height:280px!important;margin:52px auto 0!important;
+    transform:none!important;opacity:1!important;flex:0 0 auto!important}
+  #v9-story .v9-ring{transform:translate(-50%,-50%)!important}
+  #v9-story .v9-rebirth-center{width:82px!important;height:82px!important;transform:translate(-50%,-50%)!important}
+  #v9-story .v9-orbit{width:58px!important;height:58px!important;transform:none!important;opacity:1!important;filter:none!important}
+  #v9-story .v9-orbit.o1{left:50%!important;top:3%!important;margin:0!important;transform:translateX(-50%)!important}
+  #v9-story .v9-orbit.o2{left:7%!important;top:58%!important;margin:0!important}
+  #v9-story .v9-orbit.o3{right:7%!important;left:auto!important;top:58%!important;margin:0!important}
+  #v9-story .v9-orbit-label{opacity:1!important;font-size:8px!important;color:#888!important}
+  #v9-story .v9-orbit-label.l1{left:42%!important;top:22%!important}
+  #v9-story .v9-orbit-label.l2{left:2%!important;top:78%!important}
+  #v9-story .v9-orbit-label.l3{right:0!important;left:auto!important;bottom:8%!important;top:auto!important}
+
+  /* 02 — one centered upgrade object */
+  #v9-story .v9-upgrade{background:#e8e8eb!important}
+  #v9-story .v9-upgrade-board{position:relative!important;left:auto!important;top:auto!important;width:286px!important;height:286px!important;margin:48px auto 0!important;
+    transform:none!important;opacity:1!important;flex:0 0 auto!important}
+  #v9-story .v9-upgrade-slot{transform:none!important;opacity:1!important}
+  #v9-story .v9-upgrade-slot.main{width:92px!important;height:92px!important}
+  #v9-story .v9-upgrade-slot:not(.main){width:62px!important;height:62px!important;border-radius:16px!important}
+  #v9-story .v9-upgrade-slot.s2{left:5%!important;top:18%!important}
+  #v9-story .v9-upgrade-slot.s3{right:5%!important;top:12%!important}
+  #v9-story .v9-upgrade-slot.s4{left:12%!important;bottom:7%!important}
+  #v9-story .v9-upgrade-slot.s5{right:6%!important;bottom:15%!important}
+  #v9-story .v9-plus{font-size:52px!important}
+  #v9-story .v9-upgrade-line{transform:rotate(-25deg)!important}
+
+  /* 03 — screenshot first, status card tucked underneath */
+  #v9-story .v9-convenience{background:#07090c!important;color:#fff!important}
+  #v9-story .v9-afk-frame{position:relative!important;left:auto!important;top:auto!important;width:100%!important;margin:42px auto 0!important;
+    transform:none!important;opacity:1!important;max-width:520px!important}
+  #v9-story .v9-afk-frame>img{width:100%!important;border-radius:18px!important}
+  #v9-story .v9-afk-status{width:34%!important;right:2%!important;bottom:-7%!important;transform:rotate(3deg)!important;opacity:1!important}
+  #v9-story .v9-conv-word,#v9-story .v9-scanline{display:none!important}
+
+  /* 04 — faction image and roguelike card are separate beats */
+  #v9-story .v9-faction{background:#dce2e8!important}
+  #v9-story .v9-faction-stage{position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:286px!important;height:286px!important;margin:42px auto 0!important;
+    transform:none!important;opacity:1!important;flex:0 0 auto!important}
+  #v9-story .v9-faction-stage .f{width:58px!important;max-height:112px!important;transform:none!important}
+  #v9-story .v9-faction-stage .f1{left:14%!important;top:23%!important}.v9-faction-stage .f2{right:12%!important;top:17%!important}
+  #v9-story .v9-faction-stage .f3{left:21%!important;bottom:12%!important}.v9-faction-stage .f4{right:15%!important;bottom:10%!important}
+  #v9-story .v9-vs{transform:translate(-50%,-50%)!important;opacity:.5!important;font-size:36px!important}
+  #v9-story .v9-dungeon{position:relative!important;left:auto!important;right:auto!important;bottom:auto!important;width:100%!important;min-width:0!important;
+    margin:34px 0 0!important;padding:14px!important;transform:none!important;opacity:1!important;box-sizing:border-box!important;gap:10px!important}
+  #v9-story .v9-dungeon img{width:50px!important;height:50px!important;flex:0 0 50px!important}
+  #v9-story .v9-dungeon strong{font-size:17px!important}.v9-dungeon p{font-size:11px!important;line-height:1.5!important}
+
+  /* 05 — simple 2×2 collection, no absolute stacking */
+  #v9-story .v9-discovery{background:#fff!important;padding:64px 20px 72px!important}
+  #v9-story .v9-discovery-head{position:relative!important;left:auto!important;top:auto!important;width:100%!important;margin:0!important}
+  #v9-story .v9-discovery-head h3{font-size:clamp(40px,10.8vw,56px)!important;line-height:.96!important;margin:14px 0 16px!important;opacity:1!important;transform:none!important}
+  #v9-story .v9-discovery-head p{font-size:14px!important;line-height:1.7!important;margin:0!important;max-width:330px!important}
+  #v9-story .v9-discovery-stage{position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:100%!important;height:auto!important;margin:40px 0 0!important;
+    display:grid!important;grid-template-columns:1fr 1fr!important;gap:12px!important;transform:none!important}
+  #v9-story .v9-discovery-item{position:relative!important;inset:auto!important;width:auto!important;height:148px!important;padding:12px!important;border-radius:18px!important;opacity:1!important;filter:none!important;transform:none!important}
+  #v9-story .v9-discovery-item img{width:68px!important;height:68px!important;margin:auto auto 6px!important}
+  #v9-story .v9-discovery-item.i4 img{width:54px!important;height:78px!important}
+  #v9-story .v9-discovery-item b{font-size:12px!important}.v9-discovery-item small{font-size:7px!important}
+  #v9-story .v9-discovery-line{display:none!important}
+
+  /* 06 — stacked cards; nothing can cover the heading */
+  #v9-story .v9-play{background:#f2f2f4!important}
+  #v9-story .v9-play-copy{position:relative!important;top:auto!important;width:100%!important}
+  #v9-story .v9-play-stage{position:relative!important;left:auto!important;right:auto!important;top:auto!important;bottom:auto!important;width:100%!important;height:auto!important;margin:38px 0 0!important;
+    display:grid!important;grid-template-columns:1fr!important;gap:14px!important;inset:auto!important}
+  #v9-story .v9-play-item,#v9-story .v9-play-item.p1,#v9-story .v9-play-item.p2,#v9-story .v9-play-item.p3{
+    position:relative!important;left:auto!important;right:auto!important;top:auto!important;width:100%!important;height:168px!important;inset:auto!important;
+    opacity:1!important;filter:none!important;transform:none!important;padding:14px!important;border-radius:20px!important;box-sizing:border-box!important}
+  #v9-story .v9-play-item img{display:block!important;width:100%!important;height:100px!important;object-fit:contain!important;margin:auto!important}
+  #v9-story .v9-play-item.p1 img{width:145px!important;height:105px!important}.v9-play-item.p2 img{width:85%!important;height:72px!important}.v9-play-item.p3 img{width:150px!important;height:105px!important}
+  #v9-story .v9-play-item b{left:14px!important;bottom:29px!important;font-size:13px!important}.v9-play-item small{left:14px!important;bottom:11px!important;font-size:7px!important}
+
+  /* 07 — quiet, image-led scene */
+  #v9-story .v9-home{background:#e7e1d8!important}
+  #v9-story .v9-home-image{position:relative!important;left:auto!important;top:auto!important;width:100%!important;margin:42px auto 0!important;
+    transform:none!important;opacity:1!important;max-width:520px!important}
+  #v9-story .v9-home-image img{width:100%!important;filter:drop-shadow(0 24px 40px #0002)!important}
+
+  /* 08 — only the boss keeps a cinematic viewport */
+  #v9-story .v9-boss{height:78svh!important;min-height:560px!important;padding:0!important;overflow:hidden!important;background:#030303!important}
+  #v9-story .v9-boss .v9-pin{height:100%!important;display:block!important}
+  #v9-story .v9-boss-video{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;object-fit:cover!important;opacity:.7!important;transform:scale(1.03)!important}
+  #v9-story .v9-boss-copy{position:absolute!important;left:20px!important;right:20px!important;bottom:72px!important;top:auto!important;width:auto!important;color:#fff!important}
+  #v9-story .v9-boss-copy p{color:#aaa!important}
+  #v9-story .v9-boss-progress{left:20px!important;width:calc(100% - 40px)!important;bottom:32px!important}
+
+  /* The old desktop scroll scripts still run, so explicitly neutralize their inline motion. */
+  #v9-story .v9-rebirth-copy,#v9-story .v9-upgrade-copy,#v9-story .v9-conv-copy,#v9-story .v9-faction-copy,#v9-story .v9-play-copy,#v9-story .v9-home-copy,#v9-story .v9-boss-copy,
+  #v9-story .v9-rebirth-stage,#v9-story .v9-upgrade-board,#v9-story .v9-afk-frame,#v9-story .v9-faction-stage,#v9-story .v9-dungeon,#v9-story .v9-discovery-head,#v9-story .v9-discovery-item,#v9-story .v9-play-item,#v9-story .v9-home-image{
+    will-change:auto!important;
+  }
+  #v9-story .mobile-story-animate{animation:mobileAppleReveal .65s cubic-bezier(.22,.61,.36,1) both!important}
+  @keyframes mobileAppleReveal{from{opacity:.01;transform:translateY(18px)!important}to{opacity:1;transform:none!important}}
+  @media(prefers-reduced-motion:reduce){#v9-story .mobile-story-animate{animation:none!important}}
+}
+</style>
+<script id="mobile-apple-natural-story-v2-script">
+(()=>{
+  if(!matchMedia('(max-width:760px)').matches)return;
+  const root=document.querySelector('#v9-story');if(!root)return;
+  const targets=[...root.querySelectorAll('.v9-story-intro,.v9-rebirth-copy,.v9-rebirth-stage,.v9-upgrade-copy,.v9-upgrade-board,.v9-conv-copy,.v9-afk-frame,.v9-faction-copy,.v9-faction-stage,.v9-dungeon,.v9-discovery-head,.v9-discovery-item,.v9-play-copy,.v9-play-item,.v9-home-copy,.v9-home-image,.v9-boss-copy')];
+  if(!('IntersectionObserver' in window))return;
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('mobile-story-animate');io.unobserve(e.target)}});
+  },{threshold:.12,rootMargin:'0px 0px -10% 0px'});
+  targets.forEach(el=>io.observe(el));
+})();
+</script>
+
 </body></html>
