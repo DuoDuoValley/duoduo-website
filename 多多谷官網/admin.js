@@ -110,7 +110,7 @@
 if(!document.getElementById('heroUploadStyles')){const st=document.createElement('style');st.id='heroUploadStyles';st.textContent='.hero-slide-preview{margin:10px 0 0;min-height:90px;border:1px dashed var(--line,#294057);border-radius:10px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:rgba(0,0,0,.12);color:#8ea5bd}.hero-slide-preview img{display:block;width:180px;height:100px;object-fit:cover}.hero-slide-fields label{margin-bottom:8px}.field-note{display:block;margin-top:4px;opacity:.72;font-size:.8em}';document.head.appendChild(st)}
 const $=s=>document.querySelector(s),esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const defaultLinks={"Discord":"https://discord.gg/duoduovalley","儲值入口":"https://fd-pay.com/ARrbXO","遊玩指南":"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing","機率型道具說明":"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing","上架商品":"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing","每日 Checklist":"https://duoduovalley.github.io/duoduo-checklist/","登入器下載":"https://mega.nz/file/d3IVHYZY#iIv2y93Y2tPy2zORnDUUEWY-q4wO6PkdTqNZG3cYlM","整合包下載":"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing"};
-const newsTagShort=t=>({'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'}[t]||t); const defaults={news:[{tag:'重要消息',title:'DuoDuo Valley 官方網站持續完善中',date:'2026/10/04',body:'多多谷官方網站正在持續整理遊戲資訊、活動與玩家資源。'}],events:[{id:'e1',name:'多多谷活動',image:'assets/ad3.png',desc:'持續更新的活動與玩法。',detail:'活動詳細內容會在這裡完整呈現。',start:'2026-10-01T00:00',end:'2026-10-31T23:59',url:'',published:true},{id:'e2',name:'福利活動',image:'assets/birthday.png',desc:'多多谷福利與社群活動資訊。',detail:'福利活動的完整說明與注意事項。',start:'2026-10-01T00:00',end:'2026-10-31T23:59',url:'',published:true}],items:[]};
+const newsTagShort=t=>({'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'}[t]||t); const defaults={news:[{tag:'重要消息',title:'DuoDuo Valley 官方網站持續完善中',date:'2026/10/04',body:'多多谷官方網站正在持續整理遊戲資訊、活動與玩家資源。'}],events:[],items:[]};
 let news=read('duoduo_news',defaults.news),events=read('duoduo_events',defaults.events),items=read('duoduo_items',defaults.items);
 let reviews=read('duoduo_reviews',[{id:'r1',rating:5,author:'玩家心得',text:'很多東西不用一直重複操作，玩起來比較舒服。',createdAt:1},{id:'r2',rating:5,author:'玩家心得',text:'活動蠻多的，不是每天只有掛著打怪。',createdAt:2},{id:'r3',rating:5,author:'玩家心得',text:'遇到問題有官方入口可以處理，這點很重要。',createdAt:3}]);
 const defaultLayout={sections:[{id:'hero',name:'Hero 主視覺',visible:true,desc:'首頁第一屏／主視覺／CTA'},{id:'new-player',name:'新手三步驟',visible:true,desc:'第一次來多多谷的快速入口'},{id:'why',name:'為什麼選多多谷',visible:true,desc:'內容、便利、社群與長期遊玩理由'},{id:'about',name:'關於多多谷',visible:true,desc:'品牌與世界觀介紹'},{id:'quick-intro',name:'快速認識多多谷',visible:true,desc:'輪迴、BOSS、活動與便利玩法總覽'},{id:'features',name:'遊戲特色',visible:true,desc:'輪迴、強化、拳王、小屋等特色卡片'},{id:'events',name:'最新活動',visible:true,desc:'首頁活動卡片'},{id:'boss',name:'BOSS 挑戰',visible:true,desc:'BOSS 與副本宣傳'},{id:'community',name:'玩家社群',visible:true,desc:'社群與玩家交流'},{id:'stay',name:'為什麼留下來',visible:true,desc:'持續內容、養成與社群理由'},{id:'news',name:'最新公告',visible:true,desc:'官方公告與分類資訊'},{id:'versions',name:'版本紀錄',visible:true,desc:'目前版本與持續更新方向'},{id:'start',name:'開始遊玩',visible:true,desc:'登入器、整合包、指南與儲值'},{id:'quick-links',name:'玩家常用入口',visible:true,desc:'商城、機率、Checklist、Discord'}],featureColumns:3,heroEyebrow:'DUODUO VALLEY · OFFICIAL',heroTitle:'你的冒險，從多多谷開始。',heroSubtitle:'一個持續更新、充滿玩法，也讓玩家願意留下來的楓之谷世界。',aboutTitle:'一個正在慢慢變熱鬧的小小世界'};
@@ -121,8 +121,19 @@ const defaultSettings={name:'DuoDuo Valley｜多多谷',subtitle:'你的冒險�
 const defaultHero={images:['assets/ad3.png','assets/birthday.png','assets/boss.png','assets/experience-rate.png'],interval:5000};
 let hero=read('duoduo_hero',defaultHero);if(!Array.isArray(hero.slides)||!hero.slides.length){hero.slides=(Array.isArray(hero.images)&&hero.images.length?hero.images:defaultHero.images).map((image,i)=>({image,title:`多多谷宣傳 ${i+1}`,link:'',enabled:true}));}hero.slides=hero.slides.map((x,i)=>({image:x.image||'',title:x.title||`多多谷宣傳 ${i+1}`,link:x.link||'',enabled:x.enabled!==false}));hero.images=hero.slides.map(x=>x.image);hero.interval=Math.max(2000,Number(hero.interval)||5000);
 let settings=read('duoduo_settings',defaultSettings);settings.nav=Object.assign({},defaultSettings.nav,settings.nav||{});settings.footer=Object.assign({},defaultSettings.footer,settings.footer||{});const defaultNavOrder=['home','why','features','events','boss','news','guide','downloads'];settings.navOrder=Array.isArray(settings.navOrder)?settings.navOrder.filter(k=>defaultNavOrder.includes(k)):[];settings.navOrder=[...settings.navOrder,...defaultNavOrder.filter(k=>!settings.navOrder.includes(k))];
-const defaultResources=[{id:'guide',title:'完整遊玩指南',desc:'新手規則、系統說明與遊玩資訊。',url:defaultLinks['遊玩指南'],embedUrl:'https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/preview',embed:true,enabled:true},{id:'rates',title:'機率型道具說明',desc:'查看機率型道具與相關說明。',url:defaultLinks['機率型道具說明'],embedUrl:'https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing',embed:true,enabled:true},{id:'products',title:'上架商品',desc:'查看目前可取得的商品與內容。',url:defaultLinks['上架商品'],embedUrl:'https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing',embed:true,enabled:true},{id:'checklist',title:'每日 Checklist',desc:'每天完成進度、活動與日常內容的快速檢查。',url:defaultLinks['每日 Checklist'],embedUrl:defaultLinks['每日 Checklist'],embed:true,enabled:true}];
+const defaultResources=[{id:'guide',title:'完整遊玩指南',desc:'新手規則、系統說明與遊玩資訊。',url:defaultLinks['遊玩指南'],embedUrl:'https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/preview',embed:true,enabled:true},{id:'checklist',title:'每日 Checklist',desc:'每天完成進度、活動與日常內容的快速檢查。',url:defaultLinks['每日 Checklist'],embedUrl:defaultLinks['每日 Checklist'],embed:true,enabled:true},{id:'rates',title:'機率型道具說明',desc:'查看機率型道具與相關說明。',url:defaultLinks['機率型道具說明'],embedUrl:'https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing',embed:true,enabled:true},{id:'products',title:'上架商品',desc:'查看目前可取得的商品與內容。',url:defaultLinks['上架商品'],embedUrl:'https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing',embed:true,enabled:true}];
 let resources=read('duoduo_resources',defaultResources);
+
+// 若仍是舊版預設順序，將 Checklist 移到第二個；已自行調整過的順序則完全保留。
+(function(){
+  const ids=Array.isArray(resources)?resources.map(r=>r?.id):[];
+  const oldDefault=['guide','rates','products','checklist'];
+  if(ids.length===oldDefault.length && ids.every((id,i)=>id===oldDefault[i])){
+    const idx=ids.indexOf('checklist');
+    if(idx>1){const item=resources.splice(idx,1)[0];resources.splice(1,0,item);save('duoduo_resources',resources);}
+  }
+})();
+
 const defaultDownloads=[
 {id:'manager',title:'遊戲橘子遊戲管理器',type:'遊戲本體',url:'https://tw.beanfun.com/beanfunCommon/Redirect/Redirect.aspx?ID=B258',desc:'第一次安裝遊戲時，先使用官方遊戲管理器下載新楓之谷。',instructions:'1.於官方網站或多多谷Discord下載並安裝「遊戲橘子遊戲管理器」。\n2.開啟「遊戲橘子遊戲管理器」，找到「新楓之谷」點擊開始下載並選擇安裝路徑。',image:'assets/download-manager-guide.png',enabled:true},
 {id:'patch281to282',title:'V281 ～ V282 更新檔',type:'版本更新',url:'https://maplestory-download.beanfun.com/maplestory/download/282DTOpqU2UWtIc/8MCDwQMvJ47u/MaplePatch281to282.zip',desc:'已經安裝對應遊戲版本的玩家，可使用此檔案更新至 V282。',instructions:'1.於官方網站下載符合需求的更新檔案。\n2.下載完畢後，使用右鍵選更新檔，並選擇「以系統管理員身分執行」。\n3.選擇自己安裝新楓之谷主程式時的位置。',image:'assets/manual-update-guide.png',enabled:true},
@@ -140,7 +151,6 @@ let layout=read('duoduo_layout',defaultLayout);let editingItemId=null,pendingIte
 function read(k,f){try{return JSON.parse(localStorage.getItem(k)||'null')??structuredClone(f)}catch{return structuredClone(f)}}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 
-/* ===== 手動雲端同步（保留後台完整資料同步按鈕） ===== */
 const CLOUD_SITE_KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_links'];
 function getAdminToken(){try{return sessionStorage.getItem('duoduo_admin_session')||''}catch{return ''}}
 async function pushSiteDataToCloud(keys=CLOUD_SITE_KEYS){
@@ -158,41 +168,37 @@ async function pushSiteDataToCloud(keys=CLOUD_SITE_KEYS){
   if(!res.ok||!data.ok)throw new Error(res.status===401?'登入已失效':(data.error||'網站資料同步失敗'));
   return data;
 }
+// 雲端同步改為「手動」：平常所有編輯只寫入目前瀏覽器。
+function queueSiteDataCloudSave(key){/* 保留函式名稱以避免其他舊程式碼出錯，但不再自動同步。 */}
 function addCloudMigrationButton(){
   if(document.getElementById('duoduo-cloud-migrate'))return;
-  const style=document.createElement('style');
-  style.textContent='#duoduo-cloud-migrate{position:fixed;right:22px;bottom:22px;z-index:99990;padding:11px 16px;border:1px solid #39536d;border-radius:999px;background:#132234;color:#fff;font:600 14px/1.2 inherit;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.28)}#duoduo-cloud-migrate:hover{background:#1b3047}';
-  document.head.appendChild(style);
-  const btn=document.createElement('button');
-  btn.id='duoduo-cloud-migrate';
-  btn.type='button';
-  btn.textContent='☁️ 將目前資料同步到雲端';
+  const style=document.createElement('style');style.textContent='#duoduo-cloud-migrate{position:fixed;right:22px;bottom:22px;z-index:99990;padding:11px 16px;border:1px solid #39536d;border-radius:999px;background:#132234;color:#fff;font:600 14px/1.2 inherit;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.28)}#duoduo-cloud-migrate:hover{background:#1b3047}';document.head.appendChild(style);
+  const btn=document.createElement('button');btn.id='duoduo-cloud-migrate';btn.type='button';btn.textContent='☁️ 將目前資料同步到雲端';
   btn.addEventListener('click',async()=>{
     if(!confirm('會將這台瀏覽器目前的公告、評論、首頁內容、主視覺、版面、網站設定、資源、下載、檔期活動與 BOSS 設定，一次覆蓋同步到雲端。\n\n請先確認你已經把所有修改完成。\n\n確定要同步嗎？'))return;
-    const old=btn.textContent;
-    btn.disabled=true;
-    btn.textContent='☁️ 同步中…';
+    const old=btn.textContent;btn.disabled=true;btn.textContent='☁️ 同步中…';
     try{
       await pushSiteDataToCloud();
       await syncEventsToServer();
       await saveBossesToServer();
       alert('目前瀏覽器資料已成功同步到雲端。之後玩家即可讀取這份資料。');
-    }catch(error){
-      console.error(error);
-      alert(error.message==='登入已失效'?'登入已失效，請重新整理後再試。':'雲端同步失敗，原本瀏覽器資料沒有被刪除。');
-    }finally{
-      btn.disabled=false;
-      btn.textContent=old;
     }
+    catch(error){
+      console.error(error);
+      alert(error.message==='登入已失效'?'登入已失效，請重新登入後再試。':'雲端同步失敗，原本瀏覽器資料沒有被刪除。');
+    }
+    finally{btn.disabled=false;btn.textContent=old}
   });
   document.body.appendChild(btn);
 }
 window.addEventListener('duoduo-admin-authenticated',addCloudMigrationButton);
 setTimeout(()=>{if(document.getElementById('duoduo-admin-auth')===null)addCloudMigrationButton()},1000);
-/* ===== 手動雲端同步結束 ===== */
-function eventStartTimestamp(e){const t=Date.parse(e?.start||'');return Number.isFinite(t)?t:Number.MAX_SAFE_INTEGER}
-function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTimestamp(a)-eventStartTimestamp(b))}
+function eventStartTimestamp(e){const raw=String(e?.start??'').trim();if(!raw)return Number.MIN_SAFE_INTEGER;const m=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?)?/);if(m){const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0));if(Number.isFinite(d.getTime()))return d.getTime();}const t=Date.parse(raw);return Number.isFinite(t)?t:Number.MIN_SAFE_INTEGER}
+function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTimestamp(b)-eventStartTimestamp(a))}
 function formatEventDateRange(e){const fmt=v=>{if(!v)return '';const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v).replace('T',' ');const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`};return `${fmt(e?.start)} ～ ${fmt(e?.end)}`}
+function eventDateTimeParts(value){const raw=String(value??'').trim();if(!raw)return {date:'',time:''};const m=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?)?/);if(m){return {date:`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`,time:`${String(m[4]||0).padStart(2,'0')}:${String(m[5]||0).padStart(2,'0')}`};}const d=new Date(raw);if(Number.isNaN(d.getTime()))return {date:'',time:''};return {date:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,time:`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};}
+function combineEventDateTime(dateId,timeId){const date=$(`#${dateId}`)?.value||'';const time=$(`#${timeId}`)?.value||'';return date?`${date}T${time||'00:00'}`:'';}
+function setEventDateTime(dateId,timeId,value){const parts=eventDateTimeParts(value);const date=$(`#${dateId}`),time=$(`#${timeId}`);if(date)date.value=parts.date;if(time)time.value=parts.time;}
 document.querySelectorAll('.nav').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');$('#'+btn.dataset.panel).classList.add('active');render()});
 const contentFields=[
 ['hero','Hero 主視覺',[['eyebrow','小標'],['title','標題'],['subtitle','副標題']]],['newPlayer','新手三步驟',[['title','標題'],['desc','介紹'],['steps.0.title','步驟 1 標題'],['steps.0.desc','步驟 1 說明'],['steps.1.title','步驟 2 標題'],['steps.1.desc','步驟 2 說明'],['steps.2.title','步驟 3 標題'],['steps.2.desc','步驟 3 說明']]],['why','為什麼選多多谷',[['title','標題'],['desc','介紹'],...Array.from({length:6},(_,i)=>[`cards.${i}.title`,`卡片 ${i+1} 標題`]).concat(Array.from({length:6},(_,i)=>[`cards.${i}.desc`,`卡片 ${i+1} 說明`]))]],['about','關於多多谷',[['title','標題'],['desc','介紹'],['overlayTitle','圖片上的標題'],['overlayDesc','圖片上的說明'],['image','世界觀圖片路徑']]],['quickIntro','快速認識多多谷',[['title','標題'],['desc','介紹'],...Array.from({length:4},(_,i)=>[`cards.${i}.title`,`卡片 ${i+1} 標題`]).concat(Array.from({length:4},(_,i)=>[`cards.${i}.desc`,`卡片 ${i+1} 說明`]))]],['features','特色系統',[['title','標題'],['desc','介紹'],...Array.from({length:4},(_,i)=>[`cards.${i}.title`,`卡片 ${i+1} 標題`]).concat(Array.from({length:4},(_,i)=>[`cards.${i}.desc`,`卡片 ${i+1} 說明`]).concat([['cards.0.small','第一張卡片底部文字']]))]],['events','活動',[['title','標題']]],['boss','BOSS',[['title','標題'],['desc','介紹']]],['community','玩家社群',[['title','標題'],['desc','介紹'],['copyTitle','內文標題'],['copyDesc','內文說明']]],['stay','為什麼留下來',[['title','標題'],['desc','介紹'],...Array.from({length:3},(_,i)=>[`cards.${i}.title`,`卡片 ${i+1} 標題`]).concat(Array.from({length:3},(_,i)=>[`cards.${i}.desc`,`卡片 ${i+1} 說明`]))]],['news','最新消息',[['title','標題']]],['versions','版本紀錄',[['title','標題'],['desc','介紹']]],['start','開始遊玩',[['title','標題'],['desc','介紹']]],['quickLinks','玩家常用入口',[['title','標題']]]];
@@ -293,7 +299,45 @@ function renderHeroSlides(){const box=$('#heroSlidesAdmin');if(!box)return;box.i
 window.removeHeroSlide=i=>{hero.slides.splice(i,1);renderHeroSlides()};$('#addHeroSlide').onclick=()=>{hero.slides.push({image:'',title:'新的輪播圖片',link:'',enabled:true});renderHeroSlides()};
 window.toggleSection=i=>{layout.sections[i].visible=!layout.sections[i].visible;renderLayout()};
 function setupDrag(){let from=null;document.querySelectorAll('.layout-row').forEach(r=>{r.addEventListener('dragstart',()=>{from=+r.dataset.index;r.classList.add('dragging')});r.addEventListener('dragend',()=>r.classList.remove('dragging'));r.addEventListener('dragover',e=>e.preventDefault());r.addEventListener('drop',e=>{e.preventDefault();const to=+r.dataset.index;if(from===null||from===to)return;const m=layout.sections.splice(from,1)[0];layout.sections.splice(to,0,m);renderLayout()})})}
-$('#saveLayout').onclick=()=>{layout.heroEyebrow=$('#heroEyebrow').value.trim()||defaultLayout.heroEyebrow;layout.heroTitle=$('#heroTitle').value.trim()||defaultLayout.heroTitle;layout.heroSubtitle=$('#heroSubtitle').value.trim()||defaultLayout.heroSubtitle;layout.aboutTitle=$('#aboutTitle').value.trim()||defaultLayout.aboutTitle;layout.featureColumns=+$('#featureColumns').value||3;document.querySelectorAll('[data-hero-index]').forEach(row=>{const i=Number(row.dataset.heroIndex),slide=hero.slides[i];if(!slide)return;row.querySelectorAll('[data-hero-field]').forEach(el=>{const f=el.dataset.heroField;slide[f]=f==='enabled'?el.checked:el.value.trim()})});hero.slides=hero.slides.filter(x=>x.image);hero.images=hero.slides.filter(x=>x.enabled!==false).map(x=>x.image);hero.interval=Math.max(2000,(Number($('#heroInterval').value)||5)*1000);save('duoduo_layout',layout);save('duoduo_hero',hero);alert('首頁版面與主視覺輪播已儲存。')};
+$('#saveLayout').onclick=async()=>{
+  layout.heroEyebrow=$('#heroEyebrow').value.trim()||defaultLayout.heroEyebrow;
+  layout.heroTitle=$('#heroTitle').value.trim()||defaultLayout.heroTitle;
+  layout.heroSubtitle=$('#heroSubtitle').value.trim()||defaultLayout.heroSubtitle;
+  layout.aboutTitle=$('#aboutTitle').value.trim()||defaultLayout.aboutTitle;
+  layout.featureColumns=+$('#featureColumns').value||3;
+  document.querySelectorAll('[data-hero-index]').forEach(row=>{
+    const i=Number(row.dataset.heroIndex),slide=hero.slides[i];
+    if(!slide)return;
+    row.querySelectorAll('[data-hero-field]').forEach(el=>{
+      const f=el.dataset.heroField;
+      slide[f]=f==='enabled'?el.checked:el.value.trim();
+    });
+  });
+  const saveBtn=$('#saveLayout');
+  const oldText=saveBtn?.textContent||'';
+  try{
+    if(saveBtn){saveBtn.disabled=true;saveBtn.textContent='圖片上傳中…';}
+    for(let i=0;i<hero.slides.length;i++){
+      const slide=hero.slides[i];
+      if(!slide?._pendingDataUrl)continue;
+      slide.image=await uploadImageDataURL(slide._pendingDataUrl,slide._pendingName||`hero-${i+1}`);
+      delete slide._pendingDataUrl;
+      delete slide._pendingName;
+    }
+    hero.slides=hero.slides.filter(x=>x.image);
+    hero.images=hero.slides.filter(x=>x.enabled!==false).map(x=>x.image);
+    hero.interval=Math.max(2000,(Number($('#heroInterval').value)||5)*1000);
+    save('duoduo_layout',layout);
+    save('duoduo_hero',hero);
+    renderHeroSlides();
+    alert('首頁版面與主視覺輪播已儲存。');
+  }catch(error){
+    console.error(error);
+    alert(error.message==='登入已失效'?'登入已失效，請重新登入後再試一次。':'圖片上傳失敗，請確認登入狀態與圖片後再試一次。');
+  }finally{
+    if(saveBtn){saveBtn.disabled=false;saveBtn.textContent=oldText||'儲存首頁版面';}
+  }
+};
 $('#resetLayout').onclick=()=>{if(confirm('恢復預設首頁版面？')){layout=structuredClone(defaultLayout);save('duoduo_layout',layout);renderLayout()}};
 $('#addReview').onclick=()=>{const text=$('#reviewText').value.trim();if(!text)return alert('請先貼上玩家心得內容');const data={rating:Number($('#reviewRating').value)||5,author:$('#reviewAuthor').value.trim()||'玩家心得',text,featured:$('#reviewFeatured')?.checked===true};const isEdit=!!editingReviewId;if(isEdit){const target=reviews.find(r=>r.id===editingReviewId);if(target)Object.assign(target,data);editingReviewId=null;$('#addReview').textContent='＋ 新增玩家心得'}else{reviews.push({id:'r_'+Date.now(),...data,createdAt:Date.now(),order:reviews.length})}save('duoduo_reviews',reviews);$('#reviewAuthor').value='';$('#reviewText').value='';$('#reviewRating').value='5';if($('#reviewFeatured'))$('#reviewFeatured').checked=false;render();alert(isEdit?'玩家心得已更新。':'玩家心得已新增。')};
 window.editReview=id=>{const r=reviews.find(x=>x.id===id);if(!r)return;editingReviewId=id;$('#reviewAuthor').value=r.author||'';$('#reviewRating').value=String(r.rating||5);$('#reviewText').value=r.text||'';if($('#reviewFeatured'))$('#reviewFeatured').checked=r.featured===true;$('#addReview').textContent='儲存玩家心得修改';document.querySelector('[data-panel="reviews"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};
@@ -411,8 +455,8 @@ $('#saveEvent').onclick=async()=>{
     interval:Math.max(2000,Number($('#eventInterval').value||5)*1000),
     desc:$('#eventDesc').value.trim(),
     detail:$('#eventDetail').value.trim(),
-    start:$('#eventStart').value,
-    end:$('#eventEnd').value,
+    start:combineEventDateTime('eventStart','eventStartTime'),
+    end:combineEventDateTime('eventEnd','eventEndTime'),
     url:$('#eventUrl').value.trim(),
     published:$('#eventPublished').checked
   };
@@ -480,7 +524,7 @@ window.removeEvent=async i=>{
   render();
   alert('檔期活動已刪除，並同步到雲端。');
 };
-let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';$('#eventStart').value=e.start||'';$('#eventEnd').value=e.end||'';$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventEnd','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
+let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
 window.saveLinks=()=>{const saved={};document.querySelectorAll('#linksForm input').forEach(i=>saved[i.dataset.key]=i.value.trim());localStorage.setItem('duoduo_links',JSON.stringify(saved));alert('網址已儲存到此瀏覽器。')};
 function renderItems(){const box=$('#itemsAdmin');const q=($('#itemSearch')?.value||'').trim().toLowerCase();const f=items.filter(x=>`${x.name} ${x.category} ${x.description||''}`.toLowerCase().includes(q));box.innerHTML=f.length?f.map(x=>`<div class="item-row"><div class="item-thumb">${x.image?`<img src="${x.image}" alt="">`:'無圖片'}</div><div class="item-meta"><b>${esc(x.name)}</b><small>${esc(x.description||'尚未填寫描述')}</small></div><div class="item-category">${esc(x.category)}</div><div class="item-actions"><button onclick="editItem('${x.id}')">編輯</button><button class="danger" onclick="removeItem('${x.id}')">刪除</button></div></div>`).join(''):'<div class="note">目前沒有符合條件的道具。</div>'}
 function resetItemForm(){editingItemId=null;pendingItemImage='';$('#itemFormTitle').textContent='新增道具';$('#itemName').value='';$('#itemCategory').value='裝備';$('#itemDescription').value='';$('#itemImage').value='';$('#itemImagePreview').innerHTML='<span>尚未選擇圖片</span>';$('#itemForm').hidden=true}
