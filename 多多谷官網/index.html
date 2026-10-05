@@ -312,166 +312,61 @@
 }
 </style>
 <!-- END: V21 story styles -->
-
-<style id="duoduo-mobile-only">
-/* =========================================================
-   多多谷首頁｜手機版專用優化
-   只在 760px 以下生效，不影響桌面版
-   ========================================================= */
+<style id="mobile-discovery-fix-only">
 @media (max-width:760px){
-  html,body{overflow-x:hidden}
-
-  /* Header：手機改成「品牌＋操作」／第二排可左右滑動導覽 */
-  .site-header{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr) auto!important;
-    align-items:center!important;
-    gap:8px 10px!important;
-    padding:10px 14px!important;
-  }
-  .site-header .brand{min-width:0!important;white-space:nowrap!important}
-  .site-header .brand img{width:32px!important;height:32px!important}
-  .site-header .brand span{font-size:13px!important}
-  .header-status{display:none!important}
-  .header-actions{display:flex!important;align-items:center!important;gap:6px!important;margin:0!important}
-  .header-actions .theme-toggle{padding:7px 8px!important;font-size:12px!important}
-  .header-actions .theme-toggle #themeLabel{display:none!important}
-  .header-actions .btn{padding:8px 10px!important;font-size:11px!important;white-space:nowrap!important}
-  .main-nav{
-    grid-column:1 / -1!important;
-    width:100%!important;
-    display:flex!important;
-    flex-wrap:nowrap!important;
-    gap:6px!important;
-    overflow-x:auto!important;
-    overflow-y:hidden!important;
-    padding:2px 0 4px!important;
-    scrollbar-width:none!important;
-    -webkit-overflow-scrolling:touch!important;
-  }
-  .main-nav::-webkit-scrollbar{display:none!important}
-  .main-nav .nav-pill{flex:0 0 auto!important;white-space:nowrap!important;font-size:12px!important;padding:7px 11px!important}
-
-  /* Hero：文字先講重點，主視覺再出現 */
-  #hero{min-height:auto!important;padding:48px 18px 34px!important}
-  #hero .hero-inner{display:flex!important;flex-direction:column!important;gap:28px!important}
-  #hero .hero-copy{width:100%!important;max-width:none!important;text-align:left!important}
-  #hero .eyebrow{font-size:10px!important;letter-spacing:.16em!important}
-  #hero h1{font-size:clamp(40px,11vw,58px)!important;line-height:1.02!important;margin:12px 0 18px!important;letter-spacing:-.045em!important}
-  #hero .hero-subtitle{font-size:14px!important;line-height:1.8!important;max-width:100%!important}
-  #hero .hero-buttons{display:grid!important;grid-template-columns:1fr!important;gap:9px!important;margin-top:20px!important}
-  #hero .hero-buttons .btn{width:100%!important;justify-content:center!important}
-  #hero .hero-tags{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:7px!important;margin-top:14px!important}
-  #hero .hero-tags span{text-align:center!important;padding:7px 5px!important;font-size:11px!important}
-  #hero .hero-art{width:100%!important;height:min(82vw,360px)!important;min-height:280px!important}
-  #hero .hero-carousel-bottom{bottom:10px!important}
-  #hero .hero-card-caption{padding:12px!important}
-  #hero .hero-card-caption strong{font-size:14px!important}
-  #hero .hero-card-caption span{font-size:10px!important;line-height:1.5!important}
-
-  /* Hero 後的三個重點 */
-  .trust{grid-template-columns:1fr!important;gap:0!important;padding:0!important}
-  .trust>div{padding:18px 20px!important}
-  .trust b{font-size:15px!important}
-  .trust span{font-size:12px!important;line-height:1.6!important}
-
-  /* V21 開場 */
-  .v9-story-intro{min-height:58vh!important;padding:12vh 22px!important}
-  .v9-story-intro h2{font-size:clamp(34px,10vw,50px)!important;line-height:1.05!important}
-  .v9-story-intro p{font-size:14px!important;line-height:1.8!important}
-
-  /* V21 各章文字避免貼邊、避免圖片壓住文字 */
-  .v9-rebirth-copy,.v9-upgrade-copy,.v9-conv-copy,.v9-faction-copy,.v9-play-copy,.v9-home-copy,.v9-boss-copy{
-    max-width:88vw!important;
-  }
-  .v9-rebirth-copy h3,.v9-upgrade-copy h3,.v9-conv-copy h3,.v9-faction-copy h3,.v9-play-copy h3,.v9-home-copy h3,.v9-boss-copy h3{
+  .v9-discovery-head h3{
+    font-size:clamp(38px,10vw,52px)!important;
     line-height:1.02!important;
+    letter-spacing:-.055em!important;
+    margin:16px 0 28px!important;
+    max-width:100%!important;
+    overflow-wrap:normal!important;
+    word-break:keep-all!important;
   }
-
-  /* 官方首頁區塊：全部改成單欄，避免卡片擠成兩三欄 */
-  .section{padding-left:18px!important;padding-right:18px!important}
-  .section-head{margin-bottom:24px!important}
-  .section-head h2{font-size:clamp(30px,8.5vw,44px)!important;line-height:1.08!important}
-  .section-head p{font-size:14px!important;line-height:1.75!important}
-
-  #new-player .new-player-steps{grid-template-columns:1fr!important;gap:10px!important}
-  #new-player .step-card{min-height:0!important;padding:18px!important}
-
-  #why .why-grid{grid-template-columns:1fr!important;gap:10px!important}
-  #why .why-grid article{padding:20px!important}
-
-  #about .about-card{min-height:58vh!important}
-  #about .about-card img{min-height:58vh!important;object-fit:cover!important}
-  #about .about-overlay{padding:22px!important}
-  #about .about-overlay h3{font-size:25px!important}
-  #about .about-overlay p{font-size:13px!important;line-height:1.7!important}
-
-  #quick-intro .quick-intro-grid{grid-template-columns:1fr!important;gap:10px!important}
-  #quick-intro .intro-card{min-height:190px!important;padding:20px!important}
-  #quick-intro .intro-card h3{font-size:24px!important}
-  #quick-intro .intro-card p{font-size:13px!important;line-height:1.65!important}
-
-  #features .feature-layout{grid-template-columns:1fr!important;gap:10px!important}
-  #features .feature-layout article{padding:20px!important}
-
-  #events .row-head{align-items:flex-start!important;gap:12px!important}
-  #events .row-head .text-link{white-space:nowrap!important;font-size:12px!important}
-  #events .event-grid{grid-template-columns:1fr!important;gap:12px!important}
-  #events .event-grid>*{min-width:0!important}
-
-  #boss .boss-layout{grid-template-columns:1fr!important;gap:20px!important}
-  #boss .boss-copy{order:1!important}
-  #boss .boss-art{order:2!important;width:100%!important;max-width:100%!important;height:auto!important}
-
-  #community .community-grid{grid-template-columns:1fr!important;gap:18px!important}
-  #community .community-copy{padding:0!important}
-  #community .reviews{grid-template-columns:1fr!important;gap:10px!important}
-
-  #stay .stay-grid{grid-template-columns:1fr!important;gap:10px!important}
-  #stay .stay-grid article{padding:20px!important}
-
-  #news .news-list{grid-template-columns:1fr!important;gap:10px!important}
-  #versions .version-grid{grid-template-columns:1fr!important;gap:10px!important}
-  #start .start-grid{grid-template-columns:1fr!important;gap:10px!important}
-  #quick-links .resource-grid{grid-template-columns:1fr!important;gap:10px!important}
-
-  /* 手機不讓進場動畫卡在透明狀態；保留淡入，但降低位移 */
-  .v4-reveal{transform:translateY(24px)!important}
-  .v4-scale{transform:scale(.97)!important}
-  .v4-clip{clip-path:none!important}
-
-  /* 避免手機上的橫向內容把整頁撐寬 */
-  #v9-story img,#v9-story video,
-  #hero img,#about img,#boss img{max-width:100%!important}
-}
-
-@media (max-width:390px){
-  .site-header{padding-left:11px!important;padding-right:11px!important}
-  .header-actions .btn{padding:7px 8px!important;font-size:10px!important}
-  #hero{padding-left:15px!important;padding-right:15px!important}
-  .section{padding-left:15px!important;padding-right:15px!important}
-  #hero h1{font-size:39px!important}
-  .hero-tags{gap:5px!important}
+  .v9-discovery-head p{
+    font-size:14px!important;
+    line-height:1.8!important;
+    max-width:100%!important;
+    margin:0!important;
+  }
 }
 </style>
 
-<style id="features-motion-only">
-/* FEATURES only — subtle entrance animation. No other section is affected. */
-#features.feature-motion-ready .section-head,
-#features.feature-motion-ready .feature-layout > *{
-  opacity:0;
-  transform:translateY(36px);
-  transition:opacity .8s cubic-bezier(.22,.61,.36,1),transform .85s cubic-bezier(.22,.61,.36,1);
-  will-change:opacity,transform;
+<style id="discover-final-layout-only">
+/* DISCOVER / 05 — only fixes the heading layout on desktop + mobile. */
+.v9-discovery-head{
+  width:min(820px,72vw)!important;
+  max-width:820px!important;
 }
-#features.feature-motion-ready .feature-layout > *:nth-child(1){transition-delay:.08s}
-#features.feature-motion-ready .feature-layout > *:nth-child(2){transition-delay:.18s}
-#features.feature-motion-ready .feature-layout > *:nth-child(3){transition-delay:.28s}
-#features.feature-motion-ready .feature-layout > *:nth-child(4){transition-delay:.38s}
-#features.feature-motion-ready.feature-motion-in .section-head,
-#features.feature-motion-ready.feature-motion-in .feature-layout > *{
-  opacity:1;
-  transform:none;
+.v9-discovery-head h3{
+  font-size:clamp(44px,5.6vw,82px)!important;
+  line-height:.98!important;
+  letter-spacing:-.055em!important;
+  margin:12px 0 20px!important;
+  max-width:100%!important;
+  overflow-wrap:normal!important;
+  word-break:keep-all!important;
+}
+.v9-discovery-head p{
+  max-width:520px!important;
+  margin:0!important;
+}
+@media(max-width:760px){
+  .v9-discovery-head{
+    width:100%!important;
+    max-width:none!important;
+  }
+  .v9-discovery-head h3{
+    font-size:clamp(36px,10vw,48px)!important;
+    line-height:1.02!important;
+    letter-spacing:-.05em!important;
+    margin:12px 0 24px!important;
+  }
+  .v9-discovery-head p{
+    max-width:100%!important;
+    font-size:14px!important;
+    line-height:1.8!important;
+  }
 }
 </style>
 </head>
@@ -1018,21 +913,5 @@ const stay=document.querySelector('#stay');if(stay)stay.classList.add('v4-reveal
 const start=document.querySelector('#start');if(start)start.classList.add('v4-scale');};prepare();
 const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('v4-in');if(e.target.id==='boss')e.target.classList.add('v4-boss-in')} }),{threshold:.16,rootMargin:'0px 0px -8% 0px'});els.forEach(el=>io.observe(el));
 let ticking=false;function scrollFX(){ticking=false;const about=document.querySelector('#about');if(about){const r=about.getBoundingClientRect();about.style.setProperty('--py',((r.top-window.innerHeight/2)*-.04)+'px');const img=about.querySelector('.v4-parallax-img');if(img)img.style.setProperty('--py',((r.top-window.innerHeight/2)*-.035)+'px')}const orb=document.querySelector('.v4-why-orb');if(orb){const r=document.querySelector('#why').getBoundingClientRect();orb.style.setProperty('--orb-y',((r.top-window.innerHeight/2)*-.08)+'px')} }addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(scrollFX)}},{passive:true});scrollFX();})();
-</script>
-<script id="features-motion-only-script">
-(function(){
-  const feature=document.getElementById('features');
-  if(!feature) return;
-  feature.classList.add('feature-motion-ready');
-  const show=()=>feature.classList.add('feature-motion-in');
-  if('IntersectionObserver' in window){
-    const io=new IntersectionObserver(entries=>{
-      if(entries.some(e=>e.isIntersecting)){show();io.disconnect();}
-    },{threshold:.18,rootMargin:'0px 0px -8% 0px'});
-    io.observe(feature);
-  }else{
-    show();
-  }
-})();
 </script>
 </body></html>
