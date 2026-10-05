@@ -86,7 +86,7 @@ function pageRenderList(category='全部',requestedPage=1){
   pageDetail.hidden=true; pageList.hidden=false;
   currentCategory=category;
   pageButtons.forEach(b=>b.classList.toggle('active',b.dataset.category===category));
-  const filtered=pageNewsData.map((n,i)=>({n,i})).filter(x=>category==='全部'||String(x.n.tag||'')===category).sort((a,b)=>{const dt=pageDateValue(b.n)-pageDateValue(a.n);if(dt)return dt;const cb=Number(b.n?.createdAt)||0,ca=Number(a.n?.createdAt)||0;if(cb!==ca)return cb-ca;return a.i-b.i;});
+  const filtered=pageNewsData.map((n,i)=>({n,i})).filter(x=>category==='全部'||String(x.n.tag||'')===category).sort((a,b)=>{const dt=pageDateValue(b.n)-pageDateValue(a.n);if(dt)return dt;const cb=Number(b.n?.createdAt)||0,ca=Number(a.n?.createdAt)||0;if(cb!==ca)return ca-cb;return a.i-b.i;});
   const totalPages=Math.max(1,Math.ceil(filtered.length/NEWS_PER_PAGE));
   currentPage=Math.min(Math.max(1,Number(requestedPage)||1),totalPages);
   if(!filtered.length){pageList.innerHTML='<div class="news-empty">目前沒有這個分類的公告。</div>';pagePagination.innerHTML='';return;}
@@ -123,7 +123,7 @@ function pageOpenFromUrl(){const params=new URLSearchParams(location.search);let
 window.addEventListener('popstate',pageOpenFromUrl);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pageDetail.hidden)pageCloseDetail(true);});
 pageLoadNews().then(loaded=>{
-  pageNewsData=loaded.map((item,index)=>({item,index})).sort((a,b)=>{const dt=pageDateValue(b.item)-pageDateValue(a.item);if(dt)return dt;const cb=Number(b.item?.createdAt)||0,ca=Number(a.item?.createdAt)||0;if(cb!==ca)return cb-ca;return a.index-b.index;}).map(x=>x.item);
+  pageNewsData=loaded.map((item,index)=>({item,index})).sort((a,b)=>{const dt=pageDateValue(b.item)-pageDateValue(a.item);if(dt)return dt;const cb=Number(b.item?.createdAt)||0,ca=Number(a.item?.createdAt)||0;if(cb!==ca)return ca-cb;return a.index-b.index;}).map(x=>x.item);
   pageOpenFromUrl();
 });
 })();
