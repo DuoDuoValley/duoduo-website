@@ -18,7 +18,7 @@
 #about .about-media{overflow:hidden}.v4-parallax-img{transform:scale(1.08) translateY(var(--py,0));transition:transform .08s linear;will-change:transform}
 #quick-intro .quick-intro-grid{perspective:1000px}.v4-tilt-card{transition:transform .12s ease,box-shadow .4s ease;will-change:transform}
 #features{position:relative;overflow:hidden}.v4-feature-line{height:1px;background:currentColor;opacity:.12;transform:scaleX(0);transform-origin:left;transition:transform 1.2s cubic-bezier(.22,.61,.36,1)}.v4-feature-line.v4-in{transform:scaleX(1)}
-#events .event-grid>*,#news .news-list>*,#versions .version-grid>*,#quick-links .resource-grid>*{opacity:0;transform:translateY(45px);transition:opacity .75s ease,transform .8s cubic-bezier(.22,.61,.36,1)}.v4-in .event-grid>*,.v4-in .news-list>*,.v4-in .version-grid>*,.v4-in .resource-grid>*{opacity:1;transform:none}.v4-in .event-grid>*:nth-child(2),.v4-in .news-list>*:nth-child(2),.v4-in .version-grid>*:nth-child(2),.v4-in .resource-grid>*:nth-child(2){transition-delay:.12s}.v4-in .event-grid>*:nth-child(3),.v4-in .news-list>*:nth-child(3),.v4-in .version-grid>*:nth-child(3),.v4-in .resource-grid>*:nth-child(3){transition-delay:.24s}.v4-in .event-grid>*:nth-child(4),.v4-in .news-list>*:nth-child(4),.v4-in .version-grid>*:nth-child(4),.v4-in .resource-grid>*:nth-child(4){transition-delay:.36s}
+#events .event-grid>*,#news .news-list>*,#versions .version-grid>*,#quick-links .resource-grid>*{opacity:0;transform:translateY(45px);transition:opacity .75s ease,transform .8s cubic-bezier(.22,.61,.36,1)}#events.v4-in .event-grid>*,#news.v4-in .news-list>*,#versions.v4-in .version-grid>*,#quick-links.v4-in .resource-grid>*{opacity:1;transform:none}.v4-in .event-grid>*:nth-child(2),.v4-in .news-list>*:nth-child(2),.v4-in .version-grid>*:nth-child(2),.v4-in .resource-grid>*:nth-child(2){transition-delay:.12s}.v4-in .event-grid>*:nth-child(3),.v4-in .news-list>*:nth-child(3),.v4-in .version-grid>*:nth-child(3),.v4-in .resource-grid>*:nth-child(3){transition-delay:.24s}.v4-in .event-grid>*:nth-child(4),.v4-in .news-list>*:nth-child(4),.v4-in .version-grid>*:nth-child(4),.v4-in .resource-grid>*:nth-child(4){transition-delay:.36s}
 #boss .boss-art{transform:scale(.9) translateY(30px);opacity:.25;transition:transform 1.3s cubic-bezier(.22,.61,.36,1),opacity 1.2s ease;will-change:transform,opacity}#boss.v4-boss-in .boss-art{transform:scale(1) translateY(0);opacity:1}
 #community .reviews>*{opacity:0;transform:translateX(50px);transition:opacity .8s ease,transform .9s cubic-bezier(.22,.61,.36,1)}#community.v4-in .reviews>*{opacity:1;transform:none}#community.v4-in .reviews>*:nth-child(2){transition-delay:.12s}#community.v4-in .reviews>*:nth-child(3){transition-delay:.24s}
 #stay .stay-card:nth-child(odd){transform:translateX(-45px)}#stay .stay-card:nth-child(even){transform:translateX(45px)}#stay .stay-card{opacity:0;transition:opacity .8s ease,transform .9s cubic-bezier(.22,.61,.36,1)}#stay.v4-in .stay-card{opacity:1;transform:none}#stay.v4-in .stay-card:nth-child(2){transition-delay:.12s}#stay.v4-in .stay-card:nth-child(3){transition-delay:.24s}
@@ -856,41 +856,5 @@ const stay=document.querySelector('#stay');if(stay)stay.classList.add('v4-reveal
 const start=document.querySelector('#start');if(start)start.classList.add('v4-scale');};prepare();
 const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('v4-in');if(e.target.id==='boss')e.target.classList.add('v4-boss-in')} }),{threshold:.16,rootMargin:'0px 0px -8% 0px'});els.forEach(el=>io.observe(el));
 let ticking=false;function scrollFX(){ticking=false;const about=document.querySelector('#about');if(about){const r=about.getBoundingClientRect();about.style.setProperty('--py',((r.top-window.innerHeight/2)*-.04)+'px');const img=about.querySelector('.v4-parallax-img');if(img)img.style.setProperty('--py',((r.top-window.innerHeight/2)*-.035)+'px')}const orb=document.querySelector('.v4-why-orb');if(orb){const r=document.querySelector('#why').getBoundingClientRect();orb.style.setProperty('--orb-y',((r.top-window.innerHeight/2)*-.08)+'px')} }addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(scrollFX)}},{passive:true});scrollFX();})();
-</script>
-<script id="v26-home-data-sync">
-(()=>{
-  const apiBase=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
-  const escHome=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
-  const tagShortHome=t=>({'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'}[t]||t);
-  const tagClassHome=t=>({'重要消息':'category-important','維護通知':'category-maintenance','更新說明':'category-update','活動資訊':'category-event','序號發放':'category-code','處分名單':'category-punishment'}[String(t||'')]||'category-default');
-  async function syncHomeNews(){
-    const box=document.getElementById('news-list'); if(!box)return;
-    try{
-      const res=await fetch(`${apiBase}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
-      if(!res.ok)throw new Error(`HTTP ${res.status}`);
-      const payload=await res.json();
-      const list=Array.isArray(payload?.data?.duoduo_news)?payload.data.duoduo_news.filter(n=>n&&typeof n==='object'):[];
-      list.sort((a,b)=>{
-        const av=Date.parse(String(a?.date||''))||0,bv=Date.parse(String(b?.date||''))||0;
-        return bv-av || (Number(b?.createdAt)||0)-(Number(a?.createdAt)||0);
-      });
-      box.innerHTML=list.slice(0,6).map((n,i)=>`<a class="news-item" href="news.html#n-${i}" aria-label="查看公告：${escHome(n.title)}"><span class="tag ${tagClassHome(n.tag)}">${escHome(tagShortHome(n.tag))}</span><div><h3>${escHome(n.title)}</h3></div><time>${escHome(n.date)}</time></a>`).join('')||'<div class="empty">目前沒有最新消息。</div>';
-    }catch(e){console.warn('首頁最新消息讀取失敗：',e)}
-  }
-  async function syncHomeEvents(){
-    const box=document.getElementById('event-grid'); if(!box)return;
-    try{
-      const res=await fetch(`${apiBase}/api/events`,{headers:{Accept:'application/json'},cache:'no-store'});
-      if(!res.ok)throw new Error(`HTTP ${res.status}`);
-      const data=await res.json();
-      const list=Array.isArray(data?.events)?data.events.map(row=>row?.data||row).filter(e=>e&&e.id&&e.name&&e.published!==false):[];
-      list.sort((a,b)=>(Date.parse(String(b?.start||''))||0)-(Date.parse(String(a?.start||''))||0));
-      box.innerHTML=list.slice(0,3).map(e=>`<article class="event-card"><div class="event-image">${typeof eventCarouselHTML==='function'?eventCarouselHTML(e):`<img src="${escHome(e?.image||'assets/ad3.png')}" alt="" loading="lazy">`}</div><div class="event-copy"><span class="tag">檔期活動</span><h3>${escHome(e.name)}</h3><p>${escHome(e.desc)}</p><a class="text-link" href="event-detail.html?id=${encodeURIComponent(e.id||e.name)}">查看檔期活動 →</a></div></article>`).join('')||'<div class="empty">目前沒有公開活動。</div>';
-      if(typeof initEventCarousels==='function')initEventCarousels(box);
-    }catch(e){console.warn('首頁檔期活動讀取失敗：',e)}
-  }
-  syncHomeNews();
-  syncHomeEvents();
-})();
 </script>
 </body></html>
