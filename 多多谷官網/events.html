@@ -72,7 +72,7 @@ try{
   const res=await fetch(`${API_BASE}/api/events`,{method:'GET',headers:{'Accept':'application/json'},cache:'no-store'});
   if(!res.ok)throw new Error(`HTTP ${res.status}`);
   const data=await res.json();
-  const es=Array.isArray(data.events)?data.events.map(row=>row?.data||row).filter(e=>e&&e.published!==false):[];
+  const es=Array.isArray(data.events)?data.events.map(row=>row?.data||row).filter(e=>e&&e.id&&e.name&&e.published!==false):[];
   const ordered=sortEventList(es);
   box.innerHTML=ordered.map(e=>{
     const status=eventStatus(e);
