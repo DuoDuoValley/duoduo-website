@@ -1085,4 +1085,92 @@ let ticking=false;function scrollFX(){ticking=false;const about=document.querySe
 <script id="features-animation-only-script">
 (()=>{const el=document.getElementById('features');if(!el)return;const reveal=()=>el.classList.add('v5-features-in');if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){reveal();io.disconnect()}},{threshold:.18});io.observe(el)}else reveal()})();
 </script>
+
+<style id="mobile-story-repair-final">
+/* MOBILE STORY REPAIR — mobile only. Desktop is untouched. */
+@media (max-width:760px){
+  #v9-story > section{height:92svh!important;min-height:620px!important;margin:0!important;padding:0!important;overflow:hidden!important}
+  #v9-story .v9-pin{position:relative!important;top:auto!important;height:100%!important;min-height:0!important;overflow:hidden!important}
+  #v9-story .v9-rebirth-copy,#v9-story .v9-upgrade-copy,#v9-story .v9-conv-copy,#v9-story .v9-faction-copy,#v9-story .v9-play-copy,#v9-story .v9-home-copy,#v9-story .v9-boss-copy{
+    left:6%!important;right:auto!important;top:6svh!important;width:88%!important;opacity:1!important;transform:none!important;z-index:30!important;
+  }
+  #v9-story .v9-rebirth-copy h3,#v9-story .v9-upgrade-copy h3,#v9-story .v9-conv-copy h3,#v9-story .v9-faction-copy h3,#v9-story .v9-play-copy h3,#v9-story .v9-home-copy h3,#v9-story .v9-boss-copy h3{
+    font-size:clamp(42px,11vw,58px)!important;line-height:.96!important;letter-spacing:-.055em!important;margin:12px 0 16px!important;
+  }
+  #v9-story .v9-rebirth-copy p,#v9-story .v9-upgrade-copy p,#v9-story .v9-conv-copy p,#v9-story .v9-faction-copy p,#v9-story .v9-play-copy p,#v9-story .v9-home-copy p,#v9-story .v9-boss-copy p{
+    font-size:14px!important;line-height:1.65!important;margin:0!important;max-width:100%!important;
+  }
+  /* 01 */
+  #v9-story .v9-rebirth-stage{width:76vw!important;height:76vw!important;right:12%!important;top:43svh!important;transform:none!important;opacity:1!important}
+  #v9-story .v9-rebirth-center{width:88px!important;height:88px!important}
+  #v9-story .v9-orbit{width:72px!important;height:72px!important}
+  #v9-story .v9-orbit-label{opacity:1!important;font-size:8px!important;color:#888!important}
+  /* 02 */
+  #v9-story .v9-upgrade-board{left:11%!important;top:44svh!important;width:78vw!important;height:78vw!important;transform:none!important;opacity:1!important}
+  #v9-story .v9-upgrade-slot{width:68px!important;height:68px!important;border-radius:18px!important}
+  #v9-story .v9-upgrade-slot.main{width:108px!important;height:108px!important;border-radius:24px!important}
+  #v9-story .v9-plus{font-size:58px!important}
+  /* 03 */
+  #v9-story .v9-afk-frame{left:6%!important;top:45svh!important;width:88%!important;transform:none!important;opacity:1!important}
+  #v9-story .v9-afk-status{width:34%!important;right:2%!important;bottom:-6%!important;transform:rotate(3deg)!important;opacity:1!important}
+  #v9-story .v9-conv-word{display:none!important}
+  /* 04 */
+  #v9-story .v9-faction-stage{left:10%!important;right:auto!important;top:43svh!important;width:80vw!important;height:80vw!important;transform:none!important;opacity:1!important}
+  #v9-story .v9-faction-stage .f{width:66px!important;max-height:120px!important}
+  #v9-story .v9-dungeon{left:6%!important;right:auto!important;bottom:2svh!important;width:88%!important;box-sizing:border-box!important;padding:10px 12px!important;gap:10px!important;transform:none!important;opacity:1!important}
+  #v9-story .v9-dungeon img{width:52px!important;height:52px!important;flex:0 0 52px!important}
+  #v9-story .v9-dungeon strong{font-size:18px!important}.v9-dungeon p{font-size:11px!important}
+  /* 05 */
+  #v9-story .v9-discovery{height:92svh!important;min-height:620px!important;padding:0!important;overflow:hidden!important}
+  #v9-story .v9-discovery-head{position:absolute!important;left:6%!important;top:6svh!important;width:88%!important;max-width:none!important;margin:0!important;z-index:30!important}
+  #v9-story .v9-discovery-head h3{font-size:clamp(40px,10.5vw,56px)!important;line-height:1!important;margin:12px 0 16px!important;opacity:1!important;transform:none!important}
+  #v9-story .v9-discovery-head p{font-size:14px!important;line-height:1.65!important;margin:0!important}
+  #v9-story .v9-discovery-stage{position:absolute!important;left:6%!important;right:6%!important;top:44svh!important;width:auto!important;height:auto!important;display:grid!important;grid-template-columns:1fr 1fr!important;gap:10px!important;transform:none!important}
+  #v9-story .v9-discovery-item{position:relative!important;inset:auto!important;width:auto!important;height:145px!important;padding:12px!important;border-radius:18px!important;opacity:1!important;filter:none!important;transform:none!important}
+  #v9-story .v9-discovery-item img{width:72px!important;height:72px!important;margin:auto auto 6px!important}
+  #v9-story .v9-discovery-item.i4 img{width:58px!important;height:82px!important}
+  #v9-story .v9-discovery-item b{font-size:13px!important}.v9-discovery-item small{font-size:7px!important}
+  #v9-story .v9-discovery-line{display:none!important}
+  /* 06 */
+  #v9-story .v9-play{height:92svh!important;min-height:620px!important}
+  #v9-story .v9-play-copy{top:6svh!important;width:88%!important}
+  #v9-story .v9-play-stage{position:absolute!important;left:6%!important;right:6%!important;top:42svh!important;bottom:auto!important;height:48svh!important;inset:auto 6% 0!important}
+  #v9-story .v9-play-item{opacity:1!important;filter:none!important;transform:none!important}
+  #v9-story .v9-play-item.p1{left:0!important;top:8%!important;width:42%!important;height:205px!important}
+  #v9-story .v9-play-item.p2{left:29%!important;top:30%!important;width:62%!important;height:125px!important}
+  #v9-story .v9-play-item.p3{right:0!important;left:auto!important;top:57%!important;width:42%!important;height:205px!important}
+  #v9-story .v9-play-item img{max-width:100%!important;object-fit:contain!important}
+  #v9-story .v9-play-item.p1 img{width:120px!important;height:125px!important}.v9-play-item.p2 img{height:65px!important}.v9-play-item.p3 img{width:105px!important;height:125px!important}
+  #v9-story .v9-play-item b{left:12px!important;bottom:28px!important;font-size:11px!important}.v9-play-item small{left:12px!important;bottom:11px!important;font-size:7px!important}
+  /* 07 */
+  #v9-story .v9-home-image{left:8%!important;top:45svh!important;width:84%!important;transform:none!important;opacity:1!important}
+  #v9-story .v9-home-copy{top:6svh!important}
+  /* 08 */
+  #v9-story .v9-boss{height:92svh!important;min-height:620px!important}
+  #v9-story .v9-boss-video{opacity:.72!important;transform:scale(1.03)!important}
+  #v9-story .v9-boss-copy{top:10svh!important}
+  #v9-story .v9-boss-progress{left:6%!important;width:88%!important;bottom:4svh!important}
+  /* lightweight mobile entrance: content is never dependent on long scroll progress */
+  #v9-story .mobile-story-animate{animation:mobileStoryIn .65s cubic-bezier(.22,.61,.36,1) both}
+  #v9-story .mobile-story-delay-1{animation-delay:.08s}.mobile-story-delay-2{animation-delay:.18s}
+  #v9-story .mobile-story-delay-3{animation-delay:.28s}
+  @keyframes mobileStoryIn{from{opacity:.15;transform:translateY(18px)}to{opacity:1;transform:none}}
+}
+</style>
+<script id="mobile-story-repair-script">
+(()=>{
+ if(!matchMedia('(max-width:760px)').matches)return;
+ const root=document.querySelector('#v9-story'); if(!root)return;
+ const sections=[...root.querySelectorAll(':scope > section')];
+ const targets=[];
+ sections.forEach(sec=>{
+   const copy=sec.querySelector('.v9-rebirth-copy,.v9-upgrade-copy,.v9-conv-copy,.v9-faction-copy,.v9-discovery-head,.v9-play-copy,.v9-home-copy,.v9-boss-copy');
+   if(copy)targets.push(copy);
+   sec.querySelectorAll('.v9-discovery-item,.v9-play-item,.v9-dungeon,.v9-upgrade-board,.v9-rebirth-stage,.v9-afk-frame,.v9-faction-stage,.v9-home-image').forEach((el,i)=>{if(i<4)targets.push(el)});
+ });
+ const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('mobile-story-animate');}}),{threshold:.08,rootMargin:'0px 0px -8% 0px'});
+ targets.forEach(el=>io.observe(el));
+})();
+</script>
+
 </body></html>
