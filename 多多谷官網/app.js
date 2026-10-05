@@ -133,7 +133,7 @@ function toggleTheme(){const next=document.documentElement.dataset.theme==="ligh
 document.getElementById("themeToggle")?.addEventListener("click",toggleTheme);updateThemeButton();
 
 const defaultNews=[{tag:"重要消息",title:"DuoDuo Valley 官方網站持續完善中",date:"2026/10/04",body:"多多谷官方網站正在持續整理遊戲資訊、活動與玩家資源。"},{tag:"活動資訊",title:"多多谷最新活動與福利，持續更新中",date:"2026/10/04",body:"活動檔期與福利資訊請以官方公告為準。"},{tag:"更新說明",title:"遊戲內容與系統資訊請留意官方公告",date:"2026/10/04",body:"系統、玩法與內容更新會陸續整理至官網。"},{tag:"序號發放",title:"最新序號與福利請留意官方公告",date:"2026/10/04",body:"官方發放的序號與福利資訊會集中整理。"}];
-const defaultEvents=[];
+const defaultEvents=[{id:"e1",name:"多多谷活動",image:"assets/ad3.png",desc:"持續更新的活動與玩法，詳細內容請依官方公告為準。",start:"2026-10-01T00:00",end:"2026-10-31T23:59",url:"",published:true},{id:"e2",name:"福利活動",image:"assets/birthday.png",desc:"多多谷福利與社群活動資訊。",start:"2026-10-01T00:00",end:"2026-10-31T23:59",url:"",published:true}];
 const defaultBossConfig={interval:5000,slides:[{image:"assets/boss.png",title:"燦爛的凶星",link:"",enabled:true}]};
 const defaultReviews=[
   {id:"r1",rating:5,author:"玩家心得",text:"很多東西不用一直重複操作，玩起來比較舒服。"},
@@ -162,7 +162,7 @@ function formatEventDateRange(e){const a=formatEventDate(e?.start),b=formatEvent
 const news=sortNewsByDate(getJSONSafe("duoduo_news",defaultNews)),reviews=getJSONSafe("duoduo_reviews",defaultReviews);
 let BOSS_CONFIG=getJSONSafe("duoduo_boss_config",defaultBossConfig);
 BOSS_CONFIG={interval:Math.max(2000,Number(BOSS_CONFIG.interval)||5000),slides:Array.isArray(BOSS_CONFIG.slides)&&BOSS_CONFIG.slides.length?BOSS_CONFIG.slides:defaultBossConfig.slides};
-let events=sortEventsByStart(getJSONSafe("duoduo_events",defaultEvents).filter(e=>e.published!==false));
+let events=[];
 
 const newsTagShort=t=>({"重要消息":"重要","維護通知":"維護","更新說明":"更新","活動資訊":"活動","序號發放":"序號","處分名單":"處分"}[t]||t);const newsTagClass=t=>({"重要消息":"category-important","維護通知":"category-maintenance","更新說明":"category-update","活動資訊":"category-event","序號發放":"category-code","處分名單":"category-punishment"}[String(t||"")]||"category-default");const newsList=document.getElementById("news-list");if(newsList){const isHomeNews=!!newsList.closest("#news");newsList.innerHTML=news.slice(0,6).map((n,i)=>isHomeNews?`<a class="news-item" href="news.html#n-${i}" aria-label="查看公告：${esc(n.title)}"><span class="tag ${newsTagClass(n.tag)}">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3></div><time>${esc(n.date)}</time></a>`:`<a class="news-item" href="news.html#n-${i}"><span class="tag ${newsTagClass(n.tag)}">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3><p>${esc(n.body||"")}</p></div><time>${esc(n.date)}</time></a>`).join("");if(isHomeNews&&!document.getElementById("homeNewsCompactStyles")){const style=document.createElement("style");style.id="homeNewsCompactStyles";style.textContent=`#news #news-list .news-item{min-height:0;height:auto;} #news #news-list .news-item h3{margin-bottom:0;} #news #news-list .news-item p{display:none;} #news #news-list .tag{border:1px solid transparent;} #news #news-list .tag.category-important{color:#ff8f9a;background:rgba(220,65,82,.16);border-color:rgba(255,115,130,.30);} #news #news-list .tag.category-maintenance{color:#ffb65c;background:rgba(230,135,35,.16);border-color:rgba(255,180,85,.30);} #news #news-list .tag.category-update{color:#65c9ff;background:rgba(45,145,220,.16);border-color:rgba(75,175,240,.30);} #news #news-list .tag.category-event{color:#72d69a;background:rgba(48,170,100,.16);border-color:rgba(85,200,130,.30);} #news #news-list .tag.category-code{color:#c9a5ff;background:rgba(125,75,210,.17);border-color:rgba(170,125,245,.30);} #news #news-list .tag.category-punishment{color:#ff79c6;background:rgba(220,65,145,.16);border-color:rgba(245,100,175,.30);} #news #news-list .tag.category-default{color:#9cc4d8;background:rgba(95,145,170,.14);border-color:rgba(120,175,200,.28);} :root[data-theme="light"] #news #news-list .tag.category-important{color:#a9273a;background:#ffe9ed;border-color:#f3a9b5;} :root[data-theme="light"] #news #news-list .tag.category-maintenance{color:#a85a00;background:#fff0db;border-color:#efc27c;} :root[data-theme="light"] #news #news-list .tag.category-update{color:#075f91;background:#e5f4ff;border-color:#a9d7f2;} :root[data-theme="light"] #news #news-list .tag.category-event{color:#187345;background:#e6f8ee;border-color:#a7dfbf;} :root[data-theme="light"] #news #news-list .tag.category-code{color:#6840a8;background:#f1e9ff;border-color:#cbb4ee;} :root[data-theme="light"] #news #news-list .tag.category-punishment{color:#a52c70;background:#ffe8f4;border-color:#efafd0;} :root[data-theme="light"] #news #news-list .tag.category-default{color:#35657a;background:#e9f5fa;border-color:#b7d8e4;}`;document.head.appendChild(style);}}function renderPublicEvents(){
   const eventGrid=document.getElementById("event-grid");
@@ -189,7 +189,7 @@ async function loadCloudEvents(){
 
     const data=await res.json();
     const cloudEvents=Array.isArray(data.events)
-      ? data.events.map(row=>row?.data||row).filter(e=>e&&e.published!==false)
+      ? data.events.map(row=>row?.data||row).filter(e=>e&&e.id&&e.name&&e.published!==false)
       : [];
 
     // 雲端檔期活動是前台唯一來源；空陣列也代表「目前沒有活動」。
@@ -197,7 +197,10 @@ async function loadCloudEvents(){
     events=sortEventsByStart(cloudEvents);
     renderPublicEvents();
   }catch(error){
-    console.warn("雲端活動讀取失敗，使用本機活動資料。",error);
+    // 活動系統只認雲端；雲端暫時讀取失敗時也不回退到 localStorage，避免舊活動復活。
+    events=[];
+    renderPublicEvents();
+    console.warn("雲端活動讀取失敗，目前不顯示活動。",error);
   }
 }
 
