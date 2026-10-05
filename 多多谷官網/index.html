@@ -977,4 +977,19 @@ const start=document.querySelector('#start');if(start)start.classList.add('v4-sc
 const io=new IntersectionObserver(entries=>entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('v4-in');if(e.target.id==='boss')e.target.classList.add('v4-boss-in')} }),{threshold:.16,rootMargin:'0px 0px -8% 0px'});els.forEach(el=>io.observe(el));
 let ticking=false;function scrollFX(){ticking=false;const about=document.querySelector('#about');if(about){const r=about.getBoundingClientRect();about.style.setProperty('--py',((r.top-window.innerHeight/2)*-.04)+'px');const img=about.querySelector('.v4-parallax-img');if(img)img.style.setProperty('--py',((r.top-window.innerHeight/2)*-.035)+'px')}const orb=document.querySelector('.v4-why-orb');if(orb){const r=document.querySelector('#why').getBoundingClientRect();orb.style.setProperty('--orb-y',((r.top-window.innerHeight/2)*-.08)+'px')} }addEventListener('scroll',()=>{if(!ticking){ticking=true;requestAnimationFrame(scrollFX)}},{passive:true});scrollFX();})();
 </script>
+<style id="features-animation-only">
+/* ONLY: restore FEATURES entrance animation. No other section is changed. */
+#features .section-head,
+#features .feature-layout > *{opacity:0;transform:translateY(42px);transition:opacity .8s cubic-bezier(.22,.61,.36,1),transform .85s cubic-bezier(.22,.61,.36,1);will-change:opacity,transform}
+#features.v5-features-in .section-head{opacity:1;transform:none}
+#features.v5-features-in .feature-layout > *{opacity:1;transform:none}
+#features.v5-features-in .feature-layout > *:nth-child(1){transition-delay:.08s}
+#features.v5-features-in .feature-layout > *:nth-child(2){transition-delay:.18s}
+#features.v5-features-in .feature-layout > *:nth-child(3){transition-delay:.28s}
+#features.v5-features-in .feature-layout > *:nth-child(4){transition-delay:.38s}
+@media(prefers-reduced-motion:reduce){#features .section-head,#features .feature-layout > *{opacity:1!important;transform:none!important;transition:none!important}}
+</style>
+<script id="features-animation-only-script">
+(()=>{const el=document.getElementById('features');if(!el)return;const reveal=()=>el.classList.add('v5-features-in');if('IntersectionObserver' in window){const io=new IntersectionObserver(es=>{if(es.some(e=>e.isIntersecting)){reveal();io.disconnect()}},{threshold:.18});io.observe(el)}else reveal()})();
+</script>
 </body></html>
