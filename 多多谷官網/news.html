@@ -105,6 +105,8 @@ function pageCloseDetail(updateHistory=true){
   pageDetail.hidden=true;
   pageDetail.innerHTML='';
   document.body.classList.remove('news-modal-open');
+  // 關閉公告後重新渲染目前分類與頁碼，避免列表 DOM 在 Modal 流程後變成空白。
+  pageRenderList(currentCategory,currentPage);
   if(updateHistory && (location.search||location.hash)) history.pushState({},'',location.pathname);
 }
 function pageShowDetail(index){
