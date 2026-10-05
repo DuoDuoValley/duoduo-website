@@ -126,7 +126,7 @@ if(downloadGrid){
 // Theme: shared by every page.
 const savedTheme=localStorage.getItem("duoduo_theme");
 const preferred=window.matchMedia&&window.matchMedia("(prefers-color-scheme: light)").matches?"light":"dark";
-const initialTheme=savedTheme||preferred;
+const initialTheme=savedTheme||"light";
 document.documentElement.dataset.theme=initialTheme;
 function updateThemeButton(){const b=document.getElementById("themeToggle"),i=document.getElementById("themeIcon"),l=document.getElementById("themeLabel");if(!b)return;const light=document.documentElement.dataset.theme==="light";if(i)i.textContent=light?"☾":"☼";if(l)l.textContent=light?"深色模式":"淺色模式";b.title=light?"切換深色模式":"切換淺色模式"}
 function toggleTheme(){const next=document.documentElement.dataset.theme==="light"?"dark":"light";document.documentElement.dataset.theme=next;localStorage.setItem("duoduo_theme",next);updateThemeButton()}
