@@ -1381,10 +1381,10 @@ let ticking=false;function scrollFX(){ticking=false;const about=document.querySe
 </script>
 
 
-<!-- MOBILE STORY MOTION V4: scroll-linked scene motion only. Desktop untouched. -->
-<style id="mobile-story-scroll-scene-v4">
+<!-- FINAL MOBILE STORY SCROLL MOTION: story-only, no entrance pop -->
+<style id="mobile-story-scroll-motion-final">
 @media (max-width:760px){
-  /* Turn off every previous one-shot mobile entrance animation. */
+  /* Only neutralize the old story entrance animations. Nothing outside #v9-story is touched. */
   #v9-story .mobile-story-animate,
   #v9-story .mobile-fade-target,
   #v9-story .mobile-fade-text,
@@ -1392,89 +1392,72 @@ let ticking=false;function scrollFX(){ticking=false;const about=document.querySe
   #v9-story .mobile-fade-card,
   #v9-story .mobile-fade-soft{
     animation:none!important;
+    opacity:1!important;
   }
 
-  /* Keep the current mobile layout exactly as-is; only animation behavior is replaced. */
-  #v9-story .mobile-fade-target{opacity:1!important;}
-  #v9-story .mobile-story-animate{opacity:1!important;}
-
-  /* The scene itself stays visually stable. Motion is intentionally very small. */
-  #v9-story .mobile-scroll-copy,
-  #v9-story .mobile-scroll-visual{
-    will-change:transform,opacity;
+  /* Subtle whole-scene movement: no stagger, no fade-in, no pop. */
+  #v9-story .story-scroll-copy{
+    transform:translate3d(0,var(--story-copy-y,0px),0)!important;
+  }
+  #v9-story .story-scroll-stage{
+    transform:translate3d(0,var(--story-stage-y,0px),0) scale(var(--story-stage-scale,1))!important;
+  }
+  #v9-story .story-scroll-boss-video{
+    transform:translate3d(0,var(--story-boss-y,0px),0) scale(var(--story-boss-scale,1.03))!important;
   }
 }
 </style>
-<script id="mobile-story-scroll-scene-v4-script">
+<script id="mobile-story-scroll-motion-final-script">
 (()=>{
-  if(!matchMedia('(max-width:760px)').matches)return;
+  const mq=matchMedia('(max-width:760px)');
   const root=document.querySelector('#v9-story');
-  if(!root)return;
+  if(!root||!mq.matches)return;
 
-  const sections=[...root.querySelectorAll(':scope > section')];
-  const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
-  const ease=t=>t*t*(3-2*t);
+  /* Remove only the old story entrance state/classes. */
+  root.querySelectorAll('.mobile-story-animate,.mobile-fade-target,.mobile-fade-in,.mobile-fade-text,.mobile-fade-image,.mobile-fade-card,.mobile-fade-soft')
+    .forEach(el=>el.classList.remove('mobile-story-animate','mobile-fade-target','mobile-fade-in','mobile-fade-text','mobile-fade-image','mobile-fade-card','mobile-fade-soft'));
+
+  const copySelectors=[
+    '.v9-story-intro', '.v9-rebirth-copy','.v9-upgrade-copy','.v9-conv-copy',
+    '.v9-faction-copy','.v9-play-copy','.v9-home-copy','.v9-boss-copy','.v9-discovery-head'
+  ];
+  const stageSelectors=[
+    '.v9-rebirth-stage','.v9-upgrade-board','.v9-afk-frame','.v9-faction-stage',
+    '.v9-dungeon','.v9-discovery-stage','.v9-play-stage','.v9-home-image'
+  ];
+  const copies=[]; const stages=[];
+  copySelectors.forEach(sel=>root.querySelectorAll(sel).forEach(el=>{el.classList.add('story-scroll-copy');copies.push(el)}));
+  stageSelectors.forEach(sel=>root.querySelectorAll(sel).forEach(el=>{el.classList.add('story-scroll-stage');stages.push(el)}));
+  root.querySelectorAll('.v9-boss video,.v9-boss .v9-boss-video').forEach(el=>{el.classList.add('story-scroll-boss-video')});
+
+  const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
+  const smooth=v=>v*v*(3-2*v);
   let ticking=false;
-
-  sections.forEach(sec=>{
-    sec.querySelectorAll('.v9-rebirth-copy,.v9-upgrade-copy,.v9-conv-copy,.v9-faction-copy,.v9-discovery-head,.v9-play-copy,.v9-home-copy,.v9-boss-copy')
-      .forEach(el=>el.classList.add('mobile-scroll-copy'));
-    sec.querySelectorAll('.v9-rebirth-stage,.v9-upgrade-board,.v9-afk-frame,.v9-faction-stage,.v9-dungeon,.v9-discovery-stage,.v9-play-stage,.v9-home-image,.v9-boss-video')
-      .forEach(el=>el.classList.add('mobile-scroll-visual'));
-  });
-
-  function draw(){
+  const update=()=>{
     ticking=false;
     const vh=innerHeight;
-
-    sections.forEach(sec=>{
-      const r=sec.getBoundingClientRect();
-      /* 0 = just below viewport, 1 = leaving viewport. */
-      const p=clamp((vh-r.top)/(vh+r.height));
-      const scene=ease(p);
-      const center=clamp((vh*.5-r.top)/(vh+r.height));
-      const centered=(center-.5)*2;
-      const visualShift=-centered*18;
-      const visualScale=0.985+0.015*ease(1-Math.abs(centered));
-
-      sec.querySelectorAll('.mobile-scroll-copy').forEach(el=>{
-        el.style.opacity='1';
-        el.style.transform=`translate3d(0,${(-centered*6).toFixed(2)}px,0)`;
-      });
-
-      sec.querySelectorAll('.mobile-scroll-visual').forEach(el=>{
-        el.style.opacity='1';
-        el.style.transform=`translate3d(0,${visualShift.toFixed(2)}px,0) scale(${visualScale.toFixed(4)})`;
-      });
-
-      /* 01 輪迴：整個軌道一起輕輕轉，不再一個一個飛出來。 */
-      const stage=sec.querySelector('.v9-rebirth-stage');
-      if(stage){
-        stage.style.transform=`translate3d(0,${visualShift.toFixed(2)}px,0) scale(${visualScale.toFixed(4)})`;
-        stage.querySelectorAll('.v9-orbit').forEach((el,i)=>{
-          const angle=(i-1)*120 + centered*10;
-          el.style.transform=`rotate(${angle.toFixed(2)}deg)`;
-        });
-      }
-
-      /* 02 強化：整組只做很小的漂移／縮放，格子不依序跳出。 */
-      const board=sec.querySelector('.v9-upgrade-board');
-      if(board)board.style.transform=`translate3d(0,${visualShift.toFixed(2)}px,0) scale(${visualScale.toFixed(4)})`;
-
-      /* 05 / 06：整組卡片一起移動，不做 stagger。 */
-      sec.querySelectorAll('.v9-discovery-item,.v9-play-item').forEach(el=>{
-        el.style.opacity='1';
-        el.style.transform=`translate3d(0,${(-centered*8).toFixed(2)}px,0)`;
-      });
+    const start=vh*.76;
+    const end=vh*.49;
+    const motion=(el)=>smooth(clamp((start-el.getBoundingClientRect().top)/(start-end)));
+    copies.forEach(el=>{
+      const e=motion(el);
+      el.style.setProperty('--story-copy-y',(7*(1-e)).toFixed(2)+'px');
     });
-  }
-
-  function request(){
-    if(!ticking){ticking=true;requestAnimationFrame(draw)}
-  }
+    stages.forEach(el=>{
+      const e=motion(el);
+      el.style.setProperty('--story-stage-y',(14*(1-e)).toFixed(2)+'px');
+      el.style.setProperty('--story-stage-scale',(0.985+0.015*e).toFixed(4));
+    });
+    root.querySelectorAll('.story-scroll-boss-video').forEach(el=>{
+      const e=motion(el);
+      el.style.setProperty('--story-boss-y',(8*(1-e)).toFixed(2)+'px');
+      el.style.setProperty('--story-boss-scale',(1.03+0.02*e).toFixed(4));
+    });
+  };
+  const request=()=>{if(!ticking){ticking=true;requestAnimationFrame(update)}};
   addEventListener('scroll',request,{passive:true});
-  addEventListener('resize',request);
-  draw();
+  addEventListener('resize',request,{passive:true});
+  update();
 })();
 </script>
 
