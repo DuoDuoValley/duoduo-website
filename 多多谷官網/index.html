@@ -1381,129 +1381,100 @@ let ticking=false;function scrollFX(){ticking=false;const about=document.querySe
 </script>
 
 
-<style id="mobile-story-motion-only-v4">
-/* MOBILE ONLY — restore the story's short "hold → move → hold" beats.
-   Desktop is intentionally untouched. */
+<!-- MOBILE STORY MOTION V4: scroll-linked scene motion only. Desktop untouched. -->
+<style id="mobile-story-scroll-scene-v4">
 @media (max-width:760px){
-  #v9-story .dd-mobile-motion-target{animation:none!important;}
-
-  /* Copy: a short entrance, then it stays completely still. */
-  #v9-story .dd-mobile-motion-copy.dd-mobile-motion-in{
-    animation:ddMobileCopy .62s cubic-bezier(.22,.61,.36,1) both!important;
-  }
-  /* Main visuals: scale/slide once when the scene enters the viewport. */
-  #v9-story .dd-mobile-motion-image.dd-mobile-motion-in{
-    animation:ddMobileImage .78s cubic-bezier(.22,.61,.36,1) both!important;
-  }
-
-  /* Inner artwork gets the visible "動一下" beat without changing layout. */
-  #v9-story .dd-mobile-art.dd-mobile-motion-in{
-    animation:ddMobileArt .72s cubic-bezier(.22,.61,.36,1) both!important;
+  /* Turn off every previous one-shot mobile entrance animation. */
+  #v9-story .mobile-story-animate,
+  #v9-story .mobile-fade-target,
+  #v9-story .mobile-fade-text,
+  #v9-story .mobile-fade-image,
+  #v9-story .mobile-fade-card,
+  #v9-story .mobile-fade-soft{
+    animation:none!important;
   }
 
-  @keyframes ddMobileCopy{
-    0%{opacity:0;transform:translate3d(0,18px,0)}
-    100%{opacity:1;transform:none}
-  }
-  @keyframes ddMobileImage{
-    0%{opacity:.55;transform:scale(.965)}
-    55%{opacity:1;transform:scale(1.018)}
-    100%{opacity:1;transform:scale(1)}
-  }
-  @keyframes ddMobileArt{
-    0%{opacity:.72;transform:translate3d(0,12px,0) scale(.97)}
-    60%{opacity:1;transform:translate3d(0,-3px,0) scale(1.012)}
-    100%{opacity:1;transform:none}
-  }
+  /* Keep the current mobile layout exactly as-is; only animation behavior is replaced. */
+  #v9-story .mobile-fade-target{opacity:1!important;}
+  #v9-story .mobile-story-animate{opacity:1!important;}
 
-  /* Scene-specific rhythm — deliberately subtle and short. */
-  #v9-story .dd-mobile-scene-1.dd-mobile-motion-in .v9-rebirth-center{animation:ddMobileCenter .9s cubic-bezier(.22,.61,.36,1) .08s both!important}
-  #v9-story .dd-mobile-scene-1.dd-mobile-motion-in .v9-orbit{animation:ddMobileOrbit .82s cubic-bezier(.22,.61,.36,1) .16s both!important}
-  #v9-story .dd-mobile-scene-2.dd-mobile-motion-in .v9-upgrade-slot{animation:ddMobileSlot .62s cubic-bezier(.22,.61,.36,1) both!important}
-  #v9-story .dd-mobile-scene-2.dd-mobile-motion-in .v9-upgrade-slot:nth-child(2){animation-delay:.08s!important}
-  #v9-story .dd-mobile-scene-2.dd-mobile-motion-in .v9-upgrade-slot:nth-child(3){animation-delay:.14s!important}
-  #v9-story .dd-mobile-scene-2.dd-mobile-motion-in .v9-upgrade-slot:nth-child(4){animation-delay:.20s!important}
-  #v9-story .dd-mobile-scene-2.dd-mobile-motion-in .v9-upgrade-slot:nth-child(5){animation-delay:.26s!important}
-  #v9-story .dd-mobile-scene-3.dd-mobile-motion-in img{animation:ddMobileArt .72s cubic-bezier(.22,.61,.36,1) .10s both!important}
-  #v9-story .dd-mobile-scene-4.dd-mobile-motion-in .v9-faction-stage .f{animation:ddMobileCharacter .7s cubic-bezier(.22,.61,.36,1) both!important}
-  #v9-story .dd-mobile-scene-4.dd-mobile-motion-in .v9-faction-stage .f2{animation-delay:.08s!important}
-  #v9-story .dd-mobile-scene-4.dd-mobile-motion-in .v9-faction-stage .f3{animation-delay:.16s!important}
-  #v9-story .dd-mobile-scene-4.dd-mobile-motion-in .v9-faction-stage .f4{animation-delay:.24s!important}
-  #v9-story .dd-mobile-scene-7.dd-mobile-motion-in img{animation:ddMobileArt .82s cubic-bezier(.22,.61,.36,1) .08s both!important}
-
-  @keyframes ddMobileCenter{
-    0%{transform:translate(-50%,-50%) scale(.88)}
-    65%{transform:translate(-50%,-50%) scale(1.045)}
-    100%{transform:translate(-50%,-50%) scale(1)}
-  }
-  @keyframes ddMobileOrbit{
-    0%{transform:translate(-50%,-50%) scale(.88);opacity:.45}
-    65%{transform:translate(-50%,-50%) scale(1.04);opacity:1}
-    100%{transform:translate(-50%,-50%) scale(1);opacity:1}
-  }
-  @keyframes ddMobileSlot{
-    0%{opacity:.45;transform:scale(.9)}
-    65%{opacity:1;transform:scale(1.045)}
-    100%{opacity:1;transform:scale(1)}
-  }
-  @keyframes ddMobileCharacter{
-    0%{opacity:.45;transform:scale(.94)}
-    65%{opacity:1;transform:scale(1.035)}
-    100%{opacity:1;transform:scale(1)}
-  }
-
-  @media(prefers-reduced-motion:reduce){
-    #v9-story .dd-mobile-motion-copy.dd-mobile-motion-in,
-    #v9-story .dd-mobile-motion-image.dd-mobile-motion-in,
-    #v9-story .dd-mobile-art.dd-mobile-motion-in,
-    #v9-story .dd-mobile-scene-1.dd-mobile-motion-in .v9-rebirth-center,
-    #v9-story .dd-mobile-scene-1.dd-mobile-motion-in .v9-orbit,
-    #v9-story .dd-mobile-scene-2.dd-mobile-motion-in .v9-upgrade-slot,
-    #v9-story .dd-mobile-scene-3.dd-mobile-motion-in img,
-    #v9-story .dd-mobile-scene-4.dd-mobile-motion-in .v9-faction-stage .f,
-    #v9-story .dd-mobile-scene-7.dd-mobile-motion-in img{animation:none!important}
+  /* The scene itself stays visually stable. Motion is intentionally very small. */
+  #v9-story .mobile-scroll-copy,
+  #v9-story .mobile-scroll-visual{
+    will-change:transform,opacity;
   }
 }
 </style>
-<script id="mobile-story-motion-only-v4-script">
+<script id="mobile-story-scroll-scene-v4-script">
 (()=>{
   if(!matchMedia('(max-width:760px)').matches)return;
   const root=document.querySelector('#v9-story');
   if(!root)return;
 
-  const scenes=[
-    {section:'.v9-rebirth',copy:'.v9-rebirth-copy',visual:'.v9-rebirth-stage',scene:'dd-mobile-scene-1'},
-    {section:'.v9-upgrade',copy:'.v9-upgrade-copy',visual:'.v9-upgrade-board',scene:'dd-mobile-scene-2'},
-    {section:'.v9-convenience',copy:'.v9-conv-copy',visual:'.v9-afk-frame',scene:'dd-mobile-scene-3'},
-    {section:'.v9-faction',copy:'.v9-faction-copy',visual:'.v9-faction-stage',scene:'dd-mobile-scene-4'},
-    {section:'.v9-discovery',copy:'.v9-discovery-head',visual:'.v9-discovery-stage',scene:'dd-mobile-scene-5'},
-    {section:'.v9-play',copy:'.v9-play-copy',visual:'.v9-play-stage',scene:'dd-mobile-scene-6'},
-    {section:'.v9-home',copy:'.v9-home-copy',visual:'.v9-home-image',scene:'dd-mobile-scene-7'},
-    {section:'.v9-boss',copy:'.v9-boss-copy',visual:'.v9-boss-video',scene:'dd-mobile-scene-8'}
-  ];
+  const sections=[...root.querySelectorAll(':scope > section')];
+  const clamp=(n,a=0,b=1)=>Math.max(a,Math.min(b,n));
+  const ease=t=>t*t*(3-2*t);
+  let ticking=false;
 
-  const targets=[];
-  scenes.forEach(item=>{
-    const sec=root.querySelector(item.section); if(!sec)return;
-    sec.classList.add(item.scene,'dd-mobile-motion-target');
-    const copy=sec.querySelector(item.copy);
-    const visual=sec.querySelector(item.visual);
-    if(copy){copy.classList.add('dd-mobile-motion-copy');targets.push(copy)}
-    if(visual){visual.classList.add('dd-mobile-motion-image');targets.push(visual)}
-    sec.querySelectorAll('.v9-discovery-item,.v9-play-item').forEach(el=>{
-      el.classList.add('dd-mobile-art');
-      targets.push(el);
-    });
+  sections.forEach(sec=>{
+    sec.querySelectorAll('.v9-rebirth-copy,.v9-upgrade-copy,.v9-conv-copy,.v9-faction-copy,.v9-discovery-head,.v9-play-copy,.v9-home-copy,.v9-boss-copy')
+      .forEach(el=>el.classList.add('mobile-scroll-copy'));
+    sec.querySelectorAll('.v9-rebirth-stage,.v9-upgrade-board,.v9-afk-frame,.v9-faction-stage,.v9-dungeon,.v9-discovery-stage,.v9-play-stage,.v9-home-image,.v9-boss-video')
+      .forEach(el=>el.classList.add('mobile-scroll-visual'));
   });
 
-  const show=el=>el.classList.add('dd-mobile-motion-in');
-  if(!('IntersectionObserver' in window)){targets.forEach(show);return;}
-  const io=new IntersectionObserver(entries=>{
-    entries.forEach(entry=>{
-      if(entry.isIntersecting){show(entry.target);io.unobserve(entry.target)}
+  function draw(){
+    ticking=false;
+    const vh=innerHeight;
+
+    sections.forEach(sec=>{
+      const r=sec.getBoundingClientRect();
+      /* 0 = just below viewport, 1 = leaving viewport. */
+      const p=clamp((vh-r.top)/(vh+r.height));
+      const scene=ease(p);
+      const center=clamp((vh*.5-r.top)/(vh+r.height));
+      const centered=(center-.5)*2;
+      const visualShift=-centered*18;
+      const visualScale=0.985+0.015*ease(1-Math.abs(centered));
+
+      sec.querySelectorAll('.mobile-scroll-copy').forEach(el=>{
+        el.style.opacity='1';
+        el.style.transform=`translate3d(0,${(-centered*6).toFixed(2)}px,0)`;
+      });
+
+      sec.querySelectorAll('.mobile-scroll-visual').forEach(el=>{
+        el.style.opacity='1';
+        el.style.transform=`translate3d(0,${visualShift.toFixed(2)}px,0) scale(${visualScale.toFixed(4)})`;
+      });
+
+      /* 01 輪迴：整個軌道一起輕輕轉，不再一個一個飛出來。 */
+      const stage=sec.querySelector('.v9-rebirth-stage');
+      if(stage){
+        stage.style.transform=`translate3d(0,${visualShift.toFixed(2)}px,0) scale(${visualScale.toFixed(4)})`;
+        stage.querySelectorAll('.v9-orbit').forEach((el,i)=>{
+          const angle=(i-1)*120 + centered*10;
+          el.style.transform=`rotate(${angle.toFixed(2)}deg)`;
+        });
+      }
+
+      /* 02 強化：整組只做很小的漂移／縮放，格子不依序跳出。 */
+      const board=sec.querySelector('.v9-upgrade-board');
+      if(board)board.style.transform=`translate3d(0,${visualShift.toFixed(2)}px,0) scale(${visualScale.toFixed(4)})`;
+
+      /* 05 / 06：整組卡片一起移動，不做 stagger。 */
+      sec.querySelectorAll('.v9-discovery-item,.v9-play-item').forEach(el=>{
+        el.style.opacity='1';
+        el.style.transform=`translate3d(0,${(-centered*8).toFixed(2)}px,0)`;
+      });
     });
-  },{threshold:.18,rootMargin:'0px 0px -12% 0px'});
-  targets.forEach(el=>io.observe(el));
+  }
+
+  function request(){
+    if(!ticking){ticking=true;requestAnimationFrame(draw)}
+  }
+  addEventListener('scroll',request,{passive:true});
+  addEventListener('resize',request);
+  draw();
 })();
 </script>
 
