@@ -1474,4 +1474,81 @@ let ticking=false;function scrollFX(){ticking=false;const about=document.querySe
 })();
 </script>
 
+
+<style id="mobile-story-image-spacing-final">
+@media (max-width:760px){
+  /* FINAL MOBILE IMAGE SPACING ONLY
+     Keep the confirmed homepage/story animation unchanged.
+     Only separate the visual objects on BUILD / 02 and CHOICE / 04. */
+
+  /* BUILD / 02 — give each upgrade card its own clear lane */
+  #v9-story .v9-upgrade-board{
+    width:320px!important;
+    height:320px!important;
+    margin:52px auto 0!important;
+  }
+  #v9-story .v9-upgrade-slot.main{
+    width:88px!important;
+    height:88px!important;
+    left:50%!important;
+    top:50%!important;
+    transform:translate(-50%,-50%)!important;
+  }
+  #v9-story .v9-upgrade-slot:not(.main){
+    width:58px!important;
+    height:58px!important;
+    border-radius:15px!important;
+  }
+  #v9-story .v9-upgrade-slot.s2{
+    left:0!important;
+    top:8%!important;
+  }
+  #v9-story .v9-upgrade-slot.s3{
+    right:0!important;
+    top:4%!important;
+  }
+  #v9-story .v9-upgrade-slot.s4{
+    left:4%!important;
+    bottom:1%!important;
+  }
+  #v9-story .v9-upgrade-slot.s5{
+    right:0!important;
+    bottom:5%!important;
+  }
+  #v9-story .v9-plus{
+    font-size:48px!important;
+  }
+
+  /* CHOICE / 04 — keep the four characters clearly separated */
+  #v9-story .v9-faction-stage{
+    width:320px!important;
+    height:320px!important;
+    margin:48px auto 0!important;
+  }
+  #v9-story .v9-faction-stage .f{
+    width:48px!important;
+    max-height:88px!important;
+  }
+  #v9-story .v9-faction-stage .f1{
+    left:9%!important;
+    top:20%!important;
+  }
+  #v9-story .v9-faction-stage .f2{
+    right:8%!important;
+    top:12%!important;
+  }
+  #v9-story .v9-faction-stage .f3{
+    left:14%!important;
+    bottom:7%!important;
+  }
+  #v9-story .v9-faction-stage .f4{
+    right:10%!important;
+    bottom:6%!important;
+  }
+  #v9-story .v9-vs{
+    font-size:32px!important;
+  }
+}
+</style>
+
 </body></html>
