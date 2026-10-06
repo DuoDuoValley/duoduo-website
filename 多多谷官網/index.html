@@ -1381,83 +1381,96 @@ let ticking=false;function scrollFX(){ticking=false;const about=document.querySe
 </script>
 
 
-<!-- FINAL MOBILE STORY SCROLL MOTION: story-only, no entrance pop -->
-<style id="mobile-story-scroll-motion-final">
-@media (max-width:760px){
-  /* Only neutralize the old story entrance animations. Nothing outside #v9-story is touched. */
+
+<!-- MOBILE STORY: reuse the homepage V4 animation language, story-only -->
+<style id="mobile-story-use-homepage-v4">
+@media(max-width:760px){
+  /* Cancel every older story entrance animation, only inside the story. */
   #v9-story .mobile-story-animate,
   #v9-story .mobile-fade-target,
-  #v9-story .mobile-fade-text,
-  #v9-story .mobile-fade-image,
-  #v9-story .mobile-fade-card,
-  #v9-story .mobile-fade-soft{
+  #v9-story .v15-pop,
+  #v9-story .v15-head-pop{
     animation:none!important;
+  }
+  #v9-story .mobile-fade-target,
+  #v9-story .mobile-fade-target.mobile-fade-in,
+  #v9-story .mobile-story-animate,
+  #v9-story .v15-pop,
+  #v9-story .v15-head-pop{
     opacity:1!important;
   }
 
-  /* Subtle whole-scene movement: no stagger, no fade-in, no pop. */
-  #v9-story .story-scroll-copy{
-    transform:translate3d(0,var(--story-copy-y,0px),0)!important;
+  /* Same easing/feel as the working homepage V4 animation. */
+  #v9-story .story-v4-reveal{
+    opacity:0!important;
+    transform:translateY(55px)!important;
+    transition:opacity .9s cubic-bezier(.22,.61,.36,1),transform .9s cubic-bezier(.22,.61,.36,1)!important;
+    will-change:opacity,transform;
   }
-  #v9-story .story-scroll-stage{
-    transform:translate3d(0,var(--story-stage-y,0px),0) scale(var(--story-stage-scale,1))!important;
+  #v9-story .story-v4-reveal.story-v4-in{
+    opacity:1!important;
+    transform:none!important;
   }
-  #v9-story .story-scroll-boss-video{
-    transform:translate3d(0,var(--story-boss-y,0px),0) scale(var(--story-boss-scale,1.03))!important;
+  #v9-story .story-v4-scale{
+    opacity:0!important;
+    transform:scale(.92)!important;
+    transition:opacity 1s ease,transform 1.1s cubic-bezier(.22,.61,.36,1)!important;
+    will-change:opacity,transform;
+  }
+  #v9-story .story-v4-scale.story-v4-in{
+    opacity:1!important;
+    transform:none!important;
+  }
+  @media(prefers-reduced-motion:reduce){
+    #v9-story .story-v4-reveal,#v9-story .story-v4-scale{
+      opacity:1!important;transform:none!important;transition:none!important;
+    }
   }
 }
 </style>
-<script id="mobile-story-scroll-motion-final-script">
+<script id="mobile-story-use-homepage-v4-script">
 (()=>{
-  const mq=matchMedia('(max-width:760px)');
+  if(!matchMedia('(max-width:760px)').matches)return;
   const root=document.querySelector('#v9-story');
-  if(!root||!mq.matches)return;
+  if(!root)return;
 
-  /* Remove only the old story entrance state/classes. */
-  root.querySelectorAll('.mobile-story-animate,.mobile-fade-target,.mobile-fade-in,.mobile-fade-text,.mobile-fade-image,.mobile-fade-card,.mobile-fade-soft')
-    .forEach(el=>el.classList.remove('mobile-story-animate','mobile-fade-target','mobile-fade-in','mobile-fade-text','mobile-fade-image','mobile-fade-card','mobile-fade-soft'));
-
-  const copySelectors=[
-    '.v9-story-intro', '.v9-rebirth-copy','.v9-upgrade-copy','.v9-conv-copy',
-    '.v9-faction-copy','.v9-play-copy','.v9-home-copy','.v9-boss-copy','.v9-discovery-head'
+  /* One target = one complete story beat. Nothing inside a beat is staggered. */
+  const revealSelectors=[
+    '.v9-story-intro',
+    '.v9-rebirth-copy,.v9-rebirth-stage',
+    '.v9-upgrade-copy,.v9-upgrade-board',
+    '.v9-conv-copy,.v9-afk-frame,.v9-afk-status',
+    '.v9-faction-copy,.v9-faction-stage,.v9-dungeon',
+    '.v9-discovery-head,.v9-discovery-stage',
+    '.v9-play-copy,.v9-play-stage',
+    '.v9-home-copy,.v9-home-image',
+    '.v9-boss-copy,.v9-boss-video'
   ];
-  const stageSelectors=[
-    '.v9-rebirth-stage','.v9-upgrade-board','.v9-afk-frame','.v9-faction-stage',
-    '.v9-dungeon','.v9-discovery-stage','.v9-play-stage','.v9-home-image'
-  ];
-  const copies=[]; const stages=[];
-  copySelectors.forEach(sel=>root.querySelectorAll(sel).forEach(el=>{el.classList.add('story-scroll-copy');copies.push(el)}));
-  stageSelectors.forEach(sel=>root.querySelectorAll(sel).forEach(el=>{el.classList.add('story-scroll-stage');stages.push(el)}));
-  root.querySelectorAll('.v9-boss video,.v9-boss .v9-boss-video').forEach(el=>{el.classList.add('story-scroll-boss-video')});
 
-  const clamp=(v,a=0,b=1)=>Math.max(a,Math.min(b,v));
-  const smooth=v=>v*v*(3-2*v);
-  let ticking=false;
-  const update=()=>{
-    ticking=false;
-    const vh=innerHeight;
-    const start=vh*.76;
-    const end=vh*.49;
-    const motion=(el)=>smooth(clamp((start-el.getBoundingClientRect().top)/(start-end)));
-    copies.forEach(el=>{
-      const e=motion(el);
-      el.style.setProperty('--story-copy-y',(7*(1-e)).toFixed(2)+'px');
+  const targets=[];
+  revealSelectors.forEach((selector,index)=>{
+    root.querySelectorAll(selector).forEach(el=>{
+      if(targets.includes(el))return;
+      el.classList.add(index===0?'story-v4-reveal':'story-v4-reveal');
+      targets.push(el);
     });
-    stages.forEach(el=>{
-      const e=motion(el);
-      el.style.setProperty('--story-stage-y',(14*(1-e)).toFixed(2)+'px');
-      el.style.setProperty('--story-stage-scale',(0.985+0.015*e).toFixed(4));
+  });
+
+  if(!('IntersectionObserver' in window)){
+    targets.forEach(el=>el.classList.add('story-v4-in'));
+    return;
+  }
+
+  const io=new IntersectionObserver(entries=>{
+    entries.forEach(entry=>{
+      if(entry.isIntersecting){
+        entry.target.classList.add('story-v4-in');
+        io.unobserve(entry.target);
+      }
     });
-    root.querySelectorAll('.story-scroll-boss-video').forEach(el=>{
-      const e=motion(el);
-      el.style.setProperty('--story-boss-y',(8*(1-e)).toFixed(2)+'px');
-      el.style.setProperty('--story-boss-scale',(1.03+0.02*e).toFixed(4));
-    });
-  };
-  const request=()=>{if(!ticking){ticking=true;requestAnimationFrame(update)}};
-  addEventListener('scroll',request,{passive:true});
-  addEventListener('resize',request,{passive:true});
-  update();
+  },{threshold:.16,rootMargin:'0px 0px -8% 0px'});
+
+  targets.forEach(el=>io.observe(el));
 })();
 </script>
 
