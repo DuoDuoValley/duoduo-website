@@ -100,6 +100,9 @@
       const pools=values.duoduo_pools;
       if(Array.isArray(pools)&&pools.length&&pools.every(p=>p&&typeof p.key==='string'&&typeof p.name==='string'&&Array.isArray(p.items))){
         DATA.pools=pools;
+        // Re-apply the current weekly grand prizes after cloud pools load, so remote data
+        // does not replace the existing weekly rotation logic.
+        applyWeeklyPrizes();
         if(!DATA.pools.some(p=>p.key===selectedPool))selectedPool=DATA.pools[0].key;
         try{localStorage.setItem(STORAGE_KEY,JSON.stringify({pools:DATA.pools}));}catch{}
         renderPoolGrid();renderPoolInfo();renderProbability();renderAdminPoolSelect();
