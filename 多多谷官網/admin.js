@@ -221,8 +221,12 @@ function addCloudMigrationButton(){
       const json=await res.json();
       const remote=json?.data?.duoduo_pools;
       pools=Array.isArray(remote)&&remote.length?remote:JSON.parse(JSON.stringify(defaults));
+      // The admin JSON stores probability as a 0-1 ratio. The intended 0.05% for 天上的氣息 is 0.0005, not 0.05 (5%).
+      let correctedHeavenlyRate=false;
+      const golden=pools.find(p=>p&&p.key==='golden');
+      if(golden&&Array.isArray(golden.items)){golden.items=golden.items.map(item=>{if(item&&item.name==='天上的氣息'&&Number(item.prob)===0.05){correctedHeavenlyRate=true;return {...item,prob:0.0005};}return item;});}
       localStorage.setItem('duoduo_pools',JSON.stringify(pools));
-      paintSelect(pools[0]?.key);status(remote?'已載入雲端獎池資料。':'目前雲端尚無獎池設定，已載入預設獎池；儲存後即可同步。');
+      paintSelect(pools[0]?.key);status(correctedHeavenlyRate?'已將「天上的氣息」機率修正為 0.05%（0.0005）。請選擇黃金蘋果並按「儲存獎池並同步雲端」完成雲端更新。':(remote?'已載入雲端獎池資料。':'目前雲端尚無獎池設定，已載入預設獎池；儲存後即可同步。'));
     }catch(e){
       try{pools=JSON.parse(localStorage.getItem('duoduo_pools')||'null')||JSON.parse(JSON.stringify(defaults));}catch{pools=JSON.parse(JSON.stringify(defaults));}
       paintSelect(pools[0]?.key);status('雲端讀取失敗，暫時載入本機／預設獎池。儲存前請確認後端連線。',true);

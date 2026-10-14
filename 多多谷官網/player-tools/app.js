@@ -1,7 +1,7 @@
 (() => {
   const DEFAULT_DATA=JSON.parse(JSON.stringify(window.DUODUO_TOOL_DATA));
   const STORAGE_KEY='duoduo-player-tools-gacha-v1';
-  try { const saved=localStorage.getItem(STORAGE_KEY); if(saved){const parsed=JSON.parse(saved);if(parsed&&Array.isArray(parsed.pools)&&parsed.pools.length)window.DUODUO_TOOL_DATA.pools=parsed.pools;} } catch(e) { console.warn('無法讀取已儲存的獎池設定',e); }
+  // 雲端共用獎池為正式資料來源；不在初始化時用舊的瀏覽器快取覆蓋內建資料。
   const DATA=window.DUODUO_TOOL_DATA,$=id=>document.getElementById(id),fmt=n=>Number(n).toLocaleString('zh-TW'),pct=n=>`${(n*100).toFixed(1).replace(/\.0$/,'')}%`;
   const attrNames={basic:['全屬性','攻魔'],excellent:['全屬性','攻魔','無視%','傷害%'],extreme:['全屬性','攻魔','Boss%','全屬性%']};
   const expandedAttrs=(names,values)=>names.flatMap((name,i)=>name==='攻魔'?[['攻擊力',values[i]??0],['魔法攻擊力',values[i]??0]]:[[name,values[i]??0]]);
@@ -47,8 +47,8 @@
   function syncWeeklyPrizeInputs(){weeklyPrizes.forEach((x,i)=>{const n=i+1;const a=$('weeklyPrizeName'+n),b=$('weeklyPrizeProb'+n),c=$('weeklyPrizeImage'+n);if(a)a.value=x.name;if(b)b.value=(x.prob*100).toString();if(c)c.value=x.image;});}
   function getGoldenWeekRange(now=new Date()){const d=new Date(now);d.setHours(0,0,0,0);const day=d.getDay();const back=(day-3+7)%7;d.setDate(d.getDate()-back);const start=d;const end=new Date(start);end.setDate(end.getDate()+6);end.setHours(23,59,0,0);const f=x=>`${x.getFullYear()}/${String(x.getMonth()+1).padStart(2,'0')}/${String(x.getDate()).padStart(2,'0')}`;return {start,end,label:`本週 ${f(start)}～${f(end)}`};}
   function updateWeeklyPrizePeriod(){const el=$('weeklyPrizePeriod');if(el){const r=getGoldenWeekRange();el.textContent=`輪替時間：每週三 00:00～下週二 23:59（${r.label}）`;}}
-  function applyWeeklyPrizes(){const p=DATA.pools.find(x=>x.key==='golden');if(!p)return;const oldNames=new Set(['黎明的現身','正午的現身','夕陽的現身','午夜的現身',...weeklyPrizes.map(x=>x.name)]);p.items=p.items.filter(it=>!oldNames.has(it.name));p.items.unshift(...weeklyPrizes.map(x=>({name:x.name,prob:x.prob,sourceRow:'weeklyGrandPrize'})));weeklyPrizes.forEach(x=>{GACHA_ITEM_IMAGES.golden[x.name]=x.image;});}
-  function gachaItemImage(item,pool=currentPool()){return String(item?.image||'').trim()||GACHA_ITEM_IMAGES[pool?.key]?.[item.name]||'';}
+  function applyWeeklyPrizes(){weeklyPrizes.forEach(x=>{if(x&&x.name&&x.image){GACHA_ITEM_IMAGES.golden[x.name]=x.image;}});}
+  function gachaItemImage(item,pool=currentPool()){const explicit=String(item?.image||'').trim();if(explicit)return explicit;const own=GACHA_ITEM_IMAGES[pool?.key]?.[item.name];if(own)return own;if(pool?.key==='golden'||pool?.key==='platinum')return GACHA_ITEM_IMAGES[pool.key==='golden'?'platinum':'golden']?.[item.name]||'';return '';}
   function renderPoolGrid(){$('poolGrid').innerHTML=DATA.pools.map(p=>`<button class="pool-option ${p.key===selectedPool?'selected':''}" data-pool="${p.key}"><img src="${p.image}" alt=""><span><strong>${p.name}</strong><small>${p.items.length} 種道具</small></span></button>`).join('');$('poolGrid').querySelectorAll('[data-pool]').forEach(btn=>btn.addEventListener('click',()=>{selectedPool=btn.dataset.pool;renderPoolGrid();renderPoolInfo();renderProbability();}));}
   function renderPoolInfo(){const p=currentPool();$('selectedPoolInfo').innerHTML=`<img src="${p.image}" alt=""><div><strong>${p.name}</strong><span>${p.items.length} 種道具</span></div>`;$('probabilitySubtitle').textContent=p.key==='golden'?`${p.name}｜共 ${p.items.length} 種道具。本週大獎：${weeklyPrizes.map(x=>x.name).join('、')}｜更換時間：每週三 00:00～下週二 23:59（${getGoldenWeekRange().label.replace('本週 ','')}）。`:`${p.name}｜共 ${p.items.length} 種道具。`;}
   function approximateOdds(prob){return prob>0?`約 1 / ${Math.round(1/prob).toLocaleString('zh-TW')}`:'—';}function renderProbability(){const p=currentPool(),q=$('itemSearch').value.trim().toLocaleLowerCase(),filtered=p.items.filter(it=>it.name.toLocaleLowerCase().includes(q));$('probabilityRows').innerHTML=filtered.map(it=>{const img=gachaItemImage(it,p);return `<tr><td><span class="gacha-item-cell">${img?`<img class="gacha-item-icon" src="${img}" alt="">`:''}<span>${it.name}</span></span></td><td>${(it.prob*100).toFixed(3).replace(/0+$/,'').replace(/\.$/,'')}%</td><td>${approximateOdds(it.prob)}</td></tr>`;}).join('')||'<tr><td colspan="3" class="empty-state">找不到符合的道具</td></tr>';}
@@ -100,8 +100,7 @@
       const pools=values.duoduo_pools;
       if(Array.isArray(pools)&&pools.length&&pools.every(p=>p&&typeof p.key==='string'&&typeof p.name==='string'&&Array.isArray(p.items))){
         DATA.pools=pools;
-        // Re-apply the current weekly grand prizes after cloud pools load, so remote data
-        // does not replace the existing weekly rotation logic.
+        // Keep cloud pool contents authoritative; do not inject stale weekly prizes from localStorage.
         applyWeeklyPrizes();
         if(!DATA.pools.some(p=>p.key===selectedPool))selectedPool=DATA.pools[0].key;
         try{localStorage.setItem(STORAGE_KEY,JSON.stringify({pools:DATA.pools}));}catch{}
