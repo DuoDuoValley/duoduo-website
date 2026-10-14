@@ -106,7 +106,7 @@ SITE_SETTINGS.nav=Object.assign({},DEFAULT_SITE_SETTINGS.nav,SITE_SETTINGS.nav||
 SITE_SETTINGS.footer=Object.assign({},DEFAULT_SITE_SETTINGS.footer,SITE_SETTINGS.footer||{});
 Object.entries(LINKS).forEach(([key,url])=>document.querySelectorAll(`[data-link="${key}"]`).forEach(a=>a.href=url));
 document.querySelectorAll("[data-nav]").forEach(el=>{const key=el.dataset.nav;if(SITE_SETTINGS.nav[key])el.textContent=SITE_SETTINGS.nav[key]});
-const navOrder=Array.isArray(SITE_SETTINGS.navOrder)?SITE_SETTINGS.navOrder:['home','why','features','events','boss','news','guide','downloads'];
+const navOrder=Array.isArray(SITE_SETTINGS.navOrder)?SITE_SETTINGS.navOrder:['home','why','features','events','boss','news','guide','downloads','player-tools'];
 document.querySelectorAll('header .nav-pill[data-nav]').forEach(el=>el.dataset.navOrder=String(navOrder.indexOf(el.dataset.nav)));
 const navContainers=new Set();document.querySelectorAll('header .nav-pill[data-nav]').forEach(el=>{if(el.parentElement)navContainers.add(el.parentElement)});navContainers.forEach(container=>{[...container.querySelectorAll('.nav-pill[data-nav]')].sort((a,b)=>(Number(a.dataset.navOrder)-Number(b.dataset.navOrder))).forEach(el=>container.appendChild(el))});
 document.querySelectorAll("[data-footer]").forEach(el=>{const key=el.dataset.footer;if(SITE_SETTINGS.footer[key]!==undefined)el.textContent=SITE_SETTINGS.footer[key]});
