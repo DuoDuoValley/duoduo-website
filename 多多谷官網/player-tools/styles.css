@@ -1,0 +1,895 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700;800;900&display=swap');
+:root{--ink:#18263a;--muted:#64748b;--line:#e2e8f0;--paper:#f3f7fb;--white:#fff;--blue:#0f8db8;--shadow:0 10px 30px rgba(30,58,85,.06)}*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:var(--paper);color:var(--ink);font-family:"Noto Sans TC","Microsoft JhengHei",sans-serif;font-size:14px}.topbar{height:68px;display:flex;align-items:center;gap:34px;padding:0 max(24px,calc((100vw - 1280px)/2));background:#ffffffed;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:10;backdrop-filter:blur(14px)}.brand{display:flex;align-items:center;gap:10px;font-weight:800;white-space:nowrap}.brand-mark{width:35px;height:35px;display:grid;place-items:center;border-radius:11px;color:white;background:linear-gradient(135deg,#1da5c8,#24577c);font-weight:800;font-size:20px}.brand small{display:block;color:var(--muted);font-size:8px;letter-spacing:1.7px;margin-top:1px}.topbar nav{display:flex;align-items:center;gap:24px;flex:1}.topbar a{color:#475b72;text-decoration:none;font-weight:700;font-size:13px}.topbar a:hover{color:var(--blue)}.preview-tag{font-size:11px;background:#fff2d9;color:#956018;padding:6px 10px;border-radius:999px;white-space:nowrap}main{max-width:1200px;margin:auto;padding:0 24px}.hero{padding:54px 0 28px}.eyebrow{font-size:10px;font-weight:800;letter-spacing:2.3px;color:var(--blue);text-transform:uppercase}.hero h1{font-size:clamp(36px,5vw,52px);line-height:1.12;margin:12px 0;color:#16263b;letter-spacing:-1.5px}.hero p{max-width:720px;color:#63748a;font-size:15px;line-height:1.8;margin:0}.hero-pills{display:flex;gap:8px;flex-wrap:wrap;margin-top:20px}.hero-pills span{background:#e4f5fb;color:#236b84;border:1px solid #d3edf5;border-radius:999px;padding:7px 12px;font-size:11px;font-weight:700}.tabbar{display:flex;gap:8px;padding:7px;background:#e7eef5;border-radius:14px;width:max-content;max-width:100%;margin:12px 0 26px}.tab{border:0;background:transparent;color:#64748b;border-radius:10px;padding:12px 18px;font:inherit;font-weight:800;cursor:pointer}.tab.active{background:white;color:#126b8a;box-shadow:0 3px 10px #173c5510}.tool-panel{display:none}.tool-panel.active{display:block}.section-head{display:flex;justify-content:space-between;align-items:center;margin:0 0 20px}.section-head h2{font-size:28px;margin:7px 0 4px;letter-spacing:-.6px}.section-head p{color:var(--muted);margin:0;line-height:1.7}.head-icon{font-size:30px;width:60px;height:60px;display:grid;place-items:center;background:#e0f4fa;border-radius:18px}.enhance-grid,.gacha-grid{display:grid;grid-template-columns:minmax(280px,.82fr) minmax(0,1.45fr);gap:18px;align-items:start}.card{background:white;border:1px solid #e4ebf1;border-radius:18px;padding:22px;box-shadow:var(--shadow);min-width:0}.card h3{margin:0;font-size:16px;letter-spacing:-.2px}.controls-card>h3,.gacha-control-card>h3{margin-bottom:20px}.field-label{display:block;font-size:12px;font-weight:800;color:#52647a;margin:0 0 8px}.field-label+select,select{width:100%;height:43px;border:1px solid #dbe4ec;background:#fff;border-radius:10px;padding:0 12px;font:inherit;color:var(--ink);outline:none}select:focus,input:focus{border-color:#59b7d0;box-shadow:0 0 0 3px #d9f3fa}.two-fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:17px}.luck-control{margin-top:22px}.luck-top{display:flex;justify-content:space-between;align-items:center}.luck-top strong{font-size:12px;color:#147b9a}.luck-items{display:flex;gap:6px;margin:9px 0 5px}.luck-item{width:32px;height:32px;object-fit:contain;background:#f5f8fa;border:1px solid #e3eaf0;border-radius:8px;padding:3px;opacity:.34;filter:grayscale(1)}.luck-item.used{opacity:1;filter:none;border-color:#9dd7e6;background:#e9faff}input[type=range]{width:100%;accent-color:#1596b9;margin:12px 0 0}.range-labels{display:flex;justify-content:space-between;color:#8b9aad;font-size:10px}.probability-box{margin-top:20px;border:1px solid #dbe5ee;border-radius:12px;background:#f5f8fb;padding:13px 14px;display:grid;gap:10px;box-sizing:border-box}.probability-box>div{display:flex;justify-content:space-between;align-items:center;color:#64748b;font-size:12px}.probability-box strong{font-size:13px;color:#24364c}.probability-box .final-rate{padding-top:10px;border-top:1px solid #e0e8ef;color:#176e8b}.probability-box .final-rate strong{font-size:19px;color:#1286a8}.button-row{display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}.btn{border:1px solid transparent;border-radius:10px;padding:12px 14px;font:inherit;font-size:12px;font-weight:800;cursor:pointer;transition:transform .12s,box-shadow .12s}.btn:active{transform:scale(.98)}.btn.primary{background:linear-gradient(135deg,#128db5,#176b91);color:white;box-shadow:0 6px 14px #0c82a51c}.btn.primary:hover{box-shadow:0 8px 20px #0c82a532}.btn.secondary{background:#edf5f8;color:#2c6379;border-color:#dcecf1}.btn.text-btn{background:transparent;color:#718096;padding:10px 2px}.fineprint{font-size:10px;line-height:1.8;color:#8b98a8;margin:10px 0 0}.right-stack{display:grid;gap:18px}.level-card-top,.result-heading{display:flex;align-items:center;justify-content:space-between;gap:12px}.muted-label{font-size:11px;color:#52647a;font-weight:800;letter-spacing:.2px;line-height:1.6}.level-card h3{font-size:20px;margin:4px 0 0}.level-badge{background:#e5f7fb;color:#147a99;padding:7px 10px;border-radius:999px;font-size:11px;font-weight:800;white-space:nowrap}.progress-track{height:8px;background:#edf2f6;border-radius:999px;margin:18px 0 20px;overflow:hidden}.progress-fill{height:100%;width:0;background:linear-gradient(90deg,#36b7d4,#187ca4);border-radius:999px;transition:width .25s}.next-step{padding:12px;background:#f5f9fc;border-radius:10px;color:#61748a;font-size:12px;line-height:1.7}.next-step strong{color:#253a4f}.stat-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}.stat-tile{padding:11px 8px;background:#fbfcfd;border:1px solid #edf1f5;border-radius:10px;min-width:0}.stat-tile span{display:block;color:#8a98a8;font-size:10px;margin-bottom:6px}.stat-tile strong{font-size:13px;white-space:nowrap}.material-list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:15px}.material-item{border:1px solid #edf1f5;border-radius:12px;padding:11px;display:flex;align-items:center;gap:8px;min-width:0}.material-item img{width:36px;height:36px;object-fit:contain;flex-shrink:0}.material-item span{display:block;color:#7d8da0;font-size:10px;line-height:1.5}.material-item strong{font-size:12px;display:block;overflow-wrap:anywhere}.result-heading{margin-bottom:14px}.small-clear{border:0;background:transparent;color:#8190a1;font:inherit;font-size:11px;cursor:pointer}.metric-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.metric{padding:12px;background:#f6f9fb;border-radius:10px}.metric span{display:block;font-size:10px;color:#8796a7;margin-bottom:5px}.metric strong{font-size:20px}.message{margin-top:12px;border-radius:10px;padding:11px 13px;font-size:12px;line-height:1.7}.message.neutral{background:#f1f7fa;color:#5e7485}.message.success{background:#e9f8f0;color:#19764f}.message.fail{background:#fff0f0;color:#ad3d3d}.log-list{margin-top:12px;display:grid;gap:7px;max-height:205px;overflow:auto}.log-entry{display:flex;justify-content:space-between;gap:10px;padding:9px 11px;border:1px solid #edf1f5;border-radius:9px;font-size:11px}.log-entry.success{border-left:3px solid #27a574}.log-entry.fail{border-left:3px solid #d16a6a}.empty-state{padding:22px 12px;text-align:center;color:#9aa7b5;font-size:12px}.pool-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.pool-option{border:1px solid #e4ebf1;background:white;border-radius:12px;padding:10px;display:flex;align-items:center;gap:10px;text-align:left;cursor:pointer;min-width:0}.pool-option:hover{border-color:#a5d9e6}.pool-option.selected{border-color:#2b9dbb;background:#f0fbfe;box-shadow:0 0 0 2px #d9f5fb}.pool-option img{width:42px;height:42px;object-fit:contain;flex-shrink:0}.pool-option strong{display:block;font-size:11px;line-height:1.4}.pool-option small{display:block;font-size:10px;color:#8292a3;margin-top:4px}.selected-pool{display:flex;gap:12px;align-items:center;padding:14px;background:#f6f9fb;border-radius:12px;margin-top:15px}.selected-pool img{width:52px;height:52px;object-fit:contain}.selected-pool strong{display:block;font-size:14px}.selected-pool span{display:block;color:#7d8da0;font-size:11px;line-height:1.6;margin-top:4px}.gacha-control-card .button-row .btn{flex:1;white-space:nowrap}.gacha-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:20px}.gacha-summary>div{background:#f7f9fb;padding:12px 9px;border-radius:10px}.gacha-summary span{display:block;color:#8a98a8;font-size:10px;margin-bottom:5px}.gacha-summary strong{font-size:18px}.draw-results{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;max-height:350px;overflow:auto}.draw-item{border:1px solid #eaf0f4;border-radius:10px;padding:10px;display:flex;align-items:center;gap:9px;min-width:0}.draw-item .draw-number{width:24px;height:24px;display:grid;place-items:center;border-radius:7px;background:#edf5f8;color:#567387;font-size:10px;flex-shrink:0}.draw-item strong{font-size:11px;line-height:1.5;overflow-wrap:anywhere}.draw-item small{display:block;color:#8b99a8;font-size:10px;margin-top:3px}.probability-card .result-heading{align-items:flex-start}.probability-card h3{margin-bottom:4px}.subtext{font-size:11px;color:#8b99a8;margin:0;line-height:1.6}.search-input{width:150px;max-width:42%;height:36px;border:1px solid #dbe4ec;border-radius:9px;padding:0 10px;font:inherit;font-size:11px;outline:none}.probability-table-wrap{max-height:380px;overflow:auto;border:1px solid #edf1f5;border-radius:10px}.probability-table{width:100%;border-collapse:collapse;font-size:11px}.probability-table th{position:sticky;top:0;background:#f5f8fb;color:#78899b;text-align:left;font-size:10px;font-weight:800;z-index:1}.probability-table th,.probability-table td{padding:10px 12px;border-bottom:1px solid #edf1f5}.probability-table td:nth-child(2){font-weight:800;color:#226f8b;white-space:nowrap}.probability-table td:nth-child(3){color:#8b99a8;white-space:nowrap}footer{display:flex;justify-content:space-between;gap:14px;padding:32px 0 24px;margin-top:20px;border-top:1px solid #e0e8ef;color:#8a98a8;font-size:10px}@media(max-width:900px){.topbar{gap:16px;padding:0 18px}.topbar nav{gap:12px}.topbar nav a{font-size:11px}.enhance-grid,.gacha-grid{grid-template-columns:1fr}.stat-grid{grid-template-columns:repeat(4,1fr)}}@media(max-width:620px){.topbar{height:auto;min-height:62px;flex-wrap:wrap;padding:12px 16px;gap:12px}.topbar nav{order:3;width:100%;overflow-x:auto;padding:3px 0 2px;gap:18px}.topbar nav a{white-space:nowrap}.preview-tag{margin-left:auto}main{padding:0 14px}.hero{padding:34px 0 20px}.hero h1{font-size:38px}.hero p{font-size:13px}.tabbar{width:100%}.tab{flex:1;padding:11px 7px;font-size:11px}.section-head h2{font-size:24px}.head-icon{width:48px;height:48px;font-size:24px}.card{padding:16px;border-radius:14px}.two-fields{gap:8px}.stat-grid{grid-template-columns:repeat(2,1fr)}.material-list{grid-template-columns:repeat(2,minmax(0,1fr))}.pool-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.pool-option{padding:8px;gap:7px}.pool-option img{width:34px;height:34px}.pool-option strong{font-size:10px}.gacha-control-card .button-row{gap:6px}.gacha-control-card .button-row .btn{padding:11px 6px;font-size:10px}.draw-results{grid-template-columns:1fr}.probability-card .result-heading{flex-direction:column}.search-input{max-width:none;width:100%}footer{flex-direction:column}}
+
+/* V4.1: separate navigation categories and stronger visual identity for special systems */
+.tabbar{flex-wrap:wrap;gap:8px}
+.tab{white-space:nowrap}
+.system-art{display:flex;align-items:center;gap:14px;padding:16px;margin:0 0 18px;border:1px solid var(--line,#dfe7ef);border-radius:16px;background:linear-gradient(120deg,rgba(222,235,248,.9),rgba(248,251,255,.95))}
+.system-art-icon{display:grid;place-items:center;width:58px;height:58px;flex:0 0 58px;border-radius:14px;background:#fff;box-shadow:0 4px 14px rgba(30,60,90,.08);font-size:30px}
+.system-art strong,.system-art span{display:block}
+.system-art strong{font-size:16px;color:var(--ink,#24364b)}
+.system-art span{margin-top:4px;font-size:10px;letter-spacing:.14em;color:var(--muted,#708197)}
+#systemLuckNotice{margin-top:8px}
+@media(max-width:700px){.tabbar{display:flex;overflow-x:auto;flex-wrap:nowrap}.tab{flex:0 0 auto}}
+
+/* V4 usability fixes */
+.tab{display:flex;align-items:center;gap:8px;white-space:nowrap}
+.tab-icon{width:22px;height:22px;object-fit:contain;flex:none}
+#systemHeadIcon img{width:38px;height:38px;object-fit:contain}
+.system-art-icon img{width:34px;height:34px;object-fit:contain}
+.results-card,.right-stack>.results-card{position:sticky;top:82px;z-index:2}
+#enhance .results-card{order:-1}
+#systems .results-card{order:-1}
+.metric-grid{position:relative}
+@media(max-width:760px){
+ .tabbar{width:100%;overflow-x:auto;justify-content:flex-start}
+ .tab{flex:0 0 auto;padding:10px 12px}
+ .results-card,.right-stack>.results-card{position:relative;top:auto}
+}
+
+
+/* Gacha pool admin */
+.pool-admin{margin-top:18px;border:1px solid var(--line,#dfe7ef);border-radius:14px;background:#fbfdff;padding:14px}
+.pool-admin>summary{cursor:pointer;font-weight:750;color:var(--ink,#24364b);padding:3px 0}
+.admin-note{font-size:12px;line-height:1.7;color:var(--muted,#708197)}
+.admin-toolbar{display:grid;grid-template-columns:1fr;gap:10px;margin:12px 0}
+.admin-toolbar label{display:grid;gap:5px;font-size:12px;font-weight:700;color:var(--muted,#708197)}
+.admin-toolbar input,.admin-toolbar select,.admin-items-table input{width:100%;min-width:0;border:1px solid var(--line,#dfe7ef);border-radius:8px;padding:9px;background:white;color:var(--ink,#24364b);font:inherit;font-size:13px}
+.admin-actions{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+.import-json{display:inline-flex;align-items:center;justify-content:center;cursor:pointer}
+.import-json input{display:none}
+.admin-items-wrap{max-height:360px;overflow:auto;border:1px solid var(--line,#dfe7ef);border-radius:10px;background:white}
+.admin-items-table{width:100%;border-collapse:collapse;font-size:12px}
+.admin-items-table th,.admin-items-table td{padding:7px;border-bottom:1px solid #edf1f5;text-align:left}
+.admin-items-table th{position:sticky;top:0;background:#f4f8fb;z-index:1}
+.admin-items-table td:first-child{min-width:140px}
+.admin-items-table td:nth-child(2){min-width:110px}
+.admin-items-table td:last-child{white-space:nowrap}
+.admin-items-table .btn{padding:6px 8px;font-size:11px}
+.danger-btn{color:#b42318}
+.pool-admin .message{margin-top:10px;font-size:12px}
+@media(min-width:900px){.admin-toolbar{grid-template-columns:1fr 1fr}.admin-toolbar label:first-child{grid-column:1/-1}}
+
+/* Player-facing build: pool management UI is reserved for a future authenticated backend. */
+#poolAdmin{display:none !important;}
+
+#tower .stats-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}#tower .stat{background:#f5f8fa;border-radius:12px;padding:14px}#tower .stat span{display:block;color:#8493a5;font-size:11px;margin-bottom:8px}#tower .stat strong{font-size:22px}#tower #towerChanceInfo{margin:14px 0}#tower #towerAttempt,#tower #towerReset{width:100%;margin-top:10px}#tower .material-row{display:flex;justify-content:space-between;gap:12px;padding:10px 12px;border-bottom:1px solid var(--line);font-size:12px}#tower .muted{color:var(--muted);font-size:11px;margin-top:4px}@media(max-width:640px){#tower .stats-grid{grid-template-columns:1fr}}
+
+/* Tower ring polish: show ring target and mesos icon clearly */
+#tower .selected-pool{background:linear-gradient(120deg,#e7f1fb,#f8fbff);border:1px solid var(--line);border-radius:14px;padding:12px}
+#tower .selected-pool img{background:#fff;border-radius:12px;padding:5px;box-shadow:0 3px 12px rgba(30,60,90,.08)}
+#tower .currency-value{display:inline-flex;align-items:center;gap:7px}
+#tower .currency-value img{width:22px;height:22px;object-fit:contain;vertical-align:middle}
+#tower .tower-currency-icon{width:22px;height:22px;object-fit:contain;vertical-align:middle;margin-left:5px}
+#tower #towerChanceInfo{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+#tower .controls-card select{margin-bottom:4px}
+
+/* Tower ring uses the same cards, metrics, and buttons as the other simulators. */
+#tower .metric-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin:16px 0}
+#tower .metric{background:#f5f8fa;border-radius:12px;padding:14px;min-width:0}
+#tower .metric span{display:block;color:#8493a5;font-size:11px;margin-bottom:8px}
+#tower .metric strong{font-size:22px}
+#tower .selected-pool{display:flex;align-items:center;gap:12px;margin:12px 0;padding:14px;background:linear-gradient(120deg,#e7f1fb,#f8fbff);border:1px solid var(--line);border-radius:14px}
+#tower .selected-pool img{width:48px;height:48px;object-fit:contain;background:#fff;border-radius:12px;padding:5px;box-shadow:0 3px 12px rgba(30,60,90,.08)}
+#tower .currency-value{display:inline-flex;align-items:center;gap:7px}
+#tower .currency-value img{width:22px;height:22px;object-fit:contain}
+#tower .tower-currency-icon{width:22px;height:22px;object-fit:contain;vertical-align:middle}
+#tower #towerChanceInfo{display:flex;align-items:center;flex-wrap:wrap;gap:5px;margin:14px 0}
+#tower #towerAttempt,#tower #towerReset{width:100%;margin-top:10px}
+@media(max-width:640px){#tower .metric-grid{grid-template-columns:1fr}}
+
+
+/* Tower ring: align its layout with the shared enhancement panels. */
+#tower .system-art{display:flex;align-items:center;gap:14px;padding:16px;margin:0 0 18px;border:1px solid var(--line);border-radius:16px;background:linear-gradient(120deg,rgba(222,235,248,.9),rgba(248,251,255,.95))}
+#tower .selected-pool{display:flex;align-items:center;gap:12px;margin:12px 0 18px;padding:12px;background:linear-gradient(120deg,#e7f1fb,#f8fbff);border:1px solid var(--line);border-radius:14px}
+#tower .selected-pool img{width:48px;height:48px;object-fit:contain;background:#fff;border-radius:12px;padding:5px;box-shadow:0 3px 12px rgba(30,60,90,.08)}
+#tower .selected-pool strong{display:block;font-size:13px}
+#tower .selected-pool span{display:block;color:var(--muted);font-size:11px;margin-top:4px}
+#tower #towerAttempt,#tower #towerReset{width:100%;margin-top:10px}
+#tower #towerChanceInfo{display:flex;align-items:center;flex-wrap:wrap;gap:5px}
+#tower .tower-currency-icon{width:22px;height:22px;object-fit:contain}
+@media(max-width:760px){#tower .results-card{position:relative;top:auto}}
+
+
+/* Tower upgrade controls now follow the liner enhancement form hierarchy. */
+#tower .tower-system-art{margin-top:14px;margin-bottom:20px}
+#tower .tower-system-art .system-art-icon img{width:40px;height:40px;object-fit:contain}
+#tower .tower-level-label{margin-top:18px}
+#tower .tower-quantity-label{margin-top:18px}
+
+
+/* Tower controls: match the existing special-system card and controls sizing. */
+#tower .tower-system-art{margin:0 0 18px;padding:16px;min-height:92px;box-sizing:border-box}
+#tower .tower-system-art .system-art-icon{width:58px;height:58px;flex:0 0 58px}
+#tower .tower-system-art .system-art-icon img{width:40px;height:40px;object-fit:contain}
+#tower .controls-card>h3{margin-bottom:20px}
+#tower .tower-level-label,#tower .tower-quantity-label{margin-top:18px}
+#tower .tower-action-row{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:18px}
+#tower .tower-action-row .btn{width:auto!important;margin:0!important}
+#tower .tower-action-row .primary{min-width:116px}
+#tower .tower-action-row .secondary{min-width:104px}
+@media(max-width:480px){#tower .tower-action-row .btn{flex:1}}
+
+
+/* Final visual alignment: tower uses the same sizing and typography scale as liner enhancement. */
+#tower .controls-card {padding:22px}
+#tower .controls-card>h3 {font-size:16px;margin:0 0 20px}
+#tower .field-label {font-size:12px;font-weight:800;margin:0 0 8px}
+#tower .controls-card select {height:43px;font-size:14px;margin-bottom:0}
+#tower .selected-pool {min-height:76px;padding:12px;margin:15px 0 18px;gap:12px}
+#tower .selected-pool img {width:48px;height:48px}
+#tower .selected-pool strong {font-size:14px}
+#tower .selected-pool span {font-size:11px;line-height:1.6}
+#tower .tower-level-label,#tower .tower-quantity-label {margin-top:17px}
+#tower .message {font-size:12px;line-height:1.7;padding:11px 13px}
+#tower .tower-action-row {display:flex;gap:9px;margin-top:18px;flex-wrap:wrap}
+#tower .tower-action-row .btn {width:auto!important;margin:0!important;padding:12px 14px;font-size:12px}
+#tower .tower-action-row .primary {flex:0 0 auto}
+#tower .tower-action-row .secondary {flex:0 0 auto}
+#tower .fineprint {font-size:10px;line-height:1.8;margin:10px 0 0}
+#tower .results-card,#tower .level-card,#tower .materials-card {padding:22px}
+#tower .metric {padding:12px;background:#f6f9fb;border-radius:10px}
+#tower .metric span {font-size:10px;color:#8796a7;margin-bottom:5px}
+#tower .metric strong {font-size:20px}
+#tower .log-entry {font-size:11px;padding:9px 11px}
+#tower .level-card h3 {font-size:20px}
+@media(max-width:620px){
+  #tower .card {padding:16px}
+  #tower .tower-action-row .btn {flex:0 0 auto}
+}
+
+
+/* Tower right column: match the existing special-enhancement right-side cards. */
+#tower .right-stack {display:grid;gap:18px;align-content:start}
+#tower .right-stack>.results-card {padding:22px;position:relative;top:auto;order:initial}
+#tower .results-card .result-heading h3,
+#tower .level-card h3,
+#tower .materials-card h3 {font-size:16px;line-height:1.5}
+#tower .metric-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin:14px 0 12px}
+#tower .metric {min-height:74px;box-sizing:border-box;padding:12px;background:#f5f8fa;border-radius:10px}
+#tower .metric span {display:block;font-size:10px;line-height:1.5;margin:0 0 5px;color:#8b9bad}
+#tower .metric strong {display:block;font-size:20px;line-height:1.35;font-weight:800;color:#1b2c43}
+#tower #towerMessage {margin:0 0 12px;padding:11px 13px;font-size:12px;line-height:1.5;min-height:42px;box-sizing:border-box}
+#tower .log-list {max-height:160px;overflow:auto}
+#tower .log-entry {min-height:36px;box-sizing:border-box;padding:8px 11px;font-size:11px;line-height:1.5}
+#tower .level-card {padding:22px;min-height:0}
+#tower .level-card-top {display:flex;align-items:center;justify-content:space-between;gap:12px}
+#tower .level-card .muted-label {font-size:10px;line-height:1.5}
+#tower .level-card h3 {font-size:20px;line-height:1.4;margin:4px 0 0}
+#tower .level-card .progress-track {margin:18px 0}
+#tower .level-card .next-step {font-size:12px;line-height:1.7;padding:12px}
+#tower .level-card .stat-grid {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px;margin-top:14px}
+#tower .level-card .stat-tile {padding:12px;min-height:64px;box-sizing:border-box}
+#tower .level-card .stat-tile span {font-size:10px;line-height:1.5}
+#tower .level-card .stat-tile strong {font-size:14px;line-height:1.5}
+#tower .materials-card {padding:22px}
+#tower .materials-card .material-list {display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:15px}
+@media(max-width:620px){
+ #tower .metric-grid {grid-template-columns:repeat(3,minmax(0,1fr))}
+ #tower .level-card .stat-grid {grid-template-columns:repeat(2,minmax(0,1fr))}
+ #tower .materials-card .material-list {grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+
+
+/* Typography parity with liner enhancement metrics: use the shared metric number treatment. */
+#tower .metric strong {
+  font-family: inherit;
+  font-size: 20px;
+  line-height: normal;
+  font-weight: 700;
+  letter-spacing: normal;
+  color: #1b2c43;
+}
+#tower .metric span {
+  font-family: inherit;
+  font-size: 10px;
+  line-height: normal;
+  font-weight: 400;
+  letter-spacing: normal;
+}
+
+
+/* Equipment enhancement system banner mirrors the existing special-enhancement banner. */
+#enhance .equipment-system-art {display:flex;align-items:center;gap:14px;margin:0 0 18px;padding:16px;min-height:92px;box-sizing:border-box;border:1px solid var(--line);border-radius:16px;background:linear-gradient(120deg,rgba(222,235,248,.9),rgba(248,251,255,.95))}
+#enhance .equipment-system-art .system-art-icon {width:58px;height:58px;flex:0 0 58px;display:flex;align-items:center;justify-content:center;background:#fff;border-radius:14px;box-shadow:0 3px 12px rgba(30,60,90,.08)}
+#enhance .equipment-system-art .system-art-icon img {width:40px;height:40px;object-fit:contain}
+#enhance .equipment-system-art strong {display:block;font-size:14px;font-weight:800}
+#enhance .equipment-system-art span {display:block;margin-top:4px;font-size:10px;letter-spacing:1.4px;color:var(--muted)}
+
+/* Gacha prize icons: supplied item art in odds table and draw results. */
+.gacha-item-cell{display:flex;align-items:center;gap:9px;min-height:34px}
+.gacha-item-icon{width:30px;height:30px;object-fit:contain;flex:0 0 30px}
+.draw-item{display:flex;align-items:center;gap:10px}
+.gacha-draw-icon{width:42px;height:42px;object-fit:contain;flex:0 0 42px}
+.draw-item>div{min-width:0}
+
+.weekly-prize-admin{margin:14px 0;padding:14px;border:1px solid #d8e8ef;border-radius:12px;background:#f5fbfd}.weekly-prize-admin h4{margin:0 0 7px;font-size:13px;color:#21465a}.weekly-prize-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.weekly-prize-grid label{display:grid;gap:5px;font-size:12px;font-weight:700;color:#607487;min-width:0}.weekly-prize-grid input{width:100%;min-width:0;border:1px solid #dbe4ec;border-radius:8px;padding:9px;background:#fff;color:#24364b;font:inherit;font-size:12px}.weekly-period{margin-top:8px;font-size:11px;color:#5d788a;line-height:1.6}@media(max-width:620px){.weekly-prize-grid{grid-template-columns:1fr}}
+
+/* Jackpot hit feedback: limited to the four requested gacha pools. */
+.draw-item.jackpot-hit{position:relative;border:1px solid #e8b84f;background:linear-gradient(135deg,#fff9e8,#fffdf7);box-shadow:0 0 0 2px #f8e8b7,0 5px 16px #c58a2520;animation:jackpot-pop .32s ease-out both}
+.draw-item.jackpot-hit .draw-number{background:#f6d77e;color:#704a08;font-weight:900}
+.jackpot-badge{display:inline-block;margin:0 0 4px;padding:3px 7px;border-radius:999px;background:linear-gradient(90deg,#f5d36e,#ffe9a8);color:#704a08;font-size:10px;font-weight:900;letter-spacing:.2px}
+@keyframes jackpot-pop{0%{transform:scale(.97);opacity:.65}100%{transform:scale(1);opacity:1}}
+@media(prefers-reduced-motion:reduce){.draw-item.jackpot-hit{animation:none}}
+
+/* Draw simulator usability: show exact jackpot wins before the scrollable draw list. */
+#drawPoolLabel{color:#3f5871;font-size:12px;font-weight:800;letter-spacing:0;line-height:1.6;text-align:right;max-width:62%;overflow-wrap:anywhere}
+.jackpot-summary{margin:0 0 14px;border-radius:13px;padding:14px 15px;display:grid;gap:11px;}
+.jackpot-summary[hidden]{display:none!important}
+.jackpot-summary.no-jackpot{display:flex;align-items:center;gap:11px;background:#f3f7fb;border:1px solid #e0e8ef;color:#344b61}
+.jackpot-summary.has-jackpot{background:linear-gradient(135deg,#fff8e4,#fffdf6);border:1px solid #e9c56b;box-shadow:0 3px 14px rgba(176,126,24,.09)}
+.jackpot-summary-head{display:flex;align-items:center;gap:10px;color:#704a08}
+.jackpot-summary-icon{width:36px;height:36px;display:grid;place-items:center;border-radius:10px;background:#f6df9a;font-size:19px;flex:0 0 36px}
+.jackpot-summary-head strong,.jackpot-summary.no-jackpot strong{display:block;font-size:14px;font-weight:900;line-height:1.5}
+.jackpot-summary-head small,.jackpot-summary.no-jackpot small{display:block;font-size:11px;line-height:1.6;margin-top:2px;color:#806a43}
+.jackpot-summary.no-jackpot small{color:#64788c}
+.jackpot-summary-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.jackpot-summary-item{min-width:0;display:flex;align-items:center;gap:9px;padding:9px;background:#fffdf8;border:1px solid #f0dfb2;border-radius:10px}
+.jackpot-summary-item img{width:40px;height:40px;object-fit:contain;flex:0 0 40px}
+.jackpot-summary-item>div{flex:1;min-width:0}
+.jackpot-summary-item strong{display:block;font-size:12px;line-height:1.5;color:#483715;overflow-wrap:anywhere}
+.jackpot-summary-item small{display:block;color:#8b7449;font-size:10px;line-height:1.6;margin-top:2px;overflow-wrap:anywhere}
+.jackpot-jump{flex:0 0 auto;border:1px solid #e5c46c;background:#fff5d5;color:#78520c;border-radius:8px;padding:7px 9px;font:inherit;font-size:10px;font-weight:900;cursor:pointer}
+.jackpot-jump:hover{background:#ffebad}
+.draw-item.jackpot-focus{outline:3px solid #dca82e;outline-offset:2px}
+.draw-results-card .result-heading{align-items:flex-start}
+.draw-results-card .result-heading h3{flex:0 0 auto}
+@media(max-width:620px){#drawPoolLabel{max-width:58%;font-size:10px}.jackpot-summary-items{grid-template-columns:1fr}.jackpot-summary-item{gap:7px}.jackpot-summary-item img{width:34px;height:34px;flex-basis:34px}.jackpot-jump{padding:7px 8px}.draw-results-card .result-heading{gap:8px}}
+/* Allow every duplicate jackpot occurrence to be opened individually. */
+.jackpot-jump-list{display:flex;flex-wrap:wrap;gap:5px;margin-top:7px}
+.jackpot-summary-item>.jackpot-jump-list{flex:0 0 auto}
+.jackpot-jump{white-space:nowrap}
+
+
+/* Official website header: declarations matched to ../styles.css, scoped to this header only. */
+.site-header{--header:rgba(7,17,31,.84);--text:#f7fbff;--muted:#9cafc2;--muted2:#7f91a5;--accent:#72e6ff;--accent2:#a9f1ff;--gold:#d9a94a;--gold2:#f4d28a;--line:#25384b;--soft:#ffffff08;position:sticky;top:0;z-index:50;min-height:78px;padding:0 4vw;display:flex;align-items:center;gap:24px;background:var(--header);backdrop-filter:blur(18px);border-bottom:1px solid var(--line);overflow:hidden;isolation:isolate;font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.7;box-sizing:border-box}
+:root[data-theme="light"] .site-header{--header:rgba(244,247,250,.88);--text:#172536;--muted:#586b7e;--muted2:#718296;--accent:#079bc0;--accent2:#007fa2;--gold:#f4bd3f;--gold2:#ffd86b;--line:#d7e0e8;--soft:#0b1d2d08}
+.site-header:before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,transparent 0%,rgba(114,230,255,.04) 45%,transparent 100%);opacity:.22;pointer-events:none;z-index:-1}
+.site-header:after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:2px;background:linear-gradient(90deg,transparent,var(--accent),var(--gold),transparent);opacity:.5;pointer-events:none}
+.site-header>*{position:relative;z-index:1}
+.site-header .brand{display:flex;align-items:center;gap:10px;font-weight:900;white-space:nowrap;color:inherit}
+.site-header .brand img{width:132px;height:58px;object-fit:contain;border-radius:10px}
+.site-header .brand span{font-size:12px;color:var(--muted2);letter-spacing:.08em}
+.site-header nav{display:flex;gap:20px;flex:1}.site-header nav a{color:var(--muted);font-size:15px;transition:.2s}.site-header nav a:hover{color:var(--text)}.site-header .main-nav{display:flex;gap:5px!important;flex:1;min-width:0}
+.site-header .main-nav .nav-pill{position:relative;display:inline-flex;align-items:center;gap:0!important;padding:9px 11px!important;border:1px solid transparent;border-radius:8px!important;color:var(--muted);font-size:14px;font-weight:700;white-space:nowrap;text-decoration:none;transition:.2s;background:transparent}
+.site-header .main-nav .nav-pill:hover{color:var(--text);background:var(--soft);border-color:var(--line);transform:translateY(-1px)}
+:root[data-theme="light"] .site-header .main-nav .nav-pill:hover{background:#fff;border-color:#c9d6e1;box-shadow:0 8px 20px rgba(35,65,90,.08)}
+.site-header .main-nav .nav-pill:after{content:"";position:absolute;left:11px;right:11px;bottom:4px;height:1px;background:var(--accent);transform:scaleX(0);transform-origin:center;transition:.2s;opacity:.7}
+.site-header .main-nav .nav-pill:hover:after,.site-header .main-nav .nav-pill:focus-visible:after{transform:scaleX(1)}
+.site-header .header-status{display:flex;align-items:center;gap:7px;padding:8px 12px;border:1px solid var(--line);border-radius:999px;color:var(--muted2);font-size:13px;letter-spacing:.04em;white-space:nowrap;background:var(--soft)}
+.site-header .status-dot{width:7px;height:7px;border-radius:50%;background:#5de6a1;box-shadow:0 0 12px #5de6a1}
+.site-header .header-actions{display:flex;gap:8px;align-items:center;flex:0 0 auto}
+.site-header .btn,.site-header .theme-toggle{display:inline-flex;align-items:center;justify-content:center;padding:10px 17px;border-radius:999px;border:1px solid var(--line);font-weight:800;font-size:14px;cursor:pointer;transition:transform .2s,box-shadow .2s,background .2s;text-decoration:none;white-space:nowrap;box-sizing:border-box}
+.site-header .btn:hover,.site-header .theme-toggle:hover{transform:translateY(-2px)}
+.site-header .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#17120a;border-color:var(--gold2);box-shadow:0 8px 28px rgba(217,169,74,.12)}
+.site-header .btn-discord{background:#5869bf;border-color:#8090dc;color:#fff}
+.site-header .theme-toggle{gap:7px;color:var(--muted);background:var(--soft);padding:8px 12px}
+.site-header .theme-toggle span:first-child{font-size:16px}
+.site-header .theme-toggle span:last-child{font-size:13px}
+@media(max-width:1180px){.site-header{gap:12px;padding:0 2vw}.site-header .header-status{display:none}.site-header .main-nav{gap:2px!important}.site-header .main-nav .nav-pill{padding:7px 8px!important}.site-header .header-actions .btn-discord{display:none}}
+@media(max-width:900px){.site-header{flex-wrap:wrap;padding:10px 3vw;gap:10px}.site-header .brand{flex:1 1 auto}.site-header .main-nav{order:3;width:100%;flex:1 0 100%;overflow:auto;padding-bottom:2px}.site-header .main-nav .nav-pill{flex:0 0 auto}.site-header .header-actions{margin-left:auto}}
+
+/* Dark theme for player tools: high-contrast, readable surfaces. */
+:root:not([data-theme="light"]){
+  color-scheme:dark;
+  --ink:#e8f0fa;--muted:#b4c3d5;--line:#34485f;--paper:#0a1422;--white:#142235;--blue:#69d8f4;--shadow:0 10px 30px rgba(0,0,0,.22);
+}
+:root:not([data-theme="light"]) body{background:#0a1422;color:#e8f0fa}
+:root:not([data-theme="light"]) main{color:#e8f0fa}
+:root:not([data-theme="light"]) .hero h1,
+:root:not([data-theme="light"]) .section-head h2,
+:root:not([data-theme="light"]) .card h3,
+:root:not([data-theme="light"]) .controls-card>h3,
+:root:not([data-theme="light"]) .gacha-control-card>h3{color:#f2f7ff}
+:root:not([data-theme="light"]) .hero p,
+:root:not([data-theme="light"]) .section-head p,
+:root:not([data-theme="light"]) .field-label,
+:root:not([data-theme="light"]) .weekly-prize-grid label,
+:root:not([data-theme="light"]) .subtext{color:#b6c6d8}
+:root:not([data-theme="light"]) .hero-pills span{background:#142f40;color:#9ee9fb;border-color:#285267}
+:root:not([data-theme="light"]) .tabbar{background:#142235;border:1px solid #2b4056}
+:root:not([data-theme="light"]) .tab{color:#b4c4d7}
+:root:not([data-theme="light"]) .tab.active{background:#1d3449;color:#8ce5fa;box-shadow:0 3px 12px #0005}
+:root:not([data-theme="light"]) .head-icon{background:#173448}
+:root:not([data-theme="light"]) .card{background:#111f31;border-color:#2b4056;box-shadow:0 10px 30px rgba(0,0,0,.2)}
+:root:not([data-theme="light"]) select,
+:root:not([data-theme="light"]) input:not([type="range"]),
+:root:not([data-theme="light"]) textarea,
+:root:not([data-theme="light"]) .admin-toolbar input,
+:root:not([data-theme="light"]) .admin-toolbar select,
+:root:not([data-theme="light"]) .admin-items-table input,
+:root:not([data-theme="light"]) .weekly-prize-grid input,
+:root:not([data-theme="light"]) .search-input{background:#0b1726;color:#e8f0fa;border-color:#3a5068}
+:root:not([data-theme="light"]) select option{background:#0b1726;color:#e8f0fa}
+:root:not([data-theme="light"]) select:focus,
+:root:not([data-theme="light"]) input:focus,
+:root:not([data-theme="light"]) textarea:focus{border-color:#4abbd9;box-shadow:0 0 0 3px #16485b}
+:root:not([data-theme="light"]) .equipment-system-art{background:linear-gradient(120deg,#162a40,#1a3045)!important;border-color:#354c64}
+:root:not([data-theme="light"]) .equipment-system-art .system-art-icon,
+:root:not([data-theme="light"]) .luck-item{background:#0d1b2b;border-color:#35495e}
+:root:not([data-theme="light"]) .luck-item.used{background:#173746;border-color:#3c9ab3}
+:root:not([data-theme="light"]) .probability-box,
+:root:not([data-theme="light"]) .metric,
+:root:not([data-theme="light"]) .stat-tile,
+:root:not([data-theme="light"]) .gacha-summary>div{background:#0c1929;border:1px solid #263b51}
+:root:not([data-theme="light"]) .probability-box>div,
+:root:not([data-theme="light"]) .probability-box strong,
+:root:not([data-theme="light"]) .metric span,
+:root:not([data-theme="light"]) .stat-tile span,
+:root:not([data-theme="light"]) .gacha-summary span{color:#b2c2d4}
+:root:not([data-theme="light"]) .probability-box .final-rate,
+:root:not([data-theme="light"]) .probability-box .final-rate strong{color:#79def5}
+:root:not([data-theme="light"]) .btn.secondary{background:#1a3044;color:#bfefff;border-color:#36536a}
+:root:not([data-theme="light"]) .btn.secondary:hover{background:#224057;border-color:#4a7b94}
+:root:not([data-theme="light"]) .btn.text-btn,
+:root:not([data-theme="light"]) .small-clear{color:#b2c1d2}
+:root:not([data-theme="light"]) .fineprint,
+:root:not([data-theme="light"]) .range-labels,
+:root:not([data-theme="light"]) .material-item span,
+:root:not([data-theme="light"]) .selected-pool span,
+:root:not([data-theme="light"]) .weekly-period{color:#a7b8ca}
+:root:not([data-theme="light"]) .next-step{background:#0c1a2a;color:#c0cede}
+:root:not([data-theme="light"]) .next-step strong{color:#f0f6ff}
+:root:not([data-theme="light"]) .level-badge{background:#15374a;color:#92e5f7}
+:root:not([data-theme="light"]) .progress-track{background:#26384b}
+:root:not([data-theme="light"]) .material-item,
+:root:not([data-theme="light"]) .log-entry,
+:root:not([data-theme="light"]) .draw-item{background:#0d1b2b;border-color:#293e54;color:#e0eaf5}
+:root:not([data-theme="light"]) .message.neutral{background:#152b3d;color:#c0d8e8}
+:root:not([data-theme="light"]) .message.success{background:#12382e;color:#9ce6c5}
+:root:not([data-theme="light"]) .message.fail{background:#40232b;color:#ffc0c6}
+:root:not([data-theme="light"]) .empty-state{color:#a7b7c9}
+:root:not([data-theme="light"]) .pool-option{background:#0d1b2b;border-color:#2c4258;color:#e5eef8}
+:root:not([data-theme="light"]) .pool-option:hover{border-color:#4babc5}
+:root:not([data-theme="light"]) .pool-option.selected{background:#153446;border-color:#40a7c5;box-shadow:0 0 0 2px #16485a}
+:root:not([data-theme="light"]) .pool-option small{color:#b1c2d4}
+:root:not([data-theme="light"]) .selected-pool{background:#14283a;border:1px solid #30485f}
+:root:not([data-theme="light"]) .selected-pool img,
+:root:not([data-theme="light"]) #tower .selected-pool img{background:#0b1726}
+:root:not([data-theme="light"]) .probability-table,
+:root:not([data-theme="light"]) .admin-items-table{color:#dce8f5}
+:root:not([data-theme="light"]) .probability-table th,
+:root:not([data-theme="light"]) .admin-items-table th{background:#1a2c40;color:#c9d9e9;border-color:#344a60}
+:root:not([data-theme="light"]) .probability-table td,
+:root:not([data-theme="light"]) .admin-items-table td{border-color:#293e54;color:#dce8f5}
+:root:not([data-theme="light"]) .probability-table tr:nth-child(even),
+:root:not([data-theme="light"]) .admin-items-table tr:nth-child(even){background:#0f1d2e}
+:root:not([data-theme="light"]) .weekly-prize-admin{background:#122638;border-color:#2b5368}
+:root:not([data-theme="light"]) .weekly-prize-admin h4{color:#bdeeff}
+:root:not([data-theme="light"]) .admin-note{color:#b4c5d7}
+:root:not([data-theme="light"]) .pool-admin{border-color:#30475d;background:#101f30}
+:root:not([data-theme="light"]) .pool-admin summary{color:#dbe8f5}
+:root:not([data-theme="light"]) .jackpot-summary.no-jackpot{background:#14283a;border-color:#344b60;color:#e1ebf5}
+:root:not([data-theme="light"]) .jackpot-summary.has-jackpot{background:linear-gradient(135deg,#382f1b,#292719);border-color:#8c7138;box-shadow:0 3px 14px rgba(0,0,0,.18)}
+:root:not([data-theme="light"]) .jackpot-summary-head{color:#ffe3a0}
+:root:not([data-theme="light"]) .jackpot-summary-head small,
+:root:not([data-theme="light"]) .jackpot-summary.no-jackpot small{color:#c9b88e}
+:root:not([data-theme="light"]) .jackpot-summary.no-jackpot small{color:#b7c8d8}
+:root:not([data-theme="light"]) .jackpot-summary-item{background:#302a1d;border-color:#66532d}
+:root:not([data-theme="light"]) .jackpot-summary-item strong{color:#ffedc4}
+:root:not([data-theme="light"]) .jackpot-summary-item small{color:#d9c69a}
+:root:not([data-theme="light"]) .jackpot-jump{background:#46381e;border-color:#80652c;color:#ffdf8a}
+:root:not([data-theme="light"]) footer{color:#aabbd0;border-color:#2b4056}
+:root:not([data-theme="light"]) .site-header{color:#f2f7ff}
+:root:not([data-theme="light"]) .site-header .theme-toggle{color:#d4e1ef}
+:root:not([data-theme="light"]) .site-header .main-nav .nav-pill[aria-current="page"]{color:#8ce7fb;background:#143347;border-color:#2c6077}
+:root:not([data-theme="light"]) ::placeholder{color:#8fa3b9;opacity:1}
+
+
+/* Dark-mode readability fix: player tool system tabs only */
+:root:not([data-theme="light"]) .tabbar{
+  background:#142235;
+  border:1px solid #344b63;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.025);
+}
+:root:not([data-theme="light"]) .tabbar .tab{
+  color:#d5e2f0;
+  background:transparent;
+  border:1px solid transparent;
+  text-shadow:none;
+  opacity:1;
+}
+:root:not([data-theme="light"]) .tabbar .tab:hover{
+  color:#f4f8ff;
+  background:#20364c;
+  border-color:#38536c;
+}
+:root:not([data-theme="light"]) .tabbar .tab:focus-visible{
+  outline:2px solid #55c8e8;
+  outline-offset:2px;
+}
+:root:not([data-theme="light"]) .tabbar .tab.active{
+  color:#9cecff;
+  background:#24445d;
+  border-color:#3b6b86;
+  box-shadow:0 3px 12px rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.04);
+}
+:root:not([data-theme="light"]) .tabbar .tab.active:hover{
+  color:#c5f5ff;
+  background:#2a506b;
+  border-color:#4a8ba8;
+}
+
+
+/* Dark theme consistency pass: match all simulator pages to Equipment Enhancement. */
+:root:not([data-theme="light"]) .system-art,
+:root:not([data-theme="light"]) #systems .system-art,
+:root:not([data-theme="light"]) #tower .system-art,
+:root:not([data-theme="light"]) #tower .tower-system-art,
+:root:not([data-theme="light"]) #enhance .equipment-system-art{
+  color:#e8f0fa;
+  background:linear-gradient(120deg,#162a40,#1a3045)!important;
+  border-color:#354c64!important;
+  box-shadow:none;
+}
+:root:not([data-theme="light"]) .system-art strong,
+:root:not([data-theme="light"]) #systems .system-art strong,
+:root:not([data-theme="light"]) #tower .system-art strong,
+:root:not([data-theme="light"]) #enhance .equipment-system-art strong{
+  color:#f2f7ff!important;
+}
+:root:not([data-theme="light"]) .system-art span,
+:root:not([data-theme="light"]) #systems .system-art span,
+:root:not([data-theme="light"]) #tower .system-art span,
+:root:not([data-theme="light"]) #enhance .equipment-system-art span{
+  color:#a9bfd3!important;
+}
+:root:not([data-theme="light"]) .system-art-icon,
+:root:not([data-theme="light"]) .equipment-system-art .system-art-icon,
+:root:not([data-theme="light"]) #tower .system-art-icon{
+  background:#0d1b2b!important;
+  border:1px solid #35495e;
+  box-shadow:none!important;
+}
+:root:not([data-theme="light"]) #tower .stat,
+:root:not([data-theme="light"]) #tower .stats-grid .stat,
+:root:not([data-theme="light"]) #tower .metric,
+:root:not([data-theme="light"]) #systems .metric,
+:root:not([data-theme="light"]) #systems .stat,
+:root:not([data-theme="light"]) #enhance .metric{
+  background:#0c1929!important;
+  border:1px solid #263b51!important;
+  color:#e8f0fa!important;
+  box-shadow:none!important;
+}
+:root:not([data-theme="light"]) #tower .stat span,
+:root:not([data-theme="light"]) #tower .metric span,
+:root:not([data-theme="light"]) #systems .metric span,
+:root:not([data-theme="light"]) #systems .stat span,
+:root:not([data-theme="light"]) #enhance .metric span{
+  color:#b2c2d4!important;
+}
+:root:not([data-theme="light"]) #tower .stat strong,
+:root:not([data-theme="light"]) #tower .metric strong,
+:root:not([data-theme="light"]) #systems .metric strong,
+:root:not([data-theme="light"]) #systems .stat strong,
+:root:not([data-theme="light"]) #enhance .metric strong{
+  color:#f2f7ff!important;
+}
+:root:not([data-theme="light"]) #tower .selected-pool,
+:root:not([data-theme="light"]) #systems .selected-pool,
+:root:not([data-theme="light"]) #enhance .selected-pool{
+  background:#14283a!important;
+  border-color:#30485f!important;
+  color:#e8f0fa!important;
+}
+:root:not([data-theme="light"]) #tower .selected-pool strong,
+:root:not([data-theme="light"]) #systems .selected-pool strong,
+:root:not([data-theme="light"]) #enhance .selected-pool strong{
+  color:#f2f7ff!important;
+}
+:root:not([data-theme="light"]) #tower .selected-pool span,
+:root:not([data-theme="light"]) #systems .selected-pool span,
+:root:not([data-theme="light"]) #enhance .selected-pool span{
+  color:#a9bfd3!important;
+}
+:root:not([data-theme="light"]) #tower .results-card,
+:root:not([data-theme="light"]) #systems .results-card,
+:root:not([data-theme="light"]) #enhance .results-card{
+  background:#111f31!important;
+  border-color:#2b4056!important;
+  color:#e8f0fa!important;
+}
+:root:not([data-theme="light"]) #tower .results-card h3,
+:root:not([data-theme="light"]) #systems .results-card h3,
+:root:not([data-theme="light"]) #enhance .results-card h3{
+  color:#f2f7ff!important;
+}
+:root:not([data-theme="light"]) #tower .results-card .muted,
+:root:not([data-theme="light"]) #systems .results-card .muted,
+:root:not([data-theme="light"]) #enhance .results-card .muted{
+  color:#a9bfd3!important;
+}
+
+
+/* Layout stability across light/dark themes.
+   Theme changes must affect colors only, never component geometry. */
+html{
+  scrollbar-gutter:stable;
+}
+.site-header .theme-toggle{
+  min-width:136px;
+  flex:0 0 136px;
+  box-sizing:border-box;
+  justify-content:center;
+  gap:7px;
+}
+.site-header .theme-toggle #themeIcon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  width:16px;
+  min-width:16px;
+  flex:0 0 16px;
+  line-height:1;
+}
+.site-header .theme-toggle #themeLabel{
+  display:inline-block;
+  min-width:56px;
+  text-align:center;
+  white-space:nowrap;
+}
+
+/* Keep the Equipment Enhancement lucky-stone control present and aligned
+   in both themes. Only colors change with the theme. */
+#enhance .luck-control,
+#systems .luck-control{
+  display:block;
+  width:100%;
+  margin-top:22px;
+  box-sizing:border-box;
+}
+#enhance .luck-top,
+#systems .luck-top{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  min-height:20px;
+  gap:12px;
+}
+#enhance .luck-top .field-label,
+#systems .luck-top .field-label{
+  display:block;
+  margin:0;
+}
+#enhance .luck-top strong,
+#systems .luck-top strong{
+  flex:0 0 auto;
+  min-width:48px;
+  text-align:right;
+  line-height:1.4;
+}
+#enhance .luck-items,
+#systems .luck-items{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-height:32px;
+  margin:9px 0 5px;
+}
+#enhance .luck-control input[type="range"],
+#systems .luck-control input[type="range"]{
+  display:block;
+  width:100%;
+  height:20px;
+  margin:8px 0 0;
+  padding:0;
+}
+#enhance .luck-control .range-labels,
+#systems .luck-control .range-labels{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  min-height:16px;
+  gap:8px;
+  line-height:1.5;
+}
+:root:not([data-theme="light"]) #enhance .luck-top strong,
+:root:not([data-theme="light"]) #systems .luck-top strong{
+  color:#69d8f4;
+}
+:root[data-theme="light"] #enhance .luck-top strong,
+:root[data-theme="light"] #systems .luck-top strong{
+  color:#147b9a;
+}
+
+
+/* Final consistency fixes: nav order is authored in player-tools/index.html.
+   Theme switching must not change geometry; reserve the scrollbar gutter and
+   keep the header controls' dimensions fixed in both themes. */
+html {
+  overflow-y: scroll;
+  scrollbar-gutter: stable;
+}
+.site-header {
+  box-sizing: border-box;
+}
+.site-header .brand,
+.site-header .main-nav,
+.site-header .header-status,
+.site-header .header-actions {
+  box-sizing: border-box;
+}
+.site-header .theme-toggle {
+  width: 136px;
+  min-width: 136px;
+  max-width: 136px;
+  height: 42px;
+  min-height: 42px;
+  flex: 0 0 136px;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+.site-header .theme-toggle #themeIcon {
+  width: 16px;
+  min-width: 16px;
+  flex: 0 0 16px;
+  text-align: center;
+}
+.site-header .theme-toggle #themeLabel {
+  width: 56px;
+  min-width: 56px;
+  max-width: 56px;
+  text-align: center;
+  white-space: nowrap;
+}
+/* The odds table wrapper used a light-only border, causing a white frame
+   around the scrollable table in dark mode. Match the rest of the dark UI. */
+:root:not([data-theme="light"]) .probability-table-wrap,
+:root:not([data-theme="light"]) .admin-items-wrap {
+  background: #0c1929;
+  border-color: #293e54;
+  color: #dce8f5;
+  scrollbar-color: #52677e #0c1929;
+}
+:root:not([data-theme="light"]) .probability-table-wrap:focus-within,
+:root:not([data-theme="light"]) .admin-items-wrap:focus-within {
+  outline-color: #4abbd9;
+}
+
+
+/* Special enhancement controls: align the mobile card with the approved reference.
+   Keep this scoped to the special enhancement panel; other tools are untouched. */
+#systems .controls-card{
+  padding:22px;
+  border-radius:18px;
+}
+#systems .controls-card>h3{
+  margin:0 0 20px;
+  font-size:16px;
+  line-height:1.5;
+}
+#systems .system-art{
+  min-height:92px;
+  padding:16px;
+  gap:14px;
+  border-radius:16px;
+  box-sizing:border-box;
+}
+#systems .system-art-icon{
+  width:58px;
+  height:58px;
+  flex:0 0 58px;
+  overflow:hidden;
+}
+#systems .system-art-icon img{
+  display:block;
+  width:40px;
+  height:40px;
+  object-fit:contain;
+}
+#systems #systemTargetWrap,
+#systems #systemTierWrap,
+#systems #linerTargetWrap{
+  min-width:0;
+}
+#systems .controls-card select{
+  min-width:0;
+  height:43px;
+}
+:root:not([data-theme="light"]) .probability-box{background:#0c1929;border-color:#293e54}
+:root:not([data-theme="light"]) #enhance .probability-box .final-rate,
+:root:not([data-theme="light"]) #systems .probability-box .final-rate{
+  border-top-color:#34485d;
+}
+@media(max-width:620px){
+  /* Match the approved Equipment Enhancement card geometry on mobile. */
+  #systems .controls-card{padding:16px;border-radius:14px}
+  #systems .system-art{padding:16px;min-height:92px}
+  #systems .two-fields{gap:8px}
+}
+
+
+/* 系統強化規則統一置於操作區底部，避免與幸運石控制區重複混排 */
+.system-rules-note {
+  margin: 12px 0 0;
+  line-height: 1.75;
+  overflow-wrap: anywhere;
+}
+
+
+/* FINAL HEADER PARITY PATCH (2026-10-14)
+   Match the live website's final V6/V7 header geometry, not the earlier
+   132px logo / fixed-width theme-button overrides. */
+.site-header .brand {
+  text-decoration: none !important;
+}
+.site-header .brand img {
+  width: 118px !important;
+  height: 62px !important;
+  object-fit: contain;
+  border-radius: 0 !important;
+}
+.site-header .brand span {
+  font-size: 12px !important;
+  letter-spacing: .06em !important;
+  text-decoration: none !important;
+}
+.site-header .theme-toggle {
+  height: 38px !important;
+  min-height: 38px !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  flex: 0 0 auto !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px !important;
+  padding: 8px 12px !important;
+  border-radius: 999px !important;
+  border: 1px solid var(--line) !important;
+  font-family: inherit;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: normal !important;
+  color: var(--muted) !important;
+  background: var(--soft) !important;
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+.site-header .theme-toggle span:first-child {
+  font-size: 16px !important;
+  line-height: 1 !important;
+}
+.site-header .theme-toggle span:last-child {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  font-size: 13px !important;
+  line-height: normal !important;
+  text-align: left !important;
+  white-space: nowrap;
+}
+:root[data-theme="light"] .site-header .theme-toggle {
+  color: #40566a !important;
+  background: #ffffffcc !important;
+}
+@media (max-width: 1180px) {
+  .site-header { gap: 12px; padding: 0 2vw; }
+}
+
+/* FINAL MICRO-FIX: match only the two remaining header controls to the website.
+   Keep this block last so older player-tool overrides cannot win the cascade. */
+.site-header .header-status {
+  height: auto !important;
+  min-height: 0 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  padding: 8px 12px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 999px !important;
+  color: var(--muted2) !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  letter-spacing: .04em !important;
+  line-height: inherit !important;
+  white-space: nowrap !important;
+  background: var(--soft) !important;
+  box-sizing: border-box !important;
+}
+.site-header .header-status .status-dot {
+  width: 7px !important;
+  min-width: 7px !important;
+  height: 7px !important;
+  flex: 0 0 7px !important;
+  border-radius: 50% !important;
+  background: #5de6a1 !important;
+  box-shadow: 0 0 12px #5de6a1 !important;
+}
+.site-header .theme-toggle {
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  flex: 0 0 auto !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  padding: 8px 12px !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 999px !important;
+  color: var(--muted) !important;
+  background: var(--soft) !important;
+  font-family: inherit !important;
+  font-size: 14px !important;
+  font-weight: 800 !important;
+  line-height: inherit !important;
+  box-sizing: border-box !important;
+  white-space: nowrap !important;
+}
+.site-header .theme-toggle #themeIcon,
+.site-header .theme-toggle span:first-child {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  height: auto !important;
+  min-height: 0 !important;
+  flex: 0 0 auto !important;
+  font-size: 16px !important;
+  line-height: inherit !important;
+}
+.site-header .theme-toggle #themeLabel,
+.site-header .theme-toggle span:last-child {
+  display: inline-block !important;
+  width: auto !important;
+  min-width: 0 !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  font-family: inherit !important;
+  font-size: 13px !important;
+  font-weight: 800 !important;
+  line-height: inherit !important;
+  text-align: left !important;
+  white-space: nowrap !important;
+}
+:root[data-theme="light"] .site-header .header-status {
+  color: #355169 !important;
+  background: #fff !important;
+  border-color: #c4d4df !important;
+}
+:root[data-theme="light"] .site-header .theme-toggle {
+  color: #355169 !important;
+  background: #fff !important;
+  border-color: #c5d4df !important;
+}
+:root:not([data-theme="light"]) .site-header .header-status {
+  color: var(--muted2) !important;
+  background: var(--soft) !important;
+  border-color: var(--line) !important;
+}
+:root:not([data-theme="light"]) .site-header .theme-toggle {
+  color: var(--muted) !important;
+  background: var(--soft) !important;
+  border-color: var(--line) !important;
+}
+
+/* FINAL LUCKY-STONE RANGE FOCUS FIX (2026-10-14)
+   Remove the redundant pointer-focus glow around the range control in both
+   enhancement panels and themes, while retaining a clear keyboard focus ring. */
+#enhance .luck-control input[type="range"]:focus,
+#systems .luck-control input[type="range"]:focus {
+  box-shadow: none !important;
+  border-color: transparent !important;
+}
+#enhance .luck-control input[type="range"]:focus:not(:focus-visible),
+#systems .luck-control input[type="range"]:focus:not(:focus-visible) {
+  outline: none !important;
+}
+#enhance .luck-control input[type="range"]:focus-visible,
+#systems .luck-control input[type="range"]:focus-visible {
+  outline: 2px solid #4abbd9 !important;
+  outline-offset: 3px !important;
+}

@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>多多谷｜玩家工具</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header class="site-header">
+  <a class="brand" href="../index.html"><img src="../assets/logo1.png" alt="多多谷"><span>DuoDuo Valley</span></a>
+  <nav class="main-nav" aria-label="官網主導覽">
+    <a class="nav-pill" data-nav="home" href="../index.html">首頁</a>
+    <a class="nav-pill" data-nav="why" href="../index.html#why">為什麼選多多谷</a>
+    <a class="nav-pill" data-nav="features" href="../index.html#features">特色系統</a>
+    <a class="nav-pill" data-nav="news" href="../news.html">最新消息</a>
+    <a class="nav-pill" data-nav="guide" href="../guide.html">遊玩指南</a>
+    <a class="nav-pill" data-nav="boss" href="../boss.html">BOSS</a>
+    <a class="nav-pill" data-nav="events" href="../events.html">檔期活動</a>
+    <a class="nav-pill" data-nav="downloads" href="../downloads.html">下載專區</a>
+    <a class="nav-pill" data-nav="player-tools" href="index.html" aria-current="page">玩家工具</a>
+  </nav>
+  <div class="header-status"><span class="status-dot"></span><span>V282 持續更新</span></div>
+  <div class="header-actions">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="切換深色模式與淺色模式"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button>
+    <a class="btn btn-gold" href="https://fd-pay.com/ARrbXO" target="_blank" rel="noopener">儲值</a>
+    <a class="btn btn-discord" href="https://discord.gg/duoduovalley" target="_blank" rel="noopener">加入 Discord</a>
+  </div>
+</header>
+<main>
+  <section class="hero" id="tools">
+    <div class="eyebrow">DUODUO VALLEY · PLAYER TOOLS</div>
+    <h1>玩家工具</h1>
+    <p>強化前先試算，抽獎前先模擬。所有結果皆為模擬，不會影響遊戲內角色、道具或帳號。</p>
+    <div class="hero-pills"><span>強化成功率試算</span><span>材料消耗統計</span><span>抽獎機率模擬</span></div>
+  </section>
+
+  <div class="tabbar" role="tablist" aria-label="玩家工具">
+    <button class="tab active" data-tab="enhance" role="tab"><img class="tab-icon" src="assets/category-equipment.png" alt="">裝備強化</button>
+    <button class="tab" data-tab="astra" role="tab"><img class="tab-icon" src="assets/category-astra.png" alt="">阿斯特拉輔助武器強化</button>
+    <button class="tab" data-tab="totem" role="tab"><img class="tab-icon" src="assets/category-totem.png" alt="">圖騰強化</button>
+    <button class="tab" data-tab="liner" role="tab"><img class="tab-icon" src="assets/category-liner.png" alt="">內襯強化</button>
+    <button class="tab" data-tab="tower" role="tab"><img class="tab-icon" src="assets/category-tower-ring.png" alt="">塔戒升級</button>
+    <button class="tab" data-tab="gacha" role="tab"><img class="tab-icon" src="assets/platinum-apple.png" alt="">抽獎模擬器</button>
+  </div>
+
+  <section class="tool-panel active" id="enhance">
+    <div class="section-head">
+      <div><div class="eyebrow">ENHANCEMENT SIMULATOR</div><h2>裝備強化</h2><p>選擇基礎、卓越或極限強化，試算成功率、材料與貨幣消耗。</p></div>
+      <div class="head-icon"><img src="assets/category-equipment.png" alt=""></div>
+    </div>
+    <div class="enhance-grid">
+      <div class="card controls-card">
+        <h3>升級設定</h3>
+        <div class="system-art equipment-system-art">
+          <div class="system-art-icon"><img src="assets/category-equipment.png" alt=""></div>
+          <div><strong>裝備強化</strong><span>EQUIPMENT ENHANCEMENT</span></div>
+        </div>
+        <label class="field-label" for="tierSelect">強化類型</label>
+        <select id="tierSelect">
+          <option value="basic">基礎</option><option value="excellent">卓越</option><option value="extreme">極限</option>
+        </select>
+        <div class="two-fields">
+          <div><label class="field-label" for="startLevel">目前等級</label><select id="startLevel"></select></div>
+          <div><label class="field-label" for="targetLevel">目標等級</label><select id="targetLevel"></select></div>
+        </div>
+        <div class="luck-control">
+          <div class="luck-top"><label class="field-label">使用幸運石</label><strong><span id="luckCountLabel">0</span> / 6 顆</strong></div>
+          <div class="luck-items" id="luckItems"></div>
+          <input id="luckSlider" type="range" min="0" max="6" value="0" step="1">
+          <div class="range-labels"><span>不使用</span><span>每顆 +5%</span><span>最高 +30%</span></div>
+        </div>
+        <div class="probability-box">
+          <div><span>原始成功率</span><strong id="baseRate">100%</strong></div>
+          <div><span>幸運石加成</span><strong id="luckRate">+0%</strong></div>
+          <div class="final-rate"><span>最終成功率</span><strong id="finalRate">100%</strong></div>
+        </div>
+        <div class="button-row">
+          <button class="btn primary" id="attemptBtn">模擬單次強化</button>
+          <button class="btn secondary" id="targetBtn">強化至目標</button>
+        </div>
+        <button class="btn text-btn" id="resetEnhance">重設模擬</button>
+        <p class="fineprint">模擬規則：幸運石每顆增加 5 個百分點，每次最多 6 顆，成功率上限 100%。強化失敗不會降級，只消耗本次強化所需的貨幣與材料。此版會統計材料消耗；提供每階段貨幣費用後，才能準確統計貨幣消耗。</p>
+      </div>
+      <div class="right-stack">
+        <div class="card results-card">
+          <div class="result-heading"><h3>模擬統計</h3><button class="small-clear" id="clearLog">清除紀錄</button></div>
+          <div class="metric-grid">
+            <div class="metric"><span>嘗試次數</span><strong id="attemptCount">0</strong></div>
+            <div class="metric"><span>成功次數</span><strong id="successCount">0</strong></div>
+            <div class="metric"><span>成功率</span><strong id="observedRate">—</strong></div>
+          </div>
+          <div id="enhanceMessage" class="message neutral">選擇設定後，開始模擬強化。</div>
+          <div id="enhanceLog" class="log-list"><div class="empty-state">尚無強化紀錄</div></div>
+        </div>
+        <div class="card level-card">
+          <div class="level-card-top"><div><span class="muted-label">CURRENT LEVEL</span><h3 id="levelTitle">基礎強化 0 級</h3></div><span class="level-badge" id="levelBadge">0 / 20</span></div>
+          <div class="progress-track"><div id="levelProgress" class="progress-fill"></div></div>
+          <div class="next-step" id="nextStep"></div>
+          <div class="stat-grid" id="statGrid"></div>
+        </div>
+        <div class="card materials-card">
+          <h3>本次強化所需材料／貨幣</h3>
+          <div id="equipmentCurrentCost" class="material-list"></div>
+        </div>
+        <div class="card materials-card cumulative-card">
+          <h3>累積材料／貨幣消耗</h3>
+          <div id="cumulativeMaterials" class="material-list"></div>
+        </div>
+        
+      </div>
+    </div>
+  </section>
+
+  <section class="tool-panel" id="systems">
+    <div class="section-head"><div><div class="eyebrow">SPECIAL ENHANCEMENT</div><h2 id="systemHeading">圖騰強化</h2><p id="systemDescription">選擇圖騰，查看各階段成功率、能力提升與材料消耗。此類強化不可使用幸運石。</p></div><div class="head-icon" id="systemHeadIcon"><img id="systemHeadImage" src="assets/category-totem.png" alt=""></div></div>
+    <div class="enhance-grid">
+      <div class="card controls-card">
+        <h3>升級設定</h3>
+        <div class="system-art" id="systemArt"><div class="system-art-icon"><img id="systemArtImage" src="assets/category-totem.png" alt=""></div><div><strong id="systemArtTitle">圖騰強化</strong><span id="systemArtSubtitle">TOTEM ENHANCEMENT</span></div></div>
+        <div id="systemTargetWrap"><label class="field-label" for="systemTarget">強化目標</label><select id="systemTarget"><option>輪迴碑石</option><option>彩虹月石寶石圖騰</option><option>小筱精靈圖騰</option></select></div>
+        <div id="systemTierWrap" style="display:none"><label class="field-label" for="systemTier">強化類型</label><select id="systemTier"><option value="basic">基礎</option><option value="excellent">卓越</option><option value="extreme">極限</option></select></div>
+        <div id="linerTargetWrap" style="display:none"><label class="field-label" for="linerTarget">內襯部位</label><select id="linerTarget"><option>帽子內襯</option><option>臉飾內襯</option><option>武器內襯</option><option>鞋子內襯</option><option>套服內襯</option><option>披風內襯</option></select></div>
+        <div class="two-fields"><div><label class="field-label" for="systemStart">目前等級</label><select id="systemStart"></select></div><div><label class="field-label" for="systemTargetLevel">目標等級</label><select id="systemTargetLevel"></select></div></div>
+        <div class="luck-control" id="systemLuckControl"><div class="luck-top"><label class="field-label" for="systemLuck">使用幸運石</label><strong><span id="systemLuckLabel">0</span> / 6 顆</strong></div><div class="luck-items" id="systemLuckItems"></div><input id="systemLuck" type="range" min="0" max="6" value="0" step="1"><div class="range-labels"><span>不使用</span><span>每顆 +5%</span><span>最高 +30%</span></div></div>
+        <div class="probability-box"><div><span>原始成功率</span><strong id="systemBaseRate">100%</strong></div><div id="systemLuckRateRow"><span>幸運石加成</span><strong id="systemLuckRate">+0%</strong></div><div class="final-rate"><span>最終成功率</span><strong id="systemFinalRate">100%</strong></div></div>
+        <div class="button-row"><button class="btn primary" id="systemAttempt">模擬單次強化</button><button class="btn secondary" id="systemToTarget">強化至目標</button></div>
+        <button class="btn text-btn" id="systemReset">重設模擬</button>
+        <p class="fineprint system-rules-note" id="systemLuckNotice">圖騰強化不可使用幸運石。</p>
+      </div>
+      <div class="right-stack">
+        <div class="card results-card"><div class="result-heading"><h3>模擬統計</h3><button class="small-clear" id="systemClearLog">清除紀錄</button></div><div class="metric-grid"><div class="metric"><span>嘗試次數</span><strong id="systemAttempts">0</strong></div><div class="metric"><span>成功次數</span><strong id="systemSuccesses">0</strong></div><div class="metric"><span>成功率</span><strong id="systemObserved">—</strong></div></div><div id="systemMessage" class="message neutral">選擇設定後，開始模擬強化。</div><div id="systemLog" class="log-list"><div class="empty-state">尚無強化紀錄</div></div></div>
+        <div class="card level-card"><div class="level-card-top"><div><span class="muted-label">CURRENT LEVEL</span><h3 id="systemLevelTitle">圖騰強化 0 級</h3></div><span class="level-badge" id="systemLevelBadge">0 / 10</span></div><div class="progress-track"><div id="systemProgress" class="progress-fill"></div></div><div id="systemNextStep" class="next-step"></div><div id="systemStats" class="stat-grid"></div></div>
+        <div class="card materials-card"><h3>本次強化所需材料／貨幣</h3><div id="systemMaterials" class="material-list"></div></div>
+        <div class="card materials-card"><h3>累積材料／貨幣消耗</h3><div id="systemCumulative" class="material-list"></div></div>
+        
+      </div>
+    </div>
+  </section>
+
+
+  <section class="tool-panel" id="tower">
+    <div class="section-head">
+      <div><div class="eyebrow">TOWER RING LEVEL UP</div><h2>塔戒升級</h2><p>依照塔戒目前等級選擇研磨石數量，試算成功率與楓幣消耗。</p></div>
+      <div class="head-icon"><img src="assets/category-tower-ring.png" alt=""></div>
+    </div>
+    <div class="enhance-grid">
+      <div class="card controls-card">
+        <h3>升級設定</h3>
+        <div class="system-art tower-system-art">
+          <div class="system-art-icon"><img src="assets/category-tower-ring.png" alt=""></div>
+          <div><strong>塔戒升級</strong><span>TOWER RING LEVEL UP</span></div>
+        </div>
+        <label class="field-label" for="towerTarget">升級目標</label>
+        <select id="towerTarget">
+          <option value="standard">規範戒指</option>
+          <option value="eternal">永續戒指</option>
+        </select>
+        <label class="field-label tower-level-label" for="towerLevel">目前等級</label>
+        <select id="towerLevel">
+          <option value="4">Lv.4（升級至 Lv.5）</option>
+          <option value="5">Lv.5（升級至 Lv.6）</option>
+        </select>
+        <label class="field-label tower-quantity-label" for="towerQuantity">投入研磨石數量</label>
+        <select id="towerQuantity"></select>
+        <div class="message neutral" id="towerChanceInfo">成功率 10% · 楓幣消耗 5 億</div>
+        <div class="button-row tower-action-row"><button class="btn primary" id="towerAttempt">模擬單次升級</button>
+        <button class="btn secondary" id="towerReset">重設模擬</button></div>
+        <p class="fineprint">塔戒升級依目前等級套用對應研磨石、成功率與楓幣消耗。</p>
+      </div>
+      <div class="right-stack">
+        <div class="card results-card">
+          <div class="result-heading"><h3>模擬統計</h3><button class="small-clear" id="towerClearLog">清除紀錄</button></div>
+          <div class="metric-grid">
+            <div class="metric"><span>嘗試次數</span><strong id="towerAttempts">0</strong></div>
+            <div class="metric"><span>成功次數</span><strong id="towerSuccesses">0</strong></div>
+            <div class="metric"><span>成功率</span><strong id="towerRate">—</strong></div>
+          </div>
+          <div id="towerMessage" class="message neutral">選擇塔戒與研磨石數量後開始升級模擬。</div>
+          <div id="towerLog" class="log-list"><div class="empty-state">尚無塔戒升級紀錄。</div></div>
+        </div>
+        <div class="card level-card">
+          <div class="level-card-top"><div><span class="muted-label">CURRENT LEVEL</span><h3 id="towerLevelTitle">規範戒指 Lv.4</h3></div><span class="level-badge" id="towerLevelBadge">4 / 6</span></div>
+          <div class="progress-track"><div id="towerProgress" class="progress-fill"></div></div>
+          <div class="next-step" id="towerNextStep">下一階段：Lv.4 → Lv.5</div>
+          <div class="stat-grid" id="towerStats"><div class="stat-tile"><span>本次投入研磨石</span><strong>10 個</strong></div><div class="stat-tile"><span>本次成功率</span><strong>100%</strong></div></div>
+        </div>
+        <div class="card materials-card"><h3>本次升級所需材料／貨幣</h3><div id="towerCurrentCost" class="material-list"></div></div>
+        <div class="card materials-card"><h3>累積材料／貨幣消耗</h3><div id="towerCostSummary" class="material-list"></div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="tool-panel" id="gacha">
+    <div class="section-head">
+      <div><div class="eyebrow">GACHA SIMULATOR</div><h2>抽獎模擬器</h2><p>選擇獎池進行單抽、十連抽或百連抽，查看結果與各道具機率。</p></div>
+      <div class="head-icon"><img src="assets/platinum-apple.png" alt=""></div>
+    </div>
+    <div class="gacha-grid">
+      <div class="card gacha-control-card">
+        <h3>選擇獎池</h3>
+        <div id="poolGrid" class="pool-grid"></div>
+        <div class="selected-pool" id="selectedPoolInfo"></div>
+        <details class="pool-admin" id="poolAdmin">
+          <summary>獎池管理（管理員）</summary>
+          <p class="admin-note">可修改獎池名稱、獎池圖示、道具名稱與表列機率，也能新增或刪除道具。變更會儲存在目前瀏覽器；要備份或搬到其他電腦，請匯出設定檔。</p>
+          <div class="admin-toolbar">
+            <label>管理獎池<select id="adminPoolSelect"></select></label>
+            <label>獎池名稱<input id="adminPoolName" type="text"></label>
+            <label>獎池圖示路徑<input id="adminPoolImage" type="text" placeholder="assets/golden-apple.png"></label>
+          </div>
+          <div class="weekly-prize-admin">
+            <h4>黃金蘋果｜本週大獎設定</h4>
+            <p class="admin-note">每週三 00:00 自動開始新週期，至下週二 23:59。可在此更換兩項大獎名稱、機率與圖示路徑；儲存後會同步更新下方獎池清單與抽獎結果。</p>
+            <div class="weekly-prize-grid">
+              <label>大獎 1 名稱<input id="weeklyPrizeName1" type="text" value="M-DAY機器心臟"></label>
+              <label>大獎 1 機率（%）<input id="weeklyPrizeProb1" type="number" min="0" step="0.001" value="0.3"></label>
+              <label>大獎 1 圖示路徑<input id="weeklyPrizeImage1" type="text" value="assets/gacha/apple/M-DAY機器心臟.png"></label>
+              <label>大獎 2 名稱<input id="weeklyPrizeName2" type="text" value="燃燒之戒"></label>
+              <label>大獎 2 機率（%）<input id="weeklyPrizeProb2" type="number" min="0" step="0.001" value="0.3"></label>
+              <label>大獎 2 圖示路徑<input id="weeklyPrizeImage2" type="text" value="assets/gacha/apple/燃燒之戒.png"></label>
+            </div>
+            <button class="btn secondary" id="saveWeeklyPrizes" type="button">儲存本週大獎</button>
+            <div id="weeklyPrizePeriod" class="weekly-period"></div>
+          </div>
+          <div class="admin-actions">
+            <button class="btn secondary" id="addPoolItem" type="button">新增道具</button>
+            <button class="btn secondary" id="exportPoolData" type="button">匯出設定 JSON</button>
+            <label class="btn secondary import-json">匯入設定 JSON<input id="importPoolData" type="file" accept=".json,application/json"></label>
+            <button class="btn text-btn" id="resetPoolData" type="button">還原初始獎池</button>
+          </div>
+          <div class="admin-items-wrap"><table class="admin-items-table"><thead><tr><th>道具名稱</th><th>表列機率（%）</th><th>操作</th></tr></thead><tbody id="adminItemRows"></tbody></table></div>
+          <div id="adminStatus" class="message neutral" aria-live="polite">編輯後會自動儲存於此瀏覽器。</div>
+        </details>
+        <div class="button-row">
+          <button class="btn primary" data-pulls="1">單抽 ×1</button>
+          <button class="btn secondary" data-pulls="10">十連抽 ×10</button>
+          <button class="btn secondary" data-pulls="100">百連抽 ×100</button>
+        </div>
+        <div class="gacha-summary" id="gachaSummary">
+          <div><span>累積抽數</span><strong id="totalPulls">0</strong></div>
+          <div><span>本次抽取</span><strong id="lastPullCount">0</strong></div>
+          <div><span>不同道具</span><strong id="uniqueItems">0</strong></div>
+        </div>
+        <button class="btn text-btn" id="resetGacha">重設抽獎紀錄</button>
+        <p class="fineprint">抽獎完全隨機，不設保底；每次模擬都會重新抽取。機率依照提供的 Excel 資料呈現。各道具機率保留 Excel 原始數值；因獎池表列機率合計不一定等於 100%，模擬抽取會依表列數值作為相對權重抽取，表格仍顯示原始機率。</p>
+      </div>
+      <div class="right-stack">
+        <div class="card draw-results-card">
+          <div class="result-heading"><h3>本次抽獎結果</h3><span class="muted-label" id="drawPoolLabel">尚未抽獎</span></div>
+          <div id="jackpotSummary" class="jackpot-summary" aria-live="polite" hidden></div>
+          <div id="drawResults" class="draw-results"><div class="empty-state">選擇獎池後，點擊單抽或連抽。</div></div>
+        </div>
+        <div class="card probability-card">
+          <div class="result-heading"><div><h3>獎池機率一覽</h3><p class="subtext" id="probabilitySubtitle">選擇獎池查看完整道具與機率。</p></div><input id="itemSearch" class="search-input" placeholder="搜尋道具…" aria-label="搜尋道具"></div>
+          <div class="probability-table-wrap"><table class="probability-table"><thead><tr><th>道具名稱</th><th>機率</th><th>約略機率</th></tr></thead><tbody id="probabilityRows"></tbody></table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <footer><span>多多谷玩家工具 · 測試版</span><span>本頁為獨立模擬，不會連線修改遊戲資料。</span></footer>
+</main>
+<script src="data.js"></script>
+<script src="systems-data.js"></script>
+<script src="systems.js"></script>
+<script src="app.js"></script>
+<script src="image-overrides.js"></script>
+<script src="tower-ring.js"></script>
+<script>
+(() => {
+  const root = document.documentElement;
+  const key = 'duoduo_theme';
+  const icon = document.getElementById('themeIcon');
+  const label = document.getElementById('themeLabel');
+  const button = document.getElementById('themeToggle');
+  const applyTheme = (value) => {
+    const theme = value === 'dark' ? 'dark' : 'light';
+    root.dataset.theme = theme;
+    if (icon) icon.textContent = theme === 'light' ? '☾' : '☼';
+    if (label) label.textContent = theme === 'light' ? '深色模式' : '淺色模式';
+    if (button) button.title = theme === 'light' ? '切換深色模式' : '切換淺色模式';
+  };
+  let initial = 'light';
+  try { initial = localStorage.getItem(key) || 'light'; } catch (_) {}
+  applyTheme(initial);
+  button?.addEventListener('click', () => {
+    const next = root.dataset.theme === 'light' ? 'dark' : 'light';
+    applyTheme(next);
+    try { localStorage.setItem(key, next); } catch (_) {}
+  });
+  window.addEventListener('storage', (event) => {
+    if (event.key === key && event.newValue) applyTheme(event.newValue);
+  });
+})();
+</script>
+</body>
+</html>
