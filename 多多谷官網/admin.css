@@ -22,3 +22,6 @@
 .event-upload-preview>div{display:grid;gap:4px}.event-upload-preview>div img{width:150px;height:84px;object-fit:cover;border-radius:7px;border:1px solid #354354}.event-upload-preview small{color:var(--muted);font-size:11px}
 
 .news-admin .multiline,.item .multiline{white-space:pre-line;line-height:1.7}
+
+/* 共用道具圖片庫：本週大獎 */
+.weekly-prize-card{min-width:0}.weekly-image-preview{min-height:70px;display:flex;align-items:center;justify-content:flex-start;padding:10px;border:1px dashed var(--line,#294057);border-radius:10px;color:var(--muted,#8ea5bd);overflow:hidden}.weekly-image-preview img{width:64px;height:64px;object-fit:contain;image-rendering:auto}.weekly-prize-card input[list]{min-width:0}

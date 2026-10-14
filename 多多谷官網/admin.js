@@ -200,6 +200,7 @@ function addCloudMigrationButton(){
   const defaults=window.DUODUO_TOOL_DATA&&Array.isArray(window.DUODUO_TOOL_DATA.pools)?window.DUODUO_TOOL_DATA.pools:[];
   let pools=[];
   let weeklyPrizes=[{name:'天上的氣息',prob:0.0005,image:'assets/gacha/apple/天上的氣息.png'}];
+  let weeklyImageCatalog=[];
   const apiBase=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function status(msg,bad=false){$('poolAdminStatus').textContent=msg;$('poolAdminStatus').style.color=bad?'#d9534f':'';}
@@ -210,9 +211,16 @@ function addCloudMigrationButton(){
     if(pools.some(p=>p.key===keep))sel.value=keep;
     paintForm();
   }
+  function imageFileName(path){try{return decodeURIComponent(String(path||'').split(/[?#]/)[0].split('/').pop()||'');}catch{return String(path||'').split('/').pop()||''}}
   function paintWeeklyPrizes(){
     const host=$('weeklyPrizeAdminRows');if(!host)return;
-    host.innerHTML=weeklyPrizes.map((item,i)=>`<div class="builder-card" style="margin:0"><div class="form"><label>大獎名稱<input data-weekly-name="${i}" value="${esc(item.name)}" placeholder="例如：天上的氣息"></label><label>機率（%）<input data-weekly-prob="${i}" type="number" min="0" max="100" step="0.0001" value="${Number(item.prob||0)*100}" placeholder="0.05"></label><label>圖片路徑／網址<input data-weekly-image="${i}" value="${esc(item.image||'')}" placeholder="assets/gacha/apple/天上的氣息.png"></label><div class="form-actions"><button class="ghost" type="button" data-weekly-delete="${i}">刪除這項大獎</button></div></div></div>`).join('')||'<div class="note">目前沒有設定本週大獎。</div>';
+    const options=weeklyImageCatalog.map(x=>`<option value="${esc(x.name)}"></option>`).join('');
+    host.innerHTML=weeklyPrizes.map((item,i)=>{const currentName=imageFileName(item.image);const found=weeklyImageCatalog.find(x=>x.path===item.image||x.name===currentName);return `<div class="builder-card weekly-prize-card" style="margin:0"><div class="form"><label>大獎名稱<input data-weekly-name="${i}" value="${esc(item.name)}" placeholder="例如：天上的氣息"></label><label>機率（%）<input data-weekly-prob="${i}" type="number" min="0" max="100" step="0.0001" value="${Number(item.prob||0)*100}" placeholder="0.05"></label><label class="full">從共用圖片庫搜尋<input data-weekly-image-search="${i}" list="weeklyImageCatalog" value="${esc(found?.name||'')}" placeholder="輸入道具名稱或圖片檔名"></label><label class="full">目前圖片路徑／網址<input data-weekly-image="${i}" value="${esc(item.image||'')}" placeholder="選擇圖片後自動填入；也可手動輸入"></label><div class="weekly-image-preview full">${item.image?`<img src="${esc(item.image.startsWith('http')?item.image:'player-tools/'+item.image)}" alt="圖片預覽" onerror="this.parentElement.innerHTML='<span>目前圖片無法預覽，請重新選擇或上傳。</span>'">`:'<span>尚未設定圖片</span>'}</div><label class="full">找不到圖片？上傳新圖片<input data-weekly-upload="${i}" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><small class="field-note">上傳後會使用雲端圖片網址，不必手動填路徑。</small></label><div class="form-actions"><button class="ghost" type="button" data-weekly-delete="${i}">刪除這項大獎</button></div></div></div>`}).join('')||'<div class="note">目前沒有設定本週大獎。</div>';
+    let list=$('weeklyImageCatalog');if(!list){list=document.createElement('datalist');list.id='weeklyImageCatalog';host.appendChild(list);}list.innerHTML=options;
+  }
+  async function loadWeeklyImageCatalog(){
+    try{const res=await fetch('player-tools/image-manifest.json',{cache:'no-store'});if(!res.ok)throw new Error('manifest unavailable');const data=await res.json();weeklyImageCatalog=Array.isArray(data)?data.filter(x=>x&&x.name&&x.path):[];paintWeeklyPrizes();}
+    catch{weeklyImageCatalog=[];}
   }
   function readWeeklyPrizes(){
     const host=$('weeklyPrizeAdminRows');
@@ -246,8 +254,15 @@ function addCloudMigrationButton(){
     }
   }
   sel.addEventListener('change',paintForm);
+  loadWeeklyImageCatalog();
   $('weeklyPrizeAdd').addEventListener('click',()=>{weeklyPrizes.push({name:'新大獎',prob:0.0005,image:'assets/gacha/apple/天上的氣息.png'});paintWeeklyPrizes();status('已新增大獎欄位；填寫名稱、百分比與圖片後再儲存。');});
   $('weeklyPrizeAdminRows').addEventListener('input',e=>{const raw=e.target.dataset.weeklyName??e.target.dataset.weeklyProb??e.target.dataset.weeklyImage;if(raw===undefined)return;const i=Number(raw),host=$('weeklyPrizeAdminRows');if(!weeklyPrizes[i])return;const nameEl=host.querySelector(`[data-weekly-name="${i}"]`),probEl=host.querySelector(`[data-weekly-prob="${i}"]`),imageEl=host.querySelector(`[data-weekly-image="${i}"]`);weeklyPrizes[i]={name:nameEl.value,prob:(Number(probEl.value)||0)/100,image:imageEl.value};});
+  $('weeklyPrizeAdminRows').addEventListener('change',async e=>{
+    const search=e.target.closest('[data-weekly-image-search]');
+    if(search){const i=Number(search.dataset.weeklyImageSearch),query=search.value.trim().toLocaleLowerCase(),stripExt=v=>String(v||'').replace(/\.(png|jpe?g|webp|gif)$/i,'').toLocaleLowerCase(),match=weeklyImageCatalog.find(x=>x.name===search.value.trim()||stripExt(x.name)===stripExt(query)||stripExt(x.path.split('/').pop())===stripExt(query));if(!match){status('圖片庫找不到這個名稱或檔名；可以改用下方上傳圖片。',true);return;}weeklyPrizes[i].image=match.path;paintWeeklyPrizes();status(`已選擇圖片：${match.name}。儲存獎池後才會正式同步。`);return;}
+    const upload=e.target.closest('[data-weekly-upload]');
+    if(upload&&upload.files&&upload.files[0]){const i=Number(upload.dataset.weeklyUpload),file=upload.files[0];if(file.size>8*1024*1024){status('圖片請控制在 8MB 以下。',true);upload.value='';return;}try{status('正在上傳圖片…');upload.disabled=true;const dataUrl=await fileToCompressedDataURL(file,1200,1200,.9);const path=await uploadImageDataURL(dataUrl,file.name);weeklyPrizes[i].image=path;paintWeeklyPrizes();status('圖片已上傳並套用；按「儲存獎池並同步雲端」後才會更新玩家工具。');}catch(err){status(`圖片上傳失敗：${err.message||'請稍後再試。'}`,true);}finally{upload.disabled=false;}}
+  });
   $('weeklyPrizeAdminRows').addEventListener('click',e=>{const btn=e.target.closest('[data-weekly-delete]');if(!btn)return;weeklyPrizes.splice(Number(btn.dataset.weeklyDelete),1);paintWeeklyPrizes();status('已移除這項大獎；按儲存後才會正式同步。');});
   $('poolItemAdd').addEventListener('click',()=>{
     try{const items=JSON.parse($('poolItemsJson').value||'[]');if(!Array.isArray(items))throw new Error();items.push({name:'新獎品',prob:0.01});$('poolItemsJson').value=JSON.stringify(items,null,2);status('已加入獎品範本，請修改名稱與機率後儲存。');}

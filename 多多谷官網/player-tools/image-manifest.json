@@ -1,0 +1,354 @@
+[
+  {
+    "name": "200 靈魂卷軸 100%.png",
+    "path": "assets/gacha/apple/200 靈魂卷軸 100%.png"
+  },
+  {
+    "name": "M-DAY機器心臟.png",
+    "path": "assets/gacha/apple/M-DAY機器心臟.png"
+  },
+  {
+    "name": "亞尼的靈魂寶珠.png",
+    "path": "assets/gacha/apple/亞尼的靈魂寶珠.png"
+  },
+  {
+    "name": "傳說中的祝福祕藥.png",
+    "path": "assets/gacha/apple/傳說中的祝福祕藥.png"
+  },
+  {
+    "name": "傳說中的英雄祕藥.png",
+    "path": "assets/gacha/apple/傳說中的英雄祕藥.png"
+  },
+  {
+    "name": "傳說潛在能力卷軸100%.png",
+    "path": "assets/gacha/apple/傳說潛在能力卷軸100%.png"
+  },
+  {
+    "name": "內面暴風.png",
+    "path": "assets/gacha/apple/內面暴風.png"
+  },
+  {
+    "name": "內面耀光.png",
+    "path": "assets/gacha/apple/內面耀光.png"
+  },
+  {
+    "name": "凝聚力量的結晶石.png",
+    "path": "assets/gacha/apple/凝聚力量的結晶石.png"
+  },
+  {
+    "name": "凝聚的戒指.png",
+    "path": "assets/gacha/apple/凝聚的戒指.png"
+  },
+  {
+    "name": "凡雷恩的靈魂寶珠.png",
+    "path": "assets/gacha/apple/凡雷恩的靈魂寶珠.png"
+  },
+  {
+    "name": "午夜的現身.png",
+    "path": "assets/gacha/apple/午夜的現身.png"
+  },
+  {
+    "name": "卓越強化石.png",
+    "path": "assets/gacha/apple/卓越強化石.png"
+  },
+  {
+    "name": "卡勒馬附加傳說潛在能力賦予卷軸100%.png",
+    "path": "assets/gacha/apple/卡勒馬附加傳說潛在能力賦予卷軸100%.png"
+  },
+  {
+    "name": "回真卷軸 100%.png",
+    "path": "assets/gacha/apple/回真卷軸 100%.png"
+  },
+  {
+    "name": "地之精靈圖騰.png",
+    "path": "assets/gacha/apple/地之精靈圖騰.png"
+  },
+  {
+    "name": "基礎強化石.png",
+    "path": "assets/gacha/apple/基礎強化石.png"
+  },
+  {
+    "name": "夕陽的現身.png",
+    "path": "assets/gacha/apple/夕陽的現身.png"
+  },
+  {
+    "name": "天上的氣息.png",
+    "path": "assets/gacha/apple/天上的氣息.png"
+  },
+  {
+    "name": "女武神之心.png",
+    "path": "assets/gacha/apple/女武神之心.png"
+  },
+  {
+    "name": "寶玉加工石.png",
+    "path": "assets/gacha/apple/寶玉加工石.png"
+  },
+  {
+    "name": "寶玉研磨石.png",
+    "path": "assets/gacha/apple/寶玉研磨石.png"
+  },
+  {
+    "name": "小筱精靈圖騰.png",
+    "path": "assets/gacha/apple/小筱精靈圖騰.png"
+  },
+  {
+    "name": "幽暗戒指.png",
+    "path": "assets/gacha/apple/幽暗戒指.png"
+  },
+  {
+    "name": "強力輪迴星火.png",
+    "path": "assets/gacha/apple/強力輪迴星火.png"
+  },
+  {
+    "name": "強化石碎片.png",
+    "path": "assets/gacha/apple/強化石碎片.png"
+  },
+  {
+    "name": "彩虹月石寶石圖騰.png",
+    "path": "assets/gacha/apple/彩虹月石寶石圖騰.png"
+  },
+  {
+    "name": "恢復卡.png",
+    "path": "assets/gacha/apple/恢復卡.png"
+  },
+  {
+    "name": "戴雅希杜斯耳環.png",
+    "path": "assets/gacha/apple/戴雅希杜斯耳環.png"
+  },
+  {
+    "name": "掛機能量1小時補充券.png",
+    "path": "assets/gacha/apple/掛機能量1小時補充券.png"
+  },
+  {
+    "name": "掛機能量6小時補充券.png",
+    "path": "assets/gacha/apple/掛機能量6小時補充券.png"
+  },
+  {
+    "name": "搖滾精神的靈魂寶珠.png",
+    "path": "assets/gacha/apple/搖滾精神的靈魂寶珠.png"
+  },
+  {
+    "name": "昇華結晶碎片.png",
+    "path": "assets/gacha/apple/昇華結晶碎片.png"
+  },
+  {
+    "name": "星力強化券.png",
+    "path": "assets/gacha/apple/星力強化券.png"
+  },
+  {
+    "name": "星耀耳環.png",
+    "path": "assets/gacha/apple/星耀耳環.png"
+  },
+  {
+    "name": "暗黑輪迴星火.png",
+    "path": "assets/gacha/apple/暗黑輪迴星火.png"
+  },
+  {
+    "name": "暮光印記.png",
+    "path": "assets/gacha/apple/暮光印記.png"
+  },
+  {
+    "name": "最上級祝福的祕藥.png",
+    "path": "assets/gacha/apple/最上級祝福的祕藥.png"
+  },
+  {
+    "name": "最上級英雄的祕藥.png",
+    "path": "assets/gacha/apple/最上級英雄的祕藥.png"
+  },
+  {
+    "name": "楓幣.png",
+    "path": "assets/gacha/apple/楓幣.png"
+  },
+  {
+    "name": "楓葉點數.png",
+    "path": "assets/gacha/apple/楓葉點數.png"
+  },
+  {
+    "name": "極限強化石.png",
+    "path": "assets/gacha/apple/極限強化石.png"
+  },
+  {
+    "name": "正午的現身.png",
+    "path": "assets/gacha/apple/正午的現身.png"
+  },
+  {
+    "name": "武公的靈魂寶珠.png",
+    "path": "assets/gacha/apple/武公的靈魂寶珠.png"
+  },
+  {
+    "name": "殘暴炎魔的靈魂寶珠.png",
+    "path": "assets/gacha/apple/殘暴炎魔的靈魂寶珠.png"
+  },
+  {
+    "name": "水中信紙眼飾.png",
+    "path": "assets/gacha/apple/水中信紙眼飾.png"
+  },
+  {
+    "name": "水之精靈圖騰.png",
+    "path": "assets/gacha/apple/水之精靈圖騰.png"
+  },
+  {
+    "name": "水晶愛心.png",
+    "path": "assets/gacha/apple/水晶愛心.png"
+  },
+  {
+    "name": "永遠的輪迴星火.png",
+    "path": "assets/gacha/apple/永遠的輪迴星火.png"
+  },
+  {
+    "name": "波賽頓墜飾.png",
+    "path": "assets/gacha/apple/波賽頓墜飾.png"
+  },
+  {
+    "name": "波賽頓眼鏡.png",
+    "path": "assets/gacha/apple/波賽頓眼鏡.png"
+  },
+  {
+    "name": "波賽頓紋身.png",
+    "path": "assets/gacha/apple/波賽頓紋身.png"
+  },
+  {
+    "name": "波賽頓耳環.png",
+    "path": "assets/gacha/apple/波賽頓耳環.png"
+  },
+  {
+    "name": "漆黑的BOSS飾品碎片.png",
+    "path": "assets/gacha/apple/漆黑的BOSS飾品碎片.png"
+  },
+  {
+    "name": "濃厚的靈魂艾爾達氣息.png",
+    "path": "assets/gacha/apple/濃厚的靈魂艾爾達氣息.png"
+  },
+  {
+    "name": "火之精靈圖騰.png",
+    "path": "assets/gacha/apple/火之精靈圖騰.png"
+  },
+  {
+    "name": "燃燒之戒.png",
+    "path": "assets/gacha/apple/燃燒之戒.png"
+  },
+  {
+    "name": "特殊名譽勳章.png",
+    "path": "assets/gacha/apple/特殊名譽勳章.png"
+  },
+  {
+    "name": "白金鐵鎚.png",
+    "path": "assets/gacha/apple/白金鐵鎚.png"
+  },
+  {
+    "name": "破曉墜飾.png",
+    "path": "assets/gacha/apple/破曉墜飾.png"
+  },
+  {
+    "name": "神祕冥界幽靈武器箱.png",
+    "path": "assets/gacha/apple/神祕冥界幽靈武器箱.png"
+  },
+  {
+    "name": "神祕冥界幽靈防具箱.png",
+    "path": "assets/gacha/apple/神祕冥界幽靈防具箱.png"
+  },
+  {
+    "name": "稀有航海師武器選擇箱.png",
+    "path": "assets/gacha/apple/稀有航海師武器選擇箱.png"
+  },
+  {
+    "name": "稀有航海師防具選擇箱.png",
+    "path": "assets/gacha/apple/稀有航海師防具選擇箱.png"
+  },
+  {
+    "name": "米特拉的核心寶石.png",
+    "path": "assets/gacha/apple/米特拉的核心寶石.png"
+  },
+  {
+    "name": "粉豆的靈魂寶珠.png",
+    "path": "assets/gacha/apple/粉豆的靈魂寶珠.png"
+  },
+  {
+    "name": "經驗值4倍券(30分).png",
+    "path": "assets/gacha/apple/經驗值4倍券(30分).png"
+  },
+  {
+    "name": "經驗值5倍券(30分).png",
+    "path": "assets/gacha/apple/經驗值5倍券(30分).png"
+  },
+  {
+    "name": "艾爾達斯的祝福戒指.png",
+    "path": "assets/gacha/apple/艾爾達斯的祝福戒指.png"
+  },
+  {
+    "name": "艾畢奈亞的靈魂寶珠.png",
+    "path": "assets/gacha/apple/艾畢奈亞的靈魂寶珠.png"
+  },
+  {
+    "name": "苦行的戒指.png",
+    "path": "assets/gacha/apple/苦行的戒指.png"
+  },
+  {
+    "name": "覺醒的輪迴星火.png",
+    "path": "assets/gacha/apple/覺醒的輪迴星火.png"
+  },
+  {
+    "name": "選擇真實符文交換券.png",
+    "path": "assets/gacha/apple/選擇真實符文交換券.png"
+  },
+  {
+    "name": "選擇秘法符文交換券.png",
+    "path": "assets/gacha/apple/選擇秘法符文交換券.png"
+  },
+  {
+    "name": "銀花戒指.png",
+    "path": "assets/gacha/apple/銀花戒指.png"
+  },
+  {
+    "name": "鋰愛心.png",
+    "path": "assets/gacha/apple/鋰愛心.png"
+  },
+  {
+    "name": "鏡子世界的核心寶石.png",
+    "path": "assets/gacha/apple/鏡子世界的核心寶石.png"
+  },
+  {
+    "name": "闇黑龍王的靈魂寶珠.png",
+    "path": "assets/gacha/apple/闇黑龍王的靈魂寶珠.png"
+  },
+  {
+    "name": "雷克斯的靈魂寶珠.png",
+    "path": "assets/gacha/apple/雷克斯的靈魂寶珠.png"
+  },
+  {
+    "name": "露希妲耳環.png",
+    "path": "assets/gacha/apple/露希妲耳環.png"
+  },
+  {
+    "name": "露希妲靈魂寶珠.png",
+    "path": "assets/gacha/apple/露希妲靈魂寶珠.png"
+  },
+  {
+    "name": "靈魂艾爾達碎片.png",
+    "path": "assets/gacha/apple/靈魂艾爾達碎片.png"
+  },
+  {
+    "name": "風之精靈圖騰.png",
+    "path": "assets/gacha/apple/風之精靈圖騰.png"
+  },
+  {
+    "name": "黃金愛心.png",
+    "path": "assets/gacha/apple/黃金愛心.png"
+  },
+  {
+    "name": "黎明守護者天使戒指.png",
+    "path": "assets/gacha/apple/黎明守護者天使戒指.png"
+  },
+  {
+    "name": "黎明的現身.png",
+    "path": "assets/gacha/apple/黎明的現身.png"
+  },
+  {
+    "name": "黑翼胸章.png",
+    "path": "assets/gacha/apple/黑翼胸章.png"
+  },
+  {
+    "name": "龍騎士的靈魂寶珠.png",
+    "path": "assets/gacha/apple/龍騎士的靈魂寶珠.png"
+  }
+]
