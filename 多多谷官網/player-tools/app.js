@@ -48,7 +48,7 @@
   function getGoldenWeekRange(now=new Date()){const d=new Date(now);d.setHours(0,0,0,0);const day=d.getDay();const back=(day-3+7)%7;d.setDate(d.getDate()-back);const start=d;const end=new Date(start);end.setDate(end.getDate()+6);end.setHours(23,59,0,0);const f=x=>`${x.getFullYear()}/${String(x.getMonth()+1).padStart(2,'0')}/${String(x.getDate()).padStart(2,'0')}`;return {start,end,label:`本週 ${f(start)}～${f(end)}`};}
   function updateWeeklyPrizePeriod(){const el=$('weeklyPrizePeriod');if(el){const r=getGoldenWeekRange();el.textContent=`輪替時間：每週三 00:00～下週二 23:59（${r.label}）`;}}
   function applyWeeklyPrizes(){const p=DATA.pools.find(x=>x.key==='golden');if(!p)return;const oldNames=new Set(['黎明的現身','正午的現身','夕陽的現身','午夜的現身',...weeklyPrizes.map(x=>x.name)]);p.items=p.items.filter(it=>!oldNames.has(it.name));p.items.unshift(...weeklyPrizes.map(x=>({name:x.name,prob:x.prob,sourceRow:'weeklyGrandPrize'})));weeklyPrizes.forEach(x=>{GACHA_ITEM_IMAGES.golden[x.name]=x.image;});}
-  function gachaItemImage(item,pool=currentPool()){return GACHA_ITEM_IMAGES[pool?.key]?.[item.name]||'';}
+  function gachaItemImage(item,pool=currentPool()){return String(item?.image||'').trim()||GACHA_ITEM_IMAGES[pool?.key]?.[item.name]||'';}
   function renderPoolGrid(){$('poolGrid').innerHTML=DATA.pools.map(p=>`<button class="pool-option ${p.key===selectedPool?'selected':''}" data-pool="${p.key}"><img src="${p.image}" alt=""><span><strong>${p.name}</strong><small>${p.items.length} 種道具</small></span></button>`).join('');$('poolGrid').querySelectorAll('[data-pool]').forEach(btn=>btn.addEventListener('click',()=>{selectedPool=btn.dataset.pool;renderPoolGrid();renderPoolInfo();renderProbability();}));}
   function renderPoolInfo(){const p=currentPool();$('selectedPoolInfo').innerHTML=`<img src="${p.image}" alt=""><div><strong>${p.name}</strong><span>${p.items.length} 種道具</span></div>`;$('probabilitySubtitle').textContent=p.key==='golden'?`${p.name}｜共 ${p.items.length} 種道具。本週大獎：${weeklyPrizes.map(x=>x.name).join('、')}｜更換時間：每週三 00:00～下週二 23:59（${getGoldenWeekRange().label.replace('本週 ','')}）。`:`${p.name}｜共 ${p.items.length} 種道具。`;}
   function approximateOdds(prob){return prob>0?`約 1 / ${Math.round(1/prob).toLocaleString('zh-TW')}`:'—';}function renderProbability(){const p=currentPool(),q=$('itemSearch').value.trim().toLocaleLowerCase(),filtered=p.items.filter(it=>it.name.toLocaleLowerCase().includes(q));$('probabilityRows').innerHTML=filtered.map(it=>{const img=gachaItemImage(it,p);return `<tr><td><span class="gacha-item-cell">${img?`<img class="gacha-item-icon" src="${img}" alt="">`:''}<span>${it.name}</span></span></td><td>${(it.prob*100).toFixed(3).replace(/0+$/,'').replace(/\.$/,'')}%</td><td>${approximateOdds(it.prob)}</td></tr>`;}).join('')||'<tr><td colspan="3" class="empty-state">找不到符合的道具</td></tr>';}
@@ -73,5 +73,40 @@
       // Keep the current viewport; switching category should not force-scroll the page.
     }
   }));
+
+  async function loadSharedWebsiteSettings(){
+    const apiBase=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+    try{
+      const response=await fetch(`${apiBase}/api/site-data`,{cache:'no-store'});
+      if(!response.ok)return;
+      const payload=await response.json();
+      const values=payload?.data||{};
+      const settings=values.duoduo_settings||{};
+      const nav=settings.nav||{};
+      document.querySelectorAll('header .main-nav .nav-pill[data-nav]').forEach(el=>{
+        const key=el.dataset.nav;
+        const map={home:'home',why:'why',features:'features',news:'news',events:'events',boss:'boss',guide:'guide',downloads:'downloads','player-tools':'playerTools'};
+        const label=nav[map[key]];
+        if(typeof label==='string'&&label.trim())el.textContent=label.trim();
+      });
+      const order=Array.isArray(settings.navOrder)?settings.navOrder:[];
+      const navEl=document.querySelector('header .main-nav');
+      if(navEl&&order.length){
+        const links=[...navEl.querySelectorAll('.nav-pill[data-nav]')];
+        const byKey=new Map(links.map(el=>[el.dataset.nav,el]));
+        const orderedKeys=[...order.filter(key=>byKey.has(key)),...links.map(el=>el.dataset.nav).filter(key=>!order.includes(key))];
+        orderedKeys.forEach(key=>{const el=byKey.get(key);if(el)navEl.appendChild(el);});
+      }
+      const pools=values.duoduo_pools;
+      if(Array.isArray(pools)&&pools.length&&pools.every(p=>p&&typeof p.key==='string'&&typeof p.name==='string'&&Array.isArray(p.items))){
+        DATA.pools=pools;
+        if(!DATA.pools.some(p=>p.key===selectedPool))selectedPool=DATA.pools[0].key;
+        try{localStorage.setItem(STORAGE_KEY,JSON.stringify({pools:DATA.pools}));}catch{}
+        renderPoolGrid();renderPoolInfo();renderProbability();renderAdminPoolSelect();
+      }
+    }catch(error){console.warn('無法載入共用網站設定，沿用內建設定。',error);}
+  }
+
   applyWeeklyPrizes();syncWeeklyPrizeInputs();updateWeeklyPrizePeriod();populateLevels();renderEnhance();renderPoolGrid();renderPoolInfo();renderProbability();renderAdminPoolSelect();
+  loadSharedWebsiteSettings();
 })();

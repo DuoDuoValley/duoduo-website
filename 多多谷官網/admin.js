@@ -117,10 +117,10 @@ const defaultLayout={sections:[{id:'hero',name:'Hero 主視覺',visible:true,des
 const defaultContent={hero:{eyebrow:"DUODUO VALLEY · V282",title:"同樣都是楓之谷，為什麼是多多谷？",subtitle:"不是只換一個版本、調一組倍率。\n我們更在意：你上線之後，有沒有東西玩、有人一起玩，也有沒有值得留下來的理由。"},newPlayer:{eyebrow:"FOR NEW PLAYERS",title:"第一次來多多谷？",desc:"不用先研究一大堆名詞，只要 3 個步驟，就能開始你的冒險。",steps:[{title:"了解多多谷",desc:"先看看特色系統、玩法與世界觀。"},{title:"下載登入器",desc:"依照遊玩指南完成下載與設定。"},{title:"開始你的冒險",desc:"進入遊戲，和大家一起玩。"}]},why:{title:"你真正想知道的，這裡直接告訴你。",desc:"第一次看到多多谷，不需要先研究一堆名詞。先看看它能不能成為你想長期玩的那個服。",cards:[{title:"有內容",desc:"輪迴、陣營、強化、掛機、學院、BOSS、副本與各式特色活動，讓角色養成不只有一條路。"},{title:"夠方便",desc:"資源找回、掃蕩、裝備繼承、掛機等便利機制，減少重複操作，把時間留給真正想玩的內容。"},{title:"有人一起玩",desc:"打王、聊天、活動與競爭都不只是單機體驗，讓你有機會找到一起玩的玩家。"},{title:"找得到人",desc:"遊戲問題、BUG、活動疑問都有明確的官方處理入口，遇到問題不是只能自己摸索。"},{title:"福利持續有",desc:"特權、活動、限定福利與各式玩家企劃會持續推出，不只一次性活動。"},{title:"現在加入剛剛好",desc:"不用等下一個新服。版本持續更新，現在就能開始自己的進度。"}]},about:{title:"一個正在慢慢變熱鬧的小小世界",desc:"多多谷不只是一個伺服器，更是一個讓大家相聚、冒險與成長的家。",overlayTitle:"找到屬於自己的玩法",overlayDesc:"豐富且持續更新的遊戲內容、溫暖友善的社群環境、定期舉辦的活動與福利，以及用心傾聽玩家建議與回饋的世界。",image:"assets/logo3.jpg"},quickIntro:{title:"快速認識多多谷",desc:"不用一次看完所有系統，先從你最有興趣的地方開始。",cards:[{title:"輪迴 × 天賦",desc:"長期角色養成，慢慢打造屬於自己的成長方向。"},{title:"BOSS × 副本",desc:"角色變強之後，還有新的目標等著你挑戰。"},{title:"活動 × 休閒",desc:"練等之外，也有 BINGO、OX、拳王等不同玩法。"},{title:"便利 × 生活",desc:"掛機、掃蕩、資源找回等，讓日常遊玩更舒服。"}]},features:{title:"多多谷，不只是打怪練等。",desc:"把系統分類給你看，想深入了解再慢慢探索。",cards:[{title:"角色養成",desc:"輪迴、天賦、強化、裝備繼承等內容，讓角色成長有長期目標。",small:"輪迴系統 · 天賦系統 · 強化系統 · 裝備繼承"},{title:"挑戰內容",desc:"BOSS、副本、學院與排行榜，給想追求成長的玩家目標。"},{title:"休閒玩法",desc:"BINGO、OX、拳王爭霸、我的小屋等，練等之外也有事情做。"},{title:"便利功能",desc:"掛機、掃蕩、資源找回等，降低重複操作的負擔。"}]},events:{title:"正在進行的活動"},boss:{title:"挑戰更高的極限",desc:"獨家 BOSS、副本與排行榜，讓養成不只是數字，而是下一場挑戰的開始。"},community:{title:"一個私服好不好玩，玩家氣氛很重要。",desc:"多多谷不只希望你玩遊戲，也希望你能找到一起玩的玩家。",copyTitle:"不是一個人慢慢玩",copyDesc:"從打王、活動到日常聊天，多多谷希望玩家之間有交流、有目標，也有一起留下來的理由。"},stay:{title:"為什麼不是玩幾天就離開？",desc:"多多谷想做的，不只是讓你下載遊戲，而是讓你有下一個想完成的目標。",cards:[{title:"一直有東西可以玩",desc:"系統、活動、BOSS 與副本持續整理與更新，讓角色成長之後還有新的方向。"},{title:"進度是自己的",desc:"從養成、天賦到挑戰內容，不要求所有人走同一條路，慢慢建立自己的角色。"},{title:"有人一起玩",desc:"社群、活動、打王與玩家交流，讓你留下來的理由不只是一張角色數值表。"}]},news:{title:"最新消息"},versions:{title:"多多谷一直在往前走",desc:"版本不是結束，而是下一段內容的開始。"},start:{title:"現在，你知道為什麼是多多谷了。",desc:"不用等下一個新服。如果你正在找一個有內容、有人玩、持續更新的楓之谷私服，歡迎來看看。"},quickLinks:{title:"玩家常用入口"}};
 let content=read('duoduo_content',defaultContent);
 let editingReviewId=null;
-const defaultSettings={name:'DuoDuo Valley｜多多谷',subtitle:'你的冒險，從多多谷開始。',nav:{home:'首頁',why:'為什麼選多多谷',features:'特色系統',events:'檔期活動',boss:'BOSS',news:'最新消息',guide:'遊玩指南',downloads:'下載專區'},footer:{description:'一個正在慢慢變熱鬧的小小世界。遊戲資訊、檔期活動與最新公告，都在這裡整理。',navTitle:'網站導覽',resourceTitle:'玩家資源',copyright:'© 2026 DuoDuo Valley · 多多谷'}};
+const defaultSettings={name:'DuoDuo Valley｜多多谷',subtitle:'你的冒險，從多多谷開始。',nav:{home:'首頁',why:'為什麼選多多谷',features:'特色系統',news:'最新消息',events:'檔期活動',boss:'BOSS',guide:'遊玩指南',downloads:'下載專區',playerTools:'玩家工具'},footer:{description:'一個正在慢慢變熱鬧的小小世界。遊戲資訊、檔期活動與最新公告，都在這裡整理。',navTitle:'網站導覽',resourceTitle:'玩家資源',copyright:'© 2026 DuoDuo Valley · 多多谷'}};
 const defaultHero={images:['assets/ad3.png','assets/birthday.png','assets/boss.png','assets/experience-rate.png'],interval:5000};
 let hero=read('duoduo_hero',defaultHero);if(!Array.isArray(hero.slides)||!hero.slides.length){hero.slides=(Array.isArray(hero.images)&&hero.images.length?hero.images:defaultHero.images).map((image,i)=>({image,title:`多多谷宣傳 ${i+1}`,link:'',enabled:true}));}hero.slides=hero.slides.map((x,i)=>({image:x.image||'',title:x.title||`多多谷宣傳 ${i+1}`,link:x.link||'',enabled:x.enabled!==false}));hero.images=hero.slides.map(x=>x.image);hero.interval=Math.max(2000,Number(hero.interval)||5000);
-let settings=read('duoduo_settings',defaultSettings);settings.nav=Object.assign({},defaultSettings.nav,settings.nav||{});settings.footer=Object.assign({},defaultSettings.footer,settings.footer||{});const defaultNavOrder=['home','why','features','events','boss','news','guide','downloads'];settings.navOrder=Array.isArray(settings.navOrder)?settings.navOrder.filter(k=>defaultNavOrder.includes(k)):[];settings.navOrder=[...settings.navOrder,...defaultNavOrder.filter(k=>!settings.navOrder.includes(k))];
+let settings=read('duoduo_settings',defaultSettings);settings.nav=Object.assign({},defaultSettings.nav,settings.nav||{});settings.nav.playerTools=settings.nav.playerTools||'玩家工具';settings.footer=Object.assign({},defaultSettings.footer,settings.footer||{});const defaultNavOrder=['home','why','features','news','events','boss','guide','downloads','player-tools'];settings.navOrder=Array.isArray(settings.navOrder)?settings.navOrder.filter(k=>defaultNavOrder.includes(k)):[];settings.navOrder=[...settings.navOrder,...defaultNavOrder.filter(k=>!settings.navOrder.includes(k))];
 const defaultResources=[{id:'guide',title:'完整遊玩指南',desc:'新手規則、系統說明與遊玩資訊。',url:defaultLinks['遊玩指南'],embedUrl:'https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/preview',embed:true,enabled:true},{id:'checklist',title:'每日 Checklist',desc:'每天完成進度、活動與日常內容的快速檢查。',url:defaultLinks['每日 Checklist'],embedUrl:defaultLinks['每日 Checklist'],embed:true,enabled:true},{id:'rates',title:'機率型道具說明',desc:'查看機率型道具與相關說明。',url:defaultLinks['機率型道具說明'],embedUrl:'https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing',embed:true,enabled:true},{id:'products',title:'上架商品',desc:'查看目前可取得的商品與內容。',url:defaultLinks['上架商品'],embedUrl:'https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing',embed:true,enabled:true}];
 let resources=read('duoduo_resources',defaultResources);
 
@@ -151,7 +151,7 @@ let layout=read('duoduo_layout',defaultLayout);let editingItemId=null,pendingIte
 function read(k,f){try{return JSON.parse(localStorage.getItem(k)||'null')??structuredClone(f)}catch{return structuredClone(f)}}
 function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 
-const CLOUD_SITE_KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_links'];
+const CLOUD_SITE_KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_links','duoduo_pools'];
 function getAdminToken(){try{return sessionStorage.getItem('duoduo_admin_session')||''}catch{return ''}}
 async function pushSiteDataToCloud(keys=CLOUD_SITE_KEYS){
   const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
@@ -191,6 +191,99 @@ function addCloudMigrationButton(){
   });
   document.body.appendChild(btn);
 }
+
+// 抽獎獎池管理：以共用網站資料 API 儲存，玩家工具端讀取同一份資料。
+(function initPoolAdmin(){
+  const $=id=>document.getElementById(id);
+  const sel=$('poolAdminSelect');
+  if(!sel)return;
+  const defaults=window.DUODUO_TOOL_DATA&&Array.isArray(window.DUODUO_TOOL_DATA.pools)?window.DUODUO_TOOL_DATA.pools:[];
+  let pools=[];
+  const apiBase=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function status(msg,bad=false){$('poolAdminStatus').textContent=msg;$('poolAdminStatus').style.color=bad?'#d9534f':'';}
+  function selected(){return pools.find(p=>p.key===sel.value)||null;}
+  function paintSelect(preferred){
+    const keep=preferred||sel.value;
+    sel.innerHTML=pools.map(p=>`<option value="${esc(p.key)}">${esc(p.name)} (${esc(p.key)})</option>`).join('');
+    if(pools.some(p=>p.key===keep))sel.value=keep;
+    paintForm();
+  }
+  function paintForm(){
+    const p=selected();
+    $('poolKey').value=p?.key||'';$('poolName').value=p?.name||'';$('poolImage').value=p?.image||'';
+    $('poolItemsJson').value=p?JSON.stringify(p.items||[],null,2):'[]';
+    $('poolDelete').disabled=!p;
+  }
+  async function load(){
+    try{
+      const res=await fetch(`${apiBase}/api/site-data`,{cache:'no-store'});
+      const json=await res.json();
+      const remote=json?.data?.duoduo_pools;
+      pools=Array.isArray(remote)&&remote.length?remote:JSON.parse(JSON.stringify(defaults));
+      localStorage.setItem('duoduo_pools',JSON.stringify(pools));
+      paintSelect(pools[0]?.key);status(remote?'已載入雲端獎池資料。':'目前雲端尚無獎池設定，已載入預設獎池；儲存後即可同步。');
+    }catch(e){
+      try{pools=JSON.parse(localStorage.getItem('duoduo_pools')||'null')||JSON.parse(JSON.stringify(defaults));}catch{pools=JSON.parse(JSON.stringify(defaults));}
+      paintSelect(pools[0]?.key);status('雲端讀取失敗，暫時載入本機／預設獎池。儲存前請確認後端連線。',true);
+    }
+  }
+  sel.addEventListener('change',paintForm);
+  $('poolItemAdd').addEventListener('click',()=>{
+    try{const items=JSON.parse($('poolItemsJson').value||'[]');if(!Array.isArray(items))throw new Error();items.push({name:'新獎品',prob:0.01});$('poolItemsJson').value=JSON.stringify(items,null,2);status('已加入獎品範本，請修改名稱與機率後儲存。');}
+    catch{status('目前獎品 JSON 格式錯誤，請先修正格式再新增。',true);}
+  });
+  $('poolItemRemove').addEventListener('click',()=>{
+    try{const items=JSON.parse($('poolItemsJson').value||'[]');if(!Array.isArray(items)||!items.length)throw new Error();items.pop();$('poolItemsJson').value=JSON.stringify(items,null,2);status('已移除最後一項獎品，按儲存後才會正式生效。');}
+    catch{status('目前沒有可刪除的獎品，或 JSON 格式錯誤。',true);}
+  });
+  $('poolNew').addEventListener('click',()=>{
+    const base='new-pool';let key=base,n=2;while(pools.some(p=>p.key===key))key=`${base}-${n++}`;
+    pools.push({key,name:'新獎池',image:'',items:[]});paintSelect(key);status('已新增未儲存獎池，填寫內容後按「儲存獎池並同步雲端」。');
+  });
+  $('poolDelete').addEventListener('click',()=>{
+    const p=selected();if(!p)return;
+    if(!confirm(`確定刪除「${p.name}」獎池？儲存後所有玩家都會看不到這個獎池。`))return;
+    pools=pools.filter(x=>x.key!==p.key);paintSelect(pools[0]?.key);status('已刪除選取獎池，請按儲存同步才會正式生效。');
+  });
+  $('poolSave').addEventListener('click',async()=>{
+    const previousPools=JSON.parse(JSON.stringify(pools));
+    try{
+      const old=selected(),key=$('poolKey').value.trim(),name=$('poolName').value.trim(),image=$('poolImage').value.trim();
+      if(!/^[a-zA-Z0-9_-]{1,50}$/.test(key))throw new Error('獎池識別碼只能使用英文、數字、底線或連字號。');
+      if(!name)throw new Error('請填寫獎池名稱。');
+      let items;try{items=JSON.parse($('poolItemsJson').value);}catch{throw new Error('獎品清單 JSON 格式錯誤。');}
+      if(!Array.isArray(items))throw new Error('獎品清單必須是 JSON 陣列。');
+      items=items.map((it,i)=>{
+        const prob=Number(it?.prob);
+        if(!String(it?.name||'').trim())throw new Error(`第 ${i+1} 個獎品缺少名稱。`);
+        if(!Number.isFinite(prob)||prob<0||prob>1)throw new Error(`第 ${i+1} 個獎品機率需介於 0 到 1。`);
+        return {...it,name:String(it.name).trim(),prob};
+      });
+      const duplicate=pools.some(p=>p.key===key&&p!==old);
+      if(duplicate)throw new Error('獎池識別碼已存在，請使用不同識別碼。');
+      const next={key,name,image,items};
+      if(old){pools=pools.map(p=>p===old?next:p);}else pools.push(next);
+      if(!pools.length)throw new Error('至少需保留一個獎池。');
+      const btn=$('poolSave');btn.disabled=true;status('正在同步到雲端…');
+      const token=sessionStorage.getItem('duoduo_admin_session')||'';
+      if(!token)throw new Error('管理員登入狀態已失效，請重新登入。');
+      const response=await fetch(`${apiBase}/api/site-data`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({values:{duoduo_pools:pools}})});
+      const result=await response.json().catch(()=>({}));
+      if(!response.ok||!result.ok)throw new Error(result.error||'雲端儲存失敗，請確認後端版本與登入狀態。');
+      localStorage.setItem('duoduo_pools',JSON.stringify(pools));
+      paintSelect(key);status('已儲存並同步雲端。玩家工具重新載入後會取得最新獎池。');
+    }catch(e){
+      // Roll back the editor state when cloud saving fails.
+      pools=previousPools;
+      try{localStorage.setItem('duoduo_pools',JSON.stringify(pools));paintSelect(pools[0]?.key);}catch{}
+      status(e.message||'儲存失敗。',true);alert(e.message||'儲存失敗。');
+    }
+    finally{$('poolSave').disabled=false;}
+  });
+  load();
+})();
+
 window.addEventListener('duoduo-admin-authenticated',addCloudMigrationButton);
 setTimeout(()=>{if(document.getElementById('duoduo-admin-auth')===null)addCloudMigrationButton()},1000);
 function eventStartTimestamp(e){const raw=String(e?.start??'').trim();if(!raw)return Number.MIN_SAFE_INTEGER;const m=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?)?/);if(m){const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0));if(Number.isFinite(d.getTime()))return d.getTime();}const t=Date.parse(raw);return Number.isFinite(t)?t:Number.MIN_SAFE_INTEGER}
@@ -226,7 +319,7 @@ function render(){
  setupReviewDrag(orderedReviews);
  $('#eventsAdmin').innerHTML=sortEventsByStart(events).map((e,i)=>`<div class="item"><div><b>${esc(e.name)}</b><small>${esc(formatEventDateRange(e))} ・ ${e.published!==false?'公開':'隱藏'} ・ ${Array.isArray(e.images)&&e.images.length?e.images.length:1} 張圖片 ・ ${Math.max(2,Math.round((Number(e.interval)||5000)/1000))} 秒切換</small><small>${esc(e.desc||'')}</small></div><div><button onclick="editEvent(${i})">編輯</button> <button class="danger" onclick="removeEvent(${i})">刪除</button></div></div>`).join('')||'<div class="note">目前沒有檔期活動。</div>';
  $('#linksForm').innerHTML=Object.entries(defaultLinks).map(([k,v])=>`<label>${esc(k)}<input value="${esc(v)}" data-key="${esc(k)}"></label>`).join('')+'<button class="save" onclick="saveLinks()">儲存網址</button>';
- $('#siteName').value=settings.name;$('#siteSubtitle').value=settings.subtitle;$('#navHome').value=settings.nav.home;$('#navWhy').value=settings.nav.why;$('#navFeatures').value=settings.nav.features;$('#navEvents').value=settings.nav.events;$('#navBoss').value=settings.nav.boss;$('#navNews').value=settings.nav.news;$('#navGuide').value=settings.nav.guide;$('#navDownloads').value=settings.nav.downloads||'下載專區';renderNavOrder();$('#footerDescription').value=settings.footer.description;$('#footerNavTitle').value=settings.footer.navTitle;$('#footerResourceTitle').value=settings.footer.resourceTitle;$('#footerCopyright').value=settings.footer.copyright;
+ $('#siteName').value=settings.name;$('#siteSubtitle').value=settings.subtitle;$('#navHome').value=settings.nav.home;$('#navWhy').value=settings.nav.why;$('#navFeatures').value=settings.nav.features;$('#navEvents').value=settings.nav.events;$('#navBoss').value=settings.nav.boss;$('#navNews').value=settings.nav.news;$('#navGuide').value=settings.nav.guide;$('#navDownloads').value=settings.nav.downloads||'下載專區';if($('#navPlayerTools'))$('#navPlayerTools').value=settings.nav.playerTools||'玩家工具';renderNavOrder();$('#footerDescription').value=settings.footer.description;$('#footerNavTitle').value=settings.footer.navTitle;$('#footerResourceTitle').value=settings.footer.resourceTitle;$('#footerCopyright').value=settings.footer.copyright;
 renderLayout();renderItems();renderContentEditor();renderResources();renderDownloads();renderBossSlides();
 }
 function renderBossSlides(){
@@ -530,6 +623,6 @@ function renderItems(){const box=$('#itemsAdmin');const q=($('#itemSearch')?.val
 function resetItemForm(){editingItemId=null;pendingItemImage='';$('#itemFormTitle').textContent='新增道具';$('#itemName').value='';$('#itemCategory').value='裝備';$('#itemDescription').value='';$('#itemImage').value='';$('#itemImagePreview').innerHTML='<span>尚未選擇圖片</span>';$('#itemForm').hidden=true}
 function openNewItem(){resetItemForm();$('#itemForm').hidden=false;$('#itemName').focus()}window.editItem=id=>{const x=items.find(i=>i.id===id);if(!x)return;editingItemId=id;pendingItemImage=x.image||'';$('#itemFormTitle').textContent='編輯道具';$('#itemName').value=x.name||'';$('#itemCategory').value=x.category||'裝備';$('#itemDescription').value=x.description||'';$('#itemImagePreview').innerHTML=x.image?`<img src="${x.image}" alt="">`:'<span>尚未設定圖片</span>';$('#itemForm').hidden=false};window.removeItem=id=>{if(!confirm('確定刪除？'))return;items=items.filter(x=>x.id!==id);save('duoduo_items',items);renderItems()};
 $('#openItemForm').onclick=openNewItem;$('#cancelItem').onclick=resetItemForm;$('#itemSearch').oninput=renderItems;$('#itemImage').onchange=e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>2*1024*1024){alert('圖片請控制在 2MB 以下。');e.target.value='';return}const r=new FileReader();r.onload=()=>{pendingItemImage=r.result;$('#itemImagePreview').innerHTML=`<img src="${pendingItemImage}" alt="">`};r.readAsDataURL(f)};$('#saveItem').onclick=()=>{const name=$('#itemName').value.trim();if(!name)return alert('請輸入道具名稱');const data={name,category:$('#itemCategory').value,description:$('#itemDescription').value.trim(),image:pendingItemImage};if(editingItemId)Object.assign(items.find(x=>x.id===editingItemId),data);else items.unshift({id:`item_${Date.now()}`,...data});save('duoduo_items',items);resetItemForm();render();alert('道具資料已儲存。')};
-$('#saveSettings').onclick=()=>{settings={name:$('#siteName').value.trim()||defaultSettings.name,subtitle:$('#siteSubtitle').value.trim()||defaultSettings.subtitle,nav:{home:$('#navHome').value.trim()||defaultSettings.nav.home,why:$('#navWhy').value.trim()||defaultSettings.nav.why,features:$('#navFeatures').value.trim()||defaultSettings.nav.features,events:$('#navEvents').value.trim()||defaultSettings.nav.events,boss:$('#navBoss').value.trim()||defaultSettings.nav.boss,news:$('#navNews').value.trim()||defaultSettings.nav.news,guide:$('#navGuide').value.trim()||defaultSettings.nav.guide,downloads:$('#navDownloads').value.trim()||defaultSettings.nav.downloads},navOrder:[...settings.navOrder],footer:{description:$('#footerDescription').value.trim()||defaultSettings.footer.description,navTitle:$('#footerNavTitle').value.trim()||defaultSettings.footer.navTitle,resourceTitle:$('#footerResourceTitle').value.trim()||defaultSettings.footer.resourceTitle,copyright:$('#footerCopyright').value.trim()||defaultSettings.footer.copyright}};save('duoduo_settings',settings);renderNavOrder();alert('網站設定已儲存到此瀏覽器。')};
+$('#saveSettings').onclick=async()=>{settings={name:$('#siteName').value.trim()||defaultSettings.name,subtitle:$('#siteSubtitle').value.trim()||defaultSettings.subtitle,nav:{home:$('#navHome').value.trim()||defaultSettings.nav.home,why:$('#navWhy').value.trim()||defaultSettings.nav.why,features:$('#navFeatures').value.trim()||defaultSettings.nav.features,events:$('#navEvents').value.trim()||defaultSettings.nav.events,boss:$('#navBoss').value.trim()||defaultSettings.nav.boss,news:$('#navNews').value.trim()||defaultSettings.nav.news,guide:$('#navGuide').value.trim()||defaultSettings.nav.guide,downloads:$('#navDownloads').value.trim()||defaultSettings.nav.downloads,playerTools:$('#navPlayerTools')?.value.trim()||defaultSettings.nav.playerTools},navOrder:[...settings.navOrder],footer:{description:$('#footerDescription').value.trim()||defaultSettings.footer.description,navTitle:$('#footerNavTitle').value.trim()||defaultSettings.footer.navTitle,resourceTitle:$('#footerResourceTitle').value.trim()||defaultSettings.footer.resourceTitle,copyright:$('#footerCopyright').value.trim()||defaultSettings.footer.copyright}};save('duoduo_settings',settings);renderNavOrder();const btn=$('#saveSettings');btn.disabled=true;const oldLabel=btn.textContent;btn.textContent='同步中…';try{await pushSiteDataToCloud(['duoduo_settings']);alert('網站設定已儲存並同步到雲端。');}catch(error){console.error('網站設定雲端同步失敗：',error);alert('網站設定已儲存在目前瀏覽器，但雲端同步失敗：'+(error.message||'請確認登入狀態與後端連線。'));}finally{btn.disabled=false;btn.textContent=oldLabel;}};
 render();
 loadCloudBosses();

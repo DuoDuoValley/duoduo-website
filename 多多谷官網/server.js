@@ -578,7 +578,7 @@ async function handleSaveBosses(req,res){
 const SITE_DATA_KEYS=[
   'duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero',
   'duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads',
-  'duoduo_items','duoduo_links'
+  'duoduo_items','duoduo_links','duoduo_pools'
 ];
 
 async function handleGetSiteData(req,res){
@@ -629,7 +629,23 @@ async function handleSaveSiteData(req,res){
       try{
         const payload=JSON.parse(body||'{}');
         const incoming=payload.values&&typeof payload.values==='object'?payload.values:{};
-        const values={};
+        let values={};
+        // Preserve existing website settings during partial updates such as saving only the pools.
+        const existingResponse=await fetch(`${supabaseUrl}/rest/v1/events?id=eq.__site_data__&select=data`,{method:'GET',headers:{'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json'}});
+        if(!existingResponse.ok){
+          const existingError=await existingResponse.text();
+          console.error('Supabase 讀取既有網站資料失敗，已中止更新以避免覆蓋資料:',existingError);
+          return sendJSON(res,500,{ok:false,error:'無法確認既有網站資料，為避免覆蓋活動或 BOSS 設定，本次儲存已中止'});
+        }
+        const existingRows=await existingResponse.json();
+        const existingRecord=existingRows[0]?.data;
+        const existingValues=existingRecord?.values;
+        if(existingRecord?.initialized===true&&existingValues&&typeof existingValues==='object'){
+          values={...existingValues};
+        }else if(existingRows.length>0&&existingRecord?.initialized!==true){
+          console.error('既有網站資料格式未初始化，已中止更新以避免覆蓋資料');
+          return sendJSON(res,500,{ok:false,error:'既有網站資料格式尚未確認，為避免資料遺失，本次儲存已中止'});
+        }
         for(const key of SITE_DATA_KEYS){
           if(Object.prototype.hasOwnProperty.call(incoming,key))values[key]=incoming[key];
         }
