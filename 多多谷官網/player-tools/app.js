@@ -48,7 +48,21 @@
   function getGoldenWeekRange(now=new Date()){const d=new Date(now);d.setHours(0,0,0,0);const day=d.getDay();const back=(day-3+7)%7;d.setDate(d.getDate()-back);const start=d;const end=new Date(start);end.setDate(end.getDate()+6);end.setHours(23,59,0,0);const f=x=>`${x.getFullYear()}/${String(x.getMonth()+1).padStart(2,'0')}/${String(x.getDate()).padStart(2,'0')}`;return {start,end,label:`本週 ${f(start)}～${f(end)}`};}
   function updateWeeklyPrizePeriod(){const el=$('weeklyPrizePeriod');if(el){const r=getGoldenWeekRange();el.textContent=`輪替時間：每週三 00:00～下週二 23:59（${r.label}）`;}}
   function applyWeeklyPrizes(){weeklyPrizes.forEach(x=>{if(x&&x.name&&x.image){GACHA_ITEM_IMAGES.golden[x.name]=x.image;}});}
-  function gachaItemImage(item,pool=currentPool()){const own=GACHA_ITEM_IMAGES[pool?.key]?.[item.name];if(pool?.key==='frame'&&item?.name==='V飾品魔力卷軸'&&own)return own;const explicit=String(item?.image||'').trim();if(explicit)return explicit;if(own)return own;if(pool?.key==='golden'||pool?.key==='platinum')return GACHA_ITEM_IMAGES[pool.key==='golden'?'platinum':'golden']?.[item.name]||'';return '';}
+  // 修復雲端獎池中因文字編碼損壞而出現替代字元的 V 飾品魔力卷軸；只處理這個已確認的道具。
+  function normalizeKnownFrameItems(pools){
+    for(const pool of (Array.isArray(pools)?pools:[])){
+      if(pool?.key!=='frame'||!Array.isArray(pool.items))continue;
+      for(const item of pool.items){
+        const name=String(item?.name||'');
+        if(/^V.*魔力卷軸$/.test(name)&&/[�\uFFFD]/u.test(name)) item.name='V飾品魔力卷軸';
+      }
+    }
+  }
+  function gachaItemImage(item,pool=currentPool()){
+    // 此道具固定使用專案內的 V 卷軸圖，避免雲端資料中的舊/錯誤 image 欄位覆蓋正確路徑。
+    if(pool?.key==='frame'&&item?.name==='V飾品魔力卷軸')return 'assets/gacha/frame/V卷軸.png';
+    const explicit=String(item?.image||'').trim();if(explicit)return explicit;const own=GACHA_ITEM_IMAGES[pool?.key]?.[item.name];if(own)return own;if(pool?.key==='golden'||pool?.key==='platinum')return GACHA_ITEM_IMAGES[pool.key==='golden'?'platinum':'golden']?.[item.name]||'';return '';
+  }
   function safeAssetUrl(value){const raw=String(value||'').trim();if(!raw||/^(https?:|data:|blob:)/i.test(raw))return raw;return raw.split('/').map((part,i)=>i===0?part:encodeURIComponent(decodeURIComponentSafe(part))).join('/');}
   function decodeURIComponentSafe(value){try{return decodeURIComponent(value);}catch{return value;}}
   function renderPoolGrid(){$('poolGrid').innerHTML=DATA.pools.map(p=>`<button class="pool-option ${p.key===selectedPool?'selected':''}" data-pool="${p.key}"><img src="${safeAssetUrl(p.image)}" alt=""><span><strong>${p.name}</strong><small>${p.items.length} 種道具</small></span></button>`).join('');$('poolGrid').querySelectorAll('[data-pool]').forEach(btn=>btn.addEventListener('click',()=>{selectedPool=btn.dataset.pool;renderPoolGrid();renderPoolInfo();renderProbability();}));}
@@ -103,6 +117,7 @@
       if(Array.isArray(remoteWeekly)&&remoteWeekly.length){weeklyPrizes=remoteWeekly.map(x=>({name:String(x.name||''),prob:Number(x.prob)||0,image:String(x.image||'')}));try{localStorage.setItem(WEEKLY_PRIZE_KEY,JSON.stringify(weeklyPrizes));}catch{}applyWeeklyPrizes();syncWeeklyPrizeInputs();}
       const pools=values.duoduo_pools;
       if(Array.isArray(pools)&&pools.length&&pools.every(p=>p&&typeof p.key==='string'&&typeof p.name==='string'&&Array.isArray(p.items))){
+        normalizeKnownFrameItems(pools);
         DATA.pools=pools;
         // Keep cloud pool contents authoritative; do not inject stale weekly prizes from localStorage.
         applyWeeklyPrizes();
@@ -113,6 +128,7 @@
     }catch(error){console.warn('無法載入共用網站設定，沿用內建設定。',error);}
   }
 
+  normalizeKnownFrameItems(DATA.pools);
   applyWeeklyPrizes();syncWeeklyPrizeInputs();updateWeeklyPrizePeriod();populateLevels();renderEnhance();renderPoolGrid();renderPoolInfo();renderProbability();renderAdminPoolSelect();
   loadSharedWebsiteSettings();
 })();
