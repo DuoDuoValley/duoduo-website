@@ -227,6 +227,19 @@ function addCloudMigrationButton(){
     const rows=[...host.querySelectorAll('[data-weekly-name]')].map(nameEl=>{const i=Number(nameEl.dataset.weeklyName),probEl=host.querySelector(`[data-weekly-prob="${i}"]`),imageEl=host.querySelector(`[data-weekly-image="${i}"]`),percent=Number(probEl?.value),name=nameEl.value.trim(),image=(imageEl?.value||'').trim();if(!name)throw new Error(`第 ${i+1} 項本週大獎缺少名稱。`);if(!Number.isFinite(percent)||percent<0||percent>100)throw new Error(`第 ${i+1} 項本週大獎機率需介於 0 到 100%。`);if(!image)throw new Error(`第 ${i+1} 項本週大獎缺少圖片路徑。`);return {name,prob:percent/100,image};});
     if(!rows.length)throw new Error('請至少保留一項本週大獎。');return rows;
   }
+  function ensurePlatinumOracle(pools){
+    if(!Array.isArray(pools))return;
+    const platinum=pools.find(p=>p?.key==='platinum');
+    if(!platinum||!Array.isArray(platinum.items))return;
+    const existing=platinum.items.find(it=>it?.name==='神諭者的戒指');
+    platinum.items=platinum.items.filter(it=>it?.name!=='神諭者的戒指');
+    platinum.items.unshift({...existing,name:'神諭者的戒指',prob:0.0003,image:'assets/gacha/apple/神諭者的戒指.png'});
+  }
+  function excludeUnscheduledOracle(pools,weekly){
+    if((weekly||[]).some(it=>it?.name==='神諭者的戒指'))return;
+    const golden=pools.find(p=>p?.key==='golden');
+    if(golden&&Array.isArray(golden.items))golden.items=golden.items.filter(it=>it?.name!=='神諭者的戒指');
+  }
   function paintForm(){
     const p=selected();
     $('poolKey').value=p?.key||'';$('poolName').value=p?.name||'';$('poolImage').value=p?.image||'';
@@ -246,10 +259,13 @@ function addCloudMigrationButton(){
       let correctedHeavenlyRate=false;
       const golden=pools.find(p=>p&&p.key==='golden');
       if(golden&&Array.isArray(golden.items)){golden.items=golden.items.map(item=>{if(item&&item.name==='天上的氣息'&&Number(item.prob)===0.05){correctedHeavenlyRate=true;return {...item,prob:0.0005};}return item;});}
+      ensurePlatinumOracle(pools);
+      excludeUnscheduledOracle(pools,weeklyPrizes);
       localStorage.setItem('duoduo_pools',JSON.stringify(pools));
       paintSelect(pools[0]?.key);status(correctedHeavenlyRate?'已將「天上的氣息」機率修正為 0.05%（0.0005）。請選擇黃金蘋果並按「儲存獎池並同步雲端」完成雲端更新。':(remote?'已載入雲端獎池資料。':'目前雲端尚無獎池設定，已載入預設獎池；儲存後即可同步。'));
     }catch(e){
       try{pools=JSON.parse(localStorage.getItem('duoduo_pools')||'null')||JSON.parse(JSON.stringify(defaults));}catch{pools=JSON.parse(JSON.stringify(defaults));}
+      ensurePlatinumOracle(pools);excludeUnscheduledOracle(pools,weeklyPrizes);
       paintSelect(pools[0]?.key);status('雲端讀取失敗，暫時載入本機／預設獎池。儲存前請確認後端連線。',true);
     }
   }
@@ -308,6 +324,8 @@ function addCloudMigrationButton(){
         golden.items=(golden.items||[]).filter(it=>!['M-DAY機器心臟','燃燒之戒'].includes(it.name)||newNames.has(it.name));
         for(const prize of weeklyPrizes){const found=golden.items.find(it=>it.name===prize.name);if(found){found.prob=prize.prob;found.image=prize.image;}else golden.items.unshift({name:prize.name,prob:prize.prob,image:prize.image});}
       }
+      ensurePlatinumOracle(pools);
+      excludeUnscheduledOracle(pools,weeklyPrizes);
       const btn=$('poolSave');btn.disabled=true;status('正在同步到雲端…');
       const token=sessionStorage.getItem('duoduo_admin_session')||'';
       if(!token)throw new Error('管理員登入狀態已失效，請重新登入。');
