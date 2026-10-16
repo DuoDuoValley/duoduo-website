@@ -58,7 +58,16 @@
       }
     }
   }
-  function gachaItemImage(item,pool=currentPool()){
+     // 新增獎品：雲端獎池可能仍是舊資料；只補入缺少的神諭者戒指，不覆寫其他道具或機率。
+   function ensureOracleRingInApplePools(pools){
+     if(!Array.isArray(pools))return;
+     for(const pool of pools){
+       if(!['golden','platinum'].includes(pool?.key)||!Array.isArray(pool.items))continue;
+       const found=pool.items.find(item=>item?.name==='神諭者的戒指');
+       if(!found)pool.items.push({name:'神諭者的戒指',prob:0.0003,image:'assets/gacha/apple/神諭者的戒指.png'});
+     }
+   }
+function gachaItemImage(item,pool=currentPool()){
     // 此道具固定使用專案內的 V 卷軸圖，避免雲端資料中的舊/錯誤 image 欄位覆蓋正確路徑。
     if(pool?.key==='frame'&&item?.name==='V飾品魔力卷軸')return 'assets/gacha/frame/V卷軸.png';
     const explicit=String(item?.image||'').trim();if(explicit)return explicit;const own=GACHA_ITEM_IMAGES[pool?.key]?.[item.name];if(own)return own;if(pool?.key==='golden'||pool?.key==='platinum')return GACHA_ITEM_IMAGES[pool.key==='golden'?'platinum':'golden']?.[item.name]||'';return '';
@@ -118,6 +127,7 @@
       const pools=values.duoduo_pools;
       if(Array.isArray(pools)&&pools.length&&pools.every(p=>p&&typeof p.key==='string'&&typeof p.name==='string'&&Array.isArray(p.items))){
         normalizeKnownFrameItems(pools);
+         ensureOracleRingInApplePools(pools);
         DATA.pools=pools;
         // Keep cloud pool contents authoritative; do not inject stale weekly prizes from localStorage.
         applyWeeklyPrizes();
