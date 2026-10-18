@@ -1,0 +1,19 @@
+/* DuoDuo MapleStory-style cursor: public pages only. */
+@media (hover: hover) and (pointer: fine) {
+  html.duoduo-cursor-ready, html.duoduo-cursor-ready * {
+    cursor: url('cursor-default.png') 2 2, auto !important;
+  }
+  html.duoduo-cursor-ready.duoduo-cursor-hover, html.duoduo-cursor-ready.duoduo-cursor-hover * {
+    cursor: url('cursor-hover-1.png') 3 2, pointer !important;
+  }
+  html.duoduo-cursor-ready.duoduo-cursor-hover-alt, html.duoduo-cursor-ready.duoduo-cursor-hover-alt * {
+    cursor: url('cursor-hover-2.png') 3 2, pointer !important;
+  }
+  html.duoduo-cursor-ready.duoduo-cursor-pressed, html.duoduo-cursor-ready.duoduo-cursor-pressed * {
+    cursor: url('cursor-pressed.png') 3 2, pointer !important;
+  }
+  /* Preserve readable insertion cursor in editable fields. */
+  html.duoduo-cursor-ready input:not([type=button]):not([type=submit]):not([type=reset]):not([type=checkbox]):not([type=radio]):not([type=file]),
+  html.duoduo-cursor-ready textarea,
+  html.duoduo-cursor-ready [contenteditable=true] { cursor: text !important; }
+}
