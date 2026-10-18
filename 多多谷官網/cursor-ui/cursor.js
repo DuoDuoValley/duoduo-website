@@ -7,10 +7,12 @@
   let hovering = false;
   let pressed = false;
   let alternate = false;
+  let selectingText = false;
   function paint() {
+    root.classList.toggle('duoduo-cursor-selecting', selectingText && !pressed);
     root.classList.toggle('duoduo-cursor-pressed', pressed);
-    root.classList.toggle('duoduo-cursor-hover', hovering && !pressed && !alternate);
-    root.classList.toggle('duoduo-cursor-hover-alt', hovering && !pressed && alternate);
+    root.classList.toggle('duoduo-cursor-hover', hovering && !pressed && !selectingText && !alternate);
+    root.classList.toggle('duoduo-cursor-hover-alt', hovering && !pressed && !selectingText && alternate);
   }
   function updateHover(target) {
     const next = target instanceof Element && !!target.closest(selector);
@@ -22,6 +24,16 @@
   document.addEventListener('pointerup', e => { if (e.pointerType === 'mouse' && e.button === 0) { pressed = false; updateHover(e.target); paint(); } }, true);
   window.addEventListener('blur', () => { pressed = false; hovering = false; paint(); });
   document.addEventListener('pointerout', e => { if (e.pointerType === 'mouse' && !e.relatedTarget) { hovering = false; pressed = false; paint(); } }, true);
+  document.addEventListener('selectionchange', () => {
+    const selection = window.getSelection();
+    const active = document.activeElement;
+    const editable = active && (active.matches('input, textarea, [contenteditable], [contenteditable] *') || active.isContentEditable);
+    const next = !editable && !!selection && !selection.isCollapsed && !!selection.toString();
+    if (next !== selectingText) { selectingText = next; paint(); }
+  });
+  document.addEventListener('pointerdown', e => {
+    if (e.pointerType === 'mouse' && e.button === 0 && selectingText) { selectingText = false; paint(); }
+  }, true);
   window.setInterval(() => { if (hovering && !pressed) { alternate = !alternate; paint(); } }, 1000);
   root.classList.add('duoduo-cursor-ready');
   paint();

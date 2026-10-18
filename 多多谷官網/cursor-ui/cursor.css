@@ -12,8 +12,14 @@
   html.duoduo-cursor-ready.duoduo-cursor-pressed, html.duoduo-cursor-ready.duoduo-cursor-pressed * {
     cursor: url('cursor-pressed.png') 3 2, pointer !important;
   }
+  /* Keep the game glove over selected page text, even after selection. */
+  html.duoduo-cursor-ready.duoduo-cursor-selecting,
+  html.duoduo-cursor-ready.duoduo-cursor-selecting * {
+    cursor: url('cursor-default.png') 2 2, auto !important;
+  }
   /* Preserve readable insertion cursor in editable fields. */
   html.duoduo-cursor-ready input:not([type=button]):not([type=submit]):not([type=reset]):not([type=checkbox]):not([type=radio]):not([type=file]),
   html.duoduo-cursor-ready textarea,
-  html.duoduo-cursor-ready [contenteditable=true] { cursor: text !important; }
+  html.duoduo-cursor-ready [contenteditable],
+  html.duoduo-cursor-ready [contenteditable] * { cursor: text !important; }
 }
