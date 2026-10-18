@@ -22,7 +22,7 @@
   document.addEventListener('pointerup', e => { if (e.pointerType === 'mouse' && e.button === 0) { pressed = false; updateHover(e.target); paint(); } }, true);
   window.addEventListener('blur', () => { pressed = false; hovering = false; paint(); });
   document.addEventListener('pointerout', e => { if (e.pointerType === 'mouse' && !e.relatedTarget) { hovering = false; pressed = false; paint(); } }, true);
-  window.setInterval(() => { if (hovering && !pressed) { alternate = !alternate; paint(); } }, 320);
+  window.setInterval(() => { if (hovering && !pressed) { alternate = !alternate; paint(); } }, 1000);
   root.classList.add('duoduo-cursor-ready');
   paint();
 })();
