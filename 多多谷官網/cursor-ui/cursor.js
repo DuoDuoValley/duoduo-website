@@ -34,7 +34,7 @@
   document.addEventListener('pointerdown', e => {
     if (e.pointerType === 'mouse' && e.button === 0 && selectingText) { selectingText = false; paint(); }
   }, true);
-  window.setInterval(() => { if (hovering && !pressed) { alternate = !alternate; paint(); } }, 1000);
+  window.setInterval(() => { if (hovering && !pressed) { alternate = !alternate; paint(); } }, 500);
   root.classList.add('duoduo-cursor-ready');
   paint();
 })();
