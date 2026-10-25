@@ -2,6 +2,52 @@
     <link rel="icon" type="image/png" href="Logo2.PNG">
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>檔期活動詳細說明｜DuoDuo Valley</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="cursor-ui/cursor.css">
 <script defer src="cursor-ui/cursor.js"></script>
+
+<!-- DuoDuo event detail layout: full-width banner above the description -->
+<style id="duoduo-event-detail-stacked-layout">
+/* Only affects event-detail.html; the shared styles and carousel logic stay intact. */
+.event-detail {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 0;
+}
+.event-detail-carousel {
+  position: relative;
+  width: 100%;
+  min-height: 0;
+  aspect-ratio: 2 / 1;
+  border-bottom: 1px solid var(--line);
+}
+.event-detail-carousel .event-carousel {
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  min-height: 0;
+}
+.event-detail-carousel .event-slide {
+  object-fit: contain;
+}
+.event-detail-copy {
+  min-width: 0;
+  padding: clamp(24px, 4vw, 44px) clamp(24px, 5vw, 60px) clamp(32px, 5vw, 52px);
+}
+.event-detail-copy h2 {
+  font-size: clamp(25px, 3vw, 34px);
+  line-height: 1.35;
+  margin: 14px 0 20px;
+}
+.event-detail-copy .detail-body {
+  max-width: none;
+  font-size: 16px;
+  line-height: 1.95;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 800px) {
+  .event-detail-carousel { min-height: 0; aspect-ratio: 16 / 9; }
+  .event-detail-carousel .event-carousel { min-height: 0; }
+  .event-detail-copy { padding: 26px 22px 36px; }
+}
+</style>
 </head><body><header class="site-header">
   <a class="brand" href="index.html"><img src="assets/logo1.png" alt="多多谷"><span>DuoDuo Valley</span></a>
   <nav class="main-nav">
