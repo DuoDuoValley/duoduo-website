@@ -252,7 +252,7 @@ pageLoadNews().then(loaded=>{
   'use strict';
   const INTERVAL_MS = 60000;
   const pageUrl = new URL(window.location.pathname, window.location.origin);
-  const siteRoot = new URL('./', window.location.origin);
+  const siteRoot = new URL('./', pageUrl);
   const watchUrls = [...new Set([pageUrl.href, new URL('index.html', siteRoot).href])];
   const known = new Map();
   let checking = false;
