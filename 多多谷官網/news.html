@@ -182,4 +182,53 @@ pageLoadNews().then(loaded=>{
 :root[data-theme="light"] .news-title-row .tag.category-punishment,:root[data-theme="light"] .news-detail-card .tag.category-punishment{color:#a52c70;background:#ffe8f4;border-color:#efafd0}
 :root[data-theme="light"] .news-title-row .tag.category-default,:root[data-theme="light"] .news-detail-card .tag.category-default{color:#35657a;background:#e9f5fa;border-color:#b7d8e4}
 </style>
+
+<!-- DuoDuo public pages: automatic refresh on published HTML changes -->
+<script id="duoduo-public-auto-refresh">
+(() => {
+  'use strict';
+  const INTERVAL_MS = 60000;
+  const pageUrl = new URL(window.location.pathname, window.location.origin);
+  const siteRoot = new URL('./', window.location.origin);
+  const watchUrls = [...new Set([pageUrl.href, new URL('index.html', siteRoot).href])];
+  const known = new Map();
+  let checking = false;
+  let ready = false;
+
+  async function readPage(url) {
+    const requestUrl = new URL(url);
+    requestUrl.searchParams.set('_duoduo_check', Date.now().toString());
+    const response = await fetch(requestUrl.href, { cache: 'no-store', credentials: 'same-origin' });
+    if (!response.ok) throw new Error('Update check failed: ' + response.status);
+    return response.text();
+  }
+
+  async function check() {
+    if (checking || document.visibilityState === 'hidden' || !navigator.onLine) return;
+    checking = true;
+    try {
+      const responses = await Promise.all(watchUrls.map(readPage));
+      if (!ready) {
+        responses.forEach((html, index) => known.set(watchUrls[index], html));
+        ready = true;
+        return;
+      }
+      if (responses.some((html, index) => html !== known.get(watchUrls[index]))) {
+        window.location.reload();
+      }
+    } catch (_) {
+      // Network and deployment errors are retried on the next check.
+    } finally {
+      checking = false;
+    }
+  }
+
+  check();
+  window.setInterval(check, INTERVAL_MS);
+  document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'visible') check();
+  });
+  window.addEventListener('online', check);
+})();
+</script>
 </body></html>
