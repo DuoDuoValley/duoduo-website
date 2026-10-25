@@ -48,6 +48,59 @@
   .event-detail-copy { padding: 26px 22px 36px; }
 }
 </style>
+
+<!-- DuoDuo event detail: readable, automatically identified content sections -->
+<style id="duoduo-event-detail-sections">
+/* Scoped to the public event detail; the admin editor and source data are unchanged. */
+.event-detail-copy .detail-body .duoduo-detail-intro {
+  margin: 0 0 24px;
+  white-space: normal;
+}
+.event-detail-copy .detail-body .duoduo-detail-section {
+  padding: 23px 0 26px;
+  border-top: 1px solid var(--line);
+}
+.event-detail-copy .detail-body .duoduo-detail-section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.event-detail-copy .detail-body .duoduo-detail-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 0 0 16px;
+  font-size: clamp(18px, 2vw, 21px);
+  line-height: 1.5;
+  font-weight: 800;
+  color: var(--text);
+  letter-spacing: .02em;
+}
+.event-detail-copy .detail-body .duoduo-detail-heading-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--accent) 12%, transparent);
+  color: var(--accent);
+  font-size: 18px;
+  font-weight: 800;
+}
+.event-detail-copy .detail-body .duoduo-detail-section-text {
+  margin: 0;
+  line-height: 1.95;
+  color: var(--text);
+  overflow-wrap: anywhere;
+}
+.event-detail-copy .detail-body .duoduo-detail-section-text:empty { display: none; }
+@media (max-width: 600px) {
+  .event-detail-copy .detail-body .duoduo-detail-section { padding: 20px 0 23px; }
+  .event-detail-copy .detail-body .duoduo-detail-heading { margin-bottom: 12px; font-size: 18px; }
+  .event-detail-copy .detail-body .duoduo-detail-heading-icon { width: 33px; height: 33px; flex-basis: 33px; }
+}
+</style>
 </head><body><header class="site-header">
   <a class="brand" href="index.html"><img src="assets/logo1.png" alt="多多谷"><span>DuoDuo Valley</span></a>
   <nav class="main-nav">
@@ -87,7 +140,35 @@
     <span data-footer="copyright">© 2026 DuoDuo Valley · 多多谷</span>
     <span class="footer-legal"><a href="privacy.html">隱私權政策</a><a href="terms.html">使用條款</a></span>
   </div>
-</footer><script src="app.js"></script><script>(async function(){const q=new URLSearchParams(location.search),id=q.get('id');const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';let e=null;try{const res=await fetch(`${API_BASE}/api/events`,{method:'GET',headers:{'Accept':'application/json'},cache:'no-store'});if(!res.ok)throw new Error(`HTTP ${res.status}`);const data=await res.json();const events=Array.isArray(data.events)?data.events.map(row=>row?.data||row).filter(x=>x&&x.published!==false):[];e=events.find(x=>String(x.id||x.name)===String(id))||null;}catch(error){console.warn('雲端活動詳細資料讀取失敗。',error)}if(!e){document.getElementById('detailTitle').textContent='找不到活動';document.getElementById('detailSummary').textContent='這筆活動目前不存在或已下架。';const detailCard=document.querySelector('.event-detail');if(detailCard)detailCard.style.display='none';const backButton=document.querySelector('main.content-wrap > .btn.btn-outline');if(backButton)backButton.style.display='none';return;}document.title=`${e.name}｜DuoDuo Valley`;document.getElementById('detailTitle').textContent=e.name;document.getElementById('detailSummary').textContent=e.desc||'';document.getElementById('detailName').textContent=e.name;document.getElementById('detailCarousel').innerHTML=eventCarouselHTML(e,'detail-carousel');document.getElementById('detailDate').textContent=formatEventDateRange(e);document.getElementById('detailBody').innerHTML=esc(e.detail||e.desc||'').replace(/\n/g,'<br>');if(e.url)document.getElementById('detailActions').innerHTML=`<a class="btn btn-gold" href="${esc(e.url)}" target="_blank">前往活動連結 →</a>`;initEventCarousels(document.getElementById('detailCarousel'));const dc=document.getElementById('detailCarousel');if(dc){dc.addEventListener('click',ev=>{const img=ev.target.closest('.event-slide');if(!img)return;const src=img.currentSrc||img.src;if(!src)return;const layer=document.createElement('div');layer.className='event-image-lightbox';layer.innerHTML=`<button type="button" class="event-image-lightbox-close" aria-label="關閉">×</button><img src="${esc(src)}" alt="">`;document.body.appendChild(layer);requestAnimationFrame(()=>layer.classList.add('show'));const close=()=>{layer.classList.remove('show');setTimeout(()=>layer.remove(),180)};layer.addEventListener('click',ev=>{if(ev.target===layer||ev.target.closest('.event-image-lightbox-close'))close()});document.addEventListener('keydown',function onKey(ev){if(ev.key==='Escape'){close();document.removeEventListener('keydown',onKey)}})});}})();</script>
+</footer><script src="app.js"></script>
+<script id="duoduo-event-detail-section-renderer">
+/* Sections are mapped from explicit admin fields; no text/keyword auto-classification. */
+function renderDuoDuoEventSections(event) {
+  const raw = event && typeof event.sections === 'object' && !Array.isArray(event.sections) ? event.sections : {};
+  const definitions = [
+    ['intro', '活動介紹', '✦'],
+    ['method', '活動方式', '✓'],
+    ['rules', '活動規則', '☷'],
+    ['rewards', '活動獎勵', '★'],
+    ['notes', '注意事項', '!'],
+    ['extra', '補充說明', '◇']
+  ];
+  const parts = definitions.map(([key, title, icon]) => ({
+    title, icon, body: typeof raw[key] === 'string' ? raw[key].trim() : ''
+  })).filter(x => x.body.length > 0);
+  const textHtml = text => esc(String(text).replace(/\r\n?/g, '\n')).replace(/\n/g, '<br>');
+  if (!parts.length) {
+    // Legacy events keep their original content and line breaks; no heuristic guessing.
+    return textHtml(event?.detail || event?.desc || '');
+  }
+  return parts.map(({ title, icon, body }) =>
+    `<section class="duoduo-detail-section" aria-label="${esc(title)}">` +
+    `<h3 class="duoduo-detail-heading"><span class="duoduo-detail-heading-icon" aria-hidden="true">${icon}</span><span>${esc(title)}</span></h3>` +
+    `<div class="duoduo-detail-section-text">${textHtml(body)}</div></section>`
+  ).join('');
+}
+</script>
+<script>(async function(){const q=new URLSearchParams(location.search),id=q.get('id');const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';let e=null;try{const res=await fetch(`${API_BASE}/api/events`,{method:'GET',headers:{'Accept':'application/json'},cache:'no-store'});if(!res.ok)throw new Error(`HTTP ${res.status}`);const data=await res.json();const events=Array.isArray(data.events)?data.events.map(row=>row?.data||row).filter(x=>x&&x.published!==false):[];e=events.find(x=>String(x.id||x.name)===String(id))||null;}catch(error){console.warn('雲端活動詳細資料讀取失敗。',error)}if(!e){document.getElementById('detailTitle').textContent='找不到活動';document.getElementById('detailSummary').textContent='這筆活動目前不存在或已下架。';const detailCard=document.querySelector('.event-detail');if(detailCard)detailCard.style.display='none';const backButton=document.querySelector('main.content-wrap > .btn.btn-outline');if(backButton)backButton.style.display='none';return;}document.title=`${e.name}｜DuoDuo Valley`;document.getElementById('detailTitle').textContent=e.name;document.getElementById('detailSummary').textContent=e.desc||'';document.getElementById('detailName').textContent=e.name;document.getElementById('detailCarousel').innerHTML=eventCarouselHTML(e,'detail-carousel');document.getElementById('detailDate').textContent=formatEventDateRange(e);document.getElementById('detailBody').innerHTML=renderDuoDuoEventSections(e);if(e.url)document.getElementById('detailActions').innerHTML=`<a class="btn btn-gold" href="${esc(e.url)}" target="_blank">前往活動連結 →</a>`;initEventCarousels(document.getElementById('detailCarousel'));const dc=document.getElementById('detailCarousel');if(dc){dc.addEventListener('click',ev=>{const img=ev.target.closest('.event-slide');if(!img)return;const src=img.currentSrc||img.src;if(!src)return;const layer=document.createElement('div');layer.className='event-image-lightbox';layer.innerHTML=`<button type="button" class="event-image-lightbox-close" aria-label="關閉">×</button><img src="${esc(src)}" alt="">`;document.body.appendChild(layer);requestAnimationFrame(()=>layer.classList.add('show'));const close=()=>{layer.classList.remove('show');setTimeout(()=>layer.remove(),180)};layer.addEventListener('click',ev=>{if(ev.target===layer||ev.target.closest('.event-image-lightbox-close'))close()});document.addEventListener('keydown',function onKey(ev){if(ev.key==='Escape'){close();document.removeEventListener('keydown',onKey)}})});}})();</script>
 <!-- DuoDuo public pages: refresh after published cloud content changes -->
 <script id="duoduo-public-cloud-refresh">
 (() => {
