@@ -547,6 +547,154 @@ async function syncEventsToServer(){
 function renderEventUploadPreviews(){const cover=$('#eventImagePreview');if(cover)cover.innerHTML=pendingEventCoverImage?`<img src="${pendingEventCoverImage}" alt="">`:'<span>尚未選擇新圖片</span>';const box=$('#eventImagesPreview');if(box)box.innerHTML=pendingEventCarouselImages.length?pendingEventCarouselImages.map((src,i)=>`<div><img src="${src}" alt="輪播圖片 ${i+1}"><small>第 ${i+1} 張</small></div>`).join(''):'<span>尚未選擇新輪播圖片</span>';}
 $('#eventImageFile').onchange=async e=>{const f=e.target.files?.[0];if(!f)return;try{pendingEventCoverImage=await fileToCompressedDataURL(f);renderEventUploadPreviews();}catch{alert('圖片讀取失敗，請重新選擇。');e.target.value='';}};
 $('#eventImagesFiles').onchange=async e=>{const files=[...(e.target.files||[])];if(!files.length)return;try{pendingEventCarouselImages=await Promise.all(files.map(f=>fileToCompressedDataURL(f)));renderEventUploadPreviews();}catch{alert('輪播圖片讀取失敗，請重新選擇。');e.target.value='';}};
+
+/* Event detail block editor: order, category, icon and text are persisted as sectionBlocks. */
+/* Inline outline-SVG icon library: no CDN and no Emoji renderer. */
+const DUODUO_EVENT_ICON_PATHS={"book-open":"<path d=\"M12 7v14\"/><path d=\"M3 18V5a2 2 0 0 1 2-2h3a4 4 0 0 1 4 4 4 4 0 0 1 4-4h3a2 2 0 0 1 2 2v13h-5a4 4 0 0 0-4 3 4 4 0 0 0-4-3z\"/>","list-checks":"<path d=\"m3 5 2 2 4-4\"/><path d=\"M12 6h9\"/><path d=\"m3 12 2 2 4-4\"/><path d=\"M12 13h9\"/><path d=\"m3 19 2 2 4-4\"/><path d=\"M12 20h9\"/>","scroll-text":"<path d=\"M8 21h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H6\"/><path d=\"M4 17h13a2 2 0 0 1 2 2v2H6a3 3 0 0 1-3-3V6a3 3 0 0 1 6 0v1H5\"/><path d=\"M11 9h7M11 13h7\"/>","gift":"<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\"/><path d=\"M5 12v9h14v-9M12 8v13\"/><path d=\"M12 8H8a2 2 0 0 1 0-4c3 0 4 4 4 4zM12 8h4a2 2 0 0 0 0-4c-3 0-4 4-4 4z\"/>","info":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4M12 8h.01\"/>","file-text":"<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><path d=\"M14 2v6h6M8 13h8M8 17h8\"/>","send":"<path d=\"m22 2-7 20-4-9-9-4z\"/><path d=\"M22 2 11 13\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"6\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/>","shopping-cart":"<circle cx=\"9\" cy=\"21\" r=\"1\"/><circle cx=\"20\" cy=\"21\" r=\"1\"/><path d=\"M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6\"/>","trophy":"<path d=\"M8 21h8M12 17v4\"/><path d=\"M7 4h10v8a5 5 0 0 1-10 0z\"/><path d=\"M7 6H4v3a4 4 0 0 0 4 4M17 6h3v3a4 4 0 0 1-4 4\"/>","calendar-days":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01\"/>","star":"<path d=\"m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z\"/>","sparkles":"<path d=\"m12 3 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9zM5 2v4M3 4h4M19 17v4M17 19h4\"/>","skull":"<path d=\"M12 2a8 8 0 0 0-8 8c0 3 1 5 3 6v4h10v-4c2-1 3-3 3-6a8 8 0 0 0-8-8z\"/><path d=\"M9 21v1M12 21v1M15 21v1\"/><circle cx=\"9\" cy=\"11\" r=\"1\"/><circle cx=\"15\" cy=\"11\" r=\"1\"/><path d=\"m12 13-1 2h2z\"/>","swords":"<path d=\"m14.5 17.5 3-3L6 3H3v3l11.5 11.5zM13 19l2-2M16 16l3 3M2 22l6-6M9 9l11-6h2v2l-7 7\"/>","gem":"<path d=\"M6 3h12l4 6-10 13L2 9zM2 9h20M6 3l3 6 3 13 3-13 3-6\"/>","lightbulb":"<path d=\"M9 18h6M10 22h4M15 15.5A7 7 0 1 0 9 15.5c.7.5 1 1.2 1 2.5h4c0-1.3.3-2 1-2.5z\"/>","bell":"<path d=\"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4\"/>","heart":"<path d=\"M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.87\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/>","clipboard-list":"<rect x=\"5\" y=\"4\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M9 4.5V3h6v1.5M9 11h.01M12 11h4M9 15h.01M12 15h4M9 19h.01M12 19h4\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>","shield-alert":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/><path d=\"M12 8v5M12 17h.01\"/>","map-pin":"<path d=\"M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z\"/><circle cx=\"12\" cy=\"10\" r=\"2.5\"/>","coins":"<circle cx=\"8\" cy=\"8\" r=\"6\"/><path d=\"M8 5v6M6 6h3a1.5 1.5 0 0 1 0 3H6M16 7a6 6 0 1 1-9 9M16 14v5M14 15h3a1.5 1.5 0 0 1 0 3h-3\"/>","megaphone":"<path d=\"m3 11 18-5v12L3 13zM3 11v2M7 14l2 6h4l-2.3-7\"/>","ticket":"<path d=\"M2 9a2 2 0 0 0 0 6v3h20v-3a2 2 0 0 0 0-6V6H2zM13 6v2M13 11v2M13 16v2\"/>"};
+const DUODUO_EVENT_LEGACY_ICON_MAP={"📖":"book-open","🎮":"list-checks","📜":"scroll-text","🎁":"gift","📌":"info","📝":"file-text","📨":"send","🎯":"target","🛒":"shopping-cart","🏆":"trophy","📅":"calendar-days","⭐":"star","✨":"sparkles","🎃":"skull","⚔️":"swords","💎":"gem","💡":"lightbulb","🔔":"bell","❤️":"heart"};
+function duoduoEventIconId(value){
+  const raw=String(value||'');
+  const id=Object.prototype.hasOwnProperty.call(DUODUO_EVENT_LEGACY_ICON_MAP,raw)?DUODUO_EVENT_LEGACY_ICON_MAP[raw]:raw;
+  return Object.prototype.hasOwnProperty.call(DUODUO_EVENT_ICON_PATHS,id)?id:'file-text';
+}
+function duoduoEventIconSvg(id){
+  const path=DUODUO_EVENT_ICON_PATHS[duoduoEventIconId(id)];
+  return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${path}</svg>`;
+}
+const EVENT_SECTION_TYPES = [["intro","活動介紹","book-open"],["method","活動方式","list-checks"],["rules","活動規則","scroll-text"],["rewards","活動獎勵","gift"],["notes","注意事項","info"],["extra","補充說明","file-text"],["signup","報名方式","send"],["objectives","任務目標","target"],["shop","兌換商店","shopping-cart"],["ranking","排名獎勵","trophy"],["time","活動時程","calendar-days"],["custom","自訂標題","file-text"]];
+const EVENT_SECTION_ICONS = [["book-open","書本／介紹"],["list-checks","清單／方式"],["scroll-text","卷軸／規則"],["gift","禮物／獎勵"],["info","資訊／注意"],["file-text","文件／補充"],["send","報名／寄送"],["target","目標／任務"],["shopping-cart","購物車／商店"],["trophy","獎盃／排名"],["calendar-days","日曆／時程"],["star","星星"],["sparkles","閃光"],["skull","骷髏／萬聖節"],["swords","武器／挑戰"],["gem","寶石"],["lightbulb","燈泡／提示"],["bell","鈴鐺／通知"],["heart","愛心"],["users","玩家／組隊"],["clipboard-list","任務清單"],["clock","時鐘"],["shield-alert","盾牌／警告"],["map-pin","定位"],["coins","硬幣"],["megaphone","公告"],["ticket","票券"]];
+const EVENT_LEGACY_KEYS = ['intro','method','rules','rewards','notes','extra'];
+let eventSectionDraft = [];
+function normalizeEventSections(event){
+  if(Array.isArray(event?.sectionBlocks) && event.sectionBlocks.length){
+    return event.sectionBlocks.filter(x=>x&&typeof x==='object').map(x=>{
+      const known=EVENT_SECTION_TYPES.find(t=>t[0]===x.type);
+      const type=known?x.type:'custom';
+      return {type,title:String(x.title||known?.[1]||''),icon:duoduoEventIconId(x.icon||known?.[2]),body:String(x.body||'')};
+    });
+  }
+  const old=event?.sections;
+  if(old&&typeof old==='object'&&!Array.isArray(old)){
+    return EVENT_LEGACY_KEYS.filter(key=>typeof old[key]==='string'&&old[key].trim()).map(key=>{
+      const def=EVENT_SECTION_TYPES.find(t=>t[0]===key);
+      return {type:key,title:def[1],icon:def[2],body:old[key]};
+    });
+  }
+  return [];
+}
+function createEventSelect(entries,current){
+  const select=document.createElement('select');
+  entries.forEach(([value,label])=>{
+    const opt=document.createElement('option');opt.value=value;opt.textContent=label;select.appendChild(opt);
+  });
+  select.value=current;
+  return select;
+}
+function renderEventSectionEditor(){
+  const container=$('#eventSectionList');if(!container)return;
+  container.replaceChildren();
+  if(!eventSectionDraft.length){
+    const empty=document.createElement('div');empty.className='event-section-empty';
+    empty.textContent='目前沒有段落。按「＋ 新增段落」就能自行設定標題、圖示及內容。';
+    container.appendChild(empty);return;
+  }
+  eventSectionDraft.forEach((item,index)=>{
+    const panel=document.createElement('div');panel.className='event-section-row';
+    const head=document.createElement('div');head.className='event-section-row-head';
+    const heading=document.createElement('span');heading.className='event-section-row-name';heading.textContent=`段落 ${index+1}`;
+    head.appendChild(heading);
+    const actions=document.createElement('div');actions.className='event-section-actions';
+    [['↑ 上移',-1],['↓ 下移',1]].forEach(([label,direction])=>{
+      const b=document.createElement('button');b.type='button';b.textContent=label;
+      b.disabled=(direction===-1&&index===0)||(direction===1&&index===eventSectionDraft.length-1);
+      b.addEventListener('click',()=>{
+        const target=index+direction;
+        [eventSectionDraft[index],eventSectionDraft[target]]=[eventSectionDraft[target],eventSectionDraft[index]];
+        renderEventSectionEditor();
+      });actions.appendChild(b);
+    });
+    const remove=document.createElement('button');remove.type='button';remove.textContent='刪除';remove.className='event-section-delete';
+    remove.addEventListener('click',()=>{eventSectionDraft.splice(index,1);renderEventSectionEditor();});actions.appendChild(remove);
+    head.appendChild(actions);panel.appendChild(head);
+    const fields=document.createElement('div');fields.className='event-section-row-fields';
+    const makeLabel=(title,control,extraClass='')=>{
+      const label=document.createElement('label');label.textContent=title;
+      if(extraClass)label.className=extraClass;
+      label.appendChild(control);fields.appendChild(label);return label;
+    };
+    const typeSelect=createEventSelect(EVENT_SECTION_TYPES.map(([key,title])=>[key,title]),item.type);
+    makeLabel('段落類別',typeSelect);
+    const iconField=document.createElement('div');iconField.className='event-section-icon-field event-section-full';
+    const iconHeader=document.createElement('div');iconHeader.className='event-section-icon-header';
+    const iconText=document.createElement('span');iconText.textContent='標題圖示（點選線條圖示）';
+    const iconSelected=document.createElement('span');iconSelected.className='event-section-icon-selected';
+    const iconToggle=document.createElement('button');iconToggle.type='button';iconToggle.className='event-section-icon-toggle';iconToggle.textContent='更換圖示';
+    iconHeader.append(iconText,iconSelected,iconToggle);iconField.appendChild(iconHeader);
+    const iconGallery=document.createElement('div');iconGallery.className='event-section-icon-gallery';iconGallery.hidden=true;
+    iconToggle.addEventListener('click',()=>{iconGallery.hidden=!iconGallery.hidden;iconToggle.textContent=iconGallery.hidden?'更換圖示':'收起圖示';});
+    iconGallery.setAttribute('role','group');iconGallery.setAttribute('aria-label','選擇段落標題圖示');
+    const iconButtons=[];
+    EVENT_SECTION_ICONS.forEach(([iconId,iconName])=>{
+      const button=document.createElement('button');button.type='button';button.className='event-section-icon-option';
+      button.title=iconName;button.setAttribute('aria-label',iconName);
+      const preview=document.createElement('span');preview.className='event-section-svg-icon';
+      preview.innerHTML=duoduoEventIconSvg(iconId);
+      const caption=document.createElement('span');caption.className='event-section-icon-caption';caption.textContent=iconName.split('／')[0];
+      button.append(preview,caption);
+      button.addEventListener('click',()=>{item.icon=iconId;refreshIconSelection();iconGallery.hidden=true;iconToggle.textContent='更換圖示';});
+      iconGallery.appendChild(button);iconButtons.push([iconId,iconName,button]);
+    });
+    const refreshIconSelection=()=>{
+      const selectedId=duoduoEventIconId(item.icon);
+      const selected=EVENT_SECTION_ICONS.find(([id])=>id===selectedId);
+      iconSelected.innerHTML=duoduoEventIconSvg(selectedId);
+      iconSelected.appendChild(document.createTextNode(' '+(selected?.[1]||'文件')));
+      iconButtons.forEach(([id,name,button])=>{
+        const isSelected=id===selectedId;
+        button.classList.toggle('is-selected',isSelected);
+        button.setAttribute('aria-pressed',String(isSelected));
+      });
+    };
+    iconField.appendChild(iconGallery);fields.appendChild(iconField);
+    const customTitle=document.createElement('input');customTitle.type='text';customTitle.maxLength=50;customTitle.value=item.title;
+    customTitle.placeholder='例如：萬聖節限定兌換商店';
+    const titleLabel=makeLabel('自訂段落標題',customTitle,'event-section-custom-title');
+    const content=document.createElement('textarea');content.rows=5;
+    content.placeholder='輸入這個段落的活動內容，可直接換行';content.value=item.body;
+    makeLabel('段落內容',content,'event-section-full');
+    const updateVisibility=()=>{
+      titleLabel.hidden=item.type!=='custom';
+      refreshIconSelection();
+    };
+    typeSelect.addEventListener('change',()=>{
+      item.type=typeSelect.value;
+      const preset=EVENT_SECTION_TYPES.find(t=>t[0]===item.type);
+      if(preset&&item.type!=='custom'){
+        item.title=preset[1];item.icon=preset[2];
+        customTitle.value=item.title;
+      }else{item.title='';customTitle.value='';item.icon='file-text';}
+      updateVisibility();
+    });
+    customTitle.addEventListener('input',()=>{item.title=customTitle.value;});
+    content.addEventListener('input',()=>{item.body=content.value;});
+    panel.appendChild(fields);container.appendChild(panel);updateVisibility();
+  });
+}
+$('#eventAddSection').addEventListener('click',()=>{
+  eventSectionDraft.push({type:'method',title:'活動方式',icon:'list-checks',body:''});
+  renderEventSectionEditor();
+  $('#eventSectionList .event-section-row:last-child textarea')?.focus();
+});
+function collectEventSectionBlocks(){
+  return eventSectionDraft.map(item=>({
+    type:item.type==='custom'?'custom':item.type,
+    title:(item.type==='custom'?item.title:EVENT_SECTION_TYPES.find(t=>t[0]===item.type)?.[1]||item.title).trim(),
+    icon:duoduoEventIconId(item.icon),
+    body:String(item.body||'').trim()
+  })).filter(item=>item.title&&item.body);
+}
+renderEventSectionEditor();
+
 $('#saveEvent').onclick=async()=>{
   const name=$('#eventName').value.trim();
   if(!name)return alert('請輸入活動名稱');
@@ -609,7 +757,8 @@ $('#saveEvent').onclick=async()=>{
     interval:Math.max(2000,Number($('#eventInterval').value||5)*1000),
     desc:$('#eventDesc').value.trim(),
     detail:$('#eventDetail').value.trim(),
-    sections:Object.fromEntries([['intro','eventSectionIntro'],['method','eventSectionMethod'],['rules','eventSectionRules'],['rewards','eventSectionRewards'],['notes','eventSectionNotes'],['extra','eventSectionExtra']].map(([key,id])=>[key,$('#'+id).value.trim()])),
+    sections:{},
+    sectionBlocks:collectEventSectionBlocks(),
     start:combineEventDateTime('eventStart','eventStartTime'),
     end:combineEventDateTime('eventEnd','eventEndTime'),
     url:$('#eventUrl').value.trim(),
@@ -679,7 +828,7 @@ window.removeEvent=async i=>{
   render();
   alert('檔期活動已刪除，並同步到雲端。');
 };
-let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';[['intro','eventSectionIntro'],['method','eventSectionMethod'],['rules','eventSectionRules'],['rewards','eventSectionRewards'],['notes','eventSectionNotes'],['extra','eventSectionExtra']].forEach(([key,id])=>{$('#'+id).value=typeof e.sections?.[key]==='string'?e.sections[key]:'';});setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventSectionIntro','eventSectionMethod','eventSectionRules','eventSectionRewards','eventSectionNotes','eventSectionExtra','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
+let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';eventSectionDraft=normalizeEventSections(e);renderEventSectionEditor();setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});eventSectionDraft=[];renderEventSectionEditor();$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
 window.saveLinks=()=>{const saved={};document.querySelectorAll('#linksForm input').forEach(i=>saved[i.dataset.key]=i.value.trim());localStorage.setItem('duoduo_links',JSON.stringify(saved));alert('網址已儲存到此瀏覽器。')};
 function renderItems(){const box=$('#itemsAdmin');const q=($('#itemSearch')?.value||'').trim().toLowerCase();const f=items.filter(x=>`${x.name} ${x.category} ${x.description||''}`.toLowerCase().includes(q));box.innerHTML=f.length?f.map(x=>`<div class="item-row"><div class="item-thumb">${x.image?`<img src="${x.image}" alt="">`:'無圖片'}</div><div class="item-meta"><b>${esc(x.name)}</b><small>${esc(x.description||'尚未填寫描述')}</small></div><div class="item-category">${esc(x.category)}</div><div class="item-actions"><button onclick="editItem('${x.id}')">編輯</button><button class="danger" onclick="removeItem('${x.id}')">刪除</button></div></div>`).join(''):'<div class="note">目前沒有符合條件的道具。</div>'}
 function resetItemForm(){editingItemId=null;pendingItemImage='';$('#itemFormTitle').textContent='新增道具';$('#itemName').value='';$('#itemCategory').value='裝備';$('#itemDescription').value='';$('#itemImage').value='';$('#itemImagePreview').innerHTML='<span>尚未選擇圖片</span>';$('#itemForm').hidden=true}
