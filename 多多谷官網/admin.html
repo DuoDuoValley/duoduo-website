@@ -13,6 +13,7 @@
 .event-section-editor button{cursor:pointer}
 .event-section-toolbar button{border:1px solid #4c7198;border-radius:10px;background:rgba(49,113,166,.24);color:#e7f2ff;font-weight:700;padding:10px 14px}
 .event-section-list{display:grid;grid-template-columns:1fr;gap:14px}
+.event-section-toolbar.event-section-bottom{justify-content:flex-end;margin:14px 0 0}
 .event-section-empty{border:1px dashed #4e6075;border-radius:12px;padding:20px;color:#aebccd;text-align:center;line-height:1.8}
 .event-section-row{min-width:0;border:1px solid #3a4a5d;border-radius:14px;padding:14px;background:rgba(5,13,23,.34);display:grid;gap:12px}
 .event-section-row-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
@@ -59,6 +60,7 @@ https://.../image3.jpg"></textarea></label><div class="event-date-time"><label>�
   <p class="event-section-help">依活動需求新增段落，自行選擇標題類別及線條圖示，也可以輸入自訂標題。前台會依照下方順序顯示，每個活動不限制使用固定六種欄位。</p>
   <div class="event-section-toolbar"><span class="event-section-help" style="margin:0">沒有填入內容的段落不會顯示；活動時間仍由上方日期欄位管理。</span><button id="eventAddSection" type="button">＋ 新增段落</button></div>
   <div id="eventSectionList" class="event-section-list" aria-live="polite"></div>
+  <div class="event-section-toolbar event-section-bottom"><button id="eventAddSectionBottom" type="button">＋ 新增段落</button></div>
   <p class="event-section-help">舊活動原本的分段內容會在編輯時自動帶入；未使用自訂段落時仍會顯示下方的舊版詳細說明，避免既有活動突然消失。</p>
 </div><label class="full">舊版詳細說明（未使用分段內容時顯示）<textarea id="eventDetail" placeholder="舊版活動的完整內容；如果已使用上方分段欄位，可保留當作備份。"></textarea></label><label class="full">活動連結（可留空）<input id="eventUrl" placeholder="https://..."></label><label class="check"><input id="eventPublished" type="checkbox" checked> 立即顯示在官網</label><div class="form-actions full"><button class="save" id="saveEvent">＋ 新增檔期活動</button></div></div><div id="eventsAdmin"></div></section>
 <section id="bosses" class="panel"><h1>👹 BOSS 輪播管理</h1><div class="note">這裡管理首頁「挑戰更高的極限」右側的 BOSS 輪播。你可以直接上傳多張圖片、調整順序、設定點擊連結與自動切換時間；儲存後會同步到官網。</div><div class="builder-card"><h2>輪播設定</h2><div class="form two"><label>自動切換秒數<input id="bossInterval" type="number" min="2" step="1" value="5"></label><label class="full">一次新增多張圖片<input id="bossImagesFiles" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple><small class="field-note">選擇圖片後會先顯示預覽，按「儲存 BOSS 輪播」才會正式上傳。</small></label></div></div><div id="bossSlidesAdmin" class="hero-slides-admin"></div><div class="toolbar"><button class="save" id="saveBosses">儲存 BOSS 輪播</button><button class="ghost" id="resetBosses">恢復預設 BOSS</button><a class="preview-link" href="index.html#boss" target="_blank">查看前台 ↗</a></div></section><section id="pools" class="panel"><h1>🎁 抽獎獎池管理</h1>

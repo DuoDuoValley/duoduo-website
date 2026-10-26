@@ -685,6 +685,7 @@ $('#eventAddSection').addEventListener('click',()=>{
   renderEventSectionEditor();
   $('#eventSectionList .event-section-row:last-child textarea')?.focus();
 });
+$('#eventAddSectionBottom').addEventListener('click',()=>$('#eventAddSection').click());
 function collectEventSectionBlocks(){
   return eventSectionDraft.map(item=>({
     type:item.type==='custom'?'custom':item.type,
