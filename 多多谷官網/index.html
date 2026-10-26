@@ -6,8 +6,10 @@
 <meta name="theme-color" content="#0c1320">
 <title>多多谷｜官方網站｜活動、攻略、BOSS、下載與最新消息</title>
 <meta name="description" content="多多谷官方網站，提供最新活動、遊戲公告、BOSS 資訊、遊玩攻略、下載資源與玩家資訊。">
-<meta name="duoduo-shell-version" content="BGM-V5-routing-20261027">
+<meta name="duoduo-shell-version" content="BGM-V6-player-polish-20261027">
 <script>/* 防止舊 bgm-test.html 內再載入新版播放器 */if(window.self!==window.top){location.replace(new URL("home.html"+location.search+location.hash,location.href).href);}</script>
+<link rel="stylesheet" href="cursor-ui/cursor.css">
+<script defer src="cursor-ui/cursor.js"></script>
 <style>
 :root { color-scheme:dark; --panel:#101d2d; --line:rgba(175,205,245,.22); --text:#f5f7ff; --muted:#a8b7cc; --accent:#82c9ff; }
 * { box-sizing:border-box; }
@@ -58,10 +60,15 @@ body.collapsed #mini {display:grid;}
 #trackList {font:inherit;font-size:12px;color:var(--text);background:#17283e;border:1px solid var(--line);border-radius:8px;padding:8px 7px;width:100%;min-width:0;max-width:100%;}
 #trackList option {background:#102137;color:white;}
 #skipButtons {display:flex;gap:4px;}
-#skipButtons .iconButton {width:30px;height:34px;font-size:15px;}
+#skipButtons .iconButton {width:34px;height:34px;padding:0;}
+#skipButtons .iconButton svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+#modeRow{display:flex;align-items:center;margin-top:10px;gap:9px;}
+#modeCycle{display:inline-flex;align-items:center;gap:7px;min-height:30px;padding:4px 9px;background:rgba(255,255,255,.055);border:1px solid var(--line);border-radius:9px;color:#d1e2f6;font-size:11px;}
+#modeCycle svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round;}
+#modeExplanation{color:var(--muted);font-size:10px;line-height:1.3;}
 #skipButtons .iconButton:disabled {opacity:.35;cursor:not-allowed;}
 #volumeBox {min-width:72px!important;max-width:90px!important;}
-@media(max-width:480px){#bottomline{gap:5px;}#volumeBox{min-width:60px!important;max-width:76px!important;}#skipButtons .iconButton{width:28px;}}
+@media(max-width:480px){#bottomline{gap:8px;}#volumeBox{display:none!important;}#skipButtons .iconButton{width:34px;height:34px;}#hint{display:none;}#modeExplanation{display:none;}#modeCycle{min-height:34px;} }
 </style>
 
 </head>
@@ -80,16 +87,17 @@ body.collapsed #mini {display:grid;}
       <button type="button" id="play" aria-label="播放或暫停" title="播放／暫停" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button>
       <div id="timeline"><div id="times"><span id="elapsed">0:00</span><span id="duration">0:00</span></div><input id="seek" type="range" min="0" max="1000" value="0" aria-label="音樂進度" disabled></div>
     </div>
+    <div id="modeRow"><button id="modeCycle" type="button" title="切換播放模式" aria-label="切換播放模式"><svg id="modeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span id="modeLabel">循環播放</span></button><span id="modeExplanation">點擊可切換播放模式</span></div>
     <div id="bottomline">
       <div id="playlistArea"><label for="trackList" id="playlistLabel">選擇曲目</label><select id="trackList" aria-label="選擇後台上架 BGM"><option value="">正在載入…</option></select></div>
-      <div id="skipButtons"><button class="iconButton" id="prev" type="button" title="上一首" aria-label="上一首" disabled>⏮</button><button class="iconButton" id="next" type="button" title="下一首" aria-label="下一首" disabled>⏭</button></div>
+      <div id="skipButtons"><button class="iconButton" id="prev" type="button" title="上一首" aria-label="上一首" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14M19 5l-10 7 10 7z"/></svg></button><button class="iconButton" id="next" type="button" title="下一首" aria-label="下一首" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5v14M5 5l10 7-10 7z"/></svg></button></div>
       <div id="volumeBox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5zM15 9a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="40" aria-label="音量"></div>
     </div>
     <div id="hint">多多谷官網背景音樂由後台管理。若瀏覽器阻擋自動播放，點一下播放鍵即可；切換官網內頁不會中斷。</div>
   </div>
 </div>
 <button type="button" id="mini" title="展開 BGM 播放器" aria-label="展開 BGM 播放器"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="16" rx="3" ry="2"/></svg></button>
-<audio id="music" preload="metadata"></audio>
+<audio id="music" preload="none"></audio>
 <script>
 (()=>{
 'use strict';
@@ -99,10 +107,55 @@ const title=byId('trackName'),select=byId('trackList'),frame=byId('duoduoSite');
 const previous=byId('prev'),next=byId('next');
 const apiBase=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
 const icons={play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg>',pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>'};
-const storage={volume:'duoduo_bgm_volume',collapsed:'duoduo_bgm_collapsed',paused:'duoduo_bgm_paused',track:'duoduo_bgm_track'};
+const storage={volume:'duoduo_bgm_volume',collapsed:'duoduo_bgm_collapsed',paused:'duoduo_bgm_paused',track:'duoduo_bgm_track',mode:'duoduo_bgm_player_mode'};
+const restoreStorageKey='duoduo_bgm_tab_resume_v6';
 const read=(key,fallback)=>{try{return localStorage.getItem(key)??fallback;}catch{return fallback;}};
 const save=(key,value)=>{try{localStorage.setItem(key,String(value));}catch{}};
-let playlist=[],selectedId='',defaultId='',mode='sequential',initialLoad=true,cloudLoading=false,playlistSnapshot='';
+let playlist=[],selectedId='',defaultId='',mode='loop',initialLoad=true,cloudLoading=false,playlistSnapshot='';
+// Per-player preference overrides the admin default. These are distinct behaviors:
+// once = one track then stop; order = play rest of list then stop;
+// loop = loop playlist; shuffle = random; repeat-one = replay same track.
+const playbackModes=[
+  {id:'once',label:'單曲播放',hint:'目前這首播放完就停止'},
+  {id:'order',label:'順序播放',hint:'依序播放到最後一首停止'},
+  {id:'loop',label:'循環播放',hint:'播放清單播完後重頭開始'},
+  {id:'shuffle',label:'隨機播放',hint:'隨機切換下一首'},
+  {id:'repeat-one',label:'單曲循環',hint:'重複播放目前這首'}
+];
+function useMode(nextMode,remember=true){
+  mode=playbackModes.some(m=>m.id===nextMode)?nextMode:'loop';
+  const item=playbackModes.find(m=>m.id===mode);
+  byId('modeLabel').textContent=item.label;
+  byId('modeExplanation').textContent=item.hint;
+  byId('modeCycle').title=`${item.label}｜${item.hint}（點擊切換）`;
+  byId('modeCycle').setAttribute('aria-label',`播放模式：${item.label}。點擊切換`);
+  const paths={once:'M7 5v14m5-14 7 7-7 7',order:'M4 6h16M4 12h16M4 18h12',loop:'M4 10V7a3 3 0 0 1 3-3h11l-3-3m3 3-3 3M20 14v3a3 3 0 0 1-3 3H6l3 3m-3-3 3-3',shuffle:'M4 4l5 5m3 3 8 8m-5 0h5v-5M4 20l16-16m-5 0h5v5', 'repeat-one':'M4 10V7a3 3 0 0 1 3-3h11l-3-3m3 3-3 3M20 14v3a3 3 0 0 1-3 3H6l3 3m-3-3 3-3M12 9v7'};
+  byId('modeIcon').innerHTML=`<path d="${paths[mode]}"/>`;
+  if(remember)save(storage.mode,mode);
+}
+byId('modeCycle').addEventListener('click',()=>{
+  const idx=playbackModes.findIndex(m=>m.id===mode);
+  useMode(playbackModes[(idx+1)%playbackModes.length].id);
+});
+// Tab-scoped restoration avoids carrying an obsolete position across fresh visits.
+let pendingResume=null,lastResumeSave=0;
+function storePlaybackPosition(){
+  if(!selectedId||!Number.isFinite(audio.currentTime))return;
+  try{
+    if(audio.ended){sessionStorage.removeItem(restoreStorageKey);return;}
+    sessionStorage.setItem(restoreStorageKey,JSON.stringify({id:selectedId,seconds:audio.currentTime,at:Date.now()}));
+  }catch{}
+}
+function readPlaybackPosition(id){
+  try{
+    const record=JSON.parse(sessionStorage.getItem(restoreStorageKey)||'null');
+    if(record&&record.id===id&&Date.now()-record.at<5*60*1000&&Number.isFinite(record.seconds)&&record.seconds>0)return record;
+  }catch{}
+  return null;
+}
+window.addEventListener('pagehide',storePlaybackPosition);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')storePlaybackPosition();});
+
 const validUrl=value=>{try{const url=new URL(String(value),location.href);return (url.protocol==='https:'||((url.hostname==='localhost'||url.hostname==='127.0.0.1')&&url.protocol==='http:'))?url.href:'';}catch{return '';}};
 const format=v=>Number.isFinite(v)?`${Math.floor(v/60)}:${String(Math.floor(v%60)).padStart(2,'0')}`:'0:00';
 const refreshPlayback=()=>{play.innerHTML=audio.paused?icons.play:icons.pause;play.setAttribute('aria-label',audio.paused?'播放':'暫停');};
@@ -111,8 +164,12 @@ byId('collapse').onclick=()=>applyCollapsed(true);byId('mini').onclick=()=>apply
 applyCollapsed(read(storage.collapsed,'1')==='1');
 const oldVolume=Number(read(storage.volume,'40'));
 vol.value=String(Number.isFinite(oldVolume)?Math.max(0,Math.min(100,oldVolume)):40);
-audio.volume=Number(vol.value)/100;
-vol.addEventListener('input',()=>{audio.volume=Number(vol.value)/100;save(storage.volume,vol.value);});
+// On phones the visible volume slider is hidden: use device hardware volume.
+const mobileVolume=window.matchMedia('(max-width:480px)');
+function syncDeviceVolume(){audio.volume=mobileVolume.matches?1:Number(vol.value)/100;}
+syncDeviceVolume();
+mobileVolume.addEventListener?.('change',syncDeviceVolume);
+vol.addEventListener('input',()=>{save(storage.volume,vol.value);syncDeviceVolume();});
 async function tryPlay(){
   if(!audio.src)return;
   try{await audio.play();status.textContent=`正在播放：${playlist.find(t=>t.id===selectedId)?.title||'多多谷 BGM'}`;}
@@ -140,12 +197,32 @@ select.onchange=()=>setTrack(select.value,{autoplay:read(storage.paused,'0')!=='
 play.onclick=async()=>{
   if(!audio.src)return;
   if(!audio.paused){save(storage.paused,'1');audio.pause();status.textContent='已暫停 BGM，網站會記住你的選擇。';}
-  else{save(storage.paused,'0');await tryPlay();}
+  else{save(storage.paused,'0');if(audio.ended){try{audio.currentTime=0;}catch{}}await tryPlay();}
 };
 audio.addEventListener('play',refreshPlayback);audio.addEventListener('pause',refreshPlayback);
-audio.addEventListener('ended',()=>{if(mode==='single'){audio.currentTime=0;tryPlay();}else nextTrack(1);});
-audio.addEventListener('timeupdate',()=>{byId('elapsed').textContent=format(audio.currentTime);if(Number.isFinite(audio.duration)&&audio.duration>0)seek.value=String(Math.floor(audio.currentTime/audio.duration*1000));});
-audio.addEventListener('loadedmetadata',()=>{byId('duration').textContent=format(audio.duration);});
+audio.addEventListener('ended',()=>{
+  try{sessionStorage.removeItem(restoreStorageKey);}catch{}
+  if(mode==='repeat-one'){audio.currentTime=0;tryPlay();return;}
+  if(mode==='once'||(mode==='order'&&playlist.findIndex(t=>t.id===selectedId)>=playlist.length-1)){
+    save(storage.paused,'1');status.textContent='播放已結束，可按播放鍵重新播放。';refreshPlayback();return;
+  }
+  nextTrack(1);
+});
+audio.addEventListener('timeupdate',()=>{
+  byId('elapsed').textContent=format(audio.currentTime);
+  if(Number.isFinite(audio.duration)&&audio.duration>0)seek.value=String(Math.floor(audio.currentTime/audio.duration*1000));
+  if(Date.now()-lastResumeSave>=4000){lastResumeSave=Date.now();storePlaybackPosition();}
+});
+audio.addEventListener('loadedmetadata',()=>{
+  byId('duration').textContent=format(audio.duration);
+  if(pendingResume&&pendingResume.id===selectedId){
+    const record=pendingResume;pendingResume=null;
+    try{audio.currentTime=Math.min(record.seconds,Math.max(0,audio.duration-0.25));}catch{}
+    byId('elapsed').textContent=format(audio.currentTime);
+    if(record.autoplay)tryPlay();
+    else status.textContent='已恢復上次播放位置，按播放即可繼續。';
+  }
+});
 audio.addEventListener('error',()=>{if(audio.src)status.textContent='此歌曲載入失敗，請選擇其他曲目，或請管理員確認音訊網址。';});
 seek.oninput=()=>{if(Number.isFinite(audio.duration)&&audio.duration>0)audio.currentTime=Number(seek.value)/1000*audio.duration;};
 function refreshListUI(){
@@ -168,14 +245,22 @@ async function fetchCloud(){
     const fingerprint=JSON.stringify({incoming,defaultId:config.defaultId,mode:config.mode});
     if(!initialLoad&&fingerprint===playlistSnapshot)return;
     playlistSnapshot=fingerprint;playlist=incoming;defaultId=String(config.defaultId||'');
-    mode=['sequential','shuffle','single'].includes(config.mode)?config.mode:'sequential';
+    const adminDefaultMode=config.mode==='shuffle'?'shuffle':config.mode==='single'?'repeat-one':'loop';
+    useMode(read(storage.mode,adminDefaultMode),false);
     const active=playlist.find(t=>t.id===selectedId);
     if(!playlist.length){audio.pause();audio.removeAttribute('src');audio.load();selectedId='';play.disabled=true;seek.disabled=true;previous.disabled=true;next.disabled=true;title.textContent='尚未上架 BGM';status.textContent='管理員尚未發布任何歌曲。';refreshListUI();refreshPlayback();initialLoad=false;return;}
     const preferred=initialLoad?(playlist.find(t=>t.id===read(storage.track,''))?.id||playlist.find(t=>t.id===defaultId)?.id||playlist[0].id):active?.id||playlist.find(t=>t.id===defaultId)?.id||playlist[0].id;
     const changed=!active||audio.src!==active.url;
     const wasPlaying=!audio.paused;
     refreshListUI();
-    if(initialLoad){setTrack(preferred,{autoplay:read(storage.paused,'0')!=='1'});if(read(storage.paused,'0')==='1')status.textContent='你上次暫停了 BGM，按播放鍵即可繼續。';}
+    if(initialLoad){
+      const remembered=readPlaybackPosition(preferred);
+      if(remembered){
+        pendingResume={...remembered,autoplay:read(storage.paused,'0')!=='1'};
+        setTrack(preferred,{autoplay:false});
+      }else setTrack(preferred,{autoplay:read(storage.paused,'0')!=='1'});
+      if(read(storage.paused,'0')==='1'&&!remembered)status.textContent='你上次暫停了 BGM，按播放鍵即可繼續。';
+    }
     else if(changed){setTrack(preferred,{autoplay:(wasPlaying||!selectedId)&&read(storage.paused,'0')!=='1'});}
     else{select.value=selectedId;previous.disabled=playlist.length<2;next.disabled=playlist.length<2;}
     initialLoad=false;
@@ -183,7 +268,15 @@ async function fetchCloud(){
   finally{cloudLoading=false;}
 }
 // Avoid tearing down the audio element: fetch playlist changes in place.
-fetchCloud();setInterval(fetchCloud,60000);
+// Load the main site first. BGM cloud initialization remains independent and
+// starts shortly after the inner site loads (or at a bounded fallback).
+let cloudStarted=false;
+function startCloud(){if(cloudStarted)return;cloudStarted=true;fetchCloud();}
+frame.addEventListener('load',()=>{
+  try{if(frame.contentWindow.location.href!=='about:blank')startCloud();}catch{startCloud();}
+});
+setTimeout(startCloud,1200);
+setInterval(fetchCloud,60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')fetchCloud();});
 window.addEventListener('online',fetchCloud);
 // V5 navigation: one persistent audio element, one shareable URL per view.
@@ -326,7 +419,7 @@ async function checkShellVersion(){
     if(!response.ok)return;
     const remote=await response.text();
     const next=remote.match(/<meta name="duoduo-shell-version" content="([^"]+)"/);
-    if(next&&shellVersion&&next[1]!==shellVersion)window.location.reload();
+    if(next&&shellVersion&&next[1]!==shellVersion){storePlaybackPosition();window.location.reload();}
   }catch{}finally{shellChecking=false;}
 }
 setInterval(checkShellVersion,60000);
