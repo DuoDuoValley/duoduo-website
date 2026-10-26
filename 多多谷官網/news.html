@@ -171,23 +171,41 @@ function newsHeading(line){
   return null;
 }
 function newsRewardItems(line){
-  const text=String(line).trim();
-  const re=/([^\s　,，、]+?)\s*[×xX＊*]\s*(\d[\d,]*(?:\.\d+)?(?:千|萬|億)?)/g;
-  const matched=[...text.matchAll(re)];
-  if(matched.length<1)return null;
-  const remaining=text.replace(re,'').replace(/[\s　,，、，;；|｜]+/g,'');
-  if(remaining)return null;
-  return matched.map(m=>({label:m[1],quantity:m[2]}));
+  const text=String(line||'').trim();
+  if(!text)return null;
+  // 在「獎勵」欄位逐項讀取「名稱 × 數量」；名稱允許空白及標點。
+  // 必須完整消耗這一行，避免只有部分文字被轉成卡片。
+  const re=/([^×xX＊*]+?)\s*[×xX＊*]\s*(\d[\d,]*(?:\.\d+)?(?:千|萬|億)?)(?=$|[\s　,，、;；|｜])/g;
+  const items=[];
+  let last=0,m;
+  while((m=re.exec(text))!==null){
+    const between=text.slice(last,m.index);
+    if(between.replace(/[\s　,，、;；|｜]/g,''))return null;
+    const label=m[1].replace(/^[\s　,，、;；|｜]+|[\s　,，、;；|｜]+$/g,'');
+    if(!label)return null;
+    items.push({label,quantity:m[2]});
+    last=re.lastIndex;
+  }
+  if(!items.length||text.slice(last).replace(/[\s　,，、;；|｜]/g,''))return null;
+  return items;
 }
 /* 道具圖片：只對照官網玩家工具中已存在的 PNG；不使用模糊猜測。 */
 const NEWS_ITEM_ASSETS={"200 靈魂卷軸 100%":"gacha/apple/200 靈魂卷軸 100%.png","M-DAY機器心臟":"gacha/apple/M-DAY機器心臟.png","V卷軸":"gacha/frame/V卷軸.png","亞尼的靈魂寶珠":"gacha/apple/亞尼的靈魂寶珠.png","仇恨套裝(女)":"gacha/fashion/仇恨套裝(女).png","仇恨套裝(男)":"gacha/fashion/仇恨套裝(男).png","仇恨惡魔角(女)":"gacha/fashion/仇恨惡魔角(女).png","仇恨惡魔角(男)":"gacha/fashion/仇恨惡魔角(男).png","仇恨手套":"gacha/fashion/仇恨手套.png","仇恨披風":"gacha/fashion/仇恨披風.png","仇恨靴子":"gacha/fashion/仇恨靴子.png","傑諾帝神祕手套":"gacha/fashion/傑諾帝神祕手套.png","傳說中的祝福祕藥":"gacha/apple/傳說中的祝福祕藥.png","傳說中的英雄祕藥":"gacha/apple/傳說中的英雄祕藥.png","傳說潛在能力卷軸100%":"gacha/apple/傳說潛在能力卷軸100%.png","內面暴風":"gacha/apple/內面暴風.png","內面耀光":"gacha/apple/內面耀光.png","凝聚力量的結晶石":"gacha/apple/凝聚力量的結晶石.png","凝聚的戒指":"gacha/apple/凝聚的戒指.png","凡雷恩的靈魂寶珠":"gacha/apple/凡雷恩的靈魂寶珠.png","午夜的現身":"gacha/apple/午夜的現身.png","卓越強化石":"excellent-stone.png","南瓜魔卡":"gacha/fashion/南瓜魔卡.png","卡勒馬附加傳說潛在能力賦予卷軸100%":"gacha/apple/卡勒馬附加傳說潛在能力賦予卷軸100%.png","命運卷軸":"gacha/frame/命運卷軸.png","噬血套裝(女)":"gacha/fashion/噬血套裝(女).png","噬血長靴":"gacha/fashion/噬血長靴.png","回真卷軸 100%":"gacha/apple/回真卷軸 100%.png","地之精靈圖騰":"gacha/apple/地之精靈圖騰.png","基礎強化石":"basic-stone.png","夕陽的現身":"gacha/apple/夕陽的現身.png","天上的氣息":"gacha/apple/天上的氣息.png","天照之眼":"gacha/fashion/天照之眼.png","奇異的狐狸面具":"gacha/fashion/奇異的狐狸面具.png","套服內襯":"gacha/comet/套服內襯.png","女武神之心":"gacha/apple/女武神之心.png","害羞害羞麋鹿帽":"gacha/fashion/害羞害羞麋鹿帽.png","寶玉加工石":"gacha/apple/寶玉加工石.png","寶玉研磨石":"gacha/apple/寶玉研磨石.png","小布娃娃凌卡(女)":"gacha/fashion/小布娃娃凌卡(女).png","小布娃娃普卡(男)":"gacha/fashion/小布娃娃普卡(男).png","小筱精靈圖騰":"gacha/apple/小筱精靈圖騰.png","帽子內襯":"gacha/comet/帽子內襯.png","幸運石":"lucky-stone.png","幽暗戒指":"gacha/apple/幽暗戒指.png","強力輪迴星火":"gacha/apple/強力輪迴星火.png","強化KAITO套服":"gacha/fashion/強化KAITO套服.png","強化初音未來套服":"gacha/fashion/強化初音未來套服.png","強化厭煩咖波":"gacha/fashion/強化厭煩咖波.png","強化咖波雨傘":"gacha/fashion/強化咖波雨傘.png","強化哇屋咖波":"gacha/fashion/強化哇屋咖波.png","強化的A.T.力場斗篷":"gacha/fashion/強化的A.T.力場斗篷.png","強化的兔兔手套":"gacha/fashion/強化的兔兔手套.png","強化的兔兔玩偶帽":"gacha/fashion/強化的兔兔玩偶帽.png","強化的兔兔玩偶服":"gacha/fashion/強化的兔兔玩偶服.png","強化的小櫻戰鬥帽":"gacha/fashion/強化的小櫻戰鬥帽.png","強化的小櫻戰鬥服":"gacha/fashion/強化的小櫻戰鬥服.png","強化的小櫻戰鬥鞋":"gacha/fashion/強化的小櫻戰鬥鞋.png","強化的小狼戰鬥帽":"gacha/fashion/強化的小狼戰鬥帽.png","強化的小狼戰鬥服":"gacha/fashion/強化的小狼戰鬥服.png","強化的小狼戰鬥鞋":"gacha/fashion/強化的小狼戰鬥鞋.png","強化的愛蜜莉雅套服":"gacha/fashion/強化的愛蜜莉雅套服.png","強化的明日香帽子":"gacha/fashion/強化的明日香帽子.png","強化的明日香戰鬥服":"gacha/fashion/強化的明日香戰鬥服.png","強化的昴的休閒服":"gacha/fashion/強化的昴的休閒服.png","強化的普莉希拉禮服":"gacha/fashion/強化的普莉希拉禮服.png","強化的第4使徒面具":"gacha/fashion/強化的第4使徒面具.png","強化的綾波零戰鬥服":"gacha/fashion/強化的綾波零戰鬥服.png","強化的莎莉手套":"gacha/fashion/強化的莎莉手套.png","強化的莎莉玩偶帽":"gacha/fashion/強化的莎莉玩偶帽.png","強化的莎莉玩偶服":"gacha/fashion/強化的莎莉玩偶服.png","強化的菲魯特套服":"gacha/fashion/強化的菲魯特套服.png","強化的雷納德手套":"gacha/fashion/強化的雷納德手套.png","強化的雷納德玩偶帽":"gacha/fashion/強化的雷納德玩偶帽.png","強化的雷納德玩偶服":"gacha/fashion/強化的雷納德玩偶服.png","強化石碎片":"gacha/apple/強化石碎片.png","強化與惠惠一起披風":"gacha/fashion/強化與惠惠一起披風.png","強化與達克妮絲一起披風":"gacha/fashion/強化與達克妮絲一起披風.png","強化討厭散步咖波":"gacha/fashion/強化討厭散步咖波.png","強化貓貓蟲咖波套服":"gacha/fashion/強化貓貓蟲咖波套服.png","強化貓貓蟲咖波帽子":"gacha/fashion/強化貓貓蟲咖波帽子.png","強化鏡音連套服":"gacha/fashion/強化鏡音連套服.png","強化鏡音鈴套服":"gacha/fashion/強化鏡音鈴套服.png","強化閃耀音樂蔥":"gacha/fashion/強化閃耀音樂蔥.png","彩虹月石寶石圖騰":"gacha/apple/彩虹月石寶石圖騰.png","恢復卡":"gacha/apple/恢復卡.png","戴雅希杜斯耳環":"gacha/apple/戴雅希杜斯耳環.png","披風內襯":"gacha/comet/披風內襯.png","掛機能量1小時補充券":"gacha/apple/掛機能量1小時補充券.png","掛機能量6小時補充券":"gacha/apple/掛機能量6小時補充券.png","搖滾精神的靈魂寶珠":"gacha/apple/搖滾精神的靈魂寶珠.png","救世卷軸":"gacha/frame/救世卷軸.png","昇華結晶":"ascension-crystal.png","昇華結晶碎片":"gacha/apple/昇華結晶碎片.png","星光錦囊":"starlight-pouch.png","星力強化券":"gacha/apple/星力強化券.png","星彩卷軸":"gacha/frame/星彩卷軸.png","星星威克":"gacha/fashion/星星威克.png","星耀耳環":"gacha/apple/星耀耳環.png","時尚隨機箱":"fashion-box.png","智慧翅膀":"gacha/fashion/智慧翅膀.png","暗影之淚":"gacha/fashion/暗影之淚.png","暗黑輪迴星火":"gacha/apple/暗黑輪迴星火.png","暮光印記":"gacha/apple/暮光印記.png","最上級祝福的祕藥":"gacha/apple/最上級祝福的祕藥.png","最上級英雄的祕藥":"gacha/apple/最上級英雄的祕藥.png","月牙之刃":"gacha/fashion/月牙之刃.png","朝曦羽翼":"gacha/fashion/朝曦羽翼.png","楓幣":"mesos.png","楓葉點數":"maple-points.png","楓點":"maple-points.png","極限強化石":"extreme-stone.png","榮耀卷軸":"gacha/frame/榮耀卷軸.png","正午的現身":"gacha/apple/正午的現身.png","武公的靈魂寶珠":"gacha/apple/武公的靈魂寶珠.png","武器內襯":"gacha/comet/武器內襯.png","武士象徵":"gacha/fashion/武士象徵.png","殘暴炎魔的靈魂寶珠":"gacha/apple/殘暴炎魔的靈魂寶珠.png","水中信紙眼飾":"gacha/apple/水中信紙眼飾.png","水之精靈圖騰":"gacha/apple/水之精靈圖騰.png","水星寶寶操控帽":"gacha/fashion/水星寶寶操控帽.png","水晶愛心":"gacha/apple/水晶愛心.png","永遠的輪迴星火":"gacha/apple/永遠的輪迴星火.png","波賽頓墜飾":"gacha/apple/波賽頓墜飾.png","波賽頓眼鏡":"gacha/apple/波賽頓眼鏡.png","波賽頓紋身":"gacha/apple/波賽頓紋身.png","波賽頓耳環":"gacha/apple/波賽頓耳環.png","活屍面具":"gacha/fashion/活屍面具.png","湛藍之翼":"gacha/fashion/湛藍之翼.png","漆黑的BOSS飾品碎片":"gacha/apple/漆黑的BOSS飾品碎片.png","濃厚的靈魂艾爾達氣息":"gacha/apple/濃厚的靈魂艾爾達氣息.png","火之精靈圖騰":"gacha/apple/火之精靈圖騰.png","烏勒斯女用西裝":"gacha/fashion/烏勒斯女用西裝.png","烏勒斯男用西裝":"gacha/fashion/烏勒斯男用西裝.png","燃燒之戒":"gacha/apple/燃燒之戒.png","特殊名譽勳章":"gacha/apple/特殊名譽勳章.png","猛烈翅膀":"gacha/fashion/猛烈翅膀.png","獨眼巨人眼":"gacha/fashion/獨眼巨人眼.png","璀璨彗星":"brilliant-comet.png","璀璨星光":"brilliant-starlight.png","生命的鞋子":"gacha/fashion/生命的鞋子.png","白色烏勒斯帽子":"gacha/fashion/白色烏勒斯帽子.png","白色烏勒斯手套":"gacha/fashion/白色烏勒斯手套.png","白色烏勒斯拖鞋":"gacha/fashion/白色烏勒斯拖鞋.png","白金蘋果":"platinum-apple.png","白金鐵鎚":"gacha/apple/白金鐵鎚.png","真-智慧翅膀":"gacha/fashion/真-智慧翅膀.png","真-猛烈翅膀":"gacha/fashion/真-猛烈翅膀.png","真-神祕翅膀":"gacha/fashion/真-神祕翅膀.png","真‧亞絲娜的套服":"gacha/fashion/真‧亞絲娜的套服.png","真‧桐人的外套":"gacha/fashion/真‧桐人的外套.png","真‧桐人的手套":"gacha/fashion/真‧桐人的手套.png","真‧結衣的裙子":"gacha/fashion/真‧結衣的裙子.png","真‧莉法的外套":"gacha/fashion/真‧莉法的外套.png","真月牙之刃":"gacha/fashion/真月牙之刃.png","真生命的鞋子":"gacha/fashion/真生命的鞋子.png","真破滅的鞋子":"gacha/fashion/真破滅的鞋子.png","真黑暗之槌":"gacha/fashion/真黑暗之槌.png","真．戴碧斯魂":"gacha/fashion/真．戴碧斯魂.png","真．活屍面具":"gacha/fashion/真．活屍面具.png","真．精靈王之頭冠":"gacha/fashion/真．精靈王之頭冠.png","真．紫烏鴉":"gacha/fashion/真．紫烏鴉.png","真．諾比利塔斯奧拉":"gacha/fashion/真．諾比利塔斯奧拉.png","真．龍魔導士翅膀頭巾":"gacha/fashion/真．龍魔導士翅膀頭巾.png","破曉墜飾":"gacha/apple/破曉墜飾.png","破滅的鞋子":"gacha/fashion/破滅的鞋子.png","神祕冥界幽靈武器箱":"gacha/apple/神祕冥界幽靈武器箱.png","神祕冥界幽靈防具箱":"gacha/apple/神祕冥界幽靈防具箱.png","神祕翅膀":"gacha/fashion/神祕翅膀.png","神諭者的戒指":"gacha/apple/神諭者的戒指.png","稀有航海師武器選擇箱":"gacha/apple/稀有航海師武器選擇箱.png","稀有航海師防具選擇箱":"gacha/apple/稀有航海師防具選擇箱.png","究極的黑暗卷":"gacha/frame/究極的黑暗卷.png","突破1星強化券":"gacha/pouch/突破1星強化券.png","米特拉的核心寶石":"gacha/apple/米特拉的核心寶石.png","粉紅太陽眼鏡帽":"gacha/fashion/粉紅太陽眼鏡帽.png","粉豆的靈魂寶珠":"gacha/apple/粉豆的靈魂寶珠.png","精靈閃電":"gacha/fashion/精靈閃電.png","紅十字手套":"gacha/fashion/紅十字手套.png","紅蓮之眼":"gacha/fashion/紅蓮之眼.png","經驗值4倍券(30分)":"gacha/apple/經驗值4倍券(30分).png","經驗值5倍券(30分)":"gacha/apple/經驗值5倍券(30分).png","耶誕帽":"gacha/fashion/耶誕帽.png","聖誕手套":"gacha/fashion/聖誕手套.png","聖誕衣":"gacha/fashion/聖誕衣.png","聖誕衣(女)":"gacha/fashion/聖誕衣(女).png","聖誕靴(紅)":"gacha/fashion/聖誕靴(紅).png","聖誕靴(黑)":"gacha/fashion/聖誕靴(黑).png","能量光劍":"gacha/fashion/能量光劍.png","臉飾內襯":"gacha/comet/臉飾內襯.png","艾爾達斯的祝福戒指":"gacha/apple/艾爾達斯的祝福戒指.png","艾畢奈亞的靈魂寶珠":"gacha/apple/艾畢奈亞的靈魂寶珠.png","苦行的戒指":"gacha/apple/苦行的戒指.png","蒼穹之翼":"gacha/fashion/蒼穹之翼.png","藍焰之瞳":"gacha/fashion/藍焰之瞳.png","覺醒刀片":"gacha/fashion/覺醒刀片.png","覺醒的輪迴星火":"gacha/apple/覺醒的輪迴星火.png","覺醒立體機動裝置":"gacha/fashion/覺醒立體機動裝置.png","覺醒米卡莎調查兵團服":"gacha/fashion/覺醒米卡莎調查兵團服.png","覺醒艾連調查兵團服":"gacha/fashion/覺醒艾連調查兵團服.png","覺醒調查兵團披風":"gacha/fashion/覺醒調查兵團披風.png","覺醒調查兵團服":"gacha/fashion/覺醒調查兵團服.png","覺醒里維調查兵團服":"gacha/fashion/覺醒里維調查兵團服.png","變節的伊卡勒特":"gacha/fashion/變節的伊卡勒特.png","變節的伊麗娜":"gacha/fashion/變節的伊麗娜.png","變節的奧茲":"gacha/fashion/變節的奧茲.png","變節的米哈逸":"gacha/fashion/變節的米哈逸.png","變節的鷹眼":"gacha/fashion/變節的鷹眼.png","追加1星強化券":"gacha/pouch/追加1星強化券.png","選擇真實符文交換券":"gacha/apple/選擇真實符文交換券.png","選擇祕法符文交換券":"news-rewards/選擇祕法符文交換券.png","酷夏潛水鏡":"gacha/fashion/酷夏潛水鏡.png","酷夏螃蟹耳環":"gacha/fashion/酷夏螃蟹耳環.png","酷夏鮮豔蛙鞋":"gacha/fashion/酷夏鮮豔蛙鞋.png","酷夏鯊魚武器":"gacha/fashion/酷夏鯊魚武器.png","銀花戒指":"gacha/apple/銀花戒指.png","鋰愛心":"gacha/apple/鋰愛心.png","鏡子世界的核心寶石":"gacha/apple/鏡子世界的核心寶石.png","闇黑龍王的靈魂寶珠":"gacha/apple/闇黑龍王的靈魂寶珠.png","阿爾卑斯少年鞋子":"gacha/fashion/阿爾卑斯少年鞋子.png","雪人帽子":"gacha/fashion/雪人帽子.png","雷克斯的靈魂寶珠":"gacha/apple/雷克斯的靈魂寶珠.png","露希妲耳環":"gacha/apple/露希妲耳環.png","露希妲靈魂寶珠":"gacha/apple/露希妲靈魂寶珠.png","露西亞披風":"gacha/fashion/露西亞披風.png","靈魂艾爾達碎片":"gacha/apple/靈魂艾爾達碎片.png","鞋子內襯":"gacha/comet/鞋子內襯.png","風之精靈圖騰":"gacha/apple/風之精靈圖騰.png","鬥神翅膀":"gacha/fashion/鬥神翅膀.png","魔法畫框":"magic-frame.png","魔法靈氣":"gacha/comet/魔法靈氣.png","黃金愛心":"gacha/apple/黃金愛心.png","黃金蘋果":"golden-apple.png","黎明守護者天使戒指":"gacha/apple/黎明守護者天使戒指.png","黎明的現身":"gacha/apple/黎明的現身.png","黑暗之槌":"gacha/fashion/黑暗之槌.png","黑翼胸章":"gacha/apple/黑翼胸章.png","黑色烏勒斯帽子":"gacha/fashion/黑色烏勒斯帽子.png","黑色烏勒斯手套":"gacha/fashion/黑色烏勒斯手套.png","黑色烏勒斯拖鞋":"gacha/fashion/黑色烏勒斯拖鞋.png","黯影套裝(男)":"gacha/fashion/黯影套裝(男).png","黯闇影十字":"gacha/fashion/黯闇影十字.png","龍騎士的靈魂寶珠":"gacha/apple/龍騎士的靈魂寶珠.png","MVP追加經驗值天氣效果(鑽石)":"news-rewards/MVP追加經驗值天氣效果(鑽石).png","YuYu的應援(30分)":"news-rewards/YuYu的應援(30分).png","YuYu大大的應援(180分)":"news-rewards/YuYu大大的應援(180分).png","豪華真實符文：塔拉哈特":"news-rewards/豪華真實符文：塔拉哈特.png","豪華真實符文：基爾德拉":"news-rewards/豪華真實符文：基爾德拉.png"};
+// 使用者另外提供的新圖，先以正式名稱精確匹配，不猜測其他物品。
+const NEWS_EXTRA_ITEM_ASSETS={
+  '紫水晶寶石':'news-rewards/紫水晶寶石.png',
+  '救世卷軸選擇券':'news-rewards/救世卷軸選擇券.png',
+  '星彩卷軸選擇券':'news-rewards/星彩卷軸選擇券.png',
+  '選擇祕法符文交換券':'news-rewards/選擇祕法符文交換券.png'
+};
 // 僅確認是同一道具的別名才對應圖片；不以模糊搜尋猜測道具。
 const NEWS_ITEM_ALIASES={
   '選擇秘法符文交換券':'選擇祕法符文交換券',
   '經驗值5倍券':'經驗值5倍券(30分)',
   'YuYu的應援':'YuYu的應援(30分)',
   'YuYu大大的應援':'YuYu大大的應援(180分)',
-  '星彩卷軸抽選券':'星彩卷軸'
+  '星彩卷軸抽選券':'星彩卷軸',
+  '救世卷軸抽選券':'救世卷軸選擇券'
 };
 function newsCanonicalItemName(name){
   const normalized=String(name||'').trim().normalize('NFC');
@@ -195,7 +213,7 @@ function newsCanonicalItemName(name){
 }
 function newsItemAsset(name){
   const canonical=newsCanonicalItemName(name);
-  return Object.prototype.hasOwnProperty.call(NEWS_ITEM_ASSETS,canonical)?NEWS_ITEM_ASSETS[canonical]:null;
+  return Object.prototype.hasOwnProperty.call(NEWS_EXTRA_ITEM_ASSETS,canonical)?NEWS_EXTRA_ITEM_ASSETS[canonical]:(Object.prototype.hasOwnProperty.call(NEWS_ITEM_ASSETS,canonical)?NEWS_ITEM_ASSETS[canonical]:null);
 }
 function newsDisplayItemName(name){
   // 僅更正已確認的「祕法」錯字；其他簡稱仍按照公告原文顯示。
