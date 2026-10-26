@@ -173,10 +173,53 @@ let BOSS_CONFIG=getJSONSafe("duoduo_boss_config",defaultBossConfig);
 BOSS_CONFIG={interval:Math.max(2000,Number(BOSS_CONFIG.interval)||5000),slides:Array.isArray(BOSS_CONFIG.slides)&&BOSS_CONFIG.slides.length?BOSS_CONFIG.slides:defaultBossConfig.slides};
 let events=[];
 
-const newsTagShort=t=>({"重要消息":"重要","維護通知":"維護","更新說明":"更新","活動資訊":"活動","序號發放":"序號","處分名單":"處分"}[t]||t);const newsTagClass=t=>({"重要消息":"category-important","維護通知":"category-maintenance","更新說明":"category-update","活動資訊":"category-event","序號發放":"category-code","處分名單":"category-punishment"}[String(t||"")]||"category-default");const newsList=document.getElementById("news-list");if(newsList){const isHomeNews=!!newsList.closest("#news");newsList.innerHTML=news.slice(0,6).map((n,i)=>isHomeNews?`<a class="news-item" href="news.html#n-${i}" aria-label="查看公告：${esc(n.title)}"><span class="tag ${newsTagClass(n.tag)}">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3></div><time>${esc(n.date)}</time></a>`:`<a class="news-item" href="news.html#n-${i}"><span class="tag ${newsTagClass(n.tag)}">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3><p>${esc(n.body||"")}</p></div><time>${esc(n.date)}</time></a>`).join("");if(isHomeNews&&!document.getElementById("homeNewsCompactStyles")){const style=document.createElement("style");style.id="homeNewsCompactStyles";style.textContent=`#news #news-list .news-item{min-height:0;height:auto;} #news #news-list .news-item h3{margin-bottom:0;} #news #news-list .news-item p{display:none;} #news #news-list .tag{border:1px solid transparent;} #news #news-list .tag.category-important{color:#ff8f9a;background:rgba(220,65,82,.16);border-color:rgba(255,115,130,.30);} #news #news-list .tag.category-maintenance{color:#ffb65c;background:rgba(230,135,35,.16);border-color:rgba(255,180,85,.30);} #news #news-list .tag.category-update{color:#65c9ff;background:rgba(45,145,220,.16);border-color:rgba(75,175,240,.30);} #news #news-list .tag.category-event{color:#72d69a;background:rgba(48,170,100,.16);border-color:rgba(85,200,130,.30);} #news #news-list .tag.category-code{color:#c9a5ff;background:rgba(125,75,210,.17);border-color:rgba(170,125,245,.30);} #news #news-list .tag.category-punishment{color:#ff79c6;background:rgba(220,65,145,.16);border-color:rgba(245,100,175,.30);} #news #news-list .tag.category-default{color:#9cc4d8;background:rgba(95,145,170,.14);border-color:rgba(120,175,200,.28);} :root[data-theme="light"] #news #news-list .tag.category-important{color:#a9273a;background:#ffe9ed;border-color:#f3a9b5;} :root[data-theme="light"] #news #news-list .tag.category-maintenance{color:#a85a00;background:#fff0db;border-color:#efc27c;} :root[data-theme="light"] #news #news-list .tag.category-update{color:#075f91;background:#e5f4ff;border-color:#a9d7f2;} :root[data-theme="light"] #news #news-list .tag.category-event{color:#187345;background:#e6f8ee;border-color:#a7dfbf;} :root[data-theme="light"] #news #news-list .tag.category-code{color:#6840a8;background:#f1e9ff;border-color:#cbb4ee;} :root[data-theme="light"] #news #news-list .tag.category-punishment{color:#a52c70;background:#ffe8f4;border-color:#efafd0;} :root[data-theme="light"] #news #news-list .tag.category-default{color:#35657a;background:#e9f5fa;border-color:#b7d8e4;}`;document.head.appendChild(style);}}function renderPublicEvents(){
+const newsTagShort=t=>({"重要消息":"重要","維護通知":"維護","更新說明":"更新","活動資訊":"活動","序號發放":"序號","處分名單":"處分"}[t]||t);const newsTagClass=t=>({"重要消息":"category-important","維護通知":"category-maintenance","更新說明":"category-update","活動資訊":"category-event","序號發放":"category-code","處分名單":"category-punishment"}[String(t||"")]||"category-default");const newsList=document.getElementById("news-list");if(newsList){const isHomeNews=!!newsList.closest("#news");newsList.innerHTML=news.slice(0,6).map((n,i)=>isHomeNews?`<a class="news-item" href="news.html#n-${i}" aria-label="查看公告：${esc(n.title)}"><span class="tag ${newsTagClass(n.tag)}">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3></div><time>${esc(n.date)}</time></a>`:`<a class="news-item" href="news.html#n-${i}"><span class="tag ${newsTagClass(n.tag)}">${esc(newsTagShort(n.tag))}</span><div><h3>${esc(n.title)}</h3><p>${esc(n.body||"")}</p></div><time>${esc(n.date)}</time></a>`).join("");if(isHomeNews&&!document.getElementById("homeNewsCompactStyles")){const style=document.createElement("style");style.id="homeNewsCompactStyles";style.textContent=`#news #news-list .news-item{min-height:0;height:auto;} #news #news-list .news-item h3{margin-bottom:0;} #news #news-list .news-item p{display:none;} #news #news-list .tag{border:1px solid transparent;} #news #news-list .tag.category-important{color:#ff8f9a;background:rgba(220,65,82,.16);border-color:rgba(255,115,130,.30);} #news #news-list .tag.category-maintenance{color:#ffb65c;background:rgba(230,135,35,.16);border-color:rgba(255,180,85,.30);} #news #news-list .tag.category-update{color:#65c9ff;background:rgba(45,145,220,.16);border-color:rgba(75,175,240,.30);} #news #news-list .tag.category-event{color:#72d69a;background:rgba(48,170,100,.16);border-color:rgba(85,200,130,.30);} #news #news-list .tag.category-code{color:#c9a5ff;background:rgba(125,75,210,.17);border-color:rgba(170,125,245,.30);} #news #news-list .tag.category-punishment{color:#ff79c6;background:rgba(220,65,145,.16);border-color:rgba(245,100,175,.30);} #news #news-list .tag.category-default{color:#9cc4d8;background:rgba(95,145,170,.14);border-color:rgba(120,175,200,.28);} :root[data-theme="light"] #news #news-list .tag.category-important{color:#a9273a;background:#ffe9ed;border-color:#f3a9b5;} :root[data-theme="light"] #news #news-list .tag.category-maintenance{color:#a85a00;background:#fff0db;border-color:#efc27c;} :root[data-theme="light"] #news #news-list .tag.category-update{color:#075f91;background:#e5f4ff;border-color:#a9d7f2;} :root[data-theme="light"] #news #news-list .tag.category-event{color:#187345;background:#e6f8ee;border-color:#a7dfbf;} :root[data-theme="light"] #news #news-list .tag.category-code{color:#6840a8;background:#f1e9ff;border-color:#cbb4ee;} :root[data-theme="light"] #news #news-list .tag.category-punishment{color:#a52c70;background:#ffe8f4;border-color:#efafd0;} :root[data-theme="light"] #news #news-list .tag.category-default{color:#35657a;background:#e9f5fa;border-color:#b7d8e4;}`;document.head.appendChild(style);}}/* 首頁活動卡片：狀態及簡短日期。未指定時間的結束日期包含當天整日。 */
+function homeEventDateInfo(value){
+  const raw=String(value??"").trim();
+  const match=raw.match(/^(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})(?:[T ]|$)/);
+  if(match){
+    const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);
+    const date=new Date(year,month-1,day);
+    if(date.getFullYear()===year&&date.getMonth()+1===month&&date.getDate()===day)return {year,month,day};
+  }
+  const timestamp=parseDuoDuoDate(value);
+  if(timestamp===Number.MIN_SAFE_INTEGER)return null;
+  const date=new Date(timestamp);
+  return {year:date.getFullYear(),month:date.getMonth()+1,day:date.getDate()};
+}
+function homeEventDateText(e){
+  const a=homeEventDateInfo(e?.start),b=homeEventDateInfo(e?.end);
+  const short=d=>`${String(d.month).padStart(2,"0")}/${String(d.day).padStart(2,"0")}`;
+  const full=d=>`${d.year}/${short(d)}`;
+  if(a&&b)return a.year===b.year?`${short(a)} – ${short(b)}`:`${full(a)} – ${full(b)}`;
+  if(a)return `開始 ${full(a)}`;
+  if(b)return `截止 ${full(b)}`;
+  return "";
+}
+function homeEventStatus(e,now=Date.now()){
+  const missing=Number.MIN_SAFE_INTEGER;
+  const start=parseDuoDuoDate(e?.start),end=parseDuoDuoDate(e?.end);
+  if(start===missing&&end===missing)return null;
+  // 結束日期只有年月日：活動在結束日 23:59:59 仍進行中。
+  const endOnlyDate=/^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/.test(String(e?.end??"").trim());
+  let until=end;
+  if(end!==missing&&endOnlyDate){
+    const d=new Date(end);
+    until=new Date(d.getFullYear(),d.getMonth(),d.getDate(),23,59,59,999).getTime();
+  }
+  if(start!==missing&&now<start)return {name:"未開始",kind:"upcoming"};
+  if(end!==missing&&now>until)return {name:"已結束",kind:"ended"};
+  return {name:"進行中",kind:"active"};
+}
+function renderPublicEvents(){
   const eventGrid=document.getElementById("event-grid");
   if(!eventGrid)return;
-  eventGrid.innerHTML=events.slice(0,3).map(e=>`<article class="event-card"><div class="event-image">${eventCarouselHTML(e)}</div><div class="event-copy"><span class="tag">檔期活動</span><h3>${esc(e.name)}</h3><p>${esc(e.desc)}</p><a class="text-link" href="event-detail.html?id=${encodeURIComponent(e.id||e.name)}">查看檔期活動 →</a></div></article>`).join("")||`<div class="empty">目前沒有公開活動。</div>`;
+  eventGrid.innerHTML=events.slice(0,3).map(e=>{
+    const status=homeEventStatus(e);
+    const dateText=homeEventDateText(e);
+    const fullDate=formatEventDateRange(e);
+    return `<article class="event-card"><div class="event-image">${eventCarouselHTML(e)}</div><div class="event-copy"><div class="event-home-tags"><span class="tag">檔期活動</span>${status?`<span class="event-status event-status-${status.kind}">${status.name}</span>`:""}</div><h3>${esc(e.name)}</h3><p>${esc(e.desc||"")}</p>${dateText?`<div class="event-home-date" title="${esc(fullDate)}"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg><span>${esc(dateText)}</span></div>`:""}<a class="text-link" href="event-detail.html?id=${encodeURIComponent(e.id||e.name)}">查看檔期活動 →</a></div></article>`;
+  }).join("")||`<div class="empty">目前沒有公開活動。</div>`;
   initEventCarousels(eventGrid);
 }
 

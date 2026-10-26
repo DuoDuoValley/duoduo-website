@@ -370,3 +370,23 @@ footer{padding:35px 5vw;border-top:1px solid var(--line);display:flex;justify-co
 .event-page-date-value{font-size:12px;line-height:1.55;color:var(--text);font-weight:800;}
 @media(max-width:1100px){.event-page-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
 @media(max-width:680px){.event-page-grid{grid-template-columns:1fr;}.event-page-copy{padding:18px;}.event-page-copy h2{font-size:20px;}}
+
+
+/* 首頁「正在進行的活動」卡片：文字行數、狀態與底部連結對齊。僅作用於首頁。 */
+#events .event-grid{align-items:stretch}
+#events .event-card{display:flex;flex-direction:column;height:100%;min-width:0}
+#events .event-image{flex:0 0 auto}
+#events .event-copy{display:flex;flex:1;flex-direction:column;min-width:0;padding:20px}
+#events .event-home-tags{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+#events .event-home-tags .tag{margin:0}
+#events .event-copy h3{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-clamp:2;overflow:hidden;line-height:1.45;min-height:2.9em;margin:10px 0 7px}
+#events .event-copy p{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;line-clamp:4;overflow:hidden;line-height:1.75;min-height:7em;margin:0;color:var(--muted)}
+#events .event-home-date{display:flex;align-items:center;gap:7px;margin-top:14px;color:var(--muted);font-size:12px;line-height:1.5;font-weight:600;min-width:0}
+#events .event-home-date svg{width:15px;height:15px;flex:0 0 15px}
+#events .event-copy>.text-link{display:inline-flex;align-self:flex-start;margin-top:auto;padding-top:14px;font-weight:800}
+:root[data-theme="dark"] #events .event-status-active{color:#75dfaa;background:rgba(52,177,109,.13);border-color:rgba(103,220,152,.33)}
+:root[data-theme="dark"] #events .event-status-upcoming{color:#91cbff;background:rgba(60,130,210,.14);border-color:rgba(104,170,240,.33)}
+:root[data-theme="dark"] #events .event-status-ended{color:#b8abb8;background:rgba(150,130,150,.12);border-color:rgba(180,165,180,.3)}
+@media(max-width:680px){
+  #events .event-copy h3,#events .event-copy p{min-height:0}
+}
