@@ -188,7 +188,7 @@ function newsRenderedBody(raw){
   function finishParagraph(){if(buffer.length){blocks.push(`<p class="news-paragraph">${buffer.map(newsInline).join('<br>')}</p>`);buffer=[];}}
   function finishList(){if(list.length){blocks.push(`<${listType} class="news-readable-list">${list.map(x=>`<li>${newsInline(x)}</li>`).join('')}</${listType}>`);list=[];listType='';}}
   function finishGroup(){if(group.length){blocks.push(`<div class="news-reward-grid">${group.map(x=>`<div class="news-reward-item"><span>${newsInline(x.label)}</span><strong>×${pageEsc(x.quantity)}</strong></div>`).join('')}</div>`);group=[];}}
-  function finishSection(){finishParagraph();finishList();finishGroup();if(currentHeading){section.push(...blocks);blocks.length=0;const icon=NEWS_HEADINGS[currentHeading];const headingHtml=`<h3 class="news-section-heading">${newsIcon(icon)}<span>${pageEsc(currentHeading)}</span></h3>`;const contentHtml=section.join('');section=[];sections.push(`<section class="news-section">${headingHtml}${contentHtml}</section>`);}else{intro.push(...blocks);blocks.length=0;}}
+  function finishSection(){finishParagraph();finishList();finishGroup();if(currentHeading){section.push(...blocks);blocks.length=0;const icon=NEWS_HEADINGS[currentHeading];const headingHtml=`<h3 class="news-section-heading">${newsIcon(icon)}<span>${pageEsc(currentHeading)}</span></h3>`;const contentHtml=section.join('');section=[];sections.push(`<section class="news-detail-block">${headingHtml}${contentHtml}</section>`);}else{intro.push(...blocks);blocks.length=0;}}
   const sections=[],intro=[];
   for(const untrimmed of lines){
     const line=untrimmed.trim();
@@ -263,17 +263,17 @@ function newsStructuredBody(n){
   const title=String(item.title||'').trim()||'公告內容';
   const body=String(item.body||'');
   const gift=/(?:^|\b)(rewards|compensation)(?:$|\b)/.test(String(item.type||''));
-  out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg(item.icon)}<span>${pageEsc(title)}</span></h3>${gift?newsRewardCards(body):newsPlainContent(body)}</section>`;
+  out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg(item.icon)}<span>${pageEsc(title)}</span></h3>${gift?newsRewardCards(body):newsPlainContent(body)}</section>`;
  }
  if(hasCode){
   const s=serial;
-  if(s.code){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('ticket')}<span>兌換序號</span></h3><div class="news-code-box"><code>${pageEsc(s.code)}</code><button type="button" class="news-code-copy" data-copy-code="${pageEsc(s.code)}" aria-label="複製兌換序號">${newsIcon('ticket')}<span>複製序號</span></button></div></section>`;}
-  if(s.expiry){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('clock')}<span>兌換期限</span></h3>${newsPlainContent(s.expiry)}</section>`;}
-  if(s.method){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('list-checks')}<span>使用方式</span></h3>${newsPlainContent(s.method)}</section>`;}
-  if(s.rewards){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('gift')}<span>序號獎勵</span></h3>${newsRewardCards(s.rewards)}</section>`;}
-  if(s.notes){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('info')}<span>兌換注意事項</span></h3>${newsPlainContent(s.notes)}</section>`;}
+  if(s.code){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('ticket')}<span>兌換序號</span></h3><div class="news-code-box"><code>${pageEsc(s.code)}</code><button type="button" class="news-code-copy" data-copy-code="${pageEsc(s.code)}" aria-label="複製兌換序號">${newsIcon('ticket')}<span>複製序號</span></button></div></section>`;}
+  if(s.expiry){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('clock')}<span>兌換期限</span></h3>${newsPlainContent(s.expiry)}</section>`;}
+  if(s.method){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('list-checks')}<span>使用方式</span></h3>${newsPlainContent(s.method)}</section>`;}
+  if(s.rewards){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('gift')}<span>序號獎勵</span></h3>${newsRewardCards(s.rewards)}</section>`;}
+  if(s.notes){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('info')}<span>兌換注意事項</span></h3>${newsPlainContent(s.notes)}</section>`;}
  }
- if(n.newsIncludeLegacy&&n.body){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('file-text')}<span>補充說明</span></h3>${newsRenderedBody(n.body)}</section>`;}
+ if(n.newsIncludeLegacy&&n.body){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('file-text')}<span>補充說明</span></h3>${newsRenderedBody(n.body)}</section>`;}
  return out+'</div>';
 }
 
@@ -332,7 +332,7 @@ pageLoadNews().then(loaded=>{
 .news-readable-body code{font-size:.95em;background:rgba(90,150,190,.09);padding:1px 4px;border-radius:4px}
 .news-discord-emoji{display:inline-block;width:1.28em;height:1.28em;vertical-align:-.24em;object-fit:contain}
 .news-mention{display:inline;border-radius:4px;background:rgba(90,150,190,.12);padding:1px 4px;font-size:.94em}
-.news-section{margin-top:7px;padding-top:19px;border-top:1px solid var(--line);display:grid;gap:12px;min-width:0}
+.news-detail-block{margin-top:7px;padding:19px 0 0;border-top:1px solid var(--line);display:grid;gap:12px;min-width:0;background:transparent;max-width:none}
 .news-section-heading{display:flex;align-items:center;gap:10px;margin:0;color:var(--text);font-size:18px;line-height:1.4;font-weight:750}
 .news-section-heading svg{flex:none;color:#249bc3}
 .news-readable-list{margin:0;padding-left:24px;display:grid;gap:6px}
