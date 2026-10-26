@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c1320">
+<title>多多谷｜無縫 BGM 測試</title>
+<style>
+:root { color-scheme:dark; --panel:#101d2d; --line:rgba(175,205,245,.22); --text:#f5f7ff; --muted:#a8b7cc; --accent:#82c9ff; }
+* { box-sizing:border-box; }
+html,body { height:100%; margin:0; overflow:hidden; font-family:system-ui,-apple-system,"Microsoft JhengHei",sans-serif; }
+body { background:#0a1020; }
+#duoduoSite { width:100%; height:100%; height:100dvh; border:0; display:block; background:#0e1625; }
+#player { position:fixed; bottom:max(18px,env(safe-area-inset-bottom)); right:max(18px,env(safe-area-inset-right)); z-index:2147483000; width:min(355px,calc(100vw - 36px)); color:var(--text); background:linear-gradient(145deg,rgba(23,39,61,.98),rgba(11,23,39,.98)); border:1px solid var(--line); box-shadow:0 12px 45px rgba(0,0,0,.48); border-radius:19px; padding:15px; backdrop-filter:blur(16px); }
+#player[hidden] { display:none; }
+#topline { display:flex; gap:9px; align-items:center; }
+#musicCircle { width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:rgba(86,159,236,.2); color:#b1d9ff; flex:none; }
+#musicCircle svg {width:21px;height:21px;}
+#headTitles {flex:1; min-width:0; }
+#headTitles strong { display:block; font-size:14px; letter-spacing:.35px; }
+#headTitles small {display:block; margin-top:3px; color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+button { font:inherit;cursor:pointer; }
+.iconButton { width:33px;height:33px;border:1px solid rgba(173,198,230,.17);border-radius:10px;display:grid;place-items:center;color:#d1e2f6;background:rgba(255,255,255,.045); }
+.iconButton:hover,.actionBtn:hover { background:rgba(125,176,249,.17); }
+.iconButton svg { width:17px; height:17px; }
+#details { padding-top:13px; }
+#trackName {font-size:13px;font-weight:650;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;}
+#status { color:var(--muted);font-size:11px; margin-top:5px;line-height:1.5; }
+#controls {display:flex;gap:9px;align-items:center;margin-top:12px;}
+#play {width:40px;height:40px;border:0;border-radius:12px;background:#98cef8;color:#092039; display:grid;place-items:center; flex:none;}
+#play:disabled{opacity:.48; cursor:not-allowed;}
+#play svg {width:21px;height:21px;}
+#timeline { flex:1;min-width:0; }
+#times {display:flex;justify-content:space-between;color:var(--muted);font-size:10px;margin-bottom:5px;font-variant-numeric:tabular-nums;}
+input[type=range] {width:100%;accent-color:#91c9ff; cursor:pointer;}
+#seek {margin:0;height:12px;}
+#bottomline {display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;}
+#fileLabel {display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);border-radius:9px;padding:7px 10px;background:rgba(255,255,255,.045);font-size:11px;white-space:nowrap;cursor:pointer;}
+#fileLabel:hover {background:rgba(125,176,249,.17);}
+#fileLabel svg {width:15px;height:15px;}
+#fileInput {position:absolute;width:1px;height:1px;opacity:0;overflow:hidden;pointer-events:none;}
+#volumeBox {display:flex;align-items:center;gap:7px; min-width:100px; max-width:135px;}
+#volumeBox svg {flex:none;width:16px;height:16px;color:var(--muted);}
+#volume {min-width:45px;}
+#hint {font-size:10px; color:#b1c5df;border-top:1px solid rgba(255,255,255,.09);padding-top:11px;margin-top:12px;line-height:1.7;}
+#mini {display:none;position:fixed;right:max(18px,env(safe-area-inset-right));bottom:max(18px,env(safe-area-inset-bottom));border:1px solid rgba(149,208,255,.36);background:#102137;color:white;box-shadow:0 8px 25px rgba(0,0,0,.42);height:58px;width:58px;border-radius:50%;z-index:2147483000;place-items:center;cursor:pointer;}
+#mini svg {width:24px;height:24px;}
+body.collapsed #player {display:none;}
+body.collapsed #mini {display:grid;}
+#label {font-size:10px; color:#94c8fc; margin-left:4px;font-weight:500;}
+@media(max-width:480px){#player{right:10px;bottom:max(10px,env(safe-area-inset-bottom));width:min(355px,calc(100vw - 20px));padding:12px;}#mini{right:12px;bottom:max(12px,env(safe-area-inset-bottom));}}
+</style>
+</head>
+<body>
+<iframe id="duoduoSite" title="多多谷官網" src="index.html" allow="fullscreen; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+<div id="player" role="region" aria-label="多多谷常駐背景音樂播放器">
+  <div id="topline">
+    <div id="musicCircle" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="16" rx="3" ry="2"/></svg></div>
+    <div id="headTitles"><strong>DuoDuo BGM <span id="label">跨頁不中斷測試</span></strong><small id="pageTitle">目前：首頁</small></div>
+    <button id="collapse" class="iconButton" type="button" title="收合播放器" aria-label="收合播放器"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+  </div>
+  <div id="details">
+    <div id="trackName">尚未選擇音樂</div>
+    <div id="status" role="status">選擇你有權使用的本機音樂檔，就能測試不中斷播放。</div>
+    <div id="controls">
+      <button type="button" id="play" aria-label="播放或暫停" title="播放／暫停" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button>
+      <div id="timeline"><div id="times"><span id="elapsed">0:00</span><span id="duration">0:00</span></div><input id="seek" type="range" min="0" max="1000" value="0" aria-label="音樂進度" disabled></div>
+    </div>
+    <div id="bottomline">
+      <label id="fileLabel" for="fileInput"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V3m-5 5 5-5 5 5"/><path d="M4 15v5h16v-5"/></svg>選擇 BGM 檔案</label>
+      <input id="fileInput" type="file" accept="audio/*,.mp3,.ogg,.wav,.m4a,.flac" aria-label="選擇音樂檔案">
+      <div id="volumeBox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5zM15 9a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="40" aria-label="音量"></div>
+    </div>
+    <div id="hint">切換官網內頁時播放器不會重建。這是獨立測試入口，原本官網檔案與自動更新機制均未修改。</div>
+  </div>
+</div>
+<button type="button" id="mini" title="展開 BGM 播放器" aria-label="展開 BGM 播放器"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="16" rx="3" ry="2"/></svg></button>
+<audio id="music" preload="metadata" loop></audio>
+<script>
+(()=>{
+  'use strict';
+  const byId=id=>document.getElementById(id);
+  const audio=byId('music'), input=byId('fileInput'), play=byId('play'), seek=byId('seek');
+  const vol=byId('volume'), status=byId('status'), title=byId('trackName');
+  const frame=byId('duoduoSite');
+  const icons={play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg>',pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>'};
+  let activeUrl=null;
+  const keys={volume:'duoduo_bgm_test_volume',collapsed:'duoduo_bgm_test_collapsed'};
+  const safeRead=(key,fallback)=>{try{return localStorage.getItem(key)??fallback;}catch{return fallback;}};
+  const safeSave=(key,value)=>{try{localStorage.setItem(key,String(value));}catch{}};
+  const formatTime=v=>Number.isFinite(v)?`${Math.floor(v/60)}:${String(Math.floor(v%60)).padStart(2,'0')}`:'0:00';
+  const refreshPlayback=()=>{play.innerHTML=audio.paused?icons.play:icons.pause;play.setAttribute('aria-label',audio.paused?'播放':'暫停');};
+  const applyCollapsed=value=>{document.body.classList.toggle('collapsed',value);safeSave(keys.collapsed,value?'1':'0');};
+  byId('collapse').addEventListener('click',()=>applyCollapsed(true));
+  byId('mini').addEventListener('click',()=>applyCollapsed(false));
+  applyCollapsed(safeRead(keys.collapsed,'0')==='1');
+  const savedVol=Number(safeRead(keys.volume,'40'));
+  vol.value=String(Number.isFinite(savedVol)?Math.max(0,Math.min(100,savedVol)):40);
+  audio.volume=Number(vol.value)/100;
+  vol.addEventListener('input',()=>{audio.volume=Number(vol.value)/100;safeSave(keys.volume,vol.value);});
+  input.addEventListener('change',async()=>{
+    const file=input.files?.[0]; if(!file)return;
+    if(!(file.type.startsWith('audio/')||/\.(mp3|ogg|wav|m4a|flac|aac)$/i.test(file.name))){status.textContent='請選擇音訊檔案，例如 MP3。';return;}
+    audio.pause();if(activeUrl)URL.revokeObjectURL(activeUrl);
+    activeUrl=URL.createObjectURL(file);audio.src=activeUrl;audio.load();
+    title.textContent=file.name;status.textContent='已載入本機 BGM，切換官網頁面時可持續播放。';
+    play.disabled=false;seek.disabled=false;
+    try{await audio.play();}catch{status.textContent='音樂已選取，請按播放鍵開始。';}
+    refreshPlayback();
+  });
+  play.addEventListener('click',async()=>{
+    if(!audio.src)return;
+    if(!audio.paused){audio.pause();return;}
+    try{await audio.play();}catch{status.textContent='瀏覽器暫時無法播放此音樂檔，請更換格式或重新點擊播放。';}
+  });
+  audio.addEventListener('play',refreshPlayback);audio.addEventListener('pause',refreshPlayback);
+  audio.addEventListener('timeupdate',()=>{byId('elapsed').textContent=formatTime(audio.currentTime);if(Number.isFinite(audio.duration)&&audio.duration>0){seek.value=String(Math.floor(audio.currentTime/audio.duration*1000));}});
+  audio.addEventListener('loadedmetadata',()=>{byId('duration').textContent=formatTime(audio.duration);});
+  audio.addEventListener('error',()=>{if(audio.src)status.textContent='播放失敗，請確認音訊格式，或重新選擇檔案。';});
+  seek.addEventListener('input',()=>{if(Number.isFinite(audio.duration)&&audio.duration>0)audio.currentTime=Number(seek.value)/1000*audio.duration;});
+  // The outer player stays alive; the existing site navigates inside its iframe.
+  const pageNames={'index.html':'首頁','news.html':'最新消息','events.html':'檔期活動','event-detail.html':'活動詳情','boss.html':'BOSS 介紹','guide.html':'遊玩指南','downloads.html':'下載專區','privacy.html':'隱私政策','terms.html':'使用條款','player-tools/index.html':'玩家工具'};
+  let rootUrl; try{rootUrl=new URL('./',location.href);}catch{rootUrl={pathname:'/'};}
+  frame.addEventListener('load',()=>{
+    try{
+      const here=new URL(frame.contentWindow.location.href);
+      if(here.origin!==location.origin)return;
+      const relative=decodeURIComponent(here.pathname.slice(rootUrl.pathname.length));
+      byId('pageTitle').textContent=`目前：${pageNames[relative]||'官網頁面'}`;
+    }catch {byId('pageTitle').textContent='目前：官網';}
+  });
+  // Release browser object URLs only when the outer shell itself is leaving.
+  window.addEventListener('pagehide',()=>{if(activeUrl)URL.revokeObjectURL(activeUrl);});
+})();
+</script>
+</body>
+</html>
