@@ -158,7 +158,15 @@ function eventStartTime(e){return parseDuoDuoDate(e?.start);}
 function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTime(b)-eventStartTime(a));}
 function newsDateTime(n){return parseDuoDuoDate(n?.date);}
 function sortNewsByDate(list){return list.map((item,index)=>({item,index})).sort((a,b)=>{const dt=newsDateTime(b.item)-newsDateTime(a.item);if(dt)return dt;const cb=Number(b.item?.createdAt)||0,ca=Number(a.item?.createdAt)||0;if(cb!==ca)return cb-ca;return a.index-b.index;}).map(x=>x.item); }
-function formatEventDate(value){if(!value)return "";const d=new Date(value);if(Number.isNaN(d.getTime()))return String(value);const pad=n=>String(n).padStart(2,"0");return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;}
+function formatEventDate(value){
+ if(!value)return "";
+ const raw=String(value).trim();
+ const dateOnly=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})$/);
+ if(dateOnly)return `${dateOnly[1]}/${String(dateOnly[2]).padStart(2,"0")}/${String(dateOnly[3]).padStart(2,"0")}`;
+ const d=new Date(value);if(Number.isNaN(d.getTime()))return raw;
+ const pad=n=>String(n).padStart(2,"0");
+ return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 function formatEventDateRange(e){const a=formatEventDate(e?.start),b=formatEventDate(e?.end);return a&&b?`${a} ～ ${b}`:(a||b||"");}
 const news=sortNewsByDate(getJSONSafe("duoduo_news",defaultNews)),reviews=getJSONSafe("duoduo_reviews",defaultReviews);
 let BOSS_CONFIG=getJSONSafe("duoduo_boss_config",defaultBossConfig);

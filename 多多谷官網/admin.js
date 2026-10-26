@@ -350,9 +350,101 @@ setTimeout(()=>{if(document.getElementById('duoduo-admin-auth')===null)addCloudM
 function eventStartTimestamp(e){const raw=String(e?.start??'').trim();if(!raw)return Number.MIN_SAFE_INTEGER;const m=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?)?/);if(m){const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0));if(Number.isFinite(d.getTime()))return d.getTime();}const t=Date.parse(raw);return Number.isFinite(t)?t:Number.MIN_SAFE_INTEGER}
 function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTimestamp(b)-eventStartTimestamp(a))}
 function formatEventDateRange(e){const fmt=v=>{if(!v)return '';const d=new Date(v);if(Number.isNaN(d.getTime()))return String(v).replace('T',' ');const pad=n=>String(n).padStart(2,'0');return `${d.getFullYear()}/${pad(d.getMonth()+1)}/${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`};return `${fmt(e?.start)} ～ ${fmt(e?.end)}`}
-function eventDateTimeParts(value){const raw=String(value??'').trim();if(!raw)return {date:'',time:''};const m=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?)?/);if(m){return {date:`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`,time:`${String(m[4]||0).padStart(2,'0')}:${String(m[5]||0).padStart(2,'0')}`};}const d=new Date(raw);if(Number.isNaN(d.getTime()))return {date:'',time:''};return {date:`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`,time:`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`};}
-function combineEventDateTime(dateId,timeId){const date=$(`#${dateId}`)?.value||'';const time=$(`#${timeId}`)?.value||'';return date?`${date}T${time||'00:00'}`:'';}
-function setEventDateTime(dateId,timeId,value){const parts=eventDateTimeParts(value);const date=$(`#${dateId}`),time=$(`#${timeId}`);if(date)date.value=parts.date;if(time)time.value=parts.time;}
+function ddNormalizeDate(value){
+ const raw=String(value||'').trim();if(!raw)return '';
+ const match=raw.match(/^(\d{4})\s*[\/-]\s*(\d{1,2})\s*[\/-]\s*(\d{1,2})$/);
+ if(!match)return null;
+ const year=Number(match[1]),month=Number(match[2]),day=Number(match[3]);
+ const d=new Date(year,month-1,day);
+ if(d.getFullYear()!==year||d.getMonth()!==month-1||d.getDate()!==day)return null;
+ return `${match[1]}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+}
+function ddNormalizeTime(value){
+ const raw=String(value||'').trim();if(!raw)return null;
+ // 只在儲存時驗證／標準化；逐字輸入時絕不自動修正
+ const m=raw.match(/^(\d{1,2}):(\d{2})$/);
+ if(!m)return null;
+ const h=Number(m[1]),minutes=Number(m[2]);
+ if(h>23||minutes>59)return null;
+ return `${String(h).padStart(2,'0')}:${String(minutes).padStart(2,'0')}`;
+}
+function ddSetPickerValue(dateId,raw){const picker=document.getElementById(dateId+'Picker');if(picker){const date=ddNormalizeDate(raw);picker.value=date||'';}}
+function ddSetTimeEnabled(timeId,enabled){
+ const checked=document.getElementById(timeId.replace('Time','UseTime'));
+ const controls=document.getElementById(timeId+'Controls');
+ if(checked)checked.checked=Boolean(enabled);
+ if(controls)controls.hidden=!enabled;
+}
+function ddReadDate(dateId,label){
+ const input=document.getElementById(dateId),raw=input?.value?.trim()||'';
+ const date=ddNormalizeDate(raw);
+ if(raw&&!date){input?.focus();throw new Error(label+'格式錯誤，請輸入 YYYY/MM/DD 或使用日曆選擇');}
+ return date||'';
+}
+function eventDateTimeParts(value){
+ const raw=String(value??'').trim();if(!raw)return {date:'',time:'',hasTime:false};
+ const m=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})(?:[T ]+(\d{1,2}):(\d{2}))?/);
+ if(m){return {date:`${m[1]}-${String(m[2]).padStart(2,'0')}-${String(m[3]).padStart(2,'0')}`,time:m[4]!==undefined?`${String(m[4]).padStart(2,'0')}:${m[5]}`:'',hasTime:m[4]!==undefined};}
+ return {date:'',time:'',hasTime:false};
+}
+function combineEventDateTime(dateId,timeId){
+ const label=dateId==='eventStart'?'開始日期':'結束日期';
+ const date=ddReadDate(dateId,label);
+ const useTime=document.getElementById(dateId+'UseTime')?.checked;
+ if(!date)return '';
+ if(!useTime)return date; // 不填時間時，雲端只儲存日期
+ const input=document.getElementById(timeId),time=ddNormalizeTime(input?.value);
+ if(!time){input?.focus();throw new Error(label.replace('日期','時間')+'請填寫完整的 HH:mm，例如 02:30；或取消勾選「設定時間」');}
+ return `${date}T${time}`;
+}
+function setEventDateTime(dateId,timeId,value){
+ const parts=eventDateTimeParts(value),date=document.getElementById(dateId),time=document.getElementById(timeId);
+ if(date)date.value=parts.date.replace(/-/g,'/');
+ if(time)time.value=parts.time;
+ ddSetPickerValue(dateId,parts.date);
+ ddSetTimeEnabled(timeId,parts.hasTime);
+}
+function ddSplitNewsDate(value){
+ const raw=String(value||'').trim();
+ const m=raw.match(/^(\d{4}[\/-]\d{1,2}[\/-]\d{1,2})(?:[T ]+(\d{1,2}:\d{2}))?/);
+ return m?{date:m[1],time:m[2]||'',hasTime:Boolean(m[2])}:{date:raw,time:'',hasTime:false};
+}
+function ddSetNewsDate(value){
+ const parts=ddSplitNewsDate(value);
+ const date=document.getElementById('newsDate'),time=document.getElementById('newsTime');
+ if(date)date.value=parts.date;
+ if(time)time.value=parts.time;
+ ddSetPickerValue('newsDate',parts.date);
+ ddSetTimeEnabled('newsTime',parts.hasTime);
+}
+function ddReadNewsDate(){
+ const date=ddReadDate('newsDate','公告日期');
+ const dateText=date||`${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}-${String(new Date().getDate()).padStart(2,'0')}`;
+ if(!document.getElementById('newsUseTime')?.checked)return dateText.replace(/-/g,'/');
+ const input=document.getElementById('newsTime'),time=ddNormalizeTime(input?.value);
+ if(!time){input?.focus();throw new Error('公告時間請輸入 HH:mm，例如 20:00；或取消勾選「設定發布時間」');}
+ return `${dateText.replace(/-/g,'/')} ${time}`;
+}
+(function initDuoDuoDateTimeControls(){
+ document.querySelectorAll('[data-date-target]').forEach(button=>{
+  const target=button.dataset.dateTarget,picker=document.getElementById(target+'Picker'),manual=document.getElementById(target);
+  if(!picker||!manual)return;
+  button.addEventListener('click',()=>{
+   ddSetPickerValue(target,manual.value);
+   try{if(typeof picker.showPicker==='function')picker.showPicker();else picker.click();}
+   catch{picker.focus();picker.click();}
+  });
+  picker.addEventListener('change',()=>{if(picker.value)manual.value=picker.value.replace(/-/g,'/');});
+  manual.addEventListener('change',()=>ddSetPickerValue(target,manual.value));
+ });
+ for(const [checkId,timeId] of [['eventStartUseTime','eventStartTime'],['eventEndUseTime','eventEndTime'],['newsUseTime','newsTime']]){
+  const checkbox=document.getElementById(checkId);
+  if(checkbox){checkbox.addEventListener('change',()=>ddSetTimeEnabled(timeId,checkbox.checked));ddSetTimeEnabled(timeId,checkbox.checked);}
+ }
+ document.querySelectorAll('[data-set-time]').forEach(btn=>btn.addEventListener('click',()=>{
+  const input=document.getElementById(btn.dataset.setTime);if(input)input.value=btn.dataset.time;
+ }));
+})();
 document.querySelectorAll('.nav').forEach(btn=>btn.onclick=()=>{document.querySelectorAll('.nav').forEach(x=>x.classList.remove('active'));document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));btn.classList.add('active');$('#'+btn.dataset.panel).classList.add('active');render()});
 const contentFields=[
 ['hero','Hero 主視覺',[['eyebrow','小標'],['title','標題'],['subtitle','副標題']]],['newPlayer','新手三步驟',[['title','標題'],['desc','介紹'],['steps.0.title','步驟 1 標題'],['steps.0.desc','步驟 1 說明'],['steps.1.title','步驟 2 標題'],['steps.1.desc','步驟 2 說明'],['steps.2.title','步驟 3 標題'],['steps.2.desc','步驟 3 說明']]],['why','為什麼選多多谷',[['title','標題'],['desc','介紹'],...Array.from({length:6},(_,i)=>[`cards.${i}.title`,`卡片 ${i+1} 標題`]).concat(Array.from({length:6},(_,i)=>[`cards.${i}.desc`,`卡片 ${i+1} 說明`]))]],['about','關於多多谷',[['title','標題'],['desc','介紹'],['overlayTitle','圖片上的標題'],['overlayDesc','圖片上的說明'],['image','世界觀圖片路徑']]],['quickIntro','快速認識多多谷',[['title','標題'],['desc','介紹'],...Array.from({length:4},(_,i)=>[`cards.${i}.title`,`卡片 ${i+1} 標題`]).concat(Array.from({length:4},(_,i)=>[`cards.${i}.desc`,`卡片 ${i+1} 說明`]))]],['features','特色系統',[['title','標題'],['desc','介紹'],...Array.from({length:4},(_,i)=>[`cards.${i}.title`,`卡片 ${i+1} 標題`]).concat(Array.from({length:4},(_,i)=>[`cards.${i}.desc`,`卡片 ${i+1} 說明`]).concat([['cards.0.small','第一張卡片底部文字']]))]],['events','活動',[['title','標題']]],['boss','BOSS',[['title','標題'],['desc','介紹']]],['community','玩家社群',[['title','標題'],['desc','介紹'],['copyTitle','內文標題'],['copyDesc','內文說明']]],['stay','為什麼留下來',[['title','標題'],['desc','介紹'],...Array.from({length:3},(_,i)=>[`cards.${i}.title`,`卡片 ${i+1} 標題`]).concat(Array.from({length:3},(_,i)=>[`cards.${i}.desc`,`卡片 ${i+1} 說明`]))]],['news','最新消息',[['title','標題']]],['versions','版本紀錄',[['title','標題'],['desc','介紹']]],['start','開始遊玩',[['title','標題'],['desc','介紹']]],['quickLinks','玩家常用入口',[['title','標題']]]];
@@ -385,7 +477,7 @@ function manageListDate(value){
 function manageEventEndTimestamp(e){
  const raw=String(e?.end||'').trim();
  if(!raw)return null;
- const val=eventStartTimestamp({start:raw});return val===Number.MIN_SAFE_INTEGER?null:val;
+ const val=eventStartTimestamp({start:raw});if(val===Number.MIN_SAFE_INTEGER)return null;return /^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}$/.test(raw)?val+86400000-1:val;
 }
 function manageEventStatus(e){
  if(e.published===false)return '未公開';
@@ -700,7 +792,7 @@ function readNewsSerial(){return {
 function showNewsSerial(obj){const s=obj||{};for(const [id,key] of [['newsSerialCode','code'],['newsSerialExpiry','expiry'],['newsSerialMethod','method'],['newsSerialRewards','rewards'],['newsSerialNotes','notes']])newsEl(id).value=String(s[key]||'');}
 function newsResetEditor(){
  editingNewsIndex=null;
- newsEl('newsTag').value='重要消息';newsEl('newsTitle').value='';newsEl('newsDate').value='';
+ newsEl('newsTag').value='重要消息';newsEl('newsTitle').value='';ddSetNewsDate('');
  newsEl('newsLead').value='';newsEl('newsBody').value='';newsEl('newsIncludeLegacy').checked=false;
  newsEl('newsLegacyEditor').open=false;newsSectionDraft=[];showNewsSerial(null);renderNewsEditor();newsSerialMode();
  newsEl('addNews').textContent='＋ 新增公告';
@@ -708,9 +800,10 @@ function newsResetEditor(){
 newsEl('cancelEditNews').onclick=()=>{newsResetEditor();};
 newsEl('addNews').onclick=()=>{
  const title=newsEl('newsTitle').value.trim();if(!title)return alert('請先輸入公告標題');
+ let validNewsDate;try{validNewsDate=ddReadNewsDate();}catch(error){return alert(error.message);}
  const items=newsSectionDraft.map(x=>({type:x.type,title:(x.type==='custom'?x.title:NEWS_SECTION_TYPES.find(t=>t[0]===x.type)?.[1]||x.title).trim(),icon:duoduoEventIconId(x.icon),body:String(x.body||'').trim()})).filter(x=>x.title&&x.body);
  const tag=newsEl('newsTag').value;
- const data={tag,title,date:newsEl('newsDate').value.trim()||new Date().toLocaleDateString('zh-TW'),body:newsEl('newsBody').value.trim(),
+ const data={tag,title,date:validNewsDate,body:newsEl('newsBody').value.trim(),
  newsLead:newsEl('newsLead').value.trim(),newsSections:items,newsIncludeLegacy:newsEl('newsIncludeLegacy').checked,newsSerial:readNewsSerial()};
  if(editingNewsIndex!==null&&news[editingNewsIndex]){news[editingNewsIndex]=Object.assign({},news[editingNewsIndex],data);alert('公告已更新（目前瀏覽器）。');}
  else{news.unshift(data);alert('公告已新增（目前瀏覽器）。');}
@@ -718,7 +811,7 @@ newsEl('addNews').onclick=()=>{
 };
 window.editNews=i=>{
  const n=news[i];if(!n)return;editingNewsIndex=i;
- newsEl('newsTag').value=n.tag||'重要消息';newsEl('newsTitle').value=n.title||'';newsEl('newsDate').value=n.date||'';
+ newsEl('newsTag').value=n.tag||'重要消息';newsEl('newsTitle').value=n.title||'';ddSetNewsDate(n.date||'');
  newsEl('newsBody').value=n.body||'';newsEl('newsLead').value=n.newsLead||'';
  newsEl('newsIncludeLegacy').checked=Boolean(n.newsIncludeLegacy);
  newsSectionDraft=normalizeNewsBlocks(n);showNewsSerial(n.newsSerial);renderNewsEditor();newsSerialMode();
@@ -966,6 +1059,14 @@ renderEventSectionEditor();
 $('#saveEvent').onclick=async()=>{
   const name=$('#eventName').value.trim();
   if(!name)return alert('請輸入活動名稱');
+  let validEventStart,validEventEnd;
+  try{
+    validEventStart=combineEventDateTime('eventStart','eventStartTime');
+    validEventEnd=combineEventDateTime('eventEnd','eventEndTime');
+    const startMs=eventStartTimestamp({start:validEventStart});
+    const endMs=manageEventEndTimestamp({end:validEventEnd});
+    if(validEventStart&&validEventEnd&&endMs!==null&&startMs>endMs)throw new Error('活動結束日期／時間不能早於開始日期／時間');
+  }catch(error){return alert(error.message);}
 
   const existing=editingEventId?events.find(d=>d.id===editingEventId):null;
   let cover=$('#eventImage').value.trim()||existing?.image||existing?.images?.[0]||'assets/ad3.png';
@@ -1027,8 +1128,8 @@ $('#saveEvent').onclick=async()=>{
     detail:$('#eventDetail').value.trim(),
     sections:{},
     sectionBlocks:collectEventSectionBlocks(),
-    start:combineEventDateTime('eventStart','eventStartTime'),
-    end:combineEventDateTime('eventEnd','eventEndTime'),
+    start:validEventStart,
+    end:validEventEnd,
     url:$('#eventUrl').value.trim(),
     published:$('#eventPublished').checked
   };
@@ -1096,7 +1197,7 @@ window.removeEvent=async i=>{
   render();
   alert('檔期活動已刪除，並同步到雲端。');
 };
-let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';eventSectionDraft=normalizeEventSections(e);renderEventSectionEditor();setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();focusManagedForm('eventManageForm')};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});eventSectionDraft=[];renderEventSectionEditor();$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
+let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';eventSectionDraft=normalizeEventSections(e);renderEventSectionEditor();setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();focusManagedForm('eventManageForm')};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});eventSectionDraft=[];renderEventSectionEditor();ddSetTimeEnabled('eventStartTime',false);ddSetTimeEnabled('eventEndTime',false);ddSetPickerValue('eventStart','');ddSetPickerValue('eventEnd','');$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
 window.saveLinks=()=>{const saved={};document.querySelectorAll('#linksForm input').forEach(i=>saved[i.dataset.key]=i.value.trim());localStorage.setItem('duoduo_links',JSON.stringify(saved));alert('網址已儲存到此瀏覽器。')};
 function renderItems(){const box=$('#itemsAdmin');const q=($('#itemSearch')?.value||'').trim().toLowerCase();const f=items.filter(x=>`${x.name} ${x.category} ${x.description||''}`.toLowerCase().includes(q));box.innerHTML=f.length?f.map(x=>`<div class="item-row"><div class="item-thumb">${x.image?`<img src="${x.image}" alt="">`:'無圖片'}</div><div class="item-meta"><b>${esc(x.name)}</b><small>${esc(x.description||'尚未填寫描述')}</small></div><div class="item-category">${esc(x.category)}</div><div class="item-actions"><button onclick="editItem('${x.id}')">編輯</button><button class="danger" onclick="removeItem('${x.id}')">刪除</button></div></div>`).join(''):'<div class="note">目前沒有符合條件的道具。</div>'}
 function resetItemForm(){editingItemId=null;pendingItemImage='';$('#itemFormTitle').textContent='新增道具';$('#itemName').value='';$('#itemCategory').value='裝備';$('#itemDescription').value='';$('#itemImage').value='';$('#itemImagePreview').innerHTML='<span>尚未選擇圖片</span>';$('#itemForm').hidden=true}

@@ -83,9 +83,10 @@ function eventTime(value){
   return Number.isFinite(t)?t:NaN;
 }
 function eventStatus(e){
-  const now=Date.now(),start=eventTime(e.start),end=eventTime(e.end);
+  const now=Date.now(),start=eventTime(e.start),end=eventTime(e.end),endIsDateOnly=/^\d{4}[-\/]\d{1,2}[-\/]\d{1,2}$/.test(String(e.end||'').trim());
+  const effectiveEnd=endIsDateOnly?end+86400000-1:end;
   if(Number.isFinite(start)&&now<start)return {text:'尚未開始',className:'event-status-upcoming'};
-  if(Number.isFinite(end)&&now>end)return {text:'已結束',className:'event-status-ended'};
+  if(Number.isFinite(effectiveEnd)&&now>effectiveEnd)return {text:'已結束',className:'event-status-ended'};
   return {text:'進行中',className:'event-status-active'};
 }
 function sortEventList(list){
