@@ -79,17 +79,29 @@ body.collapsed #mini {display:grid;}
     user-select: none;
     -webkit-user-select: none;
   }
+  /* Match the existing glove blink cycle (hover 1 ↔ hover 2, every 500ms).
+     Explicit tabindex on these native sliders lets cursor.js see them as
+     interactive, without changing its behavior for other inputs. */
+  html.duoduo-cursor-ready.duoduo-cursor-hover-alt #player input[type="range"] {
+    cursor: url("cursor-ui/cursor-hover-2.png") 3 2, pointer !important;
+  }
   html.duoduo-cursor-ready.duoduo-cursor-pressed #player input[type="range"] {
     cursor: url("cursor-ui/cursor-pressed.png") 3 2, grabbing !important;
   }
   html.duoduo-cursor-ready #player input[type="range"]::-webkit-slider-thumb {
     cursor: url("cursor-ui/cursor-hover-1.png") 3 2, pointer !important;
   }
+  html.duoduo-cursor-ready.duoduo-cursor-hover-alt #player input[type="range"]::-webkit-slider-thumb {
+    cursor: url("cursor-ui/cursor-hover-2.png") 3 2, pointer !important;
+  }
   html.duoduo-cursor-ready.duoduo-cursor-pressed #player input[type="range"]::-webkit-slider-thumb {
     cursor: url("cursor-ui/cursor-pressed.png") 3 2, grabbing !important;
   }
   html.duoduo-cursor-ready #player input[type="range"]::-moz-range-thumb {
     cursor: url("cursor-ui/cursor-hover-1.png") 3 2, pointer !important;
+  }
+  html.duoduo-cursor-ready.duoduo-cursor-hover-alt #player input[type="range"]::-moz-range-thumb {
+    cursor: url("cursor-ui/cursor-hover-2.png") 3 2, pointer !important;
   }
   html.duoduo-cursor-ready.duoduo-cursor-pressed #player input[type="range"]::-moz-range-thumb {
     cursor: url("cursor-ui/cursor-pressed.png") 3 2, grabbing !important;
@@ -125,12 +137,12 @@ body.collapsed #mini {display:grid;}
     <div id="status" role="status">從多多谷後台取得上架歌曲。</div>
     <div id="controls">
       <button type="button" id="play" aria-label="播放或暫停" title="播放／暫停" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button>
-      <div id="timeline"><div id="times"><span id="elapsed">0:00</span><span id="duration">0:00</span></div><input id="seek" type="range" min="0" max="1000" value="0" aria-label="音樂進度" disabled></div>
+      <div id="timeline"><div id="times"><span id="elapsed">0:00</span><span id="duration">0:00</span></div><input id="seek" type="range" tabindex="0" min="0" max="1000" value="0" aria-label="音樂進度" disabled></div>
     </div>
     <div id="modeRow">
       <button id="modeCycle" type="button" title="切換播放模式" aria-label="切換播放模式"><svg id="modeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span id="modeLabel">循環播放</span></button>
       <div id="skipButtons"><button class="iconButton" id="prev" type="button" title="上一首" aria-label="上一首" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14M19 5l-10 7 10 7z"/></svg></button><button class="iconButton" id="next" type="button" title="下一首" aria-label="下一首" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5v14M5 5l10 7-10 7z"/></svg></button></div>
-      <div id="volumeBox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5zM15 9a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="40" aria-label="音量"></div>
+      <div id="volumeBox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5zM15 9a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"/></svg><input id="volume" type="range" tabindex="0" min="0" max="100" step="1" value="40" aria-label="音量"></div>
       <span id="modeExplanation" class="visuallyHidden">點擊可切換播放模式</span>
     </div>
     <div id="bottomline">
