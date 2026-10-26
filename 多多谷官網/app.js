@@ -34,13 +34,20 @@
 })();
 /* ===== 多多谷雲端網站資料同步結束 ===== */
 
-const DEFAULT_LINKS={discord:"https://discord.gg/duoduovalley",topup:"https://fd-pay.com/ARrbXO",guide:"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing",rates:"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing",products:"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing",checklist:"https://duoduovalley.github.io/duoduo-checklist/",launcher:"https://mega.nz/file/d3IVHYZY#iIv2Y93Y2tPy2zORnDUUEWY-q4wO6PkdTqNZG3cYlM",pack:"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing"};
+const DEFAULT_LINKS={discord:"https://discord.gg/duoduovalley",topup:"https://fd-pay.com/ARrbXO",guide:"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing",rates:"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing",products:"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing",checklist:"https://duoduovalley.github.io/duoduo-checklist/",launcher:"https://mega.nz/file/d3IVHYZY#iIv2y93Y2tPy2zORnDUUEWY-q4wO6Pkd8TqNZG3cYlM",pack:"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing"};
 function getJSONSafe(key,fallback){try{const cloud=sessionStorage.getItem("duoduo_cloud_"+key);if(cloud!==null)return JSON.parse(cloud);return JSON.parse(localStorage.getItem(key)||"null")??fallback}catch{return fallback}}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function eventImages(e){const list=Array.isArray(e?.images)?e.images.filter(Boolean):[];return list.length?list:(e?.image?[e.image]:["assets/ad3.png"])}
 function eventCarouselHTML(e,extraClass=""){const imgs=eventImages(e);const interval=Math.max(2000,Number(e?.interval)||5000);return `<div class="event-carousel ${extraClass}" data-images='${esc(JSON.stringify(imgs))}' data-interval="${interval}"><div class="event-carousel-track">${imgs.map((src,i)=>`<img class="event-slide${i===0?" active":""}" src="${esc(src)}" alt="" loading="lazy">`).join("")}</div>${imgs.length>1?`<button class="event-carousel-arrow prev" type="button" aria-label="上一張">‹</button><button class="event-carousel-arrow next" type="button" aria-label="下一張">›</button><div class="event-carousel-bottom"><div class="event-carousel-dots">${imgs.map((_,i)=>`<button type="button" class="event-carousel-dot${i===0?" active":""}" data-slide="${i}" aria-label="第 ${i+1} 張"></button>`).join("")}</div><span class="event-carousel-count">01 / ${String(imgs.length).padStart(2,"0")}</span><button class="event-carousel-pause" type="button" aria-label="暫停輪播">Ⅱ</button></div>`:""}</div>`}
 function initEventCarousels(scope=document){scope.querySelectorAll('.event-carousel').forEach(root=>{if(root.dataset.ready)return;root.dataset.ready='1';const slides=[...root.querySelectorAll('.event-slide')],dots=[...root.querySelectorAll('.event-carousel-dot')],count=root.querySelector('.event-carousel-count'),pause=root.querySelector('.event-carousel-pause');if(slides.length<2)return;let index=0,timer=null,paused=false;const interval=Math.max(2000,Number(root.dataset.interval)||5000);const show=(next)=>{index=(next+slides.length)%slides.length;slides.forEach((el,i)=>el.classList.toggle('active',i===index));dots.forEach((el,i)=>el.classList.toggle('active',i===index));if(count)count.textContent=`${String(index+1).padStart(2,'0')} / ${String(slides.length).padStart(2,'0')}`};const start=()=>{clearInterval(timer);if(!paused)timer=setInterval(()=>show(index+1),interval)};root.querySelector('.prev')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();show(index-1);start()});root.querySelector('.next')?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();show(index+1);start()});dots.forEach(d=>d.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();show(Number(d.dataset.slide)||0);start()}));pause?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();paused=!paused;pause.textContent=paused?'▶':'Ⅱ';start()});root.addEventListener('mouseenter',()=>{paused=true;clearInterval(timer)});root.addEventListener('mouseleave',()=>{paused=false;start()});show(0);start()})}
-const LINKS=Object.assign({},DEFAULT_LINKS,getJSONSafe("duoduo_links",{}));
+// 同時支援新版英文 key 與已儲存於雲端的舊版中文 key；前台統一以 data-link 英文 key 使用。
+const LINK_LABEL_TO_KEY={"Discord":"discord","儲值入口":"topup","遊玩指南":"guide","機率型道具說明":"rates","上架商品":"products","每日 Checklist":"checklist","登入器下載":"launcher","整合包下載":"pack"};
+const SAVED_LINKS=getJSONSafe("duoduo_links",{})||{};
+const LINKS={...DEFAULT_LINKS};
+for(const [label,key] of Object.entries(LINK_LABEL_TO_KEY)){
+  const value=Object.prototype.hasOwnProperty.call(SAVED_LINKS,key)?SAVED_LINKS[key]:SAVED_LINKS[label];
+  if(typeof value==='string')LINKS[key]=value;
+}
 const DEFAULT_RESOURCES=[
   {id:"guide",title:"完整遊玩指南",desc:"新手規則、系統說明與遊玩資訊。",url:DEFAULT_LINKS.guide,embedUrl:"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/preview",embed:true},
   {id:"rates",title:"機率型道具說明",desc:"查看機率型道具與相關說明。",url:DEFAULT_LINKS.rates,embedUrl:"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing",embed:true},
@@ -56,6 +63,20 @@ const DEFAULT_DOWNLOADS=[
   {id:"pack",title:"DuoDuo 整合包",type:"DuoDuo",url:"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing",desc:"已整理好的 DuoDuo MapleStoryV282 遊戲資料，適合需要完整環境的玩家。",instructions:"1.將 DuoDuo MapleStoryV282 遊戲資料夾內「多多谷」開啟。\n2.開啟多多谷登入器後，於該介面註冊遊戲帳號。\n3.點擊「GAME START」按鈕，即可進入遊戲。",image:"",enabled:true}
 ];
 const DOWNLOADS=getJSONSafe("duoduo_downloads",DEFAULT_DOWNLOADS);
+// 登入器／整合包兩個入口與下載專區共用網址，但不回寫任何下載資料。
+// ① 後台網址管理已設定：使用該網址；② 尚未設定：沿用下載專區網址。
+// 已知有誤的舊 MEGA 預設視為「尚未設定」，自動用下載專區的完整金鑰校正。
+const OLD_LAUNCHER_DEFAULTS=['https://mega.nz/file/d3IVHYZY#iIv2y93Y2tPy2zORnDUUEWY-q4wO6PkdTqNZG3cYlM','https://mega.nz/file/d3IVHYZY#iIv2Y93Y2tPy2zORnDUUEWY-q4wO6PkdTqNZG3cYlM'];
+for(const [key,label] of [['launcher','登入器下載'],['pack','整合包下載']]){
+  const download=Array.isArray(DOWNLOADS)?DOWNLOADS.find(item=>item.id===key):null;
+  const explicitlyConfigured=Object.prototype.hasOwnProperty.call(SAVED_LINKS,key)||Object.prototype.hasOwnProperty.call(SAVED_LINKS,label);
+  const invalidOldDefault=key==='launcher'&&OLD_LAUNCHER_DEFAULTS.includes(LINKS.launcher);
+  if(!explicitlyConfigured||invalidOldDefault){
+    if(download?.url)LINKS[key]=download.url;
+  }else if(download){
+    download.url=LINKS[key]; // 僅供前台呈現；不修改已儲存的下載項目。
+  }
+}
 
 const DEFAULT_SITE_SETTINGS={
   name:"DuoDuo Valley｜多多谷",
