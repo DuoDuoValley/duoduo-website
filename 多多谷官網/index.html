@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0c1320">
 <title>多多谷｜官方網站｜活動、攻略、BOSS、下載與最新消息</title>
 <meta name="description" content="多多谷官方網站，提供最新活動、遊戲公告、BOSS 資訊、遊玩攻略、下載資源與玩家資訊。">
-<meta name="duoduo-shell-version" content="BGM-V4-direct-20261027">
+<meta name="duoduo-shell-version" content="BGM-V5-routing-20261027">
 <script>/* 防止舊 bgm-test.html 內再載入新版播放器 */if(window.self!==window.top){location.replace(new URL("home.html"+location.search+location.hash,location.href).href);}</script>
 <style>
 :root { color-scheme:dark; --panel:#101d2d; --line:rgba(175,205,245,.22); --text:#f5f7ff; --muted:#a8b7cc; --accent:#82c9ff; }
@@ -63,27 +63,10 @@ body.collapsed #mini {display:grid;}
 #volumeBox {min-width:72px!important;max-width:90px!important;}
 @media(max-width:480px){#bottomline{gap:5px;}#volumeBox{min-width:60px!important;max-width:76px!important;}#skipButtons .iconButton{width:28px;}}
 </style>
-<script>
-// Optional direct link: index.html?page=events.html or index.html?page=event-detail.html%3Fid%3D...
-(function(){
-  const params=new URLSearchParams(location.search);
-  const page=params.get('page');
-  if(!page)return;
-  try{
-    const candidate=new URL(page,new URL('./',location.href));
-    const base=new URL('./',location.href);
-    if(candidate.origin!==location.origin||!candidate.pathname.startsWith(base.pathname)||
-       /(?:^|\/)admin\.html$/i.test(candidate.pathname)||
-       /(?:^|\/)(?:bgm-test|index)\.html$/i.test(candidate.pathname))return;
-    document.addEventListener('DOMContentLoaded',()=>{
-      document.getElementById('duoduoSite').src=candidate.href;
-    },{once:true});
-  }catch{}
-})();
-</script>
+
 </head>
 <body>
-<iframe id="duoduoSite" title="多多谷官網" src="home.html" allow="fullscreen; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+<iframe id="duoduoSite" title="多多谷官網" src="about:blank" allow="fullscreen; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 <div id="player" role="region" aria-label="多多谷常駐背景音樂播放器">
   <div id="topline">
     <div id="musicCircle" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="16" rx="3" ry="2"/></svg></div>
@@ -203,69 +186,134 @@ async function fetchCloud(){
 fetchCloud();setInterval(fetchCloud,60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')fetchCloud();});
 window.addEventListener('online',fetchCloud);
+// V5 navigation: one persistent audio element, one shareable URL per view.
 const pageNames={'home.html':'首頁','index.html':'首頁','news.html':'最新消息','events.html':'檔期活動','event-detail.html':'活動詳情','boss.html':'BOSS 介紹','guide.html':'遊玩指南','downloads.html':'下載專區','privacy.html':'隱私政策','terms.html':'使用條款','player-tools/index.html':'玩家工具'};
-let rootUrl;try{rootUrl=new URL('./',location.href);}catch{rootUrl={pathname:'/'};}
-
-// The original index.html now lives at home.html. Rewrite only same-origin
-// homepage links inside the iframe; external/blank links remain untouched.
 const siteBase=new URL('./',location.href);
-const rootPath=siteBase.pathname;
-const homePath=new URL('home.html',siteBase).pathname;
-const shellPath=new URL('index.html',siteBase).pathname;
-function homepageUrl(raw,base){
-  if(!raw||raw.startsWith('javascript:'))return null;
+const siteRoot=siteBase.pathname;
+const ROUTE_PAGES=new Set(['home.html','news.html','events.html','event-detail.html','boss.html','guide.html','downloads.html','privacy.html','terms.html','player-tools/index.html']);
+const ROUTE_KEY='duoduo_v5_route';
+let activeFrameDocument=null;
+
+function safePage(raw,base=siteBase){
   try{
-    const next=new URL(raw,base);
-    if(next.origin!==location.origin)return null;
-    if(next.pathname!==shellPath&&next.pathname!==rootPath)return null;
-    return new URL('home.html'+next.search+next.hash,siteBase).href;
+    if(!raw||/^\s*(?:javascript:|data:)/i.test(String(raw)))return null;
+    const result=new URL(raw,base);
+    if(result.origin!==location.origin||!result.pathname.startsWith(siteRoot))return null;
+    let relative=result.pathname.slice(siteRoot.length);
+    if(!relative||relative==='index.html')relative='home.html';
+    if(!ROUTE_PAGES.has(relative))return null;
+    return new URL(relative+result.search+result.hash,siteBase);
   }catch{return null;}
 }
-function keepNavigationInside(){
-  let pageDocument;
-  try{pageDocument=frame.contentDocument;if(!pageDocument)return;}catch{return;}
-  // Existing links are rewritten; delegated handler catches links added later by app.js.
-  function rewriteLinks(root){
-    root.querySelectorAll?.('a[href]').forEach(a=>{
-      if(a.hasAttribute('download')||a.target==='_blank'||a.target==='_top'||a.target==='_parent')return;
-      const next=homepageUrl(a.getAttribute('href'),pageDocument.baseURI);
-      if(next)a.href=next;
-    });
+function routeKey(url){
+  const p=url.pathname.slice(siteRoot.length);
+  if(p==='home.html'&&!url.search&&!url.hash)return '';
+  return p+url.search+url.hash;
+}
+function outwardUrl(inner){
+  const address=new URL('./',siteBase);
+  const key=routeKey(inner);
+  if(key)address.searchParams.set('page',key);
+  return address;
+}
+function fromLocation(){
+  const page=new URLSearchParams(location.search).get('page');
+  return safePage(page||'home.html');
+}
+function currentInner(){
+  try{return safePage(frame.contentWindow.location.href);}catch{return null;}
+}
+function updateAddress(inner,method='push'){
+  const destination=outwardUrl(inner);
+  if(destination.href===location.href)return;
+  const state={...(history.state&&typeof history.state==='object'?history.state:{}),[ROUTE_KEY]:routeKey(inner)};
+  if(method==='push')history.pushState(state,'',destination);
+  else history.replaceState(state,'',destination);
+}
+function showCurrentPage(inner){
+  const relative=inner.pathname.slice(siteRoot.length);
+  byId('pageTitle').textContent=`目前：${pageNames[relative]||'官網頁面'}`;
+}
+function changeInner(to,method='push'){
+  const target=safePage(to);
+  if(!target)return false;
+  const current=currentInner();
+  updateAddress(target,method);
+  if(current&&current.href===target.href){showCurrentPage(target);return true;}
+  if(current&&current.pathname===target.pathname&&current.search===target.search){
+    // Same page, different anchor: no page or audio reload, no iframe history duplication.
+    try{
+      const w=frame.contentWindow;
+      w.history.replaceState(w.history.state,'',target.href);
+      if(target.hash){
+        const name=decodeURIComponent(target.hash.slice(1));
+        w.document.getElementById(name)?.scrollIntoView();
+      }else{w.scrollTo(0,0);}
+      w.dispatchEvent(new Event('hashchange'));
+      showCurrentPage(target);
+      return true;
+    }catch{}
   }
-  rewriteLinks(pageDocument);
-  pageDocument.addEventListener('click',event=>{
+  try{frame.contentWindow.location.replace(target.href);}catch{frame.src=target.href;}
+  showCurrentPage(target);
+  return true;
+}
+function synchronizeFromFrame(){
+  const current=currentInner();
+  if(!current)return;
+  updateAddress(current,'replace');
+  showCurrentPage(current);
+}
+function wirePage(){
+  const doc=frame.contentDocument;
+  if(!doc||doc===activeFrameDocument)return;
+  activeFrameDocument=doc;
+  const win=frame.contentWindow;
+  // Keep real links in the original documents (copy-link and new-tab still work).
+  // Normal same-tab clicks use the outer router so iframe history is not duplicated.
+  doc.addEventListener('click',event=>{
     if(event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.shiftKey||event.altKey)return;
-    const target=event.target;
-    const a=target&&target.closest?target.closest('a[href]'):null;
+    const element=event.target?.nodeType===1?event.target:event.target?.parentElement;
+    const a=element?.closest?.('a[href]');
     if(!a||a.hasAttribute('download')||a.target==='_blank'||a.target==='_top'||a.target==='_parent')return;
-    const next=homepageUrl(a.getAttribute('href'),pageDocument.baseURI);
-    if(!next)return;
+    const url=safePage(a.getAttribute('href'),doc.baseURI);
+    if(!url)return;
     event.preventDefault();
-    frame.contentWindow.location.assign(next);
+    changeInner(url,'push');
   },true);
-  // Keep the existing navigation system intact; avoid mutating page markup unrelated to links.
-  const observer=new MutationObserver(records=>{
-    for(const record of records){
-      for(const node of record.addedNodes){
-        if(node.nodeType===1){
-          if(node.matches?.('a[href]')){
-            const next=homepageUrl(node.getAttribute('href'),pageDocument.baseURI);
-            if(next&&!node.hasAttribute('download')&&node.target!=='_blank')node.href=next;
-          }
-          rewriteLinks(node);
-        }
-      }
-    }
-  });
-  observer.observe(pageDocument.documentElement,{subtree:true,childList:true});
+  // Some pages (e.g. news details) call history.pushState themselves.
+  // Their iframe already creates a session-history entry: mirror with replace,
+  // not another push, to avoid requiring two Back presses.
+  for(const name of ['pushState','replaceState']){
+    try{
+      const old=win.history[name].bind(win.history);
+      win.history[name]=function(...args){
+        const result=old(...args);
+        synchronizeFromFrame();
+        return result;
+      };
+    }catch{}
+  }
+  win.addEventListener('popstate',synchronizeFromFrame);
+  win.addEventListener('hashchange',synchronizeFromFrame);
 }
 frame.addEventListener('load',()=>{
- keepNavigationInside();
- try{const here=new URL(frame.contentWindow.location.href);if(here.origin!==location.origin)return;
-  const relative=decodeURIComponent(here.pathname.slice(rootUrl.pathname.length));
-  byId('pageTitle').textContent=`目前：${pageNames[relative]||'官網頁面'}`;
- }catch{byId('pageTitle').textContent='目前：官網';}
+  const inner=currentInner();
+  if(!inner)return;
+  wirePage();
+  synchronizeFromFrame();
 });
+window.addEventListener('popstate',()=>{
+  const want=fromLocation();
+  if(!want)return;
+  const have=currentInner();
+  if(!have||have.href!==want.href)changeInner(want,'replace');
+  else showCurrentPage(want);
+});
+// Don't load the old homepage before the requested shareable subpage.
+const firstPage=fromLocation()||safePage('home.html');
+frame.src=firstPage.href;
+showCurrentPage(firstPage);
 
 // Preserve update detection for the new public entry (no forced reload when unchanged).
 const shellVersion=document.querySelector('meta[name="duoduo-shell-version"]')?.content||'';

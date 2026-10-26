@@ -1,3 +1,21 @@
+/* BGM V5 direct-link bridge: stand-alone public pages open inside the music shell. */
+(function(){
+  if(window.self!==window.top)return;
+  try{
+    const script=document.currentScript;
+    if(!script?.src)return;
+    const base=new URL('./',script.src);
+    const current=new URL(location.href);
+    if(current.origin!==base.origin||!current.pathname.startsWith(base.pathname))return;
+    const page=current.pathname.slice(base.pathname.length);
+    const eligible=new Set(['home.html','news.html','events.html','event-detail.html','boss.html','guide.html','downloads.html','privacy.html','terms.html']);
+    if(!eligible.has(page))return;
+    const destination=new URL('./',base);
+    destination.searchParams.set('page',page+current.search+current.hash);
+    location.replace(destination.href);
+  }catch{}
+})();
+
 /* ===== 多多谷雲端網站資料同步 ===== */
 (function(){
   const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
