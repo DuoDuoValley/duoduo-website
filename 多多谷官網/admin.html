@@ -50,7 +50,20 @@
 #news .news-struct-full{width:100%;min-width:0}
 #news .news-section-editor,#news .news-serial-editor{box-sizing:border-box}
 #news .news-section-editor .event-section-icon-tools[hidden],#news .event-section-icon-gallery[hidden],#news .news-serial-editor[hidden]{display:none!important}
-#news .news-section-editor .event-section-icon-category{cursor:pointer}
+/* 公告分段圖示選擇器：補足原本活動編輯器已有、公告編輯器遺漏的樣式 */
+#news .news-section-editor .event-section-icon-tools{display:grid;gap:10px;margin-top:1px;min-width:0}
+#news .news-section-editor .event-section-icon-tools[hidden],
+#news .news-section-editor .event-section-icon-option[hidden]{display:none!important}
+#news .news-section-editor .event-section-icon-search{box-sizing:border-box;width:100%;max-width:none;min-height:40px;padding:9px 13px;border:1px solid #415772;border-radius:10px;background:#0b1522;color:#e5eefb;font-size:13px}
+#news .news-section-editor .event-section-icon-search:focus{outline:2px solid rgba(90,174,244,.25);border-color:#75baff}
+#news .news-section-editor .event-section-icon-categories{display:flex;flex-wrap:wrap;gap:7px}
+#news .news-section-editor button.event-section-icon-category{border:1px solid #385370;border-radius:100px;padding:6px 12px;background:#102035;color:#b8cadc;font-size:12px;font-weight:500;line-height:1.5;cursor:pointer}
+#news .news-section-editor button.event-section-icon-category:hover{background:#1a354d;color:#fff}
+#news .news-section-editor button.event-section-icon-category.is-active{background:#214b71;color:#f4faff;border-color:#68b4ed}
+#news .news-section-editor .event-section-icon-count{font-size:12px;color:#99b6cc}
+#news .news-section-editor .event-section-icon-live-preview{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid #354d66;border-radius:11px;background:rgba(87,153,213,.08);font-size:13px;font-weight:600;color:#dcecff;overflow-wrap:anywhere}
+#news .news-section-editor .event-section-icon-live-preview svg{width:20px;height:20px;flex-shrink:0;color:#9ed3ff}
+@media(max-width:520px){#news .news-section-editor .event-section-icon-categories{gap:5px}#news .news-section-editor button.event-section-icon-category{padding:6px 9px;font-size:11px}}
 #news .news-serial-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
 #news .news-serial-grid label{min-width:0;display:flex;flex-direction:column;gap:8px;color:#c9d8eb;font-size:13px}
 #news .news-serial-grid input,#news .news-serial-grid textarea{box-sizing:border-box;width:100%;min-width:0}
