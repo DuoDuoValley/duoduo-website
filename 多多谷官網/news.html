@@ -125,7 +125,13 @@ const NEWS_HEADINGS = {
   '注意事項':'info', '重要提醒':'info', '特別提醒':'info',
   '更新內容':'file', '更新項目':'file', '維護內容':'file', '維護時間':'clock',
   '調整項目':'file', '相關說明':'file', '補充說明':'file', '公告說明':'file',
-  '活動介紹':'file', '活動期間':'calendar', '活動日期':'calendar'
+  '活動介紹':'file', '活動期間':'calendar', '活動日期':'calendar',
+  // 舊版「更新公告」常見獨立小標題：只有整行相符才會辨識成段落。
+  '新增內容':'file', '新增功能':'file', '系統調整':'file', '商城更新':'file',
+  '已修正問題':'shield', '已修復問題':'shield', '問題修復':'shield', '問題修正':'shield',
+  '錯誤修正':'shield', 'BUG修復':'shield', 'BUG 修復':'shield',
+  '功能優化':'file', '優化內容':'file', '優化調整':'file', '平衡調整':'file',
+  '技能調整':'file', '職業調整':'file', '更新提醒':'info'
 };
 const NEWS_ICON_PATHS = {
   gift:'<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18M12 8H8.5a2.5 2.5 0 1 1 2.45-3c.28.76.6 1.9 1.05 3ZM12 8h3.5a2.5 2.5 0 1 0-2.45-3c-.28.76-.6 1.9-1.05 3Z"/>',
@@ -417,7 +423,10 @@ pageLoadNews().then(loaded=>{
 .news-detail-block{margin-top:7px;padding:19px 0 0;border-top:1px solid var(--line);display:grid;gap:15px;min-width:0;background:transparent;max-width:none}
 .news-section-heading{display:flex;align-items:center;gap:10px;margin:0;color:var(--text);font-size:18px;line-height:1.4;font-weight:750}
 .news-section-heading svg{flex:none;color:#249bc3}
-.news-readable-list{margin:0;padding-left:24px;display:grid;gap:6px}
+.news-readable-list{margin:0;padding-left:26px;display:grid;gap:6px;list-style-position:outside}
+ol.news-readable-list{list-style-type:decimal}
+ul.news-readable-list{list-style-type:disc}
+.news-readable-list li::marker{color:var(--muted)}
 .news-readable-list li{padding-left:3px}
 .news-reward-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
 .news-reward-item{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:rgba(100,150,185,.065)}

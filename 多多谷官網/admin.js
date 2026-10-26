@@ -503,7 +503,13 @@ const NEWS_SECTION_TYPES=[
  ['time','公告時程','calendar-clock'],['method','參加方式','list-checks'],['rules','規則說明','scroll-text'],
  ['steps','操作步驟','list-ordered'],['compensation','補償內容','gift'],['rewards','獎勵內容','gift'],
  ['warning','注意事項','info'],['reminder','重要提醒','bell'],['deadline','截止時間','clock-alert'],
- ['details','補充說明','file-text'],['links','相關連結','link'],['custom','自訂標題','file-text']
+ ['details','補充說明','file-text'],['links','相關連結','link'],
+ // 遊戲版本更新公告專用段落，可直接選擇名稱及預設線條圖示。
+ ['new_features','新增內容','file-text'],['system_changes','系統調整','settings'],
+ ['shop_updates','商城更新','shopping-cart'],['bug_fixes','已修正問題','check-circle'],
+ ['features_optimized','功能優化','list-checks'],['balance_changes','平衡調整','shield-check'],
+ ['skill_changes','技能調整','swords'],['update_reminders','更新提醒','info'],
+ ['custom','自訂標題','file-text']
 ];
 let editingNewsIndex=null,newsSectionDraft=[];
 const newsEl=id=>document.getElementById(id);
