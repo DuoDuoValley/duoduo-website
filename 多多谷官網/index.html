@@ -70,6 +70,32 @@ body.collapsed #mini {display:grid;}
 #volumeBox {min-width:72px!important;max-width:90px!important;}
 @media(max-width:480px){#bottomline{gap:8px;}#volumeBox{display:none!important;}#skipButtons .iconButton{width:34px;height:34px;}#hint{display:none;}#modeExplanation{display:none;}#modeCycle{min-height:34px;} }
 
+/* BGM V7 small fix: range sliders are controls, not text inputs.
+   The shared cursor stylesheet intentionally applies an I-beam to inputs;
+   override it only inside this BGM player, without changing site cursors. */
+@media (hover: hover) and (pointer: fine) {
+  html.duoduo-cursor-ready #player input[type="range"] {
+    cursor: url("cursor-ui/cursor-hover-1.png") 3 2, pointer !important;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  html.duoduo-cursor-ready.duoduo-cursor-pressed #player input[type="range"] {
+    cursor: url("cursor-ui/cursor-pressed.png") 3 2, grabbing !important;
+  }
+  html.duoduo-cursor-ready #player input[type="range"]::-webkit-slider-thumb {
+    cursor: url("cursor-ui/cursor-hover-1.png") 3 2, pointer !important;
+  }
+  html.duoduo-cursor-ready.duoduo-cursor-pressed #player input[type="range"]::-webkit-slider-thumb {
+    cursor: url("cursor-ui/cursor-pressed.png") 3 2, grabbing !important;
+  }
+  html.duoduo-cursor-ready #player input[type="range"]::-moz-range-thumb {
+    cursor: url("cursor-ui/cursor-hover-1.png") 3 2, pointer !important;
+  }
+  html.duoduo-cursor-ready.duoduo-cursor-pressed #player input[type="range"]::-moz-range-thumb {
+    cursor: url("cursor-ui/cursor-pressed.png") 3 2, grabbing !important;
+  }
+}
+
 /* BGM V7: group transport controls together, keep the track picker on its own row. */
 #modeRow { gap:8px; justify-content:flex-start; min-width:0; }
 #modeCycle { flex:0 0 auto; white-space:nowrap; }
