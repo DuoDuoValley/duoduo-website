@@ -372,10 +372,10 @@ function newsStructuredBody(n){
  }
  if(hasCode){
   const s=serial;
+  if(s.rewards){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('gift')}<span>序號獎勵</span></h3>${newsRewardCards(s.rewards)}</section>`;}
   if(s.code){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('ticket')}<span>兌換序號</span></h3><div class="news-code-box"><code>${pageEsc(s.code)}</code><button type="button" class="news-code-copy" data-copy-code="${pageEsc(s.code)}" aria-label="複製兌換序號">${newsIcon('ticket')}<span>複製序號</span></button></div></section>`;}
   if(s.expiry){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('clock')}<span>兌換期限</span></h3>${newsPlainContent(s.expiry)}</section>`;}
   if(s.method){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('list-checks')}<span>使用方式</span></h3>${newsPlainContent(s.method)}</section>`;}
-  if(s.rewards){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('gift')}<span>序號獎勵</span></h3>${newsRewardCards(s.rewards)}</section>`;}
   if(s.notes){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('info')}<span>兌換注意事項</span></h3>${newsPlainContent(s.notes)}</section>`;}
  }
  if(n.newsIncludeLegacy&&n.body){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('file-text')}<span>補充說明</span></h3>${newsRenderedBody(n.body)}</section>`;}
