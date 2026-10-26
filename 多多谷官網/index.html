@@ -69,6 +69,20 @@ body.collapsed #mini {display:grid;}
 #skipButtons .iconButton:disabled {opacity:.35;cursor:not-allowed;}
 #volumeBox {min-width:72px!important;max-width:90px!important;}
 @media(max-width:480px){#bottomline{gap:8px;}#volumeBox{display:none!important;}#skipButtons .iconButton{width:34px;height:34px;}#hint{display:none;}#modeExplanation{display:none;}#modeCycle{min-height:34px;} }
+
+/* BGM V7: group transport controls together, keep the track picker on its own row. */
+#modeRow { gap:8px; justify-content:flex-start; min-width:0; }
+#modeCycle { flex:0 0 auto; white-space:nowrap; }
+#skipButtons { flex:0 0 auto; gap:6px; }
+#volumeBox { margin-left:auto; flex:0 1 92px; min-width:0!important; max-width:92px!important; }
+#bottomline { margin-top:12px; }
+#playlistArea { width:100%; }
+.visuallyHidden { position:absolute!important; width:1px!important; height:1px!important; padding:0!important; margin:-1px!important; overflow:hidden!important; clip:rect(0,0,0,0)!important; white-space:nowrap!important; border:0!important; }
+@media (max-width:480px) {
+  #modeRow { gap:6px; }
+  #skipButtons { margin-left:auto; gap:7px; }
+  #modeCycle { padding:5px 8px; }
+}
 </style>
 
 </head>
@@ -87,11 +101,14 @@ body.collapsed #mini {display:grid;}
       <button type="button" id="play" aria-label="播放或暫停" title="播放／暫停" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button>
       <div id="timeline"><div id="times"><span id="elapsed">0:00</span><span id="duration">0:00</span></div><input id="seek" type="range" min="0" max="1000" value="0" aria-label="音樂進度" disabled></div>
     </div>
-    <div id="modeRow"><button id="modeCycle" type="button" title="切換播放模式" aria-label="切換播放模式"><svg id="modeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span id="modeLabel">循環播放</span></button><span id="modeExplanation">點擊可切換播放模式</span></div>
-    <div id="bottomline">
-      <div id="playlistArea"><label for="trackList" id="playlistLabel">選擇曲目</label><select id="trackList" aria-label="選擇後台上架 BGM"><option value="">正在載入…</option></select></div>
+    <div id="modeRow">
+      <button id="modeCycle" type="button" title="切換播放模式" aria-label="切換播放模式"><svg id="modeIcon" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg><span id="modeLabel">循環播放</span></button>
       <div id="skipButtons"><button class="iconButton" id="prev" type="button" title="上一首" aria-label="上一首" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v14M19 5l-10 7 10 7z"/></svg></button><button class="iconButton" id="next" type="button" title="下一首" aria-label="下一首" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M19 5v14M5 5l10 7-10 7z"/></svg></button></div>
       <div id="volumeBox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4V5zM15 9a5 5 0 0 1 0 6m3-9a9 9 0 0 1 0 12"/></svg><input id="volume" type="range" min="0" max="100" step="1" value="40" aria-label="音量"></div>
+      <span id="modeExplanation" class="visuallyHidden">點擊可切換播放模式</span>
+    </div>
+    <div id="bottomline">
+      <div id="playlistArea"><label for="trackList" id="playlistLabel">選擇曲目</label><select id="trackList" aria-label="選擇後台上架 BGM"><option value="">正在載入…</option></select></div>
     </div>
     <div id="hint">多多谷官網背景音樂由後台管理。若瀏覽器阻擋自動播放，點一下播放鍵即可；切換官網內頁不會中斷。</div>
   </div>
