@@ -623,6 +623,8 @@ async function handleSaveSiteData(req,res){
     const supabaseUrl=process.env.SUPABASE_URL;
     const supabaseSecretKey=process.env.SUPABASE_SECRET_KEY;
     if(!supabaseUrl||!supabaseSecretKey)return sendJSON(res,500,{ok:false,error:'Supabase 環境變數尚未設定'});
+    // Decode UTF-8 across stream chunk boundaries; Buffer-to-string concatenation can corrupt Chinese characters.
+    req.setEncoding('utf8');
     let body='';
     req.on('data',chunk=>{body+=chunk;if(body.length>10*1024*1024){res.writeHead(413);res.end('Payload Too Large');req.destroy();}});
     req.on('end',async()=>{
