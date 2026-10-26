@@ -45,6 +45,21 @@
 @media(max-width:900px){.event-section-icon-gallery{grid-template-columns:repeat(5,minmax(0,1fr))}}
 @media(max-width:520px){.event-section-icon-gallery{grid-template-columns:repeat(4,minmax(0,1fr))}.event-section-editor .event-section-icon-option{min-height:62px}}
 @media(max-width:740px){.event-section-editor{padding:14px}.event-section-row-fields{grid-template-columns:minmax(0,1fr)}}
+
+/* 檔期活動：分類／搜尋 SVG 圖示資料庫（僅作用於段落編輯器） */
+.event-section-icon-tools{display:grid;gap:10px;margin-top:1px}
+.event-section-icon-tools[hidden],.event-section-icon-option[hidden]{display:none!important}
+.event-section-editor .event-section-icon-search{width:100%;max-width:none;min-height:40px;box-sizing:border-box;border:1px solid #415772;background:#0b1522;color:#e5eefb;border-radius:10px;padding:9px 13px;font-size:13px}
+.event-section-editor .event-section-icon-search:focus{border-color:#75baff;outline:2px solid rgba(90,174,244,.25)}
+.event-section-icon-categories{display:flex;gap:7px;flex-wrap:wrap}
+.event-section-editor button.event-section-icon-category{border:1px solid #385370;border-radius:100px;padding:6px 12px;background:#102035;color:#b8cadc;font-size:12px;font-weight:500}
+.event-section-editor button.event-section-icon-category:hover{background:#1a354d;color:#fff}
+.event-section-editor button.event-section-icon-category.is-active{background:#214b71;color:#f4faff;border-color:#68b4ed}
+.event-section-icon-count{font-size:12px;color:#99b6cc}
+.event-section-icon-live-preview{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid #354d66;background:rgba(87,153,213,.08);border-radius:11px;font-size:13px;font-weight:600;color:#dcecff;overflow-wrap:anywhere}
+.event-section-icon-live-preview svg{width:20px;height:20px;flex-shrink:0;color:#9ed3ff}
+.event-section-editor .event-section-icon-option[hidden]{display:none!important}
+@media(max-width:520px){.event-section-icon-categories{gap:5px}.event-section-editor button.event-section-icon-category{padding:6px 9px;font-size:11px}}
 </style></head><body>
 <header><a href="index.html">← 回到網站</a><b>DuoDuo Valley Admin</b><span>目前為前端原型，資料儲存在此瀏覽器</span></header><div class="layout"><aside>
 <button class="nav active" data-panel="overview">📊 總覽</button><button class="nav" data-panel="reviews">💬 玩家心得</button><button class="nav" data-panel="layoutPanel">🧩 首頁版面</button><button class="nav" data-panel="contentPanel">✏️ 首頁內容</button><button class="nav" data-panel="news">📢 公告管理</button><button class="nav" data-panel="events">📅 檔期活動管理</button><button class="nav" data-panel="bosses">👹 BOSS 輪播管理</button><button class="nav" data-panel="items">🧰 道具資料庫</button><button class="nav" data-panel="pools">🎁 抽獎獎池管理</button><button class="nav" data-panel="images">🖼️ 圖片管理</button><button class="nav" data-panel="links">🔗 網址管理</button><button class="nav" data-panel="resources">📚 文件與 Checklist</button><button class="nav" data-panel="downloads">⬇️ 下載專區</button><button class="nav" data-panel="settings">⚙️ 網站設定</button></aside>
