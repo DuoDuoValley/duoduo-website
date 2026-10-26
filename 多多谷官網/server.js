@@ -315,7 +315,7 @@ async function handleUpload(req,res){
 async function handleBgmUpload(req,res){
   const supabaseUrl=process.env.SUPABASE_URL;
   const secret=process.env.SUPABASE_SECRET_KEY;
-  if(!supabaseUrl||!secret)return sendJSON(res,500,{ok:false,error:'尚未設定 Supabase'});
+  if(!supabaseUrl||!secret)return sendJSON(res,500,{ok:false,error:'尚未設定 Supabase，請檢查 Render 環境變數'});
   const LIMIT=18*1024*1024, BODY_LIMIT=25*1024*1024;
   let chunks=[],length=0,aborted=false;
   req.on('data',chunk=>{
@@ -334,19 +334,45 @@ async function handleBgmUpload(req,res){
       const isMp3=raw.subarray(0,3).toString('latin1')==='ID3'||(raw.length>2&&raw[0]===0xff&&(raw[1]&0xe0)===0xe0);
       if(!raw.length||raw.length>LIMIT||!isMp3)return sendJSON(res,400,{ok:false,error:'檔案過大或不是有效的 MP3 音訊'});
       const bucket='bgm-audio';
-      const headers={'apikey':secret,'Authorization':`Bearer ${secret}`,'Content-Type':'application/json'};
-      const check=await fetch(`${supabaseUrl}/storage/v1/bucket/${bucket}`,{headers});
-      if(check.status===404){
-        const created=await fetch(`${supabaseUrl}/storage/v1/bucket`,{method:'POST',headers,body:JSON.stringify({id:bucket,name:bucket,public:true,allowed_mime_types:['audio/mpeg'],file_size_limit:LIMIT})});
-        if(!created.ok&&created.status!==409)return sendJSON(res,500,{ok:false,error:'無法建立 BGM 雲端儲存空間，請檢查 Supabase Storage 權限'});
-      }else if(!check.ok){return sendJSON(res,502,{ok:false,error:'讀取 BGM 雲端儲存空間失敗'});}
-      const unique=crypto.randomBytes(12).toString('hex');
-      const storagePath=`tracks/${Date.now()}-${unique}.mp3`;
+      const authHeaders={'apikey':secret,'Authorization':`Bearer ${secret}`};
+      const storagePath=`tracks/${Date.now()}-${crypto.randomBytes(12).toString('hex')}.mp3`;
       const target=`${supabaseUrl}/storage/v1/object/${bucket}/${storagePath}`;
-      const stored=await fetch(target,{method:'POST',headers:{'apikey':secret,'Authorization':`Bearer ${secret}`,'Content-Type':'audio/mpeg','x-upsert':'false','Cache-Control':'31536000'},body:raw});
-      if(!stored.ok){console.error('BGM 音訊上傳失敗:',(await stored.text()).slice(0,500));return sendJSON(res,502,{ok:false,error:'雲端上傳 MP3 失敗，請檢查 Supabase 儲存限制'});}
+      // Upload first. An earlier version stopped on a bucket-detail GET error,
+      // even when an existing bucket would accept the actual file upload.
+      const upload=()=>fetch(target,{method:'POST',headers:{...authHeaders,'Content-Type':'audio/mpeg','x-upsert':'false','Cache-Control':'31536000'},body:raw});
+      let response=await upload();
+      if(!response.ok){
+        let detail=await response.text();
+        let missingBucket=(response.status===404||response.status===400)&&
+          /bucket\s*(?:not\s*found|does\s*not\s*exist)|no\s*such\s*bucket|bucketnotfound|the\s*specified\s*bucket\s*does\s*not\s*exist/i.test(detail);
+        if(missingBucket){
+          // Automatically create a separate public audio bucket if permitted;
+          // never weaken RLS or expose a service key in browser code.
+          const created=await fetch(`${supabaseUrl}/storage/v1/bucket`,{
+            method:'POST',headers:{...authHeaders,'Content-Type':'application/json'},
+            body:JSON.stringify({id:bucket,name:bucket,public:true,allowed_mime_types:['audio/mpeg'],file_size_limit:LIMIT})
+          });
+          if(!created.ok&&created.status!==409){
+            const createDetail=await created.text();
+            console.error(`BGM bucket creation failed (HTTP ${created.status}):`,createDetail.slice(0,800));
+            return sendJSON(res,502,{ok:false,error:`無法建立 bgm-audio 儲存空間（HTTP ${created.status}）。請至 Supabase Storage 手動建立公開儲存空間，並確認 Render 使用具 Storage 權限的密鑰。`});
+          }
+          response=await upload();
+          if(!response.ok)detail=await response.text();
+        }
+        if(!response.ok){
+          console.error(`BGM MP3 upload failed (HTTP ${response.status}):`,detail.slice(0,800));
+          const advice=(response.status===401||response.status===403)
+            ?'Supabase 上傳權限不足，請檢查 Render 的 SUPABASE_SECRET_KEY 是否有 Storage 權限。'
+            :(response.status===413?'超過 Supabase Storage 的上傳大小限制。':'請檢查 bgm-audio 儲存空間是否為公開、允許 audio/mpeg 且有足夠容量。');
+          return sendJSON(res,502,{ok:false,error:`MP3 雲端上傳失敗（HTTP ${response.status}）：${advice}`});
+        }
+      }
       return sendJSON(res,200,{ok:true,url:`${supabaseUrl}/storage/v1/object/public/${bucket}/${storagePath}`});
-    }catch(error){console.error('BGM 音訊上傳失敗:',error);return sendJSON(res,400,{ok:false,error:'BGM 資料不正確或上傳失敗'});}
+    }catch(error){
+      console.error('BGM 音訊上傳流程發生錯誤:',error);
+      return sendJSON(res,502,{ok:false,error:'BGM 上傳服務連線或資料處理失敗，請檢查 Render 日誌'});
+    }
   });
   req.on('error',error=>console.error('BGM 請求失敗:',error));
 }
