@@ -310,6 +310,47 @@ async function handleUpload(req,res){
   });
 }
 
+// BGM: an independent public-audio bucket, separate from event image uploads.
+// Admin session is checked in the route before a request body is read.
+async function handleBgmUpload(req,res){
+  const supabaseUrl=process.env.SUPABASE_URL;
+  const secret=process.env.SUPABASE_SECRET_KEY;
+  if(!supabaseUrl||!secret)return sendJSON(res,500,{ok:false,error:'尚未設定 Supabase'});
+  const LIMIT=18*1024*1024, BODY_LIMIT=25*1024*1024;
+  let chunks=[],length=0,aborted=false;
+  req.on('data',chunk=>{
+    if(aborted)return;
+    length+=chunk.length;
+    if(length>BODY_LIMIT){aborted=true;chunks=[];return sendJSON(res,413,{ok:false,error:'MP3 檔案太大，請選擇 18 MB 以下檔案'});}
+    chunks.push(chunk);
+  });
+  req.on('end',async()=>{
+    if(aborted)return;
+    try{
+      const payload=JSON.parse(Buffer.concat(chunks).toString('utf8'));
+      const match=String(payload.dataUrl||'').match(/^data:audio\/(?:mpeg|mp3);base64,([a-zA-Z0-9+/=]+)$/);
+      if(!match)return sendJSON(res,400,{ok:false,error:'僅接受 MP3 音訊檔'});
+      const raw=Buffer.from(match[1],'base64');
+      const isMp3=raw.subarray(0,3).toString('latin1')==='ID3'||(raw.length>2&&raw[0]===0xff&&(raw[1]&0xe0)===0xe0);
+      if(!raw.length||raw.length>LIMIT||!isMp3)return sendJSON(res,400,{ok:false,error:'檔案過大或不是有效的 MP3 音訊'});
+      const bucket='bgm-audio';
+      const headers={'apikey':secret,'Authorization':`Bearer ${secret}`,'Content-Type':'application/json'};
+      const check=await fetch(`${supabaseUrl}/storage/v1/bucket/${bucket}`,{headers});
+      if(check.status===404){
+        const created=await fetch(`${supabaseUrl}/storage/v1/bucket`,{method:'POST',headers,body:JSON.stringify({id:bucket,name:bucket,public:true,allowed_mime_types:['audio/mpeg'],file_size_limit:LIMIT})});
+        if(!created.ok&&created.status!==409)return sendJSON(res,500,{ok:false,error:'無法建立 BGM 雲端儲存空間，請檢查 Supabase Storage 權限'});
+      }else if(!check.ok){return sendJSON(res,502,{ok:false,error:'讀取 BGM 雲端儲存空間失敗'});}
+      const unique=crypto.randomBytes(12).toString('hex');
+      const storagePath=`tracks/${Date.now()}-${unique}.mp3`;
+      const target=`${supabaseUrl}/storage/v1/object/${bucket}/${storagePath}`;
+      const stored=await fetch(target,{method:'POST',headers:{'apikey':secret,'Authorization':`Bearer ${secret}`,'Content-Type':'audio/mpeg','x-upsert':'false','Cache-Control':'31536000'},body:raw});
+      if(!stored.ok){console.error('BGM 音訊上傳失敗:',(await stored.text()).slice(0,500));return sendJSON(res,502,{ok:false,error:'雲端上傳 MP3 失敗，請檢查 Supabase 儲存限制'});}
+      return sendJSON(res,200,{ok:true,url:`${supabaseUrl}/storage/v1/object/public/${bucket}/${storagePath}`});
+    }catch(error){console.error('BGM 音訊上傳失敗:',error);return sendJSON(res,400,{ok:false,error:'BGM 資料不正確或上傳失敗'});}
+  });
+  req.on('error',error=>console.error('BGM 請求失敗:',error));
+}
+
 async function handleGetEvents(req,res){
   try{
     const supabaseUrl=process.env.SUPABASE_URL;
@@ -578,7 +619,8 @@ async function handleSaveBosses(req,res){
 const SITE_DATA_KEYS=[
   'duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero',
   'duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads',
-  'duoduo_items','duoduo_links','duoduo_pools','duoduo_weekly_prizes'
+  'duoduo_items','duoduo_links','duoduo_pools','duoduo_weekly_prizes',
+  'duoduo_bgm'
 ];
 
 async function handleGetSiteData(req,res){
@@ -739,6 +781,11 @@ const server=http.createServer((req,res)=>{
     requestPath==='/api/events'
   ){
     return handleSaveEvents(req,res);
+  }
+
+  if(req.method==='POST' && requestPath==='/api/upload-bgm'){
+    if(!getAdminSession(req))return sendJSON(res,401,{ok:false,error:'未登入'});
+    return handleBgmUpload(req,res);
   }
 
   if(

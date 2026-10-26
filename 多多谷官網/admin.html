@@ -156,9 +156,31 @@
 #news .manage-edit-drawer>.form,#events .manage-edit-drawer>.form{padding:4px 17px 19px;margin:0}
 @media(max-width:760px){#news .manage-controls,#events .manage-controls{grid-template-columns:minmax(0,1fr) 1fr}#news .manage-controls label:first-child,#events .manage-controls label:first-child{grid-column:1/-1}#news .manage-entry-main,#events .manage-entry-main{align-items:flex-start;flex-wrap:wrap}#news .manage-entry-actions,#events .manage-entry-actions{width:100%;justify-content:flex-start;margin-left:0}}
 @media(max-width:420px){#news .manage-list-panel,#events .manage-list-panel{padding:11px}#news .manage-thumb,#events .manage-thumb{width:55px;height:44px}#news .manage-entry-main,#events .manage-entry-main{padding:11px}}
+</style><style id="duoduo-bgm-admin-style">
+#bgmPanel .bgm-admin-form{box-sizing:border-box}
+#bgmPanel .bgm-admin-form .check{display:flex;align-items:center;gap:8px}
+#bgmPanel .bgm-admin-form .check input{width:16px;height:16px}
+#bgmPanel .bgm-admin-form .form-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-start}
+#bgmPanel .bgm-admin-rows{display:grid;gap:10px;margin:17px 0}
+#bgmPanel .bgm-admin-row{display:flex;justify-content:space-between;gap:14px;align-items:center;border:1px solid #34475e;background:#101a28;border-radius:13px;padding:14px}
+#bgmPanel .bgm-admin-label{display:grid;gap:5px;min-width:0;overflow-wrap:anywhere}
+#bgmPanel .bgm-admin-label strong{font-size:14px;color:#e1eaf7}
+#bgmPanel .bgm-admin-label small{color:#9aaec5;font-size:11px;overflow-wrap:anywhere}
+#bgmPanel .bgm-admin-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+#bgmPanel .bgm-admin-actions button{background:#1c3046;border:1px solid #405772;border-radius:9px;color:#d8e7f7;cursor:pointer;padding:8px 10px;font-size:12px}
+#bgmPanel .bgm-admin-actions button:disabled{opacity:.38;cursor:not-allowed}
+#bgmPanel .bgm-admin-actions button.bgm-danger{color:#ffb9bc;border-color:#654047}
+#bgmPanel .bgm-admin-actions button:hover:not(:disabled){background:#2b4663}
+#bgmPanel .bgm-help{font-size:13px;color:#9aaec5;line-height:1.6}
+#bgmPanel .bgm-mode-label{display:flex;align-items:center;gap:9px;font-size:13px;color:#b6c8d8}
+#bgmPanel .bgm-mode-label select{min-width:145px}
+#bgmPanel .bgm-status{font-size:12px;color:#98c4e9;line-height:1.6}
+#bgmPanel .bgm-status.error{color:#ffadad}
+#bgmPanel .bgm-empty{padding:22px;border:1px dashed #3e526a;border-radius:12px;text-align:center;color:#94aac0;font-size:13px}
+@media(max-width:720px){#bgmPanel .bgm-admin-row{flex-direction:column;align-items:stretch}#bgmPanel .bgm-admin-actions{justify-content:flex-start}}
 </style></head><body>
 <header><a href="index.html">← 回到網站</a><b>DuoDuo Valley Admin</b><span>目前為前端原型，資料儲存在此瀏覽器</span></header><div class="layout"><aside>
-<button class="nav active" data-panel="overview">📊 總覽</button><button class="nav" data-panel="reviews">💬 玩家心得</button><button class="nav" data-panel="layoutPanel">🧩 首頁版面</button><button class="nav" data-panel="contentPanel">✏️ 首頁內容</button><button class="nav" data-panel="news">📢 公告管理</button><button class="nav" data-panel="events">📅 檔期活動管理</button><button class="nav" data-panel="bosses">👹 BOSS 輪播管理</button><button class="nav" data-panel="items">🧰 道具資料庫</button><button class="nav" data-panel="pools">🎁 抽獎獎池管理</button><button class="nav" data-panel="images">🖼️ 圖片管理</button><button class="nav" data-panel="links">🔗 網址管理</button><button class="nav" data-panel="resources">📚 文件與 Checklist</button><button class="nav" data-panel="downloads">⬇️ 下載專區</button><button class="nav" data-panel="settings">⚙️ 網站設定</button></aside>
+<button class="nav active" data-panel="overview">📊 總覽</button><button class="nav" data-panel="reviews">💬 玩家心得</button><button class="nav" data-panel="layoutPanel">🧩 首頁版面</button><button class="nav" data-panel="contentPanel">✏️ 首頁內容</button><button class="nav" data-panel="news">📢 公告管理</button><button class="nav" data-panel="events">📅 檔期活動管理</button><button class="nav" data-panel="bosses">👹 BOSS 輪播管理</button><button class="nav" data-panel="bgmPanel">🎵 BGM 音樂管理</button><button class="nav" data-panel="items">🧰 道具資料庫</button><button class="nav" data-panel="pools">🎁 抽獎獎池管理</button><button class="nav" data-panel="images">🖼️ 圖片管理</button><button class="nav" data-panel="links">🔗 網址管理</button><button class="nav" data-panel="resources">📚 文件與 Checklist</button><button class="nav" data-panel="downloads">⬇️ 下載專區</button><button class="nav" data-panel="settings">⚙️ 網站設定</button></aside>
 <main>
 <section id="overview" class="panel active"><h1>網站總覽</h1><div class="cards"><div><small>網站</small><strong>🟢 前台預覽</strong></div><div><small>公告</small><strong id="newsCount">0</strong></div><div><small>活動</small><strong id="eventCount">0</strong></div><div><small>道具</small><strong id="itemCount">0</strong></div></div><div class="note">首頁 BOSS 輪播已接上雲端儲存；儲存後會同步到官網，其他尚未接雲端的內容仍維持原本管理方式。</div></section>
 <section id="layoutPanel" class="panel"><h1>首頁版面</h1><div class="toolbar"><button class="save" id="saveLayout">儲存版面</button><button class="ghost" id="resetLayout">恢復預設</button><a class="preview-link" href="index.html" target="_blank">開啟前台 ↗</a></div><div class="note">拖曳 ☰ 調整首頁區塊順序；關閉 👁 後該區塊不會顯示。</div><div id="layoutList" class="layout-list"></div><div class="builder-card"><h2>首頁主視覺輪播</h2><div class="note">圖片順序可以拖曳。每張都能設定圖片、標題、點擊連結與顯示狀態；也可以直接「瀏覽檔案」選擇圖片，網站會自動淡入淡出輪播。</div><div id="heroSlidesAdmin" class="hero-slides-admin"></div><div class="form two"><label>自動切換秒數<input id="heroInterval" type="number" min="2" step="1" value="5"></label><div class="form-actions"><button class="ghost" id="addHeroSlide" type="button">＋ 新增輪播圖片</button></div></div></div><div class="builder-card"><h2>首頁文字</h2><div class="form two"><label>Hero 小標<input id="heroEyebrow"></label><label>Hero 標題<input id="heroTitle"></label><label>Hero 副標題<input id="heroSubtitle"></label><label>About 標題<input id="aboutTitle"></label></div></div><div class="builder-card"><h2>特色卡片</h2><label class="inline-setting">每列卡片數 <select id="featureColumns"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label></div></section>
@@ -215,6 +237,24 @@ https://.../image3.jpg"></textarea></label><div class="event-date-time"><div cla
   <div class="event-section-toolbar event-section-bottom"><button id="eventAddSectionBottom" type="button">＋ 新增段落</button></div>
   <p class="event-section-help">舊活動原本的分段內容會在編輯時自動帶入；未使用自訂段落時仍會顯示下方的舊版詳細說明，避免既有活動突然消失。</p>
 </div><label class="full">舊版詳細說明（未使用分段內容時顯示）<textarea id="eventDetail" placeholder="舊版活動的完整內容；如果已使用上方分段欄位，可保留當作備份。"></textarea></label><label class="full">活動連結（可留空）<input id="eventUrl" placeholder="https://..."></label><label class="check"><input id="eventPublished" type="checkbox" checked> 立即顯示在官網</label><div class="form-actions full"><button class="save" id="saveEvent">＋ 新增檔期活動</button></div></div></details></section>
+<section id="bgmPanel" class="panel">
+<h1>🎵 多多谷 BGM 管理</h1>
+<div class="note">只有你在這裡發布並「上架」的歌曲才會出現在玩家播放器。上傳 MP3 或輸入可直接播放的 HTTPS 音樂網址，調整順序後按「儲存並同步雲端」。玩家不能上傳自己的音樂。<br><strong>注意：</strong>上架前請確認擁有網站公開播放的授權；空播放清單不會自動播放。</div>
+<div class="builder-card bgm-admin-card">
+<h2>新增或編輯歌曲</h2>
+<div class="form two bgm-admin-form">
+<label>歌曲名稱<input id="bgmTitle" maxlength="120" placeholder="例如：主題 BGM"></label>
+<label>MP3 上傳（最多 18 MB）<input id="bgmFile" type="file" accept=".mp3,audio/mpeg,audio/mp3"></label>
+<label class="full">歌曲網址（或上傳後自動填入）<input id="bgmUrl" type="url" placeholder="https://.../music.mp3" autocomplete="off"><small class="field-note">必須是能直接載入的 HTTPS 音訊檔案網址，不可填 YouTube 影片頁面或網路硬碟分享頁。</small></label>
+<label class="check"><input id="bgmEnabled" type="checkbox" checked>上架（玩家可播放）</label>
+<label class="check"><input id="bgmDefault" type="checkbox">設為預設歌曲</label>
+<div class="form-actions full"><button class="ghost" type="button" id="bgmCancel">清空表單</button><button class="save" type="button" id="bgmAdd">＋ 加入歌曲清單</button></div>
+</div></div>
+<div class="builder-card bgm-admin-card"><h2>播放清單與順序</h2><p class="bgm-help">按 ↑ ↓ 調整順序。新增、編輯、移除只影響畫面草稿，按下面的「儲存並同步雲端」才會發布。</p>
+<div class="toolbar"><label class="bgm-mode-label">播放模式 <select id="bgmMode"><option value="sequential">順序循環</option><option value="shuffle">隨機播放</option><option value="single">單曲循環</option></select></label><button type="button" class="ghost" id="bgmReload">重新載入雲端</button><a class="preview-link" href="bgm-test.html" target="_blank" rel="noopener">開啟 BGM 播放器 ↗</a></div>
+<div id="bgmRows" class="bgm-admin-rows"></div>
+<div class="toolbar"><button type="button" class="save" id="bgmPublish">儲存並同步雲端</button><span id="bgmStatus" class="bgm-status" role="status" aria-live="polite">尚未載入</span></div>
+</div></section>
 <section id="bosses" class="panel"><h1>👹 BOSS 輪播管理</h1><div class="note">這裡管理首頁「挑戰更高的極限」右側的 BOSS 輪播。你可以直接上傳多張圖片、調整順序、設定點擊連結與自動切換時間；儲存後會同步到官網。</div><div class="builder-card"><h2>輪播設定</h2><div class="form two"><label>自動切換秒數<input id="bossInterval" type="number" min="2" step="1" value="5"></label><label class="full">一次新增多張圖片<input id="bossImagesFiles" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple><small class="field-note">選擇圖片後會先顯示預覽，按「儲存 BOSS 輪播」才會正式上傳。</small></label></div></div><div id="bossSlidesAdmin" class="hero-slides-admin"></div><div class="toolbar"><button class="save" id="saveBosses">儲存 BOSS 輪播</button><button class="ghost" id="resetBosses">恢復預設 BOSS</button><a class="preview-link" href="index.html#boss" target="_blank">查看前台 ↗</a></div></section><section id="pools" class="panel"><h1>🎁 抽獎獎池管理</h1>
 <div class="note">在此管理玩家工具抽獎模擬器的獎池。新增／刪除整個獎池，並編輯獎池名稱、圖片與獎品清單。儲存到雲端後，玩家工具會讀取共用設定。獎品清單請使用 JSON 陣列格式，每項需包含 name 與 prob（0～1）。</div>
 <div class="builder-card"><div class="form two">
@@ -233,4 +273,87 @@ https://.../image3.jpg"></textarea></label><div class="event-date-time"><div cla
 <section id="downloads" class="panel"><h1>下載專區管理</h1><div class="note">這裡管理前台「下載專區」的所有項目。你可以直接修改下載網址、簡短介紹、完整使用說明、說明圖片與顯示狀態，也可以新增或刪除下載項目。</div><div class="builder-card"><h2>新增／編輯下載項目</h2><div class="form two"><label>名稱<input id="downloadTitle" placeholder="例如：V282 ～ V282.4 手動更新檔"></label><label>分類<input id="downloadType" placeholder="例如：版本更新／DuoDuo"></label><label class="full">下載網址<input id="downloadUrl" placeholder="https://..."></label><label class="full">簡短介紹<textarea id="downloadDesc" placeholder="在下載卡片上顯示的簡短說明"></textarea></label><label class="full">使用說明<textarea id="downloadInstructions" placeholder="一行一個步驟，例如：1. ...
 2. ...
 3. ..."></textarea></label><label class="full">說明圖片路徑（可留空）<input id="downloadImage" placeholder="例如：assets/manual-update-guide.png"></label><label class="check"><input id="downloadEnabled" type="checkbox" checked> 顯示在官網</label><div class="form-actions full"><button class="ghost" id="cancelDownload">取消編輯</button><button class="save" id="saveDownload">＋ 新增下載項目</button></div></div></div><div id="downloadsAdmin"></div></section><section id="settings" class="panel"><h1>網站設定</h1><div class="note">這裡可以直接改前台導覽列名稱與頁尾文字。之後想把「檔期活動」改成其他名稱，不需要再修改網站程式。</div><div class="builder-card"><h2>網站基本資料</h2><div class="form two"><label>網站名稱<input id="siteName"></label><label>網站副標題<input id="siteSubtitle"></label></div></div><div class="builder-card"><h2>上方導覽列名稱</h2><div class="form two"><label>首頁<input id="navHome"></label><label>為什麼選多多谷<input id="navWhy"></label><label>特色系統<input id="navFeatures"></label><label>檔期活動<input id="navEvents"></label><label>BOSS<input id="navBoss"></label><label>最新消息<input id="navNews"></label><label>遊玩指南<input id="navGuide"></label><label>下載專區<input id="navDownloads"></label><label>玩家工具<input id="navPlayerTools" value="玩家工具"></label></div></div><div class="builder-card"><h2>上方導覽列排序</h2><div class="note">拖曳 ☰ 調整前台上方導覽列的順序，儲存設定後所有頁面會同步更新。</div><div id="navOrderList" class="nav-order-list"></div></div><div class="builder-card"><h2>頁尾內容</h2><div class="form two"><label class="full">介紹文字<textarea id="footerDescription"></textarea></label><label>第一欄標題<input id="footerNavTitle"></label><label>第二欄標題<input id="footerResourceTitle"></label><label class="full">版權文字<input id="footerCopyright"></label></div></div><button class="save" id="saveSettings">儲存設定</button></section>
-</main></div><script src="player-tools/data.js"></script><script src="admin.js"></script></body></html>
+</main></div><script src="player-tools/data.js"></script><script src="admin.js"></script><script id="duoduo-bgm-admin-controller">
+(()=>{
+'use strict';
+const by=id=>document.getElementById(id),base=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+let tracks=[],defaultId='',editingId='',busy=false;
+const ids=()=>`bgm_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`;
+const token=()=>{try{return sessionStorage.getItem('duoduo_admin_session')||'';}catch{return '';}};
+const status=(message,error=false)=>{by('bgmStatus').textContent=message;by('bgmStatus').classList.toggle('error',error);};
+const safeUrl=value=>{try{const url=new URL(String(value).trim(),location.href);return url.protocol==='https:'||((url.hostname==='localhost'||url.hostname==='127.0.0.1')&&url.protocol==='http:')?url.href:'';}catch{return '';}};
+const formatUrl=url=>{try{const value=new URL(url);return value.hostname+value.pathname;}catch{return url;}};
+function clearForm(){editingId='';by('bgmTitle').value='';by('bgmUrl').value='';by('bgmFile').value='';by('bgmEnabled').checked=true;by('bgmDefault').checked=false;by('bgmAdd').textContent='＋ 加入歌曲清單';}
+function render(){
+  const holder=by('bgmRows');holder.replaceChildren();
+  if(!tracks.length){const empty=document.createElement('div');empty.className='bgm-empty';empty.textContent='目前沒有歌曲；先新增一首 MP3，再儲存並同步雲端。';holder.append(empty);return;}
+  tracks.forEach((t,i)=>{
+    const row=document.createElement('div');row.className='bgm-admin-row';
+    const label=document.createElement('div');label.className='bgm-admin-label';
+    const name=document.createElement('strong');name.textContent=(defaultId===t.id?'★ 預設｜':'')+t.title+(t.enabled===false?'（未上架）':'');
+    const url=document.createElement('small');url.textContent=formatUrl(t.url);label.append(name,url);
+    const actions=document.createElement('div');actions.className='bgm-admin-actions';
+    const make=(name,onClick,disabled=false,cls='')=>{const b=document.createElement('button');b.type='button';b.textContent=name;b.disabled=disabled;if(cls)b.className=cls;b.onclick=onClick;actions.append(b);};
+    make('↑',()=>move(i,-1),i===0);make('↓',()=>move(i,1),i===tracks.length-1);
+    make('編輯',()=>{editingId=t.id;by('bgmTitle').value=t.title;by('bgmUrl').value=t.url;by('bgmEnabled').checked=t.enabled!==false;by('bgmDefault').checked=defaultId===t.id;by('bgmAdd').textContent='套用歌曲修改';by('bgmTitle').focus();});
+    make('刪除',()=>{if(!confirm(`確定從播放清單移除「${t.title}」？（雲端音訊原檔不會因此刪除）`))return;tracks.splice(i,1);if(defaultId===t.id)defaultId=tracks[0]?.id||'';render();status('已從草稿移除歌曲；按「儲存並同步雲端」才會發布。');},false,'bgm-danger');
+    row.append(label,actions);holder.append(row);
+  });
+}
+function move(index,delta){const next=index+delta;if(next<0||next>=tracks.length)return;[tracks[index],tracks[next]]=[tracks[next],tracks[index]];render();}
+async function readCloud(){
+  const response=await fetch(`${base}/api/site-data`,{cache:'no-store'});
+  const json=await response.json().catch(()=>({}));
+  if(!response.ok||!json.ok)throw new Error(json.error||'無法取得 BGM 雲端資料');
+  const value=json.data?.duoduo_bgm;
+  if(value&&typeof value==='object'&&Array.isArray(value.tracks)){
+    tracks=value.tracks.filter(t=>t&&t.id&&t.title&&safeUrl(t.url)).map(t=>({id:String(t.id),title:String(t.title),url:safeUrl(t.url),enabled:t.enabled!==false}));
+    defaultId=String(value.defaultId||'');
+    by('bgmMode').value=['sequential','shuffle','single'].includes(value.mode)?value.mode:'sequential';
+  }else{tracks=[];defaultId='';by('bgmMode').value='sequential';}
+  clearForm();render();status(`已載入雲端播放清單，共 ${tracks.length} 首。`);
+}
+async function uploadFile(file){
+  if(!/\.mp3$/i.test(file.name)||file.size>18*1024*1024||file.size<=0)throw new Error('請選擇小於 18 MB 的 MP3 檔案');
+  const dataUrl=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(new Error('音樂檔案讀取失敗'));reader.readAsDataURL(file);});
+  const response=await fetch(`${base}/api/upload-bgm`,{method:'POST',headers:{'Authorization':`Bearer ${token()}`,'Content-Type':'application/json'},body:JSON.stringify({filename:file.name,dataUrl})});
+  const json=await response.json().catch(()=>({}));
+  if(!response.ok||!json.ok)throw new Error(json.error||'MP3 上傳失敗');
+  return json.url;
+}
+by('bgmAdd').addEventListener('click',async()=>{
+  if(busy)return;
+  const title=by('bgmTitle').value.trim().slice(0,120),file=by('bgmFile').files[0];
+  if(!title){status('請輸入歌曲名稱。',true);return;}
+  let url=safeUrl(by('bgmUrl').value);
+  if(!url&&!file){status('請輸入 HTTPS 音訊連結，或選擇 MP3 檔案。',true);return;}
+  busy=true;by('bgmAdd').disabled=true;
+  try{
+    if(file){status('正在上傳 MP3 至雲端…');url=await uploadFile(file);}
+    if(!url)throw new Error('音樂網址格式不正確，必須使用 HTTPS');
+    const id=editingId||ids(),item={id,title,url,enabled:by('bgmEnabled').checked};
+    const i=tracks.findIndex(x=>x.id===id);if(i>=0)tracks[i]=item;else tracks.push(item);
+    if(by('bgmDefault').checked||!tracks.some(x=>x.id===defaultId))defaultId=id;
+    clearForm();render();status('已加入編輯草稿；按「儲存並同步雲端」後才會讓玩家看到。');
+  }catch(err){status(err.message||'新增失敗',true);}
+  finally{busy=false;by('bgmAdd').disabled=false;}
+});
+by('bgmCancel').onclick=()=>{clearForm();status('已清空歌曲表單，不影響清單草稿。');};
+by('bgmReload').onclick=async()=>{if(busy)return;if(!confirm('將放棄尚未同步的 BGM 草稿變更，重新讀取雲端，確定嗎？'))return;try{await readCloud();}catch(e){status(e.message,true);}};
+by('bgmPublish').onclick=async()=>{
+  if(busy)return;if(!token()){status('請先登入管理員帳號。',true);return;}
+  busy=true;by('bgmPublish').disabled=true;status('正在同步 BGM 到雲端…');
+  try{
+    const data={tracks:tracks.map(t=>({id:t.id,title:t.title,url:t.url,enabled:t.enabled!==false})),defaultId,mode:by('bgmMode').value};
+    const res=await fetch(`${base}/api/site-data`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token()}`},body:JSON.stringify({values:{duoduo_bgm:data}})});
+    const body=await res.json().catch(()=>({}));if(!res.ok||!body.ok)throw new Error(body.error||'雲端同步失敗');
+    status(`已成功發布 ${tracks.filter(t=>t.enabled).length} 首上架歌曲；玩家播放器會讀取新版清單。`);
+  }catch(error){status(`同步失敗：${error.message||'請檢查連線'}`,true);}
+  finally{busy=false;by('bgmPublish').disabled=false;}
+};
+// Do not silently overwrite unsaved edits: only first visit triggers auto-load.
+let hasLoaded=false;
+const nav=document.querySelector('[data-panel="bgmPanel"]');
+nav?.addEventListener('click',()=>{if(hasLoaded)return;hasLoaded=true;readCloud().catch(err=>{hasLoaded=false;status('雲端載入失敗：'+err.message,true);});});
+})();
+</script></body></html>
