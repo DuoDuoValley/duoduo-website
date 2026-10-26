@@ -243,14 +243,17 @@ function newsItemThumb(name){
 // 團康獎勵：只有明確的「名次／積分區間｜獎勵」才分組，不猜測普通道具名稱。
 function newsGroupedRewardLine(line){
   const raw=String(line||'').trim();
+  // 優先使用明確的「條件｜獎勵」；兼容舊 OX 公告「每答對 1 題，額外獲得道具×數量」。
+  // 僅在獎勵段落辨識完整的條件句，不對一般敘述或道具名稱猜測。
   const divider=raw.match(/^(.+?)\s*[｜|]\s*(.+)$/);
-  if(!divider)return null;
-  const label=divider[1].trim().replace(/\s+/g,' ');
+  const ox=divider?null:raw.match(/^(每\s*(?:答對|答錯|完成)\s*\d+\s*(?:題|次))\s*[,，：:]\s*額外(?:可)?獲得\s*(.+)$/u);
+  if(!divider&&!ox)return null;
+  const label=(divider?divider[1]:ox[1]).trim().replace(/\s+/g,' ');
   const rank=/^(?:參加獎|參與獎|報名獎|入圍獎|完賽獎|安慰獎|參加獎勵|參與獎勵|第\s*\d+\s*(?:[-－~～至]\s*\d+\s*)?名(?:\s*[(（]含[)）])?\s*(?:以後|以上)?)$/u;
   const points=/^(?:\d+\s*[-－~～至]\s*\d+\s*積分|\d+\s*積分\s*(?:以上|以下))$/u;
   const extra=/^每\s*(?:答對|完成)\s*\d+\s*(?:題|次)(?:\s*額外獲得)?$/u;
   if(!rank.test(label)&&!points.test(label)&&!extra.test(label))return null;
-  const rewards=newsRewardItems(divider[2]);
+  const rewards=newsRewardItems(divider?divider[2]:ox[2]);
   if(!rewards||!rewards.length)return null;
   return {label,rewards};
 }
