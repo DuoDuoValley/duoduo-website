@@ -371,14 +371,97 @@ $('#cancelDownload').onclick=clearDownloadForm;
 
 const navOrderLabels={home:'首頁',why:'為什麼選擇多多谷',features:'特色系統',events:'檔期活動',boss:'BOSS',news:'最新消息',guide:'遊玩指南',downloads:'下載專區'};
 function renderNavOrder(){const box=$('#navOrderList');if(!box)return;box.innerHTML=settings.navOrder.map((key)=>`<div class="nav-order-item" draggable="true" data-nav-order-key="${key}"><span class="drag-handle">☰</span><span class="nav-order-label">${esc(navOrderLabels[key]||key)}</span><span class="nav-order-key">${esc(key)}</span></div>`).join('');let dragKey=null;box.querySelectorAll('.nav-order-item').forEach(item=>{item.addEventListener('dragstart',e=>{dragKey=item.dataset.navOrderKey;item.classList.add('dragging');e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',dragKey)});item.addEventListener('dragend',()=>{dragKey=null;item.classList.remove('dragging')});item.addEventListener('dragover',e=>{e.preventDefault();e.dataTransfer.dropEffect='move'});item.addEventListener('drop',e=>{e.preventDefault();const targetKey=item.dataset.navOrderKey;if(!dragKey||dragKey===targetKey)return;const from=settings.navOrder.indexOf(dragKey),to=settings.navOrder.indexOf(targetKey);if(from<0||to<0)return;settings.navOrder.splice(from,1);settings.navOrder.splice(to,0,dragKey);renderNavOrder()})})}
+// 公告與活動的後台管理列表（只管理顯示，不改動既有儲存／雲端同步機制）
+const manageNewsState={query:'',filter:'全部',sort:'new',size:10,page:1};
+const manageEventState={query:'',filter:'全部',sort:'new',size:10,page:1};
+const manageNewsOptions=['全部','重要','維護','更新','活動','序號','處分'];
+const manageEventOptions=['全部','進行中','未開始','已結束','未公開'];
+function manageListDate(value){
+ const raw=String(value||'').trim();
+ const match=raw.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})/);
+ if(match){const ms=new Date(Number(match[1]),Number(match[2])-1,Number(match[3])).getTime();return Number.isFinite(ms)?ms:0;}
+ const time=Date.parse(raw);return Number.isFinite(time)?time:0;
+}
+function manageEventEndTimestamp(e){
+ const raw=String(e?.end||'').trim();
+ if(!raw)return null;
+ const val=eventStartTimestamp({start:raw});return val===Number.MIN_SAFE_INTEGER?null:val;
+}
+function manageEventStatus(e){
+ if(e.published===false)return '未公開';
+ const start=eventStartTimestamp(e),end=manageEventEndTimestamp(e),now=Date.now();
+ if(start!==Number.MIN_SAFE_INTEGER&&start>now)return '未開始';
+ if(end!==null&&end<now)return '已結束';
+ return start===Number.MIN_SAFE_INTEGER&&end===null?'未設定時間':'進行中';
+}
+function managePreviewText(text){return String(text||'').replace(/\r\n?/g,'\n').slice(0,1000)}
+function manageFilterButtons(container,options,state,fn){
+ if(!container)return;
+ container.innerHTML=options.map(option=>`<button type="button" class="${state.filter===option?'is-active':''}" data-manage-filter="${esc(option)}" aria-pressed="${state.filter===option?'true':'false'}">${esc(option)}</button>`).join('');
+ container.querySelectorAll('[data-manage-filter]').forEach(b=>b.onclick=()=>{state.filter=b.dataset.manageFilter;state.page=1;fn()});
+}
+function managePagination(element,state,total,pageCount,fn){
+ if(!element)return;
+ element.innerHTML=`<button type="button" data-page-nav="prev" ${state.page<=1?'disabled':''}>上一頁</button><span>第 ${state.page}／${pageCount} 頁</span><button type="button" data-page-nav="next" ${state.page>=pageCount?'disabled':''}>下一頁</button>`;
+ element.querySelector('[data-page-nav="prev"]').onclick=()=>{if(state.page>1){state.page--;fn()}};
+ element.querySelector('[data-page-nav="next"]').onclick=()=>{if(state.page<pageCount){state.page++;fn()}};
+}
+function toggleManagedPreview(kind,index){
+ const row=document.querySelector(`#${kind==='news'?'newsAdmin':'eventsAdmin'} [data-managed-index="${index}"]`);
+ const preview=row?.querySelector('.manage-entry-preview');
+ const button=row?.querySelector('.manage-preview-toggle');
+ if(!preview||!button)return;
+ preview.hidden=!preview.hidden;
+ button.textContent=preview.hidden?'預覽':'收合';
+ button.setAttribute('aria-expanded',String(!preview.hidden));
+}
+function renderManagedNews(){
+ const list=$('#newsAdmin');if(!list)return;
+ const s=manageNewsState,q=s.query.trim().toLowerCase();
+ manageFilterButtons($('#manageNewsFilters'),manageNewsOptions,s,renderManagedNews);
+ const indexed=news.map((n,i)=>({n,i})).filter(({n})=>
+  (s.filter==='全部'||newsTagShort(n.tag)===s.filter)&&
+  (!q||[n.title,n.date,n.tag,n.body,n.newsLead,(n.newsSections||[]).map(v=>`${v.title||''} ${v.body||''}`).join(' ')].join(' ').toLowerCase().includes(q)));
+ indexed.sort((a,b)=>(s.sort==='new'?1:-1)*(manageListDate(b.n.date)-manageListDate(a.n.date)||a.i-b.i));
+ const total=indexed.length,pages=Math.max(1,Math.ceil(total/s.size));s.page=Math.min(Math.max(1,s.page),pages);
+ const offset=(s.page-1)*s.size;
+ list.innerHTML=indexed.slice(offset,offset+s.size).map(({n,i})=>{
+  const preview=managePreviewText([n.newsLead,n.newsSections?.map(x=>`${x.title||''}\n${x.body||''}`).join('\n\n'),n.body].filter(Boolean).join('\n\n'));
+  return `<article class="manage-entry" data-managed-index="${i}"><div class="manage-entry-main"><div class="manage-entry-body"><div class="manage-entry-title">${esc(n.title||'未命名公告')}</div><div class="manage-entry-info"><span class="manage-tag">${esc(newsTagShort(n.tag)||'未分類')}</span><span>${esc(n.date||'未設定日期')}</span></div></div><div class="manage-entry-actions"><button type="button" class="manage-preview-toggle" aria-expanded="false" onclick="toggleManagedPreview('news',${i})">預覽</button><button type="button" class="manage-edit" onclick="editNews(${i})">編輯</button><button type="button" class="manage-delete" onclick="removeNews(${i})">刪除</button></div></div><div class="manage-entry-preview" hidden>${esc(preview||'沒有可預覽的公告內容')}</div></article>`;
+ }).join('')||'<div class="manage-empty">沒有符合條件的公告</div>';
+ $('#manageNewsCount').textContent=`符合 ${total} 篇／總共 ${news.length} 篇公告`;
+ managePagination($('#manageNewsPagination'),s,total,pages,renderManagedNews);
+}
+function renderManagedEvents(){
+ const list=$('#eventsAdmin');if(!list)return;
+ const s=manageEventState,q=s.query.trim().toLowerCase();
+ manageFilterButtons($('#manageEventFilters'),manageEventOptions,s,renderManagedEvents);
+ const sorted=sortEventsByStart(events).map((e,i)=>({e,i}));
+ const indexed=sorted.filter(({e})=>
+  (s.filter==='全部'||manageEventStatus(e)===s.filter)&&
+  (!q||[e.name,e.start,e.end,e.desc,e.detail,(e.sectionBlocks||[]).map(x=>`${x.title||''} ${x.body||''}`).join(' ')].join(' ').toLowerCase().includes(q)));
+ if(s.sort==='old')indexed.reverse();
+ const total=indexed.length,pages=Math.max(1,Math.ceil(total/s.size));s.page=Math.min(Math.max(1,s.page),pages);
+ const offset=(s.page-1)*s.size;
+ list.innerHTML=indexed.slice(offset,offset+s.size).map(({e,i})=>{
+  const status=manageEventStatus(e),cls=status==='進行中'?'status-active':status==='已結束'?'status-done':status==='未公開'?'status-hidden':'';
+  const cover=e.image||(Array.isArray(e.images)?e.images[0]:'');
+  const preview=managePreviewText([e.desc,e.sectionBlocks?.map(x=>`${x.title||''}\n${x.body||''}`).join('\n\n'),e.detail].filter(Boolean).join('\n\n'));
+  return `<article class="manage-entry" data-managed-index="${i}"><div class="manage-entry-main">${cover?`<img class="manage-thumb" src="${esc(cover)}" alt="" loading="lazy" onerror="this.hidden=true">`:''}<div class="manage-entry-body"><div class="manage-entry-title">${esc(e.name||'未命名活動')}</div><div class="manage-entry-info"><span class="manage-tag ${cls}">${esc(status)}</span><span>${esc(formatEventDateRange(e))}</span><span>${e.published===false?'未公開':'公開'}</span></div></div><div class="manage-entry-actions"><button type="button" class="manage-preview-toggle" aria-expanded="false" onclick="toggleManagedPreview('events',${i})">預覽</button><button type="button" class="manage-edit" onclick="editEvent(${i})">編輯</button><button type="button" class="manage-delete" onclick="removeEvent(${i})">刪除</button></div></div><div class="manage-entry-preview" hidden>${esc(preview||'沒有可預覽的活動內容')}</div></article>`;
+ }).join('')||'<div class="manage-empty">沒有符合條件的檔期活動</div>';
+ $('#manageEventCount').textContent=`符合 ${total} 筆／總共 ${events.length} 筆活動`;
+ managePagination($('#manageEventPagination'),s,total,pages,renderManagedEvents);
+}
+function focusManagedForm(id){const details=document.getElementById(id);if(!details)return;details.open=true;requestAnimationFrame(()=>details.scrollIntoView({behavior:'smooth',block:'start'}));}
+window.toggleManagedPreview=toggleManagedPreview;
 function render(){
  $('#newsCount').textContent=news.length;$('#eventCount').textContent=events.filter(e=>e.published!==false).length;$('#itemCount').textContent=items.length;
  $('#bossSlidesAdmin')?.setAttribute('data-count',String(bossConfig.slides.length));
- $('#newsAdmin').innerHTML=news.map((n,i)=>`<div class="item"><div><b>${esc(n.title)}</b><small>${esc(newsTagShort(n.tag))} ・ ${esc(n.date)}</small><small class="multiline">${esc(n.newsLead||n.newsSections?.map(s=>s.title).join('、')||n.body||'')}</small></div><div class="item-actions"><button onclick="editNews(${i})">編輯</button><button class="danger" onclick="removeNews(${i})">刪除</button></div></div>`).join('')||'<div class="note">目前沒有公告。</div>';
+ renderManagedNews();
  const orderedReviews=[...reviews].sort((a,b)=>{if(Boolean(b.featured)!==Boolean(a.featured))return b.featured?1:-1;return (Number(a.order)||0)-(Number(b.order)||0)||(Number(a.createdAt)||0)-(Number(b.createdAt)||0)});
  $('#reviewsAdmin').innerHTML=orderedReviews.map((r,i)=>`<div class="item review-admin-item" draggable="true" data-review-index="${i}"><span class="drag">☰</span><div><b>${r.featured?'★ 精選　':''}${'★'.repeat(Math.max(1,Math.min(5,Number(r.rating)||5)))}</b><small>${esc(r.author||'玩家心得')}</small><small>${esc(r.text||'')}</small></div><div><button onclick="editReview('${r.id}')">編輯</button> <button class="ghost" onclick="toggleFeaturedReview('${r.id}')">${r.featured?'取消精選':'設為精選'}</button> <button class="danger" onclick="removeReviewById('${r.id}')">刪除</button></div></div>`).join('')||'<div class="note">目前沒有玩家心得。</div>';
  setupReviewDrag(orderedReviews);
- $('#eventsAdmin').innerHTML=sortEventsByStart(events).map((e,i)=>`<div class="item"><div><b>${esc(e.name)}</b><small>${esc(formatEventDateRange(e))} ・ ${e.published!==false?'公開':'隱藏'} ・ ${Array.isArray(e.images)&&e.images.length?e.images.length:1} 張圖片 ・ ${Math.max(2,Math.round((Number(e.interval)||5000)/1000))} 秒切換</small><small>${esc(e.desc||'')}</small></div><div><button onclick="editEvent(${i})">編輯</button> <button class="danger" onclick="removeEvent(${i})">刪除</button></div></div>`).join('')||'<div class="note">目前沒有檔期活動。</div>';
+ renderManagedEvents();
  $('#linksForm').innerHTML=Object.entries(defaultLinks).map(([k,v])=>`<label>${esc(k)}<input value="${esc(v)}" data-key="${esc(k)}"></label>`).join('')+'<button class="save" onclick="saveLinks()">儲存網址</button>';
  $('#siteName').value=settings.name;$('#siteSubtitle').value=settings.subtitle;$('#navHome').value=settings.nav.home;$('#navWhy').value=settings.nav.why;$('#navFeatures').value=settings.nav.features;$('#navEvents').value=settings.nav.events;$('#navBoss').value=settings.nav.boss;$('#navNews').value=settings.nav.news;$('#navGuide').value=settings.nav.guide;$('#navDownloads').value=settings.nav.downloads||'下載專區';if($('#navPlayerTools'))$('#navPlayerTools').value=settings.nav.playerTools||'玩家工具';renderNavOrder();$('#footerDescription').value=settings.footer.description;$('#footerNavTitle').value=settings.footer.navTitle;$('#footerResourceTitle').value=settings.footer.resourceTitle;$('#footerCopyright').value=settings.footer.copyright;
 renderLayout();renderItems();renderContentEditor();renderResources();renderDownloads();renderBossSlides();
@@ -640,7 +723,7 @@ window.editNews=i=>{
  newsEl('newsIncludeLegacy').checked=Boolean(n.newsIncludeLegacy);
  newsSectionDraft=normalizeNewsBlocks(n);showNewsSerial(n.newsSerial);renderNewsEditor();newsSerialMode();
  newsEl('addNews').textContent='儲存公告修改';
- document.querySelector('[data-panel="news"]')?.click();window.scrollTo({top:0,behavior:'smooth'});
+ document.querySelector('[data-panel="news"]')?.click();focusManagedForm('newsManageForm');
 };
 window.removeNews=i=>{if(confirm('確定刪除這則公告？')){
  news.splice(i,1);if(editingNewsIndex===i)newsResetEditor();
@@ -1013,12 +1096,23 @@ window.removeEvent=async i=>{
   render();
   alert('檔期活動已刪除，並同步到雲端。');
 };
-let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';eventSectionDraft=normalizeEventSections(e);renderEventSectionEditor();setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});eventSectionDraft=[];renderEventSectionEditor();$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
+let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';eventSectionDraft=normalizeEventSections(e);renderEventSectionEditor();setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();focusManagedForm('eventManageForm')};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});eventSectionDraft=[];renderEventSectionEditor();$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
 window.saveLinks=()=>{const saved={};document.querySelectorAll('#linksForm input').forEach(i=>saved[i.dataset.key]=i.value.trim());localStorage.setItem('duoduo_links',JSON.stringify(saved));alert('網址已儲存到此瀏覽器。')};
 function renderItems(){const box=$('#itemsAdmin');const q=($('#itemSearch')?.value||'').trim().toLowerCase();const f=items.filter(x=>`${x.name} ${x.category} ${x.description||''}`.toLowerCase().includes(q));box.innerHTML=f.length?f.map(x=>`<div class="item-row"><div class="item-thumb">${x.image?`<img src="${x.image}" alt="">`:'無圖片'}</div><div class="item-meta"><b>${esc(x.name)}</b><small>${esc(x.description||'尚未填寫描述')}</small></div><div class="item-category">${esc(x.category)}</div><div class="item-actions"><button onclick="editItem('${x.id}')">編輯</button><button class="danger" onclick="removeItem('${x.id}')">刪除</button></div></div>`).join(''):'<div class="note">目前沒有符合條件的道具。</div>'}
 function resetItemForm(){editingItemId=null;pendingItemImage='';$('#itemFormTitle').textContent='新增道具';$('#itemName').value='';$('#itemCategory').value='裝備';$('#itemDescription').value='';$('#itemImage').value='';$('#itemImagePreview').innerHTML='<span>尚未選擇圖片</span>';$('#itemForm').hidden=true}
 function openNewItem(){resetItemForm();$('#itemForm').hidden=false;$('#itemName').focus()}window.editItem=id=>{const x=items.find(i=>i.id===id);if(!x)return;editingItemId=id;pendingItemImage=x.image||'';$('#itemFormTitle').textContent='編輯道具';$('#itemName').value=x.name||'';$('#itemCategory').value=x.category||'裝備';$('#itemDescription').value=x.description||'';$('#itemImagePreview').innerHTML=x.image?`<img src="${x.image}" alt="">`:'<span>尚未設定圖片</span>';$('#itemForm').hidden=false};window.removeItem=id=>{if(!confirm('確定刪除？'))return;items=items.filter(x=>x.id!==id);save('duoduo_items',items);renderItems()};
 $('#openItemForm').onclick=openNewItem;$('#cancelItem').onclick=resetItemForm;$('#itemSearch').oninput=renderItems;$('#itemImage').onchange=e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>2*1024*1024){alert('圖片請控制在 2MB 以下。');e.target.value='';return}const r=new FileReader();r.onload=()=>{pendingItemImage=r.result;$('#itemImagePreview').innerHTML=`<img src="${pendingItemImage}" alt="">`};r.readAsDataURL(f)};$('#saveItem').onclick=()=>{const name=$('#itemName').value.trim();if(!name)return alert('請輸入道具名稱');const data={name,category:$('#itemCategory').value,description:$('#itemDescription').value.trim(),image:pendingItemImage};if(editingItemId)Object.assign(items.find(x=>x.id===editingItemId),data);else items.unshift({id:`item_${Date.now()}`,...data});save('duoduo_items',items);resetItemForm();render();alert('道具資料已儲存。')};
 $('#saveSettings').onclick=async()=>{settings={name:$('#siteName').value.trim()||defaultSettings.name,subtitle:$('#siteSubtitle').value.trim()||defaultSettings.subtitle,nav:{home:$('#navHome').value.trim()||defaultSettings.nav.home,why:$('#navWhy').value.trim()||defaultSettings.nav.why,features:$('#navFeatures').value.trim()||defaultSettings.nav.features,events:$('#navEvents').value.trim()||defaultSettings.nav.events,boss:$('#navBoss').value.trim()||defaultSettings.nav.boss,news:$('#navNews').value.trim()||defaultSettings.nav.news,guide:$('#navGuide').value.trim()||defaultSettings.nav.guide,downloads:$('#navDownloads').value.trim()||defaultSettings.nav.downloads,playerTools:$('#navPlayerTools')?.value.trim()||defaultSettings.nav.playerTools},navOrder:[...settings.navOrder],footer:{description:$('#footerDescription').value.trim()||defaultSettings.footer.description,navTitle:$('#footerNavTitle').value.trim()||defaultSettings.footer.navTitle,resourceTitle:$('#footerResourceTitle').value.trim()||defaultSettings.footer.resourceTitle,copyright:$('#footerCopyright').value.trim()||defaultSettings.footer.copyright}};save('duoduo_settings',settings);renderNavOrder();const btn=$('#saveSettings');btn.disabled=true;const oldLabel=btn.textContent;btn.textContent='同步中…';try{await pushSiteDataToCloud(['duoduo_settings']);alert('網站設定已儲存並同步到雲端。');}catch(error){console.error('網站設定雲端同步失敗：',error);alert('網站設定已儲存在目前瀏覽器，但雲端同步失敗：'+(error.message||'請確認登入狀態與後端連線。'));}finally{btn.disabled=false;btn.textContent=oldLabel;}};
+
+// 即時篩選、分頁及新增入口：只影響後台檢視狀態
+$('#manageNewsSearch').oninput=e=>{manageNewsState.query=e.target.value;manageNewsState.page=1;renderManagedNews()};
+$('#manageNewsSort').onchange=e=>{manageNewsState.sort=e.target.value;manageNewsState.page=1;renderManagedNews()};
+$('#manageNewsSize').onchange=e=>{manageNewsState.size=Number(e.target.value)||10;manageNewsState.page=1;renderManagedNews()};
+$('#manageEventSearch').oninput=e=>{manageEventState.query=e.target.value;manageEventState.page=1;renderManagedEvents()};
+$('#manageEventSort').onchange=e=>{manageEventState.sort=e.target.value;manageEventState.page=1;renderManagedEvents()};
+$('#manageEventSize').onchange=e=>{manageEventState.size=Number(e.target.value)||10;manageEventState.page=1;renderManagedEvents()};
+$('#manageNewNews').onclick=()=>{newsResetEditor();focusManagedForm('newsManageForm');newsEl('newsTitle')?.focus({preventScroll:true})};
+$('#manageNewEvent').onclick=()=>{clearEventForm();focusManagedForm('eventManageForm');$('#eventName')?.focus({preventScroll:true})};
+
 render();
 loadCloudBosses();
