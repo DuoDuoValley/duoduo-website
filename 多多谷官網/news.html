@@ -115,13 +115,177 @@ function pageCloseDetail(updateHistory=true){
   pageRenderList(currentCategory,currentPage);
   if(updateHistory && (location.search||location.hash)) history.pushState({},'',location.pathname);
 }
+const NEWS_HEADINGS = {
+  '活動時間':'calendar', '活動時程':'calendar', '活動方式':'list', '活動內容':'list',
+  '活動規則':'shield', '活動提醒':'info', '活動獎勵':'gift', '獎勵內容':'gift',
+  '補償內容':'gift', '補償獎勵':'gift', '序號內容物':'gift', '獎勵清單':'gift',
+  '兌換序號':'ticket', '序號兌換':'ticket', '序號資訊':'ticket',
+  '兌換期限':'clock', '兌換時間':'clock', '使用期限':'clock',
+  '使用方式':'list', '領取方式':'list', '參加方式':'list', '報名方式':'list',
+  '注意事項':'info', '重要提醒':'info', '特別提醒':'info',
+  '更新內容':'file', '更新項目':'file', '維護內容':'file', '維護時間':'clock',
+  '調整項目':'file', '相關說明':'file', '補充說明':'file', '公告說明':'file',
+  '活動介紹':'file', '活動期間':'calendar', '活動日期':'calendar'
+};
+const NEWS_ICON_PATHS = {
+  gift:'<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18M12 8H8.5a2.5 2.5 0 1 1 2.45-3c.28.76.6 1.9 1.05 3ZM12 8h3.5a2.5 2.5 0 1 0-2.45-3c-.28.76-.6 1.9-1.05 3Z"/>',
+  ticket:'<path d="M2 9a3 3 0 0 0 0 6v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a3 3 0 0 1 0-6V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zM13 5v2M13 11v2M13 17v2"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/>',
+  list:'<path d="m3 7 2 2 4-4M13 7h8M3 17l2 2 4-4M13 17h8"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h8"/>'
+};
+function newsIcon(name){
+  return `<svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${NEWS_ICON_PATHS[name]||NEWS_ICON_PATHS.file}</svg>`;
+}
+// 先逐字跳脫再處理受控的 Discord/Markdown 標記；不執行公告內的 HTML。
+function newsInline(value){
+  let input=String(value??'');
+  if((input.match(/\*\*/g)||[]).length%2===1) input=input.replace(/\*\*\s*$/,'');
+  const token=/<a:([A-Za-z0-9_]{1,40}):(\d{15,22})>|<:([A-Za-z0-9_]{1,40}):(\d{15,22})>|<@&\d{15,22}>|<@!?\d{15,22}>|<#\d{15,22}>|\[([^\]\n]{1,80})\]\((https?:\/\/[^\s)<>]+)\)|\*\*([^*\n]+)\*\*|__([^_\n]+)__|~~([^~\n]+)~~|`([^`\n]+)`/g;
+  let result='',last=0,match;
+  while((match=token.exec(input))!==null){
+    result+=pageEsc(input.slice(last,match.index));
+    const whole=match[0];
+    if(match[1]||match[3]){
+      const animated=!!match[1],name=match[1]||match[3],id=match[2]||match[4];
+      const ext=animated?'gif':'png';
+      result+=`<img class="news-discord-emoji" src="https://cdn.discordapp.com/emojis/${id}.${ext}?size=48" alt=":${pageEsc(name)}:" title=":${pageEsc(name)}:" loading="lazy">`;
+    }else if(whole.startsWith('<@&')) result+='<span class="news-mention">@身分組</span>';
+    else if(whole.startsWith('<@')) result+='<span class="news-mention">@使用者</span>';
+    else if(whole.startsWith('<#')) result+='<span class="news-mention">#頻道</span>';
+    else if(match[5]) result+=`<a href="${pageEsc(match[6])}" target="_blank" rel="noopener noreferrer">${pageEsc(match[5])}</a>`;
+    else if(match[7]) result+=`<strong>${pageEsc(match[7])}</strong>`;
+    else if(match[8]) result+=`<u>${pageEsc(match[8])}</u>`;
+    else if(match[9]) result+=`<s>${pageEsc(match[9])}</s>`;
+    else if(match[10]) result+=`<code>${pageEsc(match[10])}</code>`;
+    last=token.lastIndex;
+  }
+  return result+pageEsc(input.slice(last));
+}
+function newsHeading(line){
+  const normalized=String(line).trim().replace(/^(?:#{1,4}\s*)/,'').replace(/^[★☆⭐🌟📌📢🎁🎫⏰📝📜🔔ℹ️\s]+/u,'').replace(/\s*[:：]\s*$/,'').trim();
+  if(NEWS_HEADINGS[normalized])return {name:normalized,icon:NEWS_HEADINGS[normalized]};
+  return null;
+}
+function newsRewardItems(line){
+  const text=String(line).trim();
+  const re=/([^\s　,，、]+?)\s*[×xX＊*]\s*(\d[\d,]*)/g;
+  const matched=[...text.matchAll(re)];
+  if(matched.length<2)return null;
+  const remaining=text.replace(re,'').replace(/[\s　,，、，;；|｜]+/g,'');
+  if(remaining)return null;
+  return matched.map(m=>({label:m[1],quantity:m[2]}));
+}
+function newsRenderedBody(raw){
+  const text=String(raw??'').replace(/\r\n?/g,'\n').replace(/\u00a0/g,' ');
+  const lines=text.split('\n');
+  const blocks=[];
+  let buffer=[],list=[],listType='',group=[];
+  let currentHeading='',section=[];
+  function finishParagraph(){if(buffer.length){blocks.push(`<p class="news-paragraph">${buffer.map(newsInline).join('<br>')}</p>`);buffer=[];}}
+  function finishList(){if(list.length){blocks.push(`<${listType} class="news-readable-list">${list.map(x=>`<li>${newsInline(x)}</li>`).join('')}</${listType}>`);list=[];listType='';}}
+  function finishGroup(){if(group.length){blocks.push(`<div class="news-reward-grid">${group.map(x=>`<div class="news-reward-item"><span>${newsInline(x.label)}</span><strong>×${pageEsc(x.quantity)}</strong></div>`).join('')}</div>`);group=[];}}
+  function finishSection(){finishParagraph();finishList();finishGroup();if(currentHeading){section.push(...blocks);blocks.length=0;const icon=NEWS_HEADINGS[currentHeading];const headingHtml=`<h3 class="news-section-heading">${newsIcon(icon)}<span>${pageEsc(currentHeading)}</span></h3>`;const contentHtml=section.join('');section=[];sections.push(`<section class="news-section">${headingHtml}${contentHtml}</section>`);}else{intro.push(...blocks);blocks.length=0;}}
+  const sections=[],intro=[];
+  for(const untrimmed of lines){
+    const line=untrimmed.trim();
+    const heading=newsHeading(line);
+    if(heading){finishSection();currentHeading=heading.name;continue;}
+    if(!line){finishParagraph();finishList();finishGroup();continue;}
+    const rewards=/^(序號內容物|獎勵內容|活動獎勵|補償內容|補償獎勵|獎勵清單)$/.test(currentHeading)?newsRewardItems(line):null;
+    if(rewards){finishParagraph();finishList();group.push(...rewards);continue;}
+    finishGroup();
+    if(/^(兌換序號|序號兌換|序號資訊)$/.test(currentHeading)&&/^[A-Za-z0-9][A-Za-z0-9_-]{3,49}$/.test(line)){
+      finishParagraph();finishList();blocks.push(`<div class="news-code-box"><code>${pageEsc(line)}</code><button type="button" class="news-code-copy" data-copy-code="${pageEsc(line)}" aria-label="複製兌換序號">${newsIcon('ticket')}<span>複製序號</span></button></div>`);continue;
+    }
+    const unordered=line.match(/^(?:[-*•·・])\s+(.+)$/),ordered=line.match(/^\d+[.、．)]\s*(.+)$/);
+    if(unordered||ordered){finishParagraph();const wanted=ordered?'ol':'ul';if(list.length&&listType!==wanted)finishList();listType=wanted;list.push((ordered||unordered)[1]);continue;}
+    finishList();buffer.push(line);
+  }
+  finishSection();
+  return `<div class="news-readable-body">${intro.join('')}${sections.join('')}</div>`;
+}
+async function newsCopyCode(button){
+  const value=button.getAttribute('data-copy-code');
+  if(!value)return;
+  try{
+    if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(value);
+    else {
+      const temp=document.createElement('textarea');temp.value=value;temp.style.position='fixed';temp.style.opacity='0';document.body.appendChild(temp);temp.select();
+      const copied=document.execCommand('copy');temp.remove();if(!copied)throw new Error('copy failed');
+    }
+    const label=button.querySelector('span');if(label)label.textContent='已複製';
+  }catch(err){window.prompt('請複製以下序號：',value);}
+}
+const DUODUO_NEWS_ICON_PATHS={"book-open":"<path d=\"M12 7v14\"/><path d=\"M3 18V5a2 2 0 0 1 2-2h3a4 4 0 0 1 4 4 4 4 0 0 1 4-4h3a2 2 0 0 1 2 2v13h-5a4 4 0 0 0-4 3 4 4 0 0 0-4-3z\"/>","list-checks":"<path d=\"m3 5 2 2 4-4\"/><path d=\"M12 6h9\"/><path d=\"m3 12 2 2 4-4\"/><path d=\"M12 13h9\"/><path d=\"m3 19 2 2 4-4\"/><path d=\"M12 20h9\"/>","scroll-text":"<path d=\"M8 21h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H6\"/><path d=\"M4 17h13a2 2 0 0 1 2 2v2H6a3 3 0 0 1-3-3V6a3 3 0 0 1 6 0v1H5\"/><path d=\"M11 9h7M11 13h7\"/>","gift":"<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\"/><path d=\"M5 12v9h14v-9M12 8v13\"/><path d=\"M12 8H8a2 2 0 0 1 0-4c3 0 4 4 4 4zM12 8h4a2 2 0 0 0 0-4c-3 0-4 4-4 4z\"/>","info":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4M12 8h.01\"/>","file-text":"<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><path d=\"M14 2v6h6M8 13h8M8 17h8\"/>","send":"<path d=\"m22 2-7 20-4-9-9-4z\"/><path d=\"M22 2 11 13\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"6\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/>","shopping-cart":"<circle cx=\"9\" cy=\"21\" r=\"1\"/><circle cx=\"20\" cy=\"21\" r=\"1\"/><path d=\"M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6\"/>","trophy":"<path d=\"M8 21h8M12 17v4\"/><path d=\"M7 4h10v8a5 5 0 0 1-10 0z\"/><path d=\"M7 6H4v3a4 4 0 0 0 4 4M17 6h3v3a4 4 0 0 1-4 4\"/>","calendar-days":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01\"/>","star":"<path d=\"m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z\"/>","sparkles":"<path d=\"m12 3 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9zM5 2v4M3 4h4M19 17v4M17 19h4\"/>","skull":"<path d=\"M12 2a8 8 0 0 0-8 8c0 3 1 5 3 6v4h10v-4c2-1 3-3 3-6a8 8 0 0 0-8-8z\"/><path d=\"M9 21v1M12 21v1M15 21v1\"/><circle cx=\"9\" cy=\"11\" r=\"1\"/><circle cx=\"15\" cy=\"11\" r=\"1\"/><path d=\"m12 13-1 2h2z\"/>","swords":"<path d=\"m14.5 17.5 3-3L6 3H3v3l11.5 11.5zM13 19l2-2M16 16l3 3M2 22l6-6M9 9l11-6h2v2l-7 7\"/>","gem":"<path d=\"M6 3h12l4 6-10 13L2 9zM2 9h20M6 3l3 6 3 13 3-13 3-6\"/>","lightbulb":"<path d=\"M9 18h6M10 22h4M15 15.5A7 7 0 1 0 9 15.5c.7.5 1 1.2 1 2.5h4c0-1.3.3-2 1-2.5z\"/>","bell":"<path d=\"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4\"/>","heart":"<path d=\"M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.87\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/>","clipboard-list":"<rect x=\"5\" y=\"4\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M9 4.5V3h6v1.5M9 11h.01M12 11h4M9 15h.01M12 15h4M9 19h.01M12 19h4\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>","shield-alert":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/><path d=\"M12 8v5M12 17h.01\"/>","map-pin":"<path d=\"M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z\"/><circle cx=\"12\" cy=\"10\" r=\"2.5\"/>","coins":"<circle cx=\"8\" cy=\"8\" r=\"6\"/><path d=\"M8 5v6M6 6h3a1.5 1.5 0 0 1 0 3H6M16 7a6 6 0 1 1-9 9M16 14v5M14 15h3a1.5 1.5 0 0 1 0 3h-3\"/>","megaphone":"<path d=\"m3 11 18-5v12L3 13zM3 11v2M7 14l2 6h4l-2.3-7\"/>","ticket":"<path d=\"M2 9a2 2 0 0 0 0 6v3h20v-3a2 2 0 0 0 0-6V6H2zM13 6v2M13 11v2M13 16v2\"/>","flag":"<path d=\"M4 22V4m0 1c5-4 9 3 16-1v12c-7 4-11-3-16 1\"/>","check-circle":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m8 12 3 3 5-6\"/>","clipboard-check":"<rect x=\"5\" y=\"4\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M9 4V2h6v2m-6 9 2.5 2.5L16 10\"/>","list-todo":"<path d=\"M3 5h.01M8 5h13M3 11h.01M8 11h13M3 17h.01M8 17h13\"/>","list-ordered":"<path d=\"M8 6h13M8 12h13M8 18h13M2 4h2v4M2 10h2l-2 4h2M2 16h2v4H2\"/>","route":"<circle cx=\"5\" cy=\"5\" r=\"2\"/><circle cx=\"19\" cy=\"19\" r=\"2\"/><path d=\"M5 7v5a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4V9\"/>","map":"<path d=\"m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16\"/>","footprints":"<ellipse cx=\"7\" cy=\"14\" rx=\"3\" ry=\"5\" transform=\"rotate(-18 7 14)\"/><ellipse cx=\"17\" cy=\"10\" rx=\"3\" ry=\"5\" transform=\"rotate(18 17 10)\"/><path d=\"M3 6h.01M6 4h.01M17 19h.01M20 17h.01\"/>","compass":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m16 8-2 6-6 2 2-6z\"/>","search":"<circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m16 16 5 5\"/>","filter":"<path d=\"M3 4h18l-7 8v7l-4 2v-9z\"/>","puzzle":"<path d=\"M5 3h5a2 2 0 1 0 4 0h5v6a2 2 0 1 1 0 4v6h-6a2 2 0 1 1-4 0H5v-6a2 2 0 1 0 0-4z\"/>","book-check":"<path d=\"M12 7V21M3 18V4c3-1 6-1 9 2 3-3 6-3 9-2v14c-3-1-6-1-9 3-3-4-6-4-9-3z\"/><path d=\"m15 11 2 2 3-4\"/>","pen-line":"<path d=\"m4 17-1 4 4-1L20 7l-3-3zM14 7l3 3M3 10v-6h7\"/>","check-check":"<path d=\"m2 12 4 4 7-8M10 12l4 4 8-9\"/>","bookmark":"<path d=\"M5 4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v18l-7-5-7 5z\"/>","clipboard-pen":"<rect x=\"5\" y=\"4\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M9 4V2h6v2m-6 11 6-6 2 2-6 6-3 1z\"/>","file-check":"<path d=\"M14 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9zM14 2v7h7m-13 7 3 3 5-6\"/>","list-filter":"<path d=\"M4 7h16M7 12h10M10 17h4\"/><path d=\"M3 4v6M21 4v6\"/>","package":"<path d=\"m3 7 9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10M7 5l9 4\"/>","package-open":"<path d=\"m3 9 9 4 9-4M12 13v8M3 13v5l9 3 9-3v-5M3 9l5-6 4 4 4-4 5 6-5 3-4-5-4 5z\"/>","medal":"<circle cx=\"12\" cy=\"16\" r=\"5\"/><path d=\"M8 12 5 3h5l2 5 2-5h5l-3 9m-4 1 1 2 2 .5-1.5 1.5.5 2-2-1-2 1 .5-2L9 15l2-.5z\"/>","award":"<circle cx=\"12\" cy=\"9\" r=\"6\"/><path d=\"m8 14-2 8 6-3 6 3-2-8M12 6l1 2 2 .4-1.5 1.5.4 2.1-1.9-1-1.9 1 .4-2.1L9 8.4l2-.4z\"/>","crown":"<path d=\"m2 7 5 5 5-7 5 7 5-5-2 12H4zM5 22h14\"/>","wallet":"<rect x=\"3\" y=\"6\" width=\"18\" height=\"15\" rx=\"2\"/><path d=\"M3 9V5a2 2 0 0 1 2-2h13M15 13h6v5h-6a2 2 0 0 1 0-5z\"/>","credit-card":"<rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20M6 15h4\"/>","key-round":"<circle cx=\"16\" cy=\"8\" r=\"5\"/><path d=\"m12 12-9 9 4-1 1-3 3-1 2-3\"/>","lock-keyhole":"<rect x=\"4\" y=\"10\" width=\"16\" height=\"12\" rx=\"2\"/><path d=\"M8 10V7a4 4 0 0 1 8 0v3M12 15v3\"/>","shopping-bag":"<path d=\"M4 8h16l-1 13H5zM9 9V6a3 3 0 0 1 6 0v3\"/>","box":"<rect x=\"3\" y=\"8\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M3 12h18M10 12v4h4v-4M7 8V5h10v3\"/>","gift-card":"<rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20M12 10v9M12 10H9a2 2 0 0 1 0-4c2 0 3 4 3 4zM12 10h3a2 2 0 0 0 0-4c-2 0-3 4-3 4z\"/>","diamond":"<path d=\"M12 2 22 12 12 22 2 12z\"/><path d=\"M2 12h20M12 2l4 10-4 10-4-10z\"/>","coins-stack":"<ellipse cx=\"12\" cy=\"6\" rx=\"8\" ry=\"3\"/><path d=\"M4 6v5c0 2 3.5 3 8 3s8-1 8-3V6M4 11v5c0 2 3.5 3 8 3s8-1 8-3v-5M4 16v2c0 2 3.5 3 8 3s8-1 8-3v-2\"/>","piggy-bank":"<path d=\"M5 11a7 7 0 0 1 13-3l3-1v6l-3 1a7 7 0 0 1-2 3v3h-3v-2H9v2H6v-4a7 7 0 0 1-1-5zM8 6l-1-3 4 2M16 10h.01\"/>","percent":"<circle cx=\"6\" cy=\"6\" r=\"3\"/><circle cx=\"18\" cy=\"18\" r=\"3\"/><path d=\"M3 21 21 3\"/>","hand-coins":"<circle cx=\"17\" cy=\"6\" r=\"4\"/><path d=\"M15 6h4M4 16l5-2 5 2h4a2 2 0 0 1 0 4h-8l-6 2M2 13h3v9H2\"/>","scroll":"<path d=\"M8 20h11a3 3 0 0 0 3-3V5H7v12a3 3 0 0 1-3 3h4M7 4H5a3 3 0 0 0-3 3v2h5M11 10h7M11 14h7\"/>","flask-conical":"<path d=\"M9 2h6M10 2v7L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L14 9V2M7 16h10\"/>","shield-check":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/><path d=\"m9 12 2 2 4-4\"/>","dices":"<rect x=\"3\" y=\"3\" width=\"14\" height=\"14\" rx=\"2\"/><path d=\"M8 8h.01M12 12h.01M18 9h3v12H9v-3M13 18h.01M18 14h.01\"/>","chess-knight":"<path d=\"M7 21h13M9 18h9v3H7v-3l3-5-5-4 1-5 6-2 6 5v4l-3 7M9 7l2 1M5 9l4 1\"/>","party-popper":"<path d=\"m3 22 6-2-4-6-2 8zM5 14l7 7M13 3v3M21 4l-2 2M20 12h3M9 8l2-2M15 11l3-3\"/><path d=\"M8 2c5 0 9 4 9 8\"/>","users-round":"<circle cx=\"9\" cy=\"8\" r=\"4\"/><path d=\"M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2M17 5a3 3 0 0 1 0 6M18 14a4 4 0 0 1 4 4v3\"/>","user-round":"<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 22v-2a8 8 0 0 1 16 0v2\"/>","user-plus":"<circle cx=\"9\" cy=\"8\" r=\"4\"/><path d=\"M2 21v-2a7 7 0 0 1 11-6M18 14v8M14 18h8\"/>","message-circle":"<path d=\"M21 11a9 9 0 0 1-9 9c-2 0-4-.5-5-1l-5 2 2-5a9 9 0 1 1 17-5z\"/>","messages-square":"<rect x=\"3\" y=\"3\" width=\"15\" height=\"12\" rx=\"2\"/><path d=\"M7 15v5l4-5M18 8h2a2 2 0 0 1 2 2v9h-7l-3 3v-4\"/>","thumbs-up":"<path d=\"M3 10h4v12H3zM7 11l5-9a2 2 0 0 1 3 2l-1 4h5a3 3 0 0 1 3 4l-3 9H7z\"/>","share-2":"<circle cx=\"18\" cy=\"5\" r=\"3\"/><circle cx=\"6\" cy=\"12\" r=\"3\"/><circle cx=\"18\" cy=\"19\" r=\"3\"/><path d=\"m9 11 6-5M9 13l6 5\"/>","radio":"<circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M7 7a7 7 0 0 0 0 10M17 7a7 7 0 0 1 0 10M4 4a11 11 0 0 0 0 16M20 4a11 11 0 0 1 0 16\"/>","camera":"<path d=\"M3 7h4l2-3h6l2 3h4v13H3z\"/><circle cx=\"12\" cy=\"13\" r=\"4\"/>","image":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><circle cx=\"8\" cy=\"8\" r=\"2\"/><path d=\"m3 17 5-5 4 4 4-6 5 7\"/>","video":"<rect x=\"2\" y=\"5\" width=\"15\" height=\"14\" rx=\"2\"/><path d=\"m17 10 5-3v10l-5-3\"/>","mic":"<rect x=\"9\" y=\"2\" width=\"6\" height=\"12\" rx=\"3\"/><path d=\"M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8\"/>","music-2":"<path d=\"M9 18V5l12-2v12M9 5l12-2\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"15\" r=\"3\"/>","headphones":"<path d=\"M3 14v-2a9 9 0 0 1 18 0v2M3 14h4v7H5a2 2 0 0 1-2-2zM17 14h4v5a2 2 0 0 1-2 2h-2z\"/>","heart-handshake":"<path d=\"M12 21 3 12a5 5 0 0 1 7-7l2 2 2-2a5 5 0 0 1 7 7z\"/><path d=\"m8 12 2 2 4-4\"/>","sword":"<path d=\"m14 12 8-10-10 8-2 4-3 3 3 3 3-3M6 18l-3 3M4 15l5 5\"/>","shield":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/>","flame":"<path d=\"M12 22c5 0 8-4 8-9 0-4-3-7-5-10 0 5-4 5-5 9-1-2-2-3-2-5-3 3-4 6-4 9 0 4 3 6 8 6z\"/><path d=\"M12 22c3 0 4-2 4-4 0-2-2-4-3-5 0 3-4 4-4 6 0 2 1 3 3 3z\"/>","wand-sparkles":"<path d=\"m4 20 13-13 3 3L7 23zM17 2v4M15 4h4M3 5v4M1 7h4M20 15v4M18 17h4\"/>","mountain":"<path d=\"m2 21 8-16 5 10 3-5 4 11zM8 11l2 2 2-2\"/>","trees":"<path d=\"m7 3 5 8H9l5 7H1l5-7H3zM7 18v4M17 5l5 8h-3l4 7H12l3-7h-2zM17 20v2\"/>","castle":"<path d=\"M3 22V9h4V4h4v5h2V4h4v5h4v13zM9 22v-6h6v6M3 13h18M6 3v3M18 3v3\"/>","landmark":"<path d=\"m2 9 10-6 10 6zM4 10v10M9 10v10M15 10v10M20 10v10M2 22h20M3 20h18\"/>","door-open":"<path d=\"M4 22h16M6 22V4l12-2v20M6 4h12M15 13h.01\"/><path d=\"M20 12h3m-1-2 2 2-2 2\"/>","map-pinned":"<path d=\"m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15\"/><circle cx=\"15\" cy=\"11\" r=\"2\"/>","anchor":"<circle cx=\"12\" cy=\"5\" r=\"3\"/><path d=\"M12 8v13M5 12H2M22 12h-3M5 14a7 7 0 0 0 14 0M5 14l-2 2M19 14l2 2\"/>","ship":"<path d=\"M12 2v12M5 14V6l7-4 7 4v8M2 15l10 7 10-7-10-3z\"/>","ghost":"<path d=\"M5 21V11a7 7 0 0 1 14 0v10l-4-3-3 3-3-3z\"/><path d=\"M9 11h.01M15 11h.01\"/>","bot":"<rect x=\"4\" y=\"7\" width=\"16\" height=\"14\" rx=\"3\"/><path d=\"M12 7V3M9 3h6M4 12H2M22 12h-2M8 14h.01M16 14h.01M9 18h6\"/>","rocket":"<path d=\"M4 13c1-6 7-10 16-11 1 9-3 15-9 16l-7-5zM11 18l-3 3M4 13l-2 6 6-2\"/><circle cx=\"15\" cy=\"9\" r=\"2\"/>","zap":"<path d=\"m13 2-9 12h7l-1 8 10-12h-7z\"/>","activity":"<path d=\"M2 12h5l3-8 4 16 3-8h5\"/>","bug":"<rect x=\"7\" y=\"8\" width=\"10\" height=\"13\" rx=\"5\"/><path d=\"M9 8V5a3 3 0 0 1 6 0v3M4 9l3 2M20 9l-3 2M3 15h4M17 15h4M5 21l3-3M19 21l-3-3M12 8v13\"/>","fish":"<path d=\"M2 12C7 5 15 5 20 12c-5 7-13 7-18 0zM20 12l3-4v8zM7 11h.01\"/>","leaf":"<path d=\"M20 3C8 2 4 8 4 14a7 7 0 0 0 7 7c6 0 10-6 9-18zM4 21C7 16 11 13 16 9\"/>","flower-2":"<circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M12 10c-5-8 5-10 3-3M14 11c8-5 10 5 3 3M14 14c5 8-5 10-3 3M10 14c-8 5-10-5-3-3M12 14v8\"/>","calendar-check":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 2v4M16 2v4M3 10h18m-12 6 2 2 4-4\"/>","calendar-clock":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 2v4M16 2v4M3 10h18\"/><circle cx=\"13\" cy=\"16\" r=\"4\"/><path d=\"M13 14v2l2 1\"/>","alarm-clock":"<circle cx=\"12\" cy=\"13\" r=\"8\"/><path d=\"M12 9v4l3 2M5 3 2 5M19 3l-2 5M5 21l2-3M19 21l-2-3\"/>","timer":"<circle cx=\"12\" cy=\"14\" r=\"8\"/><path d=\"M12 10v4l3 2M9 2h6M12 2v4M19 7l2-2\"/>","hourglass":"<path d=\"M6 2h12M6 22h12M7 2v4l5 6-5 6v4M17 2v4l-5 6 5 6v4\"/>","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2\"/>","moon":"<path d=\"M20 15a9 9 0 0 1-11-11 9 9 0 1 0 11 11z\"/>","sunrise":"<path d=\"M2 20h20M4 16h16M12 3v3M5 7l2 2M19 7l-2 2M7 16a5 5 0 0 1 10 0\"/>","sunset":"<path d=\"M2 20h20M4 16h16M12 3v3M5 7l2 2M19 7l-2 2M7 16a5 5 0 0 1 10 0\"/><path d=\"m10 10 2 2 2-2\"/>","repeat":"<path d=\"m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3\"/>","refresh-cw":"<path d=\"M21 9a9 9 0 0 0-16-3L2 9m0-6v6h6M3 15a9 9 0 0 0 16 3l3-3m0 6v-6h-6\"/>","bell-ring":"<path d=\"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4M3 4l2 2M21 4l-2 2\"/>","alert-triangle":"<path d=\"m12 3 10 18H2zM12 9v5M12 18h.01\"/>","circle-help":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M9 9a3 3 0 1 1 5 2c-2 1-2 2-2 3M12 18h.01\"/>","settings":"<circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M10 2h4l1 3 2 1 3-1 2 4-2 2v2l2 2-2 4-3-1-2 1-1 3h-4l-1-3-2-1-3 1-2-4 2-2v-2L2 9l2-4 3 1 2-1z\"/>","link":"<path d=\"M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2\"/>","external-link":"<path d=\"M14 3h7v7M21 3 10 14\"/><path d=\"M20 13v7H4V4h7\"/>","qr-code":"<path d=\"M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3M21 14v4M17 17v4M20 21h1M6 6h1M17 6h1M6 17h1\"/>","clover":"<circle cx=\"9\" cy=\"8\" r=\"4\"/><circle cx=\"15\" cy=\"8\" r=\"4\"/><circle cx=\"9\" cy=\"14\" r=\"4\"/><circle cx=\"15\" cy=\"14\" r=\"4\"/><path d=\"M12 16v6\"/>","snowflake":"<path d=\"M12 2v20M2 12h20M5 5l14 14M19 5 5 19M9 4l3-2 3 2M9 20l3 2 3-2\"/>","candy":"<rect x=\"7\" y=\"8\" width=\"10\" height=\"8\" rx=\"2\"/><path d=\"m7 10-5-3v10l5-3M17 10l5-3v10l-5-3\"/>","cake":"<path d=\"M3 13h18v9H3zM3 17h18M8 13V9M12 13V9M16 13V9M8 5v2M12 5v2M16 5v2\"/>","balloons":"<ellipse cx=\"8\" cy=\"8\" rx=\"5\" ry=\"6\"/><ellipse cx=\"17\" cy=\"7\" rx=\"4\" ry=\"5\"/><path d=\"m8 14-1 2h2zM17 12l-1 2h2zM8 16c0 3 4 3 4 6M17 14c0 5-3 5-3 8\"/>","confetti":"<path d=\"M3 21 8 8l8 8L3 21zM13 2v4M19 5l-2 2M21 12h-4M3 4l2 2M11 7l2-2M10 18l-2-2\"/>","palette":"<path d=\"M12 2a10 10 0 1 0 0 20h2a2 2 0 0 0 1-4 2 2 0 0 1 1-4h2a4 4 0 0 0 4-4A10 10 0 0 0 12 2z\"/><path d=\"M8 8h.01M13 6h.01M18 9h.01M7 15h.01\"/>","paintbrush":"<path d=\"m14 3 7 7-11 11-7 1 1-7zM11 6l7 7M3 21l4-4\"/>","masks":"<path d=\"M3 7c6 2 12 2 18 0v9c0 5-6 6-9 6S3 21 3 16zM7 12l3 1-3 1M14 13l3-1M9 17c2 2 4 2 6 0\"/>","pumpkin":"<path d=\"M12 6c-7-3-11 3-9 9 1 5 6 7 9 7s8-2 9-7c2-6-2-12-9-9zM12 6V2l3 2M9 8c-3 4-3 8 0 12M15 8c3 4 3 8 0 12\"/>","moon-star":"<path d=\"M19 15a9 9 0 0 1-10-10 9 9 0 1 0 10 10zM19 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1z\"/>","cloud":"<path d=\"M7 19h11a4 4 0 0 0 0-8 7 7 0 0 0-13-2 5 5 0 0 0 2 10z\"/>","umbrella":"<path d=\"M3 12a9 9 0 0 1 18 0H3zM12 3v15a3 3 0 0 1-6 0\"/>","coffee":"<path d=\"M3 6h14v9a6 6 0 0 1-12 0V6M17 8h3a3 3 0 0 1 0 6h-3M2 22h19\"/>","apple":"<path d=\"M12 8c-5-5-11-1-9 7 2 8 7 8 9 6 2 2 7 2 9-6 2-8-4-12-9-7zM12 8c0-3 1-5 3-6M12 7c-2-3-4-4-7-3\"/>","heart-pulse":"<path d=\"M20 5a6 6 0 0 0-8 0 6 6 0 0 0-8 8l8 8 8-8a6 6 0 0 0 0-8z\"/><path d=\"M2 13h5l2-4 3 8 2-4h8\"/>","calendar-range":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 2v4M16 2v4M3 10h18M7 15h10M7 18h10\"/>","calendar-plus":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 2v4M16 2v4M3 10h18M12 13v6M9 16h6\"/>","calendar-x":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 2v4M16 2v4M3 10h18m6 3 6 6m0-6-6 6\"/>","clock-alert":"<circle cx=\"11\" cy=\"12\" r=\"9\"/><path d=\"M11 7v5l3 2M21 16v4M21 23h.01\"/>","book-marked":"<path d=\"M4 3h16v18H7a3 3 0 0 1-3-3V3zM4 18a3 3 0 0 1 3-3h13M10 3v7l3-2 3 2V3\"/>","notebook-pen":"<rect x=\"5\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M9 7h7M9 11h5M3 7h3M3 12h3M3 17h3m7 2 6-6 2 2-6 6-3 1z\"/>","list-tree":"<path d=\"M5 3v15M5 6h5M5 12h5M5 18h5M10 5h11M10 11h11M10 17h11\"/><circle cx=\"5\" cy=\"3\" r=\"1\"/>","badge-check":"<path d=\"m12 2 3 2 4-.2.2 4 2 3-2 3 .2 4-4 .2-3 2-3-2-4-.2.2-4-2-3 2-3-.2-4 4-.2z\"/><path d=\"m9 12 2 2 4-4\"/>","ticket-check":"<path d=\"M3 6h18v5a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4V6zM14 6v3M14 15v3m-8-6 2 2 3-4\"/>","badge-percent":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m8 16 8-8\"/><circle cx=\"8.5\" cy=\"8.5\" r=\"1\"/><circle cx=\"15.5\" cy=\"15.5\" r=\"1\"/>","receipt-text":"<path d=\"M5 2h14v20l-3-2-4 2-4-2-3 2V2zM8 7h8M8 11h8M8 15h5\"/>","vote":"<rect x=\"3\" y=\"11\" width=\"18\" height=\"10\" rx=\"2\"/><path d=\"M7 11V6h10v5M8 4h8M9 16l2 2 4-4\"/>","podium":"<path d=\"M2 21v-7h6v7M8 21V9h8v12M16 21v-5h6v5M2 21h20M12 5v4M10 7l2-2 2 2\"/>","handshake":"<path d=\"m2 11 5-5 4 1 3-2 8 6-3 4-2-2-2 3-2-2-2 2-5-5-3 3-1-3zM7 6l3-3h5l2 3M11 7l-3 3 4 3 3-2M5 15l3 3M9 17l3 3\"/>","images":"<rect x=\"5\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M3 17V4a2 2 0 0 1 2-2h13M5 18l4-4 3 3 4-6 5 6\"/><circle cx=\"10\" cy=\"10\" r=\"2\"/>","message-square-text":"<path d=\"M4 3h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H9l-5 3V5a2 2 0 0 1 2-2zM8 9h10M8 13h7\"/>","crosshair":"<circle cx=\"12\" cy=\"12\" r=\"8\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v4M12 18v4M2 12h4M18 12h4\"/>","axe":"<path d=\"M4 21 16 9M7 18l-3 3M15 4c4-2 6-2 7-2-1 5-2 8-5 11l-6-6zM5 16l3 3\"/>","shield-plus":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v8M8 12h8\"/>","orbit":"<circle cx=\"12\" cy=\"12\" r=\"3\"/><ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"4\" transform=\"rotate(-35 12 12)\"/><ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"4\" transform=\"rotate(35 12 12)\"/>","tree-pine":"<path d=\"m12 2 7 9h-3l5 7H3l5-7H5zM12 18v4M9 22h6\"/>","snowman":"<circle cx=\"12\" cy=\"7\" r=\"4\"/><circle cx=\"12\" cy=\"17\" r=\"6\"/><path d=\"M9 2h6M12 3v-1M9 7h.01M15 7h.01M12 14h.01M12 18h.01M5 13l-3-2M19 13l3-2\"/>"};
+
+/* 前台新版公告：明確的後台欄位，不靠推測公告文字的標題。 */
+function newsSectionSvg(icon){
+  const key=String(icon||'file-text');const path=DUODUO_NEWS_ICON_PATHS[key]||DUODUO_NEWS_ICON_PATHS['file-text'];
+  return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+}
+function newsPlainContent(raw){
+ const lines=String(raw||'').replace(/\r\n?/g,'\n').split('\n');
+ let out=[],list=[],type='',paragraph=[];
+ const flushP=()=>{if(paragraph.length){out.push(`<p class="news-paragraph">${paragraph.map(newsInline).join('<br>')}</p>`);paragraph=[];}};
+ const flushList=()=>{if(list.length){out.push(`<${type} class="news-readable-list">${list.map(x=>`<li>${newsInline(x)}</li>`).join('')}</${type}>`);list=[];type='';}};
+ for(const input of lines){const x=input.trim();if(!x){flushP();flushList();continue;}
+  const unordered=x.match(/^(?:[-*•·・])\s+(.+)$/),ordered=x.match(/^\d+[.、．)]\s*(.+)$/);
+  if(unordered||ordered){flushP();const wanted=ordered?'ol':'ul';if(list.length&&type!==wanted)flushList();type=wanted;list.push((unordered||ordered)[1]);continue;}
+  flushList();paragraph.push(x);
+ }flushP();flushList();return out.join('');
+}
+function newsRewardCards(raw){
+ const lines=String(raw||'').split(/\r?\n/).map(x=>x.trim()).filter(Boolean);
+ if(!lines.length)return '';
+ let items=[];
+ for(const line of lines){
+  const multiple=newsRewardItems(line);
+  if(multiple){items.push(...multiple);continue;}
+  const m=line.match(/^(.+?)\s*[×xX*＊]\s*([\d,]+)\s*$/);
+  if(!m)return newsPlainContent(raw);
+  items.push({label:m[1].trim(),quantity:m[2]});
+ }
+ return `<div class="news-reward-grid">${items.map(x=>`<div class="news-reward-item"><span>${newsInline(x.label)}</span><strong>×${pageEsc(x.quantity)}</strong></div>`).join('')}</div>`;
+}
+function newsStructuredBody(n){
+ const blocks=Array.isArray(n.newsSections)?n.newsSections.filter(x=>x&&typeof x==='object'&&String(x.body||'').trim()):[];
+ const serial=n.tag==='序號發放'&&n.newsSerial&&typeof n.newsSerial==='object'?n.newsSerial:null;
+ const hasCode=serial&&Object.values(serial).some(x=>typeof x==='string'&&x.trim());
+ const lead=String(n.newsLead||'').trim();
+ if(!lead&&!blocks.length&&!hasCode)return newsRenderedBody(n.body||'');
+ let out='<div class="news-readable-body news-structured">';
+ if(lead)out+=`<div class="news-structured-intro">${newsPlainContent(lead)}</div>`;
+ for(const item of blocks){
+  const title=String(item.title||'').trim()||'公告內容';
+  const body=String(item.body||'');
+  const gift=/(?:^|\b)(rewards|compensation)(?:$|\b)/.test(String(item.type||''));
+  out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg(item.icon)}<span>${pageEsc(title)}</span></h3>${gift?newsRewardCards(body):newsPlainContent(body)}</section>`;
+ }
+ if(hasCode){
+  const s=serial;
+  if(s.code){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('ticket')}<span>兌換序號</span></h3><div class="news-code-box"><code>${pageEsc(s.code)}</code><button type="button" class="news-code-copy" data-copy-code="${pageEsc(s.code)}" aria-label="複製兌換序號">${newsIcon('ticket')}<span>複製序號</span></button></div></section>`;}
+  if(s.expiry){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('clock')}<span>兌換期限</span></h3>${newsPlainContent(s.expiry)}</section>`;}
+  if(s.method){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('list-checks')}<span>使用方式</span></h3>${newsPlainContent(s.method)}</section>`;}
+  if(s.rewards){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('gift')}<span>序號獎勵</span></h3>${newsRewardCards(s.rewards)}</section>`;}
+  if(s.notes){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('info')}<span>兌換注意事項</span></h3>${newsPlainContent(s.notes)}</section>`;}
+ }
+ if(n.newsIncludeLegacy&&n.body){out+=`<section class="news-section"><h3 class="news-section-heading">${newsSectionSvg('file-text')}<span>補充說明</span></h3>${newsRenderedBody(n.body)}</section>`;}
+ return out+'</div>';
+}
+
 function pageShowDetail(index){
   const n=pageNewsData[index];
   if(!n)return;
   pageDetail.hidden=false;
   document.body.classList.add('news-modal-open');
-  pageDetail.innerHTML=`<div class="news-modal-backdrop" data-close-news></div><div class="news-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="news-modal-title"><button class="news-modal-close" type="button" aria-label="關閉公告" data-close-news>×</button><article class="news-detail-card"><span class="tag ${pageTagClass(n.tag)}">${pageEsc(pageTagShort(n.tag||'未分類'))}</span><h2 id="news-modal-title">${pageEsc(n.title||'未命名公告')}</h2><div class="meta">${pageEsc(n.date||'')}</div><div class="news-body">${pageEsc(n.body||'').replace(/\n/g,'<br>')}</div></article></div>`;
+  pageDetail.innerHTML=`<div class="news-modal-backdrop" data-close-news></div><div class="news-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="news-modal-title"><button class="news-modal-close" type="button" aria-label="關閉公告" data-close-news>×</button><article class="news-detail-card"><div class="news-detail-meta"><span class="tag ${pageTagClass(n.tag)}">${pageEsc(pageTagShort(n.tag||'未分類'))}</span><time class="meta">${pageEsc(n.date||'')}</time></div><h2 id="news-modal-title">${pageEsc(n.title||'未命名公告')}</h2><div class="news-body">${newsStructuredBody(n)}</div></article></div>`;
   pageDetail.querySelectorAll('[data-close-news]').forEach(el=>el.addEventListener('click',()=>pageCloseDetail(true)));
+  pageDetail.querySelectorAll('[data-copy-code]').forEach(el=>el.addEventListener('click',()=>newsCopyCode(el)));
+  pageDetail.querySelectorAll('.news-discord-emoji').forEach(img=>img.addEventListener('error',()=>img.replaceWith(document.createTextNode(img.alt))));
   history.pushState({},'',`${location.pathname}?id=${index}`);
 }
 
@@ -155,15 +319,37 @@ pageLoadNews().then(loaded=>{
 .news-detail{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box}
 .news-detail[hidden]{display:none}
 .news-modal-backdrop{position:absolute;inset:0;background:rgba(2,10,20,.72);backdrop-filter:blur(4px)}
-.news-modal-dialog{position:relative;z-index:1;width:min(860px,100%);max-height:min(78vh,760px);overflow:auto;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.42)}
+.news-modal-dialog{position:relative;z-index:1;width:min(900px,100%);max-height:min(86vh,900px);overflow:auto;border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.42)}
 .news-detail-card{position:relative;margin:0;padding:34px 38px;background:var(--panel);border:1px solid var(--line);border-radius:20px}
-.news-detail-card h2{font-size:clamp(28px,4vw,42px);margin:12px 48px 8px 0}
-.news-detail-card .meta{color:var(--muted2);font-size:13px;margin-bottom:28px}
-.news-body{color:var(--muted);font-size:17px;line-height:2;white-space:normal}
+.news-detail-card h2{font-size:clamp(25px,3.25vw,34px);line-height:1.38;margin:14px 48px 20px 0;overflow-wrap:anywhere;letter-spacing:.01em}
+.news-detail-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.news-detail-card .news-detail-meta .meta{color:var(--muted2);font-size:13px;margin:0}
+.news-body{color:var(--muted);font-size:16px;line-height:1.8;white-space:normal;overflow-wrap:anywhere}
+.news-readable-body{display:grid;gap:12px}
+.news-paragraph{margin:0;line-height:1.85}
+.news-readable-body a{color:#168ac8;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere}
+.news-readable-body strong{color:var(--text);font-weight:700}
+.news-readable-body code{font-size:.95em;background:rgba(90,150,190,.09);padding:1px 4px;border-radius:4px}
+.news-discord-emoji{display:inline-block;width:1.28em;height:1.28em;vertical-align:-.24em;object-fit:contain}
+.news-mention{display:inline;border-radius:4px;background:rgba(90,150,190,.12);padding:1px 4px;font-size:.94em}
+.news-section{margin-top:7px;padding-top:19px;border-top:1px solid var(--line);display:grid;gap:12px;min-width:0}
+.news-section-heading{display:flex;align-items:center;gap:10px;margin:0;color:var(--text);font-size:18px;line-height:1.4;font-weight:750}
+.news-section-heading svg{flex:none;color:#249bc3}
+.news-readable-list{margin:0;padding-left:24px;display:grid;gap:6px}
+.news-readable-list li{padding-left:3px}
+.news-reward-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.news-reward-item{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:rgba(100,150,185,.065)}
+.news-reward-item span{min-width:0;overflow-wrap:anywhere}
+.news-reward-item strong{color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:15px}
+.news-code-box{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;background:rgba(95,165,200,.08);border:1px solid var(--line);border-radius:12px}
+.news-code-box code{background:none;padding:0;font-weight:750;font-size:17px;color:var(--text);word-break:break-all}
+.news-code-copy{display:inline-flex;align-items:center;gap:5px;flex:none;border:1px solid #65a8c8;background:rgba(50,125,170,.12);border-radius:9px;padding:8px 11px;color:var(--text);font:inherit;font-size:13px;cursor:pointer}
+.news-code-copy:hover{border-color:#3bc5ed;background:rgba(65,170,210,.16)}
+.news-code-copy svg{width:15px;height:15px}
 .news-modal-close{position:absolute;top:14px;right:14px;z-index:2;width:40px;height:40px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:50%;cursor:pointer;font-size:28px;line-height:1;font-family:inherit}
 .news-modal-close:hover{border-color:#4ecbff;color:#66d8ff}
 .news-modal-open{overflow:hidden}
-@media(max-width:700px){.news-title-row{grid-template-columns:auto 1fr auto}.news-title-row time{grid-column:2}.news-arrow{grid-column:3;grid-row:1/3}.news-title-text{font-size:16px}.news-detail{padding:12px}.news-modal-dialog{max-height:88vh}.news-detail-card{padding:26px 22px}.news-detail-card h2{font-size:28px;margin-right:38px}.news-body{font-size:16px;line-height:1.9}}
+@media(max-width:700px){.news-title-row{grid-template-columns:auto 1fr auto}.news-title-row time{grid-column:2}.news-arrow{grid-column:3;grid-row:1/3}.news-title-text{font-size:16px}.news-detail{padding:12px}.news-modal-dialog{max-height:88vh}.news-detail-card{padding:26px 22px}.news-detail-card h2{font-size:25px;margin-right:38px}.news-body{font-size:15px;line-height:1.8}.news-reward-grid{grid-template-columns:1fr}.news-section-heading{font-size:17px}.news-code-box{flex-wrap:wrap}}
 
 /* 只新增公告分類顏色；其餘公告列表、日期排序、詳細頁邏輯保持原版不變。 */
 .news-title-row .tag,.news-detail-card .tag{border:1px solid transparent}

@@ -374,7 +374,7 @@ function renderNavOrder(){const box=$('#navOrderList');if(!box)return;box.innerH
 function render(){
  $('#newsCount').textContent=news.length;$('#eventCount').textContent=events.filter(e=>e.published!==false).length;$('#itemCount').textContent=items.length;
  $('#bossSlidesAdmin')?.setAttribute('data-count',String(bossConfig.slides.length));
- $('#newsAdmin').innerHTML=news.map((n,i)=>`<div class="item"><div><b>${esc(n.title)}</b><small>${esc(newsTagShort(n.tag))} ・ ${esc(n.date)}</small><small class="multiline">${esc(n.body||'')}</small></div><div class="item-actions"><button onclick="editNews(${i})">編輯</button><button class="danger" onclick="removeNews(${i})">刪除</button></div></div>`).join('')||'<div class="note">目前沒有公告。</div>';
+ $('#newsAdmin').innerHTML=news.map((n,i)=>`<div class="item"><div><b>${esc(n.title)}</b><small>${esc(newsTagShort(n.tag))} ・ ${esc(n.date)}</small><small class="multiline">${esc(n.newsLead||n.newsSections?.map(s=>s.title).join('、')||n.body||'')}</small></div><div class="item-actions"><button onclick="editNews(${i})">編輯</button><button class="danger" onclick="removeNews(${i})">刪除</button></div></div>`).join('')||'<div class="note">目前沒有公告。</div>';
  const orderedReviews=[...reviews].sort((a,b)=>{if(Boolean(b.featured)!==Boolean(a.featured))return b.featured?1:-1;return (Number(a.order)||0)-(Number(b.order)||0)||(Number(a.createdAt)||0)-(Number(b.createdAt)||0)});
  $('#reviewsAdmin').innerHTML=orderedReviews.map((r,i)=>`<div class="item review-admin-item" draggable="true" data-review-index="${i}"><span class="drag">☰</span><div><b>${r.featured?'★ 精選　':''}${'★'.repeat(Math.max(1,Math.min(5,Number(r.rating)||5)))}</b><small>${esc(r.author||'玩家心得')}</small><small>${esc(r.text||'')}</small></div><div><button onclick="editReview('${r.id}')">編輯</button> <button class="ghost" onclick="toggleFeaturedReview('${r.id}')">${r.featured?'取消精選':'設為精選'}</button> <button class="danger" onclick="removeReviewById('${r.id}')">刪除</button></div></div>`).join('')||'<div class="note">目前沒有玩家心得。</div>';
  setupReviewDrag(orderedReviews);
@@ -496,7 +496,151 @@ $('#resetLayout').onclick=()=>{if(confirm('恢復預設首頁版面？')){layout
 $('#addReview').onclick=()=>{const text=$('#reviewText').value.trim();if(!text)return alert('請先貼上玩家心得內容');const data={rating:Number($('#reviewRating').value)||5,author:$('#reviewAuthor').value.trim()||'玩家心得',text,featured:$('#reviewFeatured')?.checked===true};const isEdit=!!editingReviewId;if(isEdit){const target=reviews.find(r=>r.id===editingReviewId);if(target)Object.assign(target,data);editingReviewId=null;$('#addReview').textContent='＋ 新增玩家心得'}else{reviews.push({id:'r_'+Date.now(),...data,createdAt:Date.now(),order:reviews.length})}save('duoduo_reviews',reviews);$('#reviewAuthor').value='';$('#reviewText').value='';$('#reviewRating').value='5';if($('#reviewFeatured'))$('#reviewFeatured').checked=false;render();alert(isEdit?'玩家心得已更新。':'玩家心得已新增。')};
 window.editReview=id=>{const r=reviews.find(x=>x.id===id);if(!r)return;editingReviewId=id;$('#reviewAuthor').value=r.author||'';$('#reviewRating').value=String(r.rating||5);$('#reviewText').value=r.text||'';if($('#reviewFeatured'))$('#reviewFeatured').checked=r.featured===true;$('#addReview').textContent='儲存玩家心得修改';document.querySelector('[data-panel="reviews"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};
 window.toggleFeaturedReview=id=>{const r=reviews.find(x=>x.id===id);if(!r)return;r.featured=!r.featured;save('duoduo_reviews',reviews);render()};window.removeReviewById=id=>{if(!confirm('確定刪除這則玩家心得？'))return;reviews=reviews.filter(r=>r.id!==id);save('duoduo_reviews',reviews);render()};function setupReviewDrag(ordered){document.querySelectorAll('.review-admin-item').forEach(row=>{row.addEventListener('dragstart',()=>{row.classList.add('dragging');row._from=Number(row.dataset.reviewIndex)});row.addEventListener('dragend',()=>row.classList.remove('dragging'));row.addEventListener('dragover',e=>e.preventDefault());row.addEventListener('drop',e=>{e.preventDefault();const from=row._from,to=Number(row.dataset.reviewIndex);if(from===to)return;const reordered=[...ordered];const moved=reordered.splice(from,1)[0];reordered.splice(to,0,moved);reordered.forEach((r,i)=>r.order=i);reviews.forEach(r=>{const x=reordered.find(v=>v.id===r.id);if(x)r.order=x.order});save('duoduo_reviews',reviews);render()})})}
-let editingNewsIndex=null;$('#addNews').onclick=()=>{const title=$('#newsTitle').value.trim();if(!title)return alert('請先輸入公告標題');const data={tag:$('#newsTag').value,title,date:$('#newsDate').value||new Date().toLocaleDateString('zh-TW'),body:$('#newsBody').value.trim()};if(editingNewsIndex!==null&&news[editingNewsIndex]){news[editingNewsIndex]=Object.assign({},news[editingNewsIndex],data);editingNewsIndex=null;$('#addNews').textContent='＋ 新增公告';alert('公告已更新。')}else{news.unshift(data);alert('公告已新增。')}save('duoduo_news',news);$('#newsTitle').value='';$('#newsDate').value='';$('#newsBody').value='';render()};window.editNews=i=>{const n=news[i];if(!n)return;editingNewsIndex=i;$('#newsTag').value=n.tag||'重要消息';$('#newsTitle').value=n.title||'';$('#newsDate').value=n.date||'';$('#newsBody').value=n.body||'';$('#addNews').textContent='儲存公告修改';document.querySelector('[data-panel="news"]')?.click();window.scrollTo({top:0,behavior:'smooth'})};window.removeNews=i=>{if(confirm('確定刪除這則公告？')){news.splice(i,1);if(editingNewsIndex===i){editingNewsIndex=null;$('#addNews').textContent='＋ 新增公告'}save('duoduo_news',news);render()}};
+
+// 最新消息：自訂段落（保留既有公告 body 資料結構）。
+const NEWS_SECTION_TYPES=[
+ ['intro','公告說明','book-open'],['updates','更新內容','file-text'],['maintenance','維護時間','clock'],
+ ['time','公告時程','calendar-clock'],['method','參加方式','list-checks'],['rules','規則說明','scroll-text'],
+ ['steps','操作步驟','list-ordered'],['compensation','補償內容','gift'],['rewards','獎勵內容','gift'],
+ ['warning','注意事項','info'],['reminder','重要提醒','bell'],['deadline','截止時間','clock-alert'],
+ ['details','補充說明','file-text'],['links','相關連結','link'],['custom','自訂標題','file-text']
+];
+let editingNewsIndex=null,newsSectionDraft=[];
+const newsEl=id=>document.getElementById(id);
+function newsNewBlock(){return {type:'intro',title:'公告說明',icon:'book-open',body:''};}
+function normalizeNewsBlocks(n){
+ if(!Array.isArray(n?.newsSections))return [];
+ return n.newsSections.filter(x=>x&&typeof x==='object').map(x=>{
+  const preset=NEWS_SECTION_TYPES.find(t=>t[0]===x.type);
+  const type=preset?x.type:'custom';
+  return {type,title:String(x.title||preset?.[1]||''),icon:duoduoEventIconId(x.icon||preset?.[2]||'file-text'),body:String(x.body||'')};
+ });
+}
+function newsSerialMode(){newsEl('newsSerialEditor').hidden=newsEl('newsTag').value!=='序號發放';}
+function newsIconChooser(item,container){
+ const header=document.createElement('div');header.className='event-section-icon-header';
+ const label=document.createElement('span');label.textContent='標題圖示（點選線條圖示）';
+ const current=document.createElement('span');current.className='event-section-icon-selected';
+ const toggle=document.createElement('button');toggle.type='button';toggle.className='event-section-icon-toggle';toggle.textContent='更換圖示';
+ header.append(label,current,toggle);container.append(header);
+ const tools=document.createElement('div');tools.className='event-section-icon-tools';tools.hidden=true;
+ const search=document.createElement('input');search.type='search';search.className='event-section-icon-search';search.placeholder='搜尋圖示，例如：禮物、維護、時鐘';
+ const categories=document.createElement('div');categories.className='event-section-icon-categories';
+ const count=document.createElement('span');count.className='event-section-icon-count';
+ const preview=document.createElement('div');preview.className='event-section-icon-live-preview';
+ let chosenCategory='全部';
+ const catButtons=EVENT_SECTION_ICON_CATEGORIES.map(c=>{
+  const b=document.createElement('button');b.type='button';b.className='event-section-icon-category';b.textContent=c;
+  b.onclick=()=>{chosenCategory=c;refresh();};categories.appendChild(b);return [c,b];
+ });
+ tools.append(search,categories,count,preview);
+ const gallery=document.createElement('div');gallery.className='event-section-icon-gallery';gallery.hidden=true;
+ const buttons=EVENT_SECTION_ICONS.map(([id,name,category])=>{
+  const b=document.createElement('button');b.type='button';b.className='event-section-icon-option';b.title=name;b.setAttribute('aria-label',name);
+  const sym=document.createElement('span');sym.className='event-section-svg-icon';sym.innerHTML=duoduoEventIconSvg(id);
+  const text=document.createElement('span');text.className='event-section-icon-caption';text.textContent=name.split('／')[0];b.append(sym,text);
+  b.onclick=()=>{item.icon=id;gallery.hidden=tools.hidden=true;toggle.textContent='更換圖示';update();};
+  gallery.append(b);return [id,name,category,b];
+ });
+ function refresh(){
+  const q=search.value.trim().toLowerCase();let visible=0;
+  buttons.forEach(([id,name,category,b])=>{
+   const inCategory=chosenCategory==='全部'||category===chosenCategory||(chosenCategory==='時間與通知'&&id==='clock');
+   b.hidden=!(inCategory&&(!q||`${id} ${name} ${category}`.toLowerCase().includes(q)));
+   if(!b.hidden)visible++;
+  });
+  catButtons.forEach(([key,b])=>b.classList.toggle('is-active',key===chosenCategory));
+  count.textContent=`顯示 ${visible}／${buttons.length} 款圖示`;
+ }
+ function update(){
+  current.innerHTML=duoduoEventIconSvg(item.icon);
+  const found=EVENT_SECTION_ICONS.find(t=>t[0]===item.icon);
+  current.append(document.createTextNode(' '+(found?.[1]||'文件')));
+  preview.innerHTML=duoduoEventIconSvg(item.icon);
+  const text=document.createElement('span');text.textContent=`前台效果預覽：${item.title||'公告段落'}`;preview.append(text);
+  buttons.forEach(([id,name,c,b])=>b.classList.toggle('is-selected',id===item.icon));
+ }
+ toggle.onclick=()=>{const show=gallery.hidden;gallery.hidden=!show;tools.hidden=!show;toggle.textContent=show?'收起圖示':'更換圖示';if(show)refresh();};
+ search.addEventListener('input',refresh);
+ container.append(tools,gallery);update();refresh();
+ return update;
+}
+function renderNewsEditor(){
+ const list=newsEl('newsSectionList');if(!list)return;list.replaceChildren();
+ if(!newsSectionDraft.length){const empty=document.createElement('div');empty.className='event-section-empty';empty.textContent='尚無分段內容。點選「＋ 新增段落」後，可自選標題、圖示與文字。';list.append(empty);return;}
+ newsSectionDraft.forEach((item,index)=>{
+  const panel=document.createElement('div');panel.className='event-section-row';
+  const head=document.createElement('div');head.className='event-section-row-head';
+  const name=document.createElement('strong');name.className='event-section-row-name';name.textContent=`段落 ${index+1}`;
+  const actions=document.createElement('div');actions.className='event-section-actions';
+  [[-1,'↑ 上移'],[1,'↓ 下移']].forEach(([d,t])=>{
+   const b=document.createElement('button');b.type='button';b.textContent=t;b.disabled=index+d<0||index+d>=newsSectionDraft.length;
+   b.onclick=()=>{const j=index+d;[newsSectionDraft[index],newsSectionDraft[j]]=[newsSectionDraft[j],newsSectionDraft[index]];renderNewsEditor();};actions.append(b);
+  });
+  const del=document.createElement('button');del.type='button';del.className='event-section-delete';del.textContent='刪除';del.onclick=()=>{newsSectionDraft.splice(index,1);renderNewsEditor();};actions.append(del);
+  head.append(name,actions);panel.append(head);
+  const fields=document.createElement('div');fields.className='event-section-row-fields';
+  const makeLabel=(text,control,cls)=>{const l=document.createElement('label');l.textContent=text;if(cls)l.className=cls;l.append(control);fields.append(l);return l;};
+  const type=document.createElement('select');NEWS_SECTION_TYPES.forEach(([id,label])=>{const option=document.createElement('option');option.value=id;option.textContent=label;type.append(option);});type.value=item.type;
+  makeLabel('段落類別',type);
+  const iconField=document.createElement('div');iconField.className='event-section-icon-field event-section-full';
+  const refreshIcon=newsIconChooser(item,iconField);fields.append(iconField);
+  const custom=document.createElement('input');custom.type='text';custom.maxLength=60;custom.value=item.title;custom.placeholder='輸入自己的標題，例如：伺服器補償安排';
+  const titleLabel=makeLabel('自訂段落標題',custom,'event-section-custom-title');
+  titleLabel.hidden=item.type!=='custom';
+  const body=document.createElement('textarea');body.rows=5;body.value=item.body;body.placeholder='輸入這個段落的公告內容，可使用換行與清單';
+  makeLabel('段落內容',body,'event-section-full');
+  type.addEventListener('change',()=>{
+   item.type=type.value;const def=NEWS_SECTION_TYPES.find(t=>t[0]===item.type);
+   if(item.type==='custom'){item.title='';item.icon='file-text';}else{item.title=def[1];item.icon=def[2];}
+   custom.value=item.title;titleLabel.hidden=item.type!=='custom';refreshIcon();
+  });
+  custom.addEventListener('input',()=>{item.title=custom.value;refreshIcon();});
+  body.addEventListener('input',()=>{item.body=body.value;});
+  panel.append(fields);list.append(panel);
+ });
+}
+function addNewsSection(){newsSectionDraft.push(newsNewBlock());renderNewsEditor();newsEl('newsSectionList').querySelector('.event-section-row:last-child textarea')?.focus();}
+newsEl('newsAddSection').onclick=addNewsSection;
+newsEl('newsAddSectionBottom').onclick=addNewsSection;
+newsEl('newsTag').addEventListener('change',newsSerialMode);
+function readNewsSerial(){return {
+ code:newsEl('newsSerialCode').value.trim(),expiry:newsEl('newsSerialExpiry').value.trim(),
+ method:newsEl('newsSerialMethod').value.trim(),rewards:newsEl('newsSerialRewards').value.trim(),notes:newsEl('newsSerialNotes').value.trim()
+};}
+function showNewsSerial(obj){const s=obj||{};for(const [id,key] of [['newsSerialCode','code'],['newsSerialExpiry','expiry'],['newsSerialMethod','method'],['newsSerialRewards','rewards'],['newsSerialNotes','notes']])newsEl(id).value=String(s[key]||'');}
+function newsResetEditor(){
+ editingNewsIndex=null;
+ newsEl('newsTag').value='重要消息';newsEl('newsTitle').value='';newsEl('newsDate').value='';
+ newsEl('newsLead').value='';newsEl('newsBody').value='';newsEl('newsIncludeLegacy').checked=false;
+ newsEl('newsLegacyEditor').open=false;newsSectionDraft=[];showNewsSerial(null);renderNewsEditor();newsSerialMode();
+ newsEl('addNews').textContent='＋ 新增公告';
+}
+newsEl('cancelEditNews').onclick=()=>{newsResetEditor();};
+newsEl('addNews').onclick=()=>{
+ const title=newsEl('newsTitle').value.trim();if(!title)return alert('請先輸入公告標題');
+ const items=newsSectionDraft.map(x=>({type:x.type,title:(x.type==='custom'?x.title:NEWS_SECTION_TYPES.find(t=>t[0]===x.type)?.[1]||x.title).trim(),icon:duoduoEventIconId(x.icon),body:String(x.body||'').trim()})).filter(x=>x.title&&x.body);
+ const tag=newsEl('newsTag').value;
+ const data={tag,title,date:newsEl('newsDate').value.trim()||new Date().toLocaleDateString('zh-TW'),body:newsEl('newsBody').value.trim(),
+ newsLead:newsEl('newsLead').value.trim(),newsSections:items,newsIncludeLegacy:newsEl('newsIncludeLegacy').checked,newsSerial:readNewsSerial()};
+ if(editingNewsIndex!==null&&news[editingNewsIndex]){news[editingNewsIndex]=Object.assign({},news[editingNewsIndex],data);alert('公告已更新（目前瀏覽器）。');}
+ else{news.unshift(data);alert('公告已新增（目前瀏覽器）。');}
+ save('duoduo_news',news);newsResetEditor();render();
+};
+window.editNews=i=>{
+ const n=news[i];if(!n)return;editingNewsIndex=i;
+ newsEl('newsTag').value=n.tag||'重要消息';newsEl('newsTitle').value=n.title||'';newsEl('newsDate').value=n.date||'';
+ newsEl('newsBody').value=n.body||'';newsEl('newsLead').value=n.newsLead||'';
+ newsEl('newsIncludeLegacy').checked=Boolean(n.newsIncludeLegacy);
+ newsSectionDraft=normalizeNewsBlocks(n);showNewsSerial(n.newsSerial);renderNewsEditor();newsSerialMode();
+ newsEl('addNews').textContent='儲存公告修改';
+ document.querySelector('[data-panel="news"]')?.click();window.scrollTo({top:0,behavior:'smooth'});
+};
+window.removeNews=i=>{if(confirm('確定刪除這則公告？')){
+ news.splice(i,1);if(editingNewsIndex===i)newsResetEditor();
+ save('duoduo_news',news);render();
+}};
+renderNewsEditor();newsSerialMode();
 async function fileToCompressedDataURL(file,maxW=1800,maxH=1200,quality=.86){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.naturalWidth,maxH/img.naturalHeight);const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/webp',quality));};img.onerror=reject;img.src=reader.result;};reader.onerror=reject;reader.readAsDataURL(file)});}async function uploadImageDataURL(dataUrl,originalName){
   const API_BASE=window.location.hostname.endsWith('github.io')
   ? 'https://duoduo-website.onrender.com'
