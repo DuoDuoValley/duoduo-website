@@ -155,53 +155,86 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
   });
 })();
 </script>
-<!-- DuoDuo BOSS page: refresh on published HTML and BOSS assets; new URL defeats cached HTML. -->
+<!-- DuoDuo BOSS-only update monitor: compare the ACTUALLY LOADED HTML against GitHub's published source. -->
 <script id="duoduo-public-auto-refresh">
 (() => {
   'use strict';
-  const INTERVAL_MS = 60000;
-  const pageUrl = new URL(window.location.pathname, window.location.origin);
-  const siteRoot = new URL('./', pageUrl);
-  // The BOSS page is driven by JS/CSS/JSON assets. Watching only HTML
-  // misses many GitHub deployments and leaves existing tabs on old content.
-  const watchUrls = [...new Set([pageUrl.href,
-    new URL('boss-atlas.js', siteRoot).href,
-    new URL('boss-atlas.css', siteRoot).href,
-    new URL('boss-challenge.js', siteRoot).href,
-    new URL('boss-challenge.css', siteRoot).href,
-    new URL('boss-atlas-data.json', siteRoot).href])];
+  // Only the BOSS page is affected. The outer BGM shell and other pages are untouched.
+  const INTERVAL_MS = 30000;
+  const siteRoot = new URL('./', location.href);
+  const pageUrl = new URL('boss.html', siteRoot);
+  const files = ['boss-atlas.js', 'boss-atlas.css', 'boss-challenge.js',
+    'boss-challenge.css', 'boss-atlas-data.json'];
+  const watchUrls = [pageUrl.href, ...files.map(name => new URL(name, siteRoot).href)];
   const known = new Map();
-  let checking = false;
-  let ready = false;
+  let running = false, ready = false;
 
-  async function readPage(url) {
-    const requestUrl = new URL(url);
-    requestUrl.searchParams.set('_duoduo_check', Date.now().toString());
-    const response = await fetch(requestUrl.href, { cache: 'no-store', credentials: 'same-origin' });
-    if (!response.ok) throw new Error('Update check failed: ' + response.status);
-    return response.text();
+  // An old browser-cached boss.html can be executing while a fetch already returns
+  // the newer HTML. The old polling code treated that newer remote copy as its
+  // baseline, then never refreshed the old UI. Read the active document instead.
+  function templateSignature(doc) {
+    const selectors = ['#duoduo-early-theme', '#dd-boss-cache-bootstrap',
+      '#duoduo-public-cloud-refresh', '#duoduo-public-auto-refresh'];
+    const scripts = selectors.map(id => doc.querySelector(id)?.textContent || '');
+    const styles = [...doc.querySelectorAll('head link[rel="stylesheet"]')]
+      .map(node => new URL(node.getAttribute('href') || '', pageUrl).pathname);
+    return JSON.stringify([
+      doc.title,
+      doc.querySelector('meta[name="description"]')?.content || '',
+      doc.querySelector('.page-hero')?.textContent || '',
+      styles, scripts
+    ]);
+  }
+  const activeTemplate = templateSignature(document);
+
+  async function download(url) {
+    const fresh = new URL(url);
+    fresh.searchParams.set('_dd_boss_probe', Date.now().toString(36) + Math.random().toString(36).slice(2));
+    const result = await fetch(fresh.href, {cache: 'no-store', credentials: 'same-origin'});
+    if (!result.ok) throw new Error('GitHub update check: HTTP ' + result.status);
+    const body = await result.text();
+    // An incomplete deploy or a fallback error page must never trigger a reload.
+    if (!body.trim() || /<!doctype\s+html/i.test(body) && !url.endsWith('/boss.html'))
+      throw new Error('GitHub update check: invalid response');
+    if (url.endsWith('/boss-atlas-data.json')) JSON.parse(body);
+    return body;
+  }
+
+  function validBossHtml(html) {
+    const parsed = new DOMParser().parseFromString(html, 'text/html');
+    return parsed.getElementById('ddBossAtlas') &&
+      parsed.getElementById('duoduo-public-auto-refresh') ? parsed : null;
   }
 
   async function check() {
-    if (checking || document.visibilityState === 'hidden' || !navigator.onLine) return;
-    checking = true;
+    if (running || document.visibilityState === 'hidden' || !navigator.onLine) return;
+    running = true;
     try {
-      const responses = await Promise.all(watchUrls.map(readPage));
-      if (!ready) {
-        responses.forEach((html, index) => known.set(watchUrls[index], html));
-        ready = true;
-        return;
+      const latest = await Promise.all(watchUrls.map(download));
+      const publishedDoc = validBossHtml(latest[0]);
+      if (!publishedDoc) return;
+      const htmlChanged = templateSignature(publishedDoc) !== activeTemplate;
+      const assetsChanged = ready && latest.some((body, i) => body !== known.get(watchUrls[i]));
+      if (htmlChanged || assetsChanged) {
+        // A second read avoids replacing the page during an incomplete GitHub deploy.
+        const confirmed = await Promise.all(watchUrls.map(download));
+        if (confirmed.some((body, i) => body !== latest[i]) || !validBossHtml(confirmed[0])) return;
+        if (htmlChanged || confirmed.some((body, i) => ready && body !== known.get(watchUrls[i]))) {
+          window.__ddBossRefreshFresh();
+          return;
+        }
       }
-      if (responses.some((html, index) => html !== known.get(watchUrls[index]))) {
-        window.__ddBossRefreshFresh();
-      }
-    } catch (_) {
-      // Network and deployment errors are retried on the next check.
+      latest.forEach((body, i) => known.set(watchUrls[i], body));
+      ready = true;
+    } catch (error) {
+      // Offline/CDN transient errors are retried; they are not treated as an update.
+      console.debug('BOSS update probe retry:', error);
     } finally {
-      checking = false;
+      running = false;
     }
   }
 
+  // Run even when the player keeps the BOSS iframe continuously in the foreground.
   check();
   window.setInterval(check, INTERVAL_MS);
   document.addEventListener('visibilitychange', () => {
