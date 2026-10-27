@@ -78,6 +78,29 @@ body.collapsed #mini {display:grid;}
 #playlistLabel {font-size:10px;color:var(--muted);}
 #trackList {font:inherit;font-size:12px;color:var(--text);background:#17283e;border:1px solid var(--line);border-radius:8px;padding:8px 7px;width:100%;min-width:0;max-width:100%;}
 #trackList option {background:#102137;color:white;}
+/* BGM 2.1.2: browser-native <select> popups use the operating system cursor.
+   Use a DOM-based song list so the site's white-glove cursor remains visible. */
+#playlistArea {position:relative;}
+#trackList[hidden],#trackPicker[hidden],#trackOptions[hidden]{display:none!important;}
+#trackPicker{width:100%;min-height:36px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:7px 10px;border-radius:8px;border:1px solid var(--line);background:#17283e;color:var(--text);
+  text-align:left;font:inherit;font-size:12px;cursor:pointer;}
+#trackPicker:hover:not(:disabled),#trackPicker[aria-expanded="true"]{border-color:color-mix(in srgb,var(--song-accent) 55%,var(--line));background:#20354f;}
+#trackPicker:focus-visible,#trackOptions .dd-song-option:focus-visible{outline:2px solid var(--song-accent);outline-offset:2px;}
+#trackPicker:disabled{opacity:.65;cursor:not-allowed;}
+#trackPickerText{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+#trackPicker svg{flex:none;width:15px;height:15px;transition:transform .18s ease;}
+#trackPicker[aria-expanded="true"] svg{transform:rotate(180deg);}
+#trackOptions{position:absolute;bottom:calc(100% + 7px);left:0;right:0;z-index:5;
+  max-height:min(260px,54vh);overflow-y:auto;overscroll-behavior:contain;padding:5px;border:1px solid rgba(164,197,240,.35);
+  border-radius:10px;background:#102137;box-shadow:0 13px 32px rgba(0,0,0,.55);scrollbar-color:#57708f #17283e;}
+#trackOptions .dd-song-option{display:block;width:100%;padding:9px 10px;margin:0;border:0;border-radius:6px;
+  background:transparent;color:var(--text);font:inherit;font-size:12px;text-align:left;line-height:1.35;
+  white-space:normal;overflow-wrap:anywhere;cursor:pointer;}
+#trackOptions .dd-song-option:hover,#trackOptions .dd-song-option:focus-visible{background:rgba(148,194,254,.19);}
+#trackOptions .dd-song-option[aria-selected="true"]{background:color-mix(in srgb,var(--song-accent) 23%,#17283e);color:#fff;}
+#trackOptions .dd-song-option[aria-selected="true"]:hover{background:color-mix(in srgb,var(--song-accent) 32%,#17283e);}
+@media(prefers-reduced-motion:reduce){#trackPicker svg{transition:none;}}
 #skipButtons {display:flex;gap:4px;}
 #skipButtons .iconButton {width:34px;height:34px;padding:0;}
 #skipButtons .iconButton svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
@@ -207,7 +230,12 @@ body.collapsed #mini {display:grid;}
       <span id="modeExplanation" class="visuallyHidden">點擊可切換播放模式</span>
     </div>
     <div id="bottomline">
-      <div id="playlistArea"><label for="trackList" id="playlistLabel">選擇曲目</label><select id="trackList" aria-label="選擇後台上架 BGM"><option value="">正在載入…</option></select></div>
+      <div id="playlistArea"><span id="playlistLabel">選擇曲目</span>
+        <!-- The native select remains the playlist state and no-JS fallback. -->
+        <select id="trackList" aria-label="選擇後台上架 BGM"><option value="">正在載入…</option></select>
+        <button id="trackPicker" type="button" hidden disabled aria-haspopup="listbox" aria-expanded="false" aria-controls="trackOptions" aria-labelledby="playlistLabel trackPickerText"><span id="trackPickerText">正在載入…</span><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
+        <div id="trackOptions" role="listbox" aria-label="選擇歌曲" hidden></div>
+      </div>
     </div>
     <div id="hint">多多谷官網背景音樂由後台管理。若瀏覽器阻擋自動播放，點一下播放鍵即可；切換官網內頁不會中斷。</div>
   </div>
@@ -370,7 +398,7 @@ async function tryPlay(){
 function setTrack(id,{autoplay=true}={}){
   const track=playlist.find(t=>t.id===id);if(!track)return;
   const changed=track.id!==selectedId||audio.src!==track.url;
-  selectedId=track.id;select.value=track.id;title.textContent=track.title;showArtwork(track);save(storage.track,track.id);
+  selectedId=track.id;select.value=track.id;syncTrackPicker();title.textContent=track.title;showArtwork(track);save(storage.track,track.id);
   if(changed){audio.src=track.url;audio.load();seek.value='0';byId('elapsed').textContent='0:00';byId('duration').textContent='0:00';}
   play.disabled=false;seek.disabled=false;previous.disabled=playlist.length<2;next.disabled=playlist.length<2;
   if(autoplay)tryPlay();else refreshPlayback();
@@ -384,6 +412,85 @@ function nextTrack(delta=1){
   setTrack(playlist[nextIndex]?.id||playlist[0].id,{autoplay:read(storage.paused,'0')!=='1'});
 }
 previous.onclick=()=>nextTrack(-1);next.onclick=()=>nextTrack(1);
+// Keep the real <select> as the source of truth. The custom list only
+// replaces the operating-system popup, which cannot show our glove cursor.
+const trackPicker=byId('trackPicker'),trackPickerText=byId('trackPickerText'),trackOptions=byId('trackOptions'),playlistArea=byId('playlistArea');
+select.hidden=true;
+select.setAttribute('aria-hidden','true');
+select.tabIndex=-1;
+trackPicker.hidden=false;
+function closeTrackOptions(returnFocus=false){
+  if(!trackOptions.hidden){trackOptions.hidden=true;trackPicker.setAttribute('aria-expanded','false');}
+  if(returnFocus)trackPicker.focus();
+}
+function syncTrackPicker(rebuild=false){
+  if(rebuild){
+    trackOptions.replaceChildren();
+    for(const option of select.options){
+      if(!option.value)continue;
+      const entry=document.createElement('button');
+      entry.type='button';entry.className='dd-song-option';
+      entry.setAttribute('role','option');entry.setAttribute('aria-selected','false');
+      entry.dataset.trackId=option.value;
+      entry.textContent=option.textContent;
+      trackOptions.append(entry);
+    }
+  }
+  const selected=Array.from(select.options).find(option=>option.value===select.value);
+  trackPickerText.textContent=selected?.textContent||'正在載入…';
+  trackPicker.disabled=select.disabled||!trackOptions.childElementCount;
+  for(const entry of trackOptions.children){entry.setAttribute('aria-selected',String(entry.dataset.trackId===select.value));}
+  if(trackPicker.disabled)closeTrackOptions();
+}
+function positionTrackOptions(){
+  // Place the menu above the entire BGM panel; never cover the cover/controls.
+  const panel=playerNode.getBoundingClientRect();
+  const area=playlistArea.getBoundingClientRect();
+  trackOptions.style.bottom=`${Math.round(area.bottom-panel.top+8)}px`;
+  trackOptions.style.maxHeight=`${Math.max(64,Math.min(260,panel.top-12))}px`;
+}
+function openTrackOptions(focusIndex=null){
+  if(trackPicker.disabled)return;
+  positionTrackOptions();
+  trackOptions.hidden=false;
+  trackPicker.setAttribute('aria-expanded','true');
+  const items=Array.from(trackOptions.children);
+  const selected=items.findIndex(item=>item.dataset.trackId===select.value);
+  const index=focusIndex===null?(selected<0?0:selected):Math.min(Math.max(0,focusIndex),items.length-1);
+  if(items[index]){items[index].focus({preventScroll:true});items[index].scrollIntoView({block:'nearest'});}
+}
+trackPicker.addEventListener('click',()=>{
+  if(trackOptions.hidden)openTrackOptions();else closeTrackOptions(true);
+});
+trackPicker.addEventListener('keydown',event=>{
+  if(['ArrowDown','ArrowUp','Home','End'].includes(event.key)){
+    event.preventDefault();
+    const last=trackOptions.childElementCount-1;
+    openTrackOptions(event.key==='End'?last:event.key==='Home'?0:null);
+  }
+});
+trackOptions.addEventListener('click',event=>{
+  const entry=event.target.closest('.dd-song-option');
+  if(!entry||!trackOptions.contains(entry))return;
+  if(Array.from(select.options).some(option=>option.value===entry.dataset.trackId)){
+    select.value=entry.dataset.trackId;
+    select.dispatchEvent(new Event('change',{bubbles:true}));
+  }
+  closeTrackOptions(true);
+});
+trackOptions.addEventListener('keydown',event=>{
+  const entries=Array.from(trackOptions.children);
+  if(event.key==='Escape'){event.preventDefault();closeTrackOptions(true);return;}
+  if(event.key==='Tab'){closeTrackOptions();return;}
+  if(!['ArrowDown','ArrowUp','Home','End'].includes(event.key))return;
+  event.preventDefault();
+  const current=entries.indexOf(document.activeElement);
+  const index=event.key==='Home'?0:event.key==='End'?entries.length-1:event.key==='ArrowDown'?Math.min(current+1,entries.length-1):Math.max(current-1,0);
+  if(entries[index]){entries[index].focus({preventScroll:true});entries[index].scrollIntoView({block:'nearest'});}
+});
+document.addEventListener('pointerdown',event=>{if(!playlistArea.contains(event.target))closeTrackOptions();},true);
+window.addEventListener('blur',()=>closeTrackOptions());
+window.addEventListener('resize',()=>{if(!trackOptions.hidden)positionTrackOptions();});
 select.onchange=()=>setTrack(select.value,{autoplay:read(storage.paused,'0')!=='1'});
 play.onclick=async()=>{
   if(!audio.src)return;
@@ -422,6 +529,7 @@ function refreshListUI(){
   if(!playlist.length){const option=document.createElement('option');option.value='';option.textContent='尚無上架歌曲';select.append(option);}
   select.disabled=!playlist.length;
   if(playlist.some(t=>t.id===selectedId))select.value=selectedId;
+  syncTrackPicker(true);
 }
 async function fetchCloud(){
   if(cloudLoading||document.visibilityState==='hidden'||!navigator.onLine)return;
@@ -453,7 +561,7 @@ async function fetchCloud(){
       if(read(storage.paused,'0')==='1'&&!remembered)status.textContent='你上次暫停了 BGM，按播放鍵即可繼續。';
     }
     else if(changed){setTrack(preferred,{autoplay:(wasPlaying||!selectedId)&&read(storage.paused,'0')!=='1'});}
-    else{select.value=selectedId;showArtwork(playlist.find(t=>t.id===selectedId));previous.disabled=playlist.length<2;next.disabled=playlist.length<2;}
+    else{select.value=selectedId;syncTrackPicker();showArtwork(playlist.find(t=>t.id===selectedId));previous.disabled=playlist.length<2;next.disabled=playlist.length<2;}
     initialLoad=false;
   }catch(error){if(initialLoad)status.textContent='暫時無法讀取後台播放清單，請確認雲端服務，稍後可重新整理。';}
   finally{cloudLoading=false;}
