@@ -168,3 +168,90 @@
 #ddBossAtlas .dd-stat .dd-rune-phase em{font-size:10px;font-style:normal;font-weight:800;color:var(--accent)}
 #ddBossAtlas .dd-stat .dd-rune-phase strong{font-size:11px}
 #ddBossAtlas .dd-stat .dd-rune-phases small{font-size:10px;white-space:nowrap;color:var(--muted)}
+
+
+/* DuoDuo BOSS Atlas 1.6 — more legible, balanced header only.
+   Deliberately scoped to the atlas so the rest of the website stays unchanged. */
+#ddBossAtlas .dd-boss-top{gap:12px;padding:14px 14px 11px;align-items:flex-start}
+#ddBossAtlas .dd-boss-pic{
+  width:152px;flex:0 0 152px;height:auto;aspect-ratio:422/500;
+  border-radius:12px;object-fit:contain;object-position:center;
+  background:var(--panel2);align-self:start
+}
+#ddBossAtlas .dd-boss-summary{gap:0;min-width:0}
+#ddBossAtlas .dd-boss-name-row{display:flex;align-items:center;gap:6px;min-width:0;margin-bottom:8px;flex-wrap:nowrap}
+#ddBossAtlas .dd-boss-name-row .dd-group-label{flex:0 0 auto;white-space:nowrap;font-size:11px;line-height:1.25;padding:3px 7px}
+#ddBossAtlas .dd-boss-name-row h3{min-width:0;margin:0;font-size:16px;font-weight:850;line-height:1.25;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#ddBossAtlas .dd-boss-name-long h3{font-size:14px}
+#ddBossAtlas .dd-boss-meta{margin-bottom:6px;font-size:11px}
+#ddBossAtlas .dd-summary-stats{gap:6px;margin-top:0}
+#ddBossAtlas .dd-stat{font-size:12px;gap:5px;line-height:1.4;min-width:0}
+#ddBossAtlas .dd-stat .dd-stat-label{color:var(--muted);font-size:11.5px;font-weight:750;line-height:1.45}
+#ddBossAtlas .dd-stat.hp{display:grid;gap:4px;background:var(--panel2);border:1px solid var(--line);border-radius:9px;padding:7px 8px}
+#ddBossAtlas .dd-stat.hp .dd-stat-label{color:var(--accent);font-size:11.5px;font-weight:900;letter-spacing:.01em}
+#ddBossAtlas .dd-hp-phases{display:grid;gap:5px;min-width:0}
+#ddBossAtlas .dd-hp-phase{gap:3px 5px;line-height:1.45;align-items:baseline;flex-wrap:wrap}
+#ddBossAtlas .dd-hp-step{font-size:11px;white-space:nowrap;font-weight:800}
+#ddBossAtlas .dd-hp-phase strong{font-size:12px;line-height:1.45;overflow-wrap:anywhere;font-weight:850}
+#ddBossAtlas .dd-stat.hp > strong{font-size:12px;line-height:1.5}
+#ddBossAtlas .dd-stat-rune,#ddBossAtlas .dd-stat-defense{
+  display:grid;grid-template-columns:27px minmax(0,1fr);gap:6px;align-items:start;
+  border-bottom:1px solid var(--line);padding:4px 1px 6px
+}
+#ddBossAtlas .dd-stat-defense{border-bottom:0}
+#ddBossAtlas .dd-stat-rune > b,#ddBossAtlas .dd-stat-defense > b{
+  display:block;min-width:0;font-size:12.5px;line-height:1.45;overflow-wrap:anywhere
+}
+#ddBossAtlas .dd-stat-rune .dd-rune-single{display:flex;align-items:center;gap:4px;min-width:0;flex-wrap:wrap}
+#ddBossAtlas .dd-stat-rune .dd-rune-single img,
+#ddBossAtlas .dd-stat-rune .dd-rune-wrap > img{
+  width:28px;height:28px;min-width:28px;object-fit:contain;flex:none
+}
+#ddBossAtlas .dd-stat-rune .dd-rune-wrap{display:flex;align-items:flex-start;gap:5px;min-width:0;max-width:100%}
+#ddBossAtlas .dd-stat-rune .dd-rune-content{display:flex;flex-direction:column;gap:3px;min-width:0;flex:1}
+#ddBossAtlas .dd-stat-rune .dd-rune-type{
+  display:inline-block;font-size:10px;line-height:1.4;color:var(--accent);
+  font-weight:850;white-space:nowrap
+}
+#ddBossAtlas .dd-stat-rune .dd-rune-phases{gap:3px 8px}
+#ddBossAtlas .dd-stat-rune .dd-rune-phase{gap:3px;white-space:normal;flex-wrap:wrap}
+#ddBossAtlas .dd-stat-rune .dd-rune-phase em,
+#ddBossAtlas .dd-stat-defense .dd-defense-phase em{font-size:10.5px;font-weight:800}
+#ddBossAtlas .dd-stat-rune .dd-rune-phase strong,
+#ddBossAtlas .dd-stat-defense .dd-defense-phase strong{font-size:12px;font-weight:850}
+#ddBossAtlas .dd-stat-rune .dd-rune-phases small,
+#ddBossAtlas .dd-stat-defense .dd-defense-phases small{font-size:10.5px}
+#ddBossAtlas .dd-diff-toolbar{display:flex;gap:9px;align-items:center;min-width:0;flex-wrap:wrap;padding:2px 0 4px}
+#ddBossAtlas .dd-diff-caption{font-size:11.5px;font-weight:850;color:var(--muted);white-space:nowrap;flex:0 0 auto}
+#ddBossAtlas .dd-diff-toolbar .dd-diff-list{display:flex;gap:5px;flex-wrap:wrap;min-width:0;flex:1 1 auto}
+#ddBossAtlas .dd-diff{min-width:65px;min-height:29px;padding:4px 6px}
+#ddBossAtlas .dd-diff img{width:60px;height:17px}
+/* Three columns and all loot remain exactly as the previous validated layout. */
+@media(max-width:1080px){
+  #ddBossAtlas .dd-boss-pic{width:128px;flex-basis:128px}
+  #ddBossAtlas .dd-boss-name-row h3{font-size:15px}
+}
+@media(max-width:850px){
+  #ddBossAtlas .dd-boss-pic{width:135px;flex-basis:135px}
+}
+@media(max-width:669px){
+  #ddBossAtlas .dd-boss-top{padding:13px 13px 10px;gap:11px}
+  #ddBossAtlas .dd-boss-pic{width:138px;flex-basis:138px}
+  #ddBossAtlas .dd-boss-name-row{margin-bottom:7px}
+  #ddBossAtlas .dd-boss-name-row h3{font-size:16px}
+ #ddBossAtlas .dd-boss-name-long h3{font-size:14px}
+}
+@media(max-width:390px){
+  #ddBossAtlas .dd-boss-pic{width:122px;flex-basis:122px}
+  #ddBossAtlas .dd-boss-top{gap:9px;padding:11px 11px 8px}
+  #ddBossAtlas .dd-boss-name-row{gap:5px}
+  #ddBossAtlas .dd-boss-name-row h3{font-size:14px}
+  #ddBossAtlas .dd-stat .dd-stat-label{font-size:11px}
+  #ddBossAtlas .dd-stat.hp{padding:6px 7px}
+  #ddBossAtlas .dd-hp-phase strong{font-size:11px}
+  #ddBossAtlas .dd-boss-info{padding:0 11px 12px}
+}
+@media(max-width:340px){
+  #ddBossAtlas .dd-boss-pic{width:108px;flex-basis:108px}
+  #ddBossAtlas .dd-boss-name-row h3{font-size:13.5px}
+}

@@ -96,7 +96,7 @@ function scheduleRowAlignment(){
 }
 function alignBossRows(){
  const cards=[...root.querySelectorAll('.dd-atlas-grid > .dd-boss')];
- for(const el of root.querySelectorAll('.dd-boss-top,.dd-diff-list,.dd-drop-group')){el.style.minHeight='';el.style.display='';}
+ for(const el of root.querySelectorAll('.dd-boss-top,.dd-diff-toolbar,.dd-drop-group')){el.style.minHeight='';el.style.display='';}
  if(!cards.length||matchMedia('(max-width:669px)').matches)return;
  // Only cards in the same visual row share heights; other rows stay independent.
  const rows=new Map();
@@ -106,7 +106,7 @@ function alignBossRows(){
   const blocks=row.map(card=>card.querySelector('.dd-boss-top'));
   let topHeight=Math.max(...blocks.map(el=>el?.getBoundingClientRect().height||0));
   blocks.forEach(el=>{if(el)el.style.minHeight=Math.ceil(topHeight)+'px'});
-  const tabs=row.map(card=>card.querySelector('.dd-diff-list'));
+  const tabs=row.map(card=>card.querySelector('.dd-diff-toolbar'));
   const tabsHeight=Math.max(...tabs.map(el=>el?.getBoundingClientRect().height||0));
   tabs.forEach(el=>{if(el)el.style.minHeight=Math.ceil(tabsHeight)+'px'});
   for(const category of CATEGORIES){
@@ -157,9 +157,10 @@ function card(b,map){
  const runeStageNames=['','一階段','二階段','三階段','四階段'];
  const runeStageKeys=Object.keys(runeStages).filter(k=>/^[1-4]$/.test(k)&&String(runeStages[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));
  const runeIcon=runeType?`<img src="${runeImages[runeType]}" alt="${runeNames[runeType]}" title="${runeNames[runeType]}">`:'';
+ const runeLabel=runeType?`<span class="dd-rune-type" title="${runeNames[runeType]}">${runeType==='arcane'?'祕法':'真實'}</span>`:'';
  const runeContent=runeStageKeys.length
-  ?`<span class="dd-rune-wrap">${runeIcon}<span class="dd-rune-phases">${runeStageKeys.map(stage=>`<span class="dd-rune-phase"><em>${runeStageNames[+stage]}</em><strong>${escapeHTML(String(runeStages[stage]))}</strong></span>`).join('')}${runeValue?`<small title="未指定的階段沿用此數值">其餘 ${escapeHTML(runeValue)}</small>`:''}</span></span>`
-  :runeValue?runeIcon+`<strong>${escapeHTML(runeValue)}</strong>`:'<strong class="dd-requirement-empty">—</strong>';
+  ?`<span class="dd-rune-wrap">${runeIcon}<span class="dd-rune-content">${runeLabel}<span class="dd-rune-phases">${runeStageKeys.map(stage=>`<span class="dd-rune-phase"><em>${runeStageNames[+stage]}</em><strong>${escapeHTML(String(runeStages[stage]))}</strong></span>`).join('')}${runeValue?`<small title="未指定的階段沿用此數值">其餘 ${escapeHTML(runeValue)}</small>`:''}</span></span></span>`
+  :runeValue?`<span class="dd-rune-single">${runeIcon}${runeLabel}<strong>${escapeHTML(runeValue)}</strong></span>`:'<strong class="dd-requirement-empty">—</strong>';
  const byStage=(d?.defenseByPhase && typeof d.defenseByPhase==='object')?d.defenseByPhase:{};
  const stageNames=['','一階段','二階段','三階段','四階段'];
  const stageKeys=Object.keys(byStage).filter(k=>/^[1-4]$/.test(k)&&String(byStage[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));
@@ -169,18 +170,17 @@ function card(b,map){
    <div class="dd-boss-top">
     ${img?`<img class="dd-boss-pic" src="${escapeAttr(img)}" alt="${escapeAttr(b.name)}" loading="lazy">`:''}
     <div class="dd-boss-summary">
-     <span class="dd-group-label">${escapeHTML(b.group)}</span>
-     <h3>${escapeHTML(b.name)}</h3>
-     <div class="dd-boss-meta">${ds.length} 種難度${b.note?' · '+escapeHTML(b.note):''}</div>
+     <div class="dd-boss-name-row${[...String(b.name)].length>=7?' dd-boss-name-long':''}"><span class="dd-group-label">${escapeHTML(b.group)}</span><h3 title="${escapeAttr(b.name)}">${escapeHTML(b.name)}</h3></div>
+     ${b.note?`<div class="dd-boss-meta">${escapeHTML(b.note)}</div>`:''}
      <div class="dd-summary-stats">
-      <div class="dd-stat hp" title="${escapeAttr(hp)}"><span>BOSS 血量</span>${formatHp(hp)}</div>
-      <div class="dd-stat"><span>符文</span><b>${runeContent}</b></div>
-      <div class="dd-stat"><span>防禦</span><b>${defenseContent}</b></div>
+      <div class="dd-stat hp" title="${escapeAttr(hp)}"><span class="dd-stat-label">BOSS 血量</span>${formatHp(hp)}</div>
+      <div class="dd-stat dd-stat-rune"><span class="dd-stat-label">符文</span><b>${runeContent}</b></div>
+      <div class="dd-stat dd-stat-defense"><span class="dd-stat-label">防禦</span><b>${defenseContent}</b></div>
      </div>
     </div>
    </div>
    <div class="dd-boss-info">
-    <div class="dd-diff-list" aria-label="${escapeAttr(b.name)}難度">${ds.map(x=>`<button class="dd-diff ${d===x?'active':''}" data-boss="${escapeAttr(b.id)}" data-diff="${escapeAttr(x.name)}" type="button" aria-label="${escapeAttr(x.name)}" aria-pressed="${d===x?'true':'false'}">${['簡單','普通','困難','混沌','終極'].includes(x.name)?`<img src="assets/boss-atlas/difficulties/${escapeAttr(x.name)}.png" alt="${escapeAttr(x.name)}" loading="lazy">`:escapeHTML(x.name)}</button>`).join('')}</div>
+    <div class="dd-diff-toolbar"><span class="dd-diff-caption">難度</span><div class="dd-diff-list" aria-label="${escapeAttr(b.name)}難度">${ds.map(x=>`<button class="dd-diff ${d===x?'active':''}" data-boss="${escapeAttr(b.id)}" data-diff="${escapeAttr(x.name)}" type="button" aria-label="${escapeAttr(x.name)}" aria-pressed="${d===x?'true':'false'}">${['簡單','普通','困難','混沌','終極'].includes(x.name)?`<img src="assets/boss-atlas/difficulties/${escapeAttr(x.name)}.png" alt="${escapeAttr(x.name)}" loading="lazy">`:escapeHTML(x.name)}</button>`).join('')}</div></div>
     <div class="dd-drops">
      <div class="dd-drop-head">掉落物 <small>${d?.drops?.length||0} 種</small></div>
      <div class="dd-drop-list" id="dd-drops-${escapeAttr(b.id)}">${d?.drops?.length?dropCards:'<span class="dd-no-drop">掉落資訊整理中</span>'}</div>
