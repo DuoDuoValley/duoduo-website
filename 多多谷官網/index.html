@@ -288,6 +288,30 @@ body.collapsed #mini {display:grid;}
   border-color:rgba(224,239,255,.42);
   box-shadow:0 16px 35px rgba(0,0,0,.65);
 }
+#player #trackOptions {
+  scrollbar-color:color-mix(in srgb,var(--song-accent,#98cef8) 70%,#edf6ff) rgba(var(--bgm-glass-control),.96);
+  scrollbar-width:auto;
+}
+#player #trackOptions::-webkit-scrollbar{width:12px;height:12px;}
+#player #trackOptions::-webkit-scrollbar-track{
+  background:rgba(var(--bgm-glass-control),.96);
+  border-left:1px solid rgba(255,255,255,.06);
+  border-radius:999px;
+}
+#player #trackOptions::-webkit-scrollbar-thumb{
+  background:linear-gradient(180deg,
+    color-mix(in srgb,var(--song-accent,#98cef8) 78%,#f6fbff),
+    color-mix(in srgb,var(--song-accent,#98cef8) 60%,#c8def5));
+  border:2px solid rgba(var(--bgm-glass-control),.96);
+  border-radius:999px;
+  min-height:28px;
+}
+#player #trackOptions::-webkit-scrollbar-thumb:hover{
+  background:linear-gradient(180deg,
+    color-mix(in srgb,var(--song-accent,#98cef8) 86%,#ffffff),
+    color-mix(in srgb,var(--song-accent,#98cef8) 68%,#d8e9fb));
+}
+#player #trackOptions::-webkit-scrollbar-corner{background:transparent;}
 #player #trackOptions .dd-song-option:hover,
 #player #trackOptions .dd-song-option:focus-visible {background:rgba(232,243,255,.16);}
 #player #trackOptions .dd-song-option[aria-selected="true"] {
