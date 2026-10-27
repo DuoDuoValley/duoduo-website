@@ -319,10 +319,27 @@ function showArtwork(track){
     requestAnimationFrame(()=>{
       if(serial!==artworkRequest)return;
       coverNode.classList.add('is-crossfading');
-      artworkTimer=setTimeout(()=>{
+      artworkTimer=setTimeout(async()=>{
         if(serial!==artworkRequest)return;
-        coverImage.src=requested;coverImage.dataset.loaded=requested;
-        coverNode.classList.remove('is-crossfading');incomingCover.removeAttribute('src');
+        // Keep the opaque incoming cover visible until the base <img> has
+        // decoded and the browser has had a chance to paint that bitmap.
+        // Otherwise replacing src and removing the overlay in one task can
+        // briefly expose an unpainted image (the post-transition flash).
+        coverImage.src=requested;
+        try{if(typeof coverImage.decode==='function')await coverImage.decode();}
+        catch(_){if(!coverImage.complete||!coverImage.naturalWidth)return;}
+        if(serial!==artworkRequest)return;
+        await new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)));
+        if(serial!==artworkRequest)return;
+        coverImage.dataset.loaded=requested;
+        // Both layers now display the same bitmap. Drop the overlay without
+        // a reverse fade, then restore its fade-in transition for next time.
+        incomingCover.style.transition='none';
+        coverNode.classList.remove('is-crossfading');
+        incomingCover.removeAttribute('src');
+        requestAnimationFrame(()=>{
+          if(serial===artworkRequest)incomingCover.style.removeProperty('transition');
+        });
       },window.matchMedia('(prefers-reduced-motion:reduce)').matches?0:350);
     });
   };
