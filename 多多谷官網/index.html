@@ -37,19 +37,19 @@ body { background:#07111f; }
 html.duoduo-site-ready #duoduoSite { visibility:visible; }
 #player { position:fixed; bottom:max(18px,env(safe-area-inset-bottom)); right:max(18px,env(safe-area-inset-right)); z-index:2147483000; width:min(355px,calc(100vw - 36px)); color:var(--text); background:linear-gradient(145deg,rgba(23,39,61,.98),rgba(11,23,39,.98)); border:1px solid var(--line); box-shadow:0 12px 45px rgba(0,0,0,.48); border-radius:19px; padding:15px; backdrop-filter:blur(16px); }
 #player[hidden] { display:none; }
-#topline { display:flex; gap:9px; align-items:center; }
-#musicCircle { width:39px;height:39px;border-radius:12px;display:grid;place-items:center;background:rgba(86,159,236,.2); color:#b1d9ff; flex:none; }
-#musicCircle svg {width:21px;height:21px;}
+#topline { display:flex; gap:12px; align-items:flex-start; position:relative; }
+#musicCircle { width:76px;height:76px;border:0;padding:0;border-radius:13px;display:grid;place-items:center;background:rgba(86,159,236,.2); color:#b1d9ff; flex:none;cursor:pointer;transition:box-shadow .3s ease; }
+#musicCircle svg {width:30px;height:30px;}
 #headTitles {flex:1; min-width:0; }
-#headTitles strong { display:block; font-size:14px; letter-spacing:.35px; }
-#headTitles small {display:block; margin-top:3px; color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+#headTitles strong { display:block; font-size:14px; letter-spacing:.35px; padding-right:38px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis; }
+#headTitles small {display:block; margin-top:3px; color:var(--muted);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:38px; }
 button { font:inherit;cursor:pointer; }
 .iconButton { width:33px;height:33px;border:1px solid rgba(173,198,230,.17);border-radius:10px;display:grid;place-items:center;color:#d1e2f6;background:rgba(255,255,255,.045); }
 .iconButton:hover,.actionBtn:hover { background:rgba(125,176,249,.17); }
 .iconButton svg { width:17px; height:17px; }
 #details { padding-top:13px; }
 #trackName {font-size:13px;font-weight:650;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;}
-#status { color:var(--muted);font-size:11px; margin-top:5px;line-height:1.5; }
+#status { color:var(--muted);font-size:11px; margin-top:5px;line-height:1.5;overflow-wrap:anywhere; }
 #controls {display:flex;gap:9px;align-items:center;margin-top:12px;}
 #play {width:40px;height:40px;border:0;border-radius:12px;background:#98cef8;color:#092039; display:grid;place-items:center; flex:none;}
 #play:disabled{opacity:.48; cursor:not-allowed;}
@@ -145,16 +145,22 @@ body.collapsed #mini {display:grid;}
 #player { --song-accent:#98cef8; --song-glow:color-mix(in srgb,var(--song-accent) 16%,transparent);
   border-color:color-mix(in srgb,var(--song-accent) 29%,rgba(175,205,245,.22));
   box-shadow:0 12px 45px rgba(0,0,0,.48),0 0 22px var(--song-glow);transition:border-color .35s,box-shadow .35s; }
-#musicCircle {overflow:hidden;position:relative;}
+#musicCircle {overflow:hidden;position:relative;isolation:isolate;}
+#collapse {position:absolute;top:0;right:0;}
 #musicCircle svg {flex:none;}
-#musicCircle img {width:100%;height:100%;display:none;object-fit:cover;border-radius:10px;}
+#musicCircle img {width:100%;height:100%;display:none;object-fit:cover;border-radius:12px;position:absolute;inset:0;}
+#songCoverIncoming {opacity:0;transition:opacity .32s ease;}
+#musicCircle.is-crossfading #songCoverIncoming {opacity:1;}
 #musicCircle.has-cover {background:#14253a;}
 #musicCircle.has-cover img {display:block;}
+#musicCircle:disabled {cursor:default;}
+#musicCircle.has-cover:hover {box-shadow:0 0 0 2px color-mix(in srgb,var(--song-accent) 50%,transparent),0 0 15px var(--song-glow);}
+#musicCircle.has-cover:focus-visible {outline:2px solid var(--song-accent);outline-offset:3px;}
 #musicCircle.has-cover svg {display:none;}
 #play {background:var(--song-accent);color:var(--song-ink,#092039);transition:background .35s,filter .2s;}
 #play:hover:not(:disabled) {filter:brightness(1.09);}
 #player input[type=range] {accent-color:var(--song-accent);}
-#nowPlayingRow {display:flex;align-items:center;gap:8px;min-width:0;}
+#nowPlayingRow {display:flex;align-items:center;gap:6px;min-width:0;margin-top:9px;}
 #nowPlayingRow #trackName {min-width:0;}
 #trackCaption {font-size:10px;color:var(--muted);margin-top:3px;line-height:1.45;overflow-wrap:anywhere;}
 #trackCaption[hidden]{display:none;}
@@ -165,7 +171,14 @@ body.collapsed #mini {display:grid;}
 #bgmEqualizer span:nth-child(4){animation-delay:.11s;}
 #player.is-playing #bgmEqualizer span{animation-play-state:running;}
 @keyframes bgm-bars {from{height:3px}to{height:13px}}
-@media (prefers-reduced-motion:reduce){#bgmEqualizer span{animation:none!important;height:5px!important}#player{transition:none!important}}
+/* BGM 2.1: enlarged artwork / integrated metadata / accessible artwork preview. */
+#coverPreview[hidden]{display:none!important;}
+#coverPreview {position:fixed;inset:0;z-index:2147483200;display:grid;place-items:center;background:rgba(3,9,18,.86);padding:24px;backdrop-filter:blur(7px);}
+#coverPreview figure{position:relative;margin:0;max-width:min(512px,90vw);width:100%;max-height:90vh;display:grid;place-items:center;}
+#coverPreview img{display:block;width:100%;max-height:calc(90vh - 36px);object-fit:contain;border-radius:14px;box-shadow:0 12px 38px rgba(0,0,0,.55);}
+#coverPreviewClose{position:absolute;top:-14px;right:-14px;width:34px;height:34px;border-radius:50%;border:1px solid rgba(230,243,255,.32);background:#1c2c40;color:white;display:grid;place-items:center;font-size:24px;line-height:1;}
+#coverPreviewClose:hover{background:#344a64;}
+@media (prefers-reduced-motion:reduce){#bgmEqualizer span{animation:none!important;height:5px!important}#player,#musicCircle,#songCoverIncoming{transition:none!important}}
 </style>
 
 </head>
@@ -173,14 +186,16 @@ body.collapsed #mini {display:grid;}
 <iframe id="duoduoSite" title="多多谷官網" src="about:blank" allow="fullscreen; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 <div id="player" role="region" aria-label="多多谷常駐背景音樂播放器">
   <div id="topline">
-    <div id="musicCircle" aria-hidden="true"><img id="songCover" alt=""><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="16" rx="3" ry="2"/></svg></div>
-    <div id="headTitles"><strong>DuoDuo BGM <span id="label">雲端播放清單</span></strong><small id="pageTitle">目前：首頁</small></div>
+    <button id="musicCircle" type="button" aria-label="查看歌曲封面大圖" title="查看歌曲封面" disabled><img id="songCover" alt=""><img id="songCoverIncoming" alt="" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="16" rx="3" ry="2"/></svg></button>
+    <div id="headTitles">
+      <strong>DuoDuo BGM <span id="label">雲端播放清單</span></strong><small id="pageTitle">目前：首頁</small>
+      <div id="nowPlayingRow"><div id="trackName">正在載入播放清單…</div><span id="bgmEqualizer" aria-hidden="true"><span></span><span></span><span></span><span></span></span></div>
+      <div id="trackCaption" hidden></div>
+      <div id="status" role="status">從多多谷後台取得上架歌曲。</div>
+    </div>
     <button id="collapse" class="iconButton" type="button" title="收合播放器" aria-label="收合播放器"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg></button>
   </div>
   <div id="details">
-    <div id="nowPlayingRow"><div id="trackName">正在載入播放清單…</div><span id="bgmEqualizer" aria-hidden="true"><span></span><span></span><span></span><span></span></span></div>
-    <div id="trackCaption" hidden></div>
-    <div id="status" role="status">從多多谷後台取得上架歌曲。</div>
     <div id="controls">
       <button type="button" id="play" aria-label="播放或暫停" title="播放／暫停" disabled><svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg></button>
       <div id="timeline"><div id="times"><span id="elapsed">0:00</span><span id="duration">0:00</span></div><input id="seek" type="range" tabindex="0" min="0" max="1000" value="0" aria-label="音樂進度" disabled></div>
@@ -197,6 +212,7 @@ body.collapsed #mini {display:grid;}
     <div id="hint">多多谷官網背景音樂由後台管理。若瀏覽器阻擋自動播放，點一下播放鍵即可；切換官網內頁不會中斷。</div>
   </div>
 </div>
+<div id="coverPreview" hidden role="dialog" aria-modal="true" aria-label="歌曲封面預覽" tabindex="-1"><figure><img id="coverPreviewImage" alt="歌曲封面大圖"><button id="coverPreviewClose" type="button" aria-label="關閉封面預覽" title="關閉">×</button></figure></div>
 <button type="button" id="mini" title="展開 BGM 播放器" aria-label="展開 BGM 播放器"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="16" rx="3" ry="2"/></svg></button>
 <audio id="music" preload="none"></audio>
 <script>
@@ -208,8 +224,14 @@ const title=byId('trackName'),select=byId('trackList');
 let frame=byId('duoduoSite');
 const previous=byId('prev'),next=byId('next');
 const apiBase=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
-const coverNode=byId('musicCircle'),coverImage=byId('songCover'),captionNode=byId('trackCaption'),playerNode=byId('player');
-let artworkRequest=0;
+const coverNode=byId('musicCircle'),coverImage=byId('songCover'),incomingCover=byId('songCoverIncoming'),captionNode=byId('trackCaption'),playerNode=byId('player');
+const coverPreview=byId('coverPreview'),coverPreviewImage=byId('coverPreviewImage'),coverPreviewClose=byId('coverPreviewClose');
+let artworkRequest=0,artworkTimer=0;
+const closeCoverPreview=()=>{if(coverPreview.hidden)return;coverPreview.hidden=true;coverPreviewImage.removeAttribute('src');coverNode.focus({preventScroll:true});};
+coverNode.addEventListener('click',()=>{if(coverNode.disabled||!coverImage.dataset.loaded)return;coverPreviewImage.src=coverImage.dataset.loaded;coverPreview.hidden=false;coverPreviewClose.focus({preventScroll:true});});
+coverPreviewClose.addEventListener('click',closeCoverPreview);
+coverPreview.addEventListener('click',e=>{if(e.target===coverPreview)closeCoverPreview();});
+document.addEventListener('keydown',e=>{if(coverPreview.hidden)return;if(e.key==='Escape'){e.preventDefault();closeCoverPreview();}else if(e.key==='Tab'){e.preventDefault();coverPreviewClose.focus({preventScroll:true});}});
 const icons={play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg>',pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>'};
 const storage={volume:'duoduo_bgm_volume',collapsed:'duoduo_bgm_collapsed',paused:'duoduo_bgm_paused',track:'duoduo_bgm_track',mode:'duoduo_bgm_player_mode'};
 const restoreStorageKey='duoduo_bgm_tab_resume_v6';
@@ -276,19 +298,38 @@ function showArtwork(track){
   captionNode.hidden=!captionNode.textContent;
   const requested=validUrl(track?.cover||'');
   const serial=++artworkRequest;
-  if(!requested){coverImage.removeAttribute('src');coverNode.classList.remove('has-cover');return;}
+  clearTimeout(artworkTimer);
+  coverNode.classList.remove('is-crossfading');
+  incomingCover.removeAttribute('src');
+  closeCoverPreview();
+  if(!requested){
+    coverImage.removeAttribute('src');delete coverImage.dataset.loaded;
+    coverNode.classList.remove('has-cover');coverNode.disabled=true;return;
+  }
   if(coverImage.dataset.loaded===requested&&coverNode.classList.contains('has-cover'))return;
-  // New artwork is preloaded before the old image is replaced, avoiding flashes.
+  // Decode new artwork in the background, then crossfade without blanking the old cover.
   const preload=new Image();
-  preload.onload=()=>{
+  preload.onload=async()=>{
+    try{if(typeof preload.decode==='function')await preload.decode();}catch(_){/* onload already succeeded */}
     if(serial!==artworkRequest)return;
-    coverImage.src=requested;
-    coverImage.dataset.loaded=requested;
-    coverNode.classList.add('has-cover');
+    incomingCover.src=requested;
+    coverNode.classList.add('has-cover');coverNode.disabled=false;
+    // A layout read establishes opacity 0 before the transition begins.
+    void incomingCover.offsetWidth;
+    requestAnimationFrame(()=>{
+      if(serial!==artworkRequest)return;
+      coverNode.classList.add('is-crossfading');
+      artworkTimer=setTimeout(()=>{
+        if(serial!==artworkRequest)return;
+        coverImage.src=requested;coverImage.dataset.loaded=requested;
+        coverNode.classList.remove('is-crossfading');incomingCover.removeAttribute('src');
+      },window.matchMedia('(prefers-reduced-motion:reduce)').matches?0:350);
+    });
   };
   preload.onerror=()=>{
     if(serial!==artworkRequest)return;
-    coverImage.removeAttribute('src');delete coverImage.dataset.loaded;coverNode.classList.remove('has-cover');
+    coverImage.removeAttribute('src');delete coverImage.dataset.loaded;
+    coverNode.classList.remove('has-cover');coverNode.disabled=true;
   };
   preload.src=requested;
 }
