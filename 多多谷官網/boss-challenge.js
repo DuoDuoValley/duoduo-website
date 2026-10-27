@@ -179,7 +179,7 @@ function accept(data){
 }
 (async()=>{
  try{
-  const response=await fetch('boss-atlas-data.json',{cache:'no-store'});if(!response.ok)throw Error('預設資料無法取得');
+  const response=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||Date.now().toString(36)),{cache:'no-store'});if(!response.ok)throw Error('預設資料無法取得');
   const fallback=await response.json();baselineBosses=Array.isArray(fallback.bosses)?fallback.bosses:[];accept(fallback);
  }catch(e){$('bc-picked').textContent='BOSS 資料載入失敗';console.warn('BOSS Calculator',e);}
  try{
