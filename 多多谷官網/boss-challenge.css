@@ -71,3 +71,18 @@
 @media(max-width:920px){#ddBossChallenge .bc-guides{grid-template-columns:1fr}#ddBossChallenge .bc-calc-body{grid-template-columns:1fr}#ddBossChallenge .bc-picker-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:600px){#ddBossChallenge{margin:20px 0 26px}#ddBossChallenge .bc-card{padding:13px}#ddBossChallenge .bc-picker-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#ddBossChallenge .bc-form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}#ddBossChallenge .bc-stage{align-items:baseline}}
 @media(max-width:340px){#ddBossChallenge .bc-form-grid{grid-template-columns:1fr}}
+
+/* V7.2: original BOSS difficulty art + explicit entry frequency. */
+#ddBossChallenge .bc-rule-list{gap:9px}
+#ddBossChallenge .bc-rule{display:grid;grid-template-columns:minmax(68px,.7fr) minmax(125px,1.55fr) minmax(104px,1.15fr);align-items:center;gap:9px;min-height:48px;padding:8px 12px}
+#ddBossChallenge .bc-rule-type{font-weight:750;color:var(--bc-muted);font-size:12px;white-space:nowrap}
+#ddBossChallenge .bc-rule-badges{display:flex;align-items:center;gap:5px;flex-wrap:wrap;min-width:0}
+#ddBossChallenge .bc-rule-badges img{width:69px;height:21px;object-fit:contain;flex:0 0 auto}
+#ddBossChallenge .bc-rule-limit{justify-self:end;font-size:12px;color:var(--bc-ink);font-weight:850;white-space:nowrap}
+@media(max-width:480px){
+ #ddBossChallenge .bc-rule{grid-template-columns:minmax(0,1fr) auto;row-gap:5px;padding:10px}
+ #ddBossChallenge .bc-rule-type{grid-column:1/-1}
+ #ddBossChallenge .bc-rule-badges img{width:65px;height:20px}
+ #ddBossChallenge .bc-rule-limit{font-size:11px}
+}
+@media(max-width:350px){#ddBossChallenge .bc-rule{grid-template-columns:1fr}#ddBossChallenge .bc-rule-limit{justify-self:start}}

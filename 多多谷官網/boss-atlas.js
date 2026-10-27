@@ -77,7 +77,7 @@ const publicBosses=()=>Array.isArray(data?.bosses)?data.bosses.filter(b=>b&&b.pu
 function render(){
  if(!data)return;
  if(searchComposing){renderDeferred=true;return;}
- root.innerHTML=`<div class="dd-atlas-head"><div><div class="dd-atlas-kicker">BOSS ARCHIVE · DUODUO VALLEY</div><h2>BOSS 資訊</h2><p>切換難度、查看血量、符文需求、防禦及分類掉落；點擊圖示可查詢數量與機率。</p></div><span class="dd-atlas-count"></span></div><div class="dd-atlas-filters"><input id="ddBossSearch" class="dd-atlas-search" placeholder="搜尋 BOSS 名稱…" aria-label="搜尋 BOSS" value="${escapeAttr(search)}"><div class="dd-atlas-tabs" role="group" aria-label="BOSS 分類">${['全部','初階','中階','高階','終極'].map(x=>`<button type="button" data-group="${x}" class="${group===x?'active':''}">${x}</button>`).join('')}</div></div><div class="dd-atlas-grid"></div><p class="dd-empty" hidden>沒有符合條件的 BOSS。</p><p class="dd-atlas-footnote">掉落機率依各 BOSS／難度獨立計算。沒有提供機率的項目會顯示「未提供」，不代表必定掉落。未公開的 BOSS 不會出現在圖鑑。資料僅供多多谷伺服器使用。</p>`;
+ root.innerHTML=`<div class="dd-atlas-head"><div><div class="dd-atlas-kicker">BOSS ARCHIVE</div><h2>BOSS 資訊</h2><p>切換難度、查看血量、符文需求、防禦及分類掉落；點擊圖示可查詢數量與機率。</p></div><span class="dd-atlas-count"></span></div><div class="dd-atlas-filters"><input id="ddBossSearch" class="dd-atlas-search" placeholder="搜尋 BOSS 名稱…" aria-label="搜尋 BOSS" value="${escapeAttr(search)}"><div class="dd-atlas-tabs" role="group" aria-label="BOSS 分類">${['全部','初階','中階','高階','終極'].map(x=>`<button type="button" data-group="${x}" class="${group===x?'active':''}">${x}</button>`).join('')}</div></div><div class="dd-atlas-grid"></div><p class="dd-empty" hidden>沒有符合條件的 BOSS。</p><p class="dd-atlas-footnote">掉落機率依各 BOSS／難度獨立計算。沒有提供機率的項目會顯示「未提供」，不代表必定掉落。未公開的 BOSS 不會出現在圖鑑。資料僅供多多谷伺服器使用。</p>`;
  renderResults();
 }
 function renderResults(){
@@ -184,7 +184,7 @@ function card(b,map){
     <div class="dd-drops">
      <div class="dd-drop-head">掉落物 <small>${d?.drops?.length||0} 種</small></div>
      <div class="dd-drop-list" id="dd-drops-${escapeAttr(b.id)}">${d?.drops?.length?dropCards:'<span class="dd-no-drop">掉落資訊整理中</span>'}</div>
-     ${item?`<div class="dd-drop-detail"><img src="${escapeAttr(safeImg(item.image))}" alt=""><div><b>${escapeHTML(item.name)}</b><p>數量：${escapeHTML(drop.quantity?'×'+drop.quantity:'未提供')}　｜　機率：${drop.chance===null||drop.chance===undefined?'未提供':escapeHTML(drop.chance)+'%'}</p></div></div>`:''}
+     ${item?`<div class="dd-drop-detail"><img src="${escapeAttr(safeImg(item.image))}" alt=""><div class="dd-drop-detail-info"><b>${escapeHTML(item.name)}</b><div class="dd-drop-facts"><span class="dd-drop-fact"><span class="dd-drop-fact-label">掉落數量</span><strong>${escapeHTML(drop.quantity?'×'+drop.quantity:'未提供')}</strong></span><span class="dd-drop-fact dd-drop-fact-rate"><span class="dd-drop-fact-label">掉落機率</span><strong>${drop.chance===null||drop.chance===undefined?'未提供':escapeHTML(drop.chance)+'%'}</strong></span></div></div></div>`:''}
     </div>
    </div>
   </article>`;

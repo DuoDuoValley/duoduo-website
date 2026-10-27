@@ -72,11 +72,11 @@ root.innerHTML=`
  <div class="bc-header"><div><div class="bc-kicker">CHALLENGE GUIDE</div><h2>BOSS 挑戰指南與血量計算機</h2></div><p class="bc-intro">入場次數、獎勵門檻與血量倍率，一次查清楚。</p></div>
  <div class="bc-guides">
   <section class="bc-card" aria-labelledby="bc-entry-title"><div class="bc-card-head"><span class="bc-head-icon" aria-hidden="true">◷</span><h3 id="bc-entry-title">入場次數說明</h3></div><div class="bc-rule-list">
-   <div class="bc-rule"><span class="bc-pill">每日 1 次</span><span>普通難易度</span></div>
-   <div class="bc-rule"><span class="bc-pill">每日 1 次</span><span>高階 BOSS 的困難難易度</span></div>
-   <div class="bc-rule"><span class="bc-pill">每週 1 次</span><span>終極 BOSS 的困難、混沌難易度</span></div>
-   <div class="bc-rule"><span class="bc-pill">每週 1 次</span><span>終極 BOSS 的終極難易度</span></div>
-  </div><p class="bc-note">※ 此處依多多谷提供的規則整理，未列出的難度以遊戲內實際設定為準。</p></section>
+   <div class="bc-rule"><span class="bc-rule-type">一般 BOSS</span><span class="bc-rule-badges"><img src="assets/boss-atlas/difficulties/普通.png" alt="普通" loading="lazy"></span><strong class="bc-rule-limit">每日可進行 1 次</strong></div>
+   <div class="bc-rule"><span class="bc-rule-type">高階 BOSS</span><span class="bc-rule-badges"><img src="assets/boss-atlas/difficulties/困難.png" alt="困難" loading="lazy"></span><strong class="bc-rule-limit">每日可進行 1 次</strong></div>
+   <div class="bc-rule"><span class="bc-rule-type">終極 BOSS</span><span class="bc-rule-badges"><img src="assets/boss-atlas/difficulties/困難.png" alt="困難" loading="lazy"><img src="assets/boss-atlas/difficulties/混沌.png" alt="混沌" loading="lazy"></span><strong class="bc-rule-limit">每週可進行 1 次</strong></div>
+   <div class="bc-rule"><span class="bc-rule-type">終極 BOSS</span><span class="bc-rule-badges"><img src="assets/boss-atlas/difficulties/終極.png" alt="終極" loading="lazy"></span><strong class="bc-rule-limit">每週可進行 1 次</strong></div>
+  </div></section>
   <section class="bc-card" aria-labelledby="bc-reward-title"><div class="bc-card-head"><span class="bc-head-icon" aria-hidden="true">◇</span><h3 id="bc-reward-title">獎勵門檻計算規則</h3></div>
    <p class="bc-description">隊員必須達到個人輸出門檻才可獲得獎勵。<strong>個人門檻＝BOSS 總血量 × 倍率 ÷ 隊伍人數 × 需求比例</strong>。</p>
    <div class="bc-rate-table-wrap"><table class="bc-rate-table" aria-label="各隊伍人數的獎勵需求比例"><thead><tr><th scope="col">倍率</th>${[1,2,3,4,5,6].map(n=>`<th scope="col">${n} 人</th>`).join('')}</tr></thead><tbody>
