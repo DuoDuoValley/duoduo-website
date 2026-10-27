@@ -1,0 +1,4498 @@
+{
+  "schema": 1,
+  "updatedAt": "2026-10-27",
+  "source": "官網BOSS資訊.zip、漆黑的BOSS飾品碎片.zip、管理員補充；PDF 圖示經像素比對，數量與機率獨立記錄；初階／中階共通掉落依管理員 2026-10-27 確認補齊",
+  "bosses": [
+    {
+      "id": "boss01",
+      "name": "粉豆",
+      "image": "assets/boss-atlas/bosses/boss01.png",
+      "group": "初階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "21億",
+          "drops": [
+            {
+              "itemId": "item033",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "250萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss02",
+      "name": "拉圖斯",
+      "image": "assets/boss-atlas/bosses/boss02.png",
+      "group": "初階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "簡單",
+          "hp": "(1) 3億　(2) 1億",
+          "drops": [
+            {
+              "itemId": "item033",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "250萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss03",
+      "name": "凡雷恩",
+      "image": "assets/boss-atlas/bosses/boss03.png",
+      "group": "初階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "簡單",
+          "hp": "7億",
+          "drops": [
+            {
+              "itemId": "item033",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "250萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss04",
+      "name": "阿卡伊農",
+      "image": "assets/boss-atlas/bosses/boss04.png",
+      "group": "初階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "簡單",
+          "hp": "21億",
+          "drops": [
+            {
+              "itemId": "item033",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "250萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss05",
+      "name": "希拉",
+      "image": "assets/boss-atlas/bosses/boss05.png",
+      "group": "初階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "5億",
+          "drops": [
+            {
+              "itemId": "item033",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "4",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "250萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss06",
+      "name": "卡翁",
+      "image": "assets/boss-atlas/bosses/boss06.png",
+      "group": "中階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "16.8億",
+          "drops": [
+            {
+              "itemId": "item077",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item076",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item078",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item075",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item033",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "500萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss07",
+      "name": "西格諾斯",
+      "image": "assets/boss-atlas/bosses/boss07.png",
+      "group": "中階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "630億",
+          "drops": [
+            {
+              "itemId": "item077",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item076",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item078",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item075",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item033",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "500萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss08",
+      "name": "森蘭丸",
+      "image": "assets/boss-atlas/bosses/boss08.png",
+      "group": "中階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "10億",
+          "drops": [
+            {
+              "itemId": "item077",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item076",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item078",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item075",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item033",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "500萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss09",
+      "name": "梅格耐斯",
+      "image": "assets/boss-atlas/bosses/boss09.png",
+      "group": "中階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "簡單",
+          "hp": "4億",
+          "drops": [
+            {
+              "itemId": "item077",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item076",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item078",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item075",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item033",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "500萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss10",
+      "name": "血腥皇后",
+      "image": "assets/boss-atlas/bosses/boss10.png",
+      "group": "中階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "混沌",
+          "hp": "1400億",
+          "drops": [
+            {
+              "itemId": "item077",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item076",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item078",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item075",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item033",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "500萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss11",
+      "name": "比艾樂",
+      "image": "assets/boss-atlas/bosses/boss11.png",
+      "group": "中階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "混沌",
+          "hp": "800億",
+          "drops": [
+            {
+              "itemId": "item077",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item076",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item078",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item075",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item033",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "500萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss12",
+      "name": "斑斑",
+      "image": "assets/boss-atlas/bosses/boss12.png",
+      "group": "中階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "混沌",
+          "hp": "1000億＋8億",
+          "drops": [
+            {
+              "itemId": "item077",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item076",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item078",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item075",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item033",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "500萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss13",
+      "name": "貝倫",
+      "image": "assets/boss-atlas/bosses/boss13.png",
+      "group": "中階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "混沌",
+          "hp": "2000億",
+          "drops": [
+            {
+              "itemId": "item077",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item076",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item078",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item075",
+              "quantity": "1",
+              "chance": 10
+            },
+            {
+              "itemId": "item033",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item034",
+              "quantity": "12",
+              "chance": null
+            },
+            {
+              "itemId": "item071",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item072",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item066",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item067",
+              "quantity": "8",
+              "chance": null
+            },
+            {
+              "itemId": "item045",
+              "quantity": "500萬",
+              "chance": null
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss14",
+      "name": "史烏",
+      "image": "assets/boss-atlas/bosses/boss14.png",
+      "group": "高階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)4700億 (2)4700億 (3)6300億",
+          "drops": [
+            {
+              "itemId": "item064",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "200"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)10兆 (2)10兆 (3)13.5兆",
+          "drops": [
+            {
+              "itemId": "item063",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item022",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item023",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item081",
+              "chance": 60.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1800萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "終極",
+          "hp": "(1)545兆 (2)545兆 (3)720兆",
+          "drops": [
+            {
+              "itemId": "item063",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item022",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item009",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item049",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "4000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "800"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss15",
+      "name": "戴米安",
+      "image": "assets/boss-atlas/bosses/boss15.png",
+      "group": "高階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)8400億 (2)3600億",
+          "drops": [
+            {
+              "itemId": "item064",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "200"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)10.8兆 (2)25.2兆",
+          "drops": [
+            {
+              "itemId": "item063",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item073",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item036",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item081",
+              "chance": 60.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1800萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss16",
+      "name": "守護天使綠水靈",
+      "image": "assets/boss-atlas/bosses/boss16.png",
+      "group": "高階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "混沌",
+          "hp": "(1)115.5兆",
+          "drops": [
+            {
+              "itemId": "item080",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item079",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1800萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss17",
+      "name": "露希妲",
+      "image": "assets/boss-atlas/bosses/boss17.png",
+      "group": "高階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)12兆 (2)12兆",
+          "drops": [
+            {
+              "itemId": "item064",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item042",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "200"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)50.8兆 (2)54兆 (3)12兆8079億",
+          "drops": [
+            {
+              "itemId": "item063",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item042",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item025",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item074",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item081",
+              "chance": 60.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item059",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item060",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1800萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss18",
+      "name": "威爾",
+      "image": "assets/boss-atlas/bosses/boss18.png",
+      "group": "高階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)25兆2000億",
+          "drops": [
+            {
+              "itemId": "item064",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item042",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "200"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)126兆",
+          "drops": [
+            {
+              "itemId": "item063",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item042",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item021",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item026",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item081",
+              "chance": 60.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item059",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item060",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1800萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss19",
+      "name": "戴斯克",
+      "image": "assets/boss-atlas/bosses/boss19.png",
+      "group": "高階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)25.5兆",
+          "drops": [
+            {
+              "itemId": "item064",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item041",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "200"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "混沌",
+          "hp": "(1)127.5兆",
+          "drops": [
+            {
+              "itemId": "item080",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item041",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item028",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item081",
+              "chance": 60.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item059",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item060",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1800萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss20",
+      "name": "頓凱爾",
+      "image": "assets/boss-atlas/bosses/boss20.png",
+      "group": "高階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)26兆",
+          "drops": [
+            {
+              "itemId": "item064",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "200"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)157.5兆",
+          "drops": [
+            {
+              "itemId": "item080",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item039",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item081",
+              "chance": 60.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item059",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item060",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1800萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss21",
+      "name": "真希拉",
+      "image": "assets/boss-atlas/bosses/boss21.png",
+      "group": "高階",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)88兆",
+          "drops": [
+            {
+              "itemId": "item063",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item058",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "20"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "12"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "200"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)176兆",
+          "drops": [
+            {
+              "itemId": "item080",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item058",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item065",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item081",
+              "chance": 60.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item059",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item060",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "35"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "18"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1800萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss22",
+      "name": "瑪麗西亞",
+      "image": "assets/boss-atlas/bosses/boss22.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "終極",
+          "hp": "",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item007",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item054",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item053",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item050",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item047",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "6000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "2500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss23",
+      "name": "黑魔法師",
+      "image": "assets/boss-atlas/bosses/boss23.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "困難",
+          "hp": "(1)63兆 (2)115.5兆 (3)157.5兆 (4)136.5兆",
+          "drops": [
+            {
+              "itemId": "item057",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item014",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item059",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item060",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "4000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "800"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "終極",
+          "hp": "(1)1180兆 (2)1191兆 (3)1285兆 (4)1155兆",
+          "drops": [
+            {
+              "itemId": "item057",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item014",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item059",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item060",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item018",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "6000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "1600"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss24",
+      "name": "受選的賽蓮",
+      "image": "assets/boss-atlas/bosses/boss24.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)52.5兆 (2)155.5兆",
+          "drops": [
+            {
+              "itemId": "item080",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item058",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item068",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "2500萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "800"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)126兆 (2)357兆",
+          "drops": [
+            {
+              "itemId": "item057",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item058",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item068",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item062",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "4000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "1600"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "終極",
+          "hp": "(1)1320兆 (2)5160兆",
+          "drops": [
+            {
+              "itemId": "item057",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item058",
+              "chance": 30.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item068",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item062",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item019",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "6000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "2500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss25",
+      "name": "監視者卡洛斯",
+      "image": "assets/boss-atlas/bosses/boss25.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)336兆 (2)720兆",
+          "drops": [
+            {
+              "itemId": "item057",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item056",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item070",
+              "chance": 50.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item020",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "2500萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "800"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "混沌",
+          "hp": "(1)1060兆 (2)4060兆",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item056",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item069",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item020",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "4000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "1600"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "終極",
+          "hp": "(1)5970兆 (2)1京5600兆",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item056",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item069",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item035",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item061",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item016",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item020",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "6000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "2500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss26",
+      "name": "咖凌",
+      "image": "assets/boss-atlas/bosses/boss26.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)400兆×3 (2)468兆 (3)512兆×3＋722兆",
+          "drops": [
+            {
+              "itemId": "item057",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item056",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.3,
+              "quantity": null
+            },
+            {
+              "itemId": "item006",
+              "chance": 50.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item024",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "2500萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "800"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)920兆×3 (2)1404兆 (3)1827兆×3＋2466兆",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item056",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.5,
+              "quantity": null
+            },
+            {
+              "itemId": "item005",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item024",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "4000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "1600"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "終極",
+          "hp": "(1)6063兆×3 (2)6930兆 (3)6930兆×3＋8662兆",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item056",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.5,
+              "quantity": null
+            },
+            {
+              "itemId": "item005",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item024",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item035",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item061",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item017",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "6000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "2500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss27",
+      "name": "林波",
+      "image": "assets/boss-atlas/bosses/boss27.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)972兆×4 (2)2592兆",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item007",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.3,
+              "quantity": null
+            },
+            {
+              "itemId": "item043",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "2500萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "800"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)1890兆×4 (2)4993兆",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item007",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.5,
+              "quantity": null
+            },
+            {
+              "itemId": "item043",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item037",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item044",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item047",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item050",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "4000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "1600"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss28",
+      "name": "巴德利斯",
+      "image": "assets/boss-atlas/bosses/boss28.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)2350兆 (2)2592兆／4284兆",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item007",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.3,
+              "quantity": null
+            },
+            {
+              "itemId": "item029",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "2500萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "800"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)5345兆 (2)5686兆／9240兆",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item007",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.5,
+              "quantity": null
+            },
+            {
+              "itemId": "item029",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item051",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item048",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item047",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item050",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "4000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "1600"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss29",
+      "name": "最初的敵對者",
+      "image": "assets/boss-atlas/bosses/boss29.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)495兆×2＋660兆",
+          "drops": [
+            {
+              "itemId": "item057",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item056",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item004",
+              "chance": 50.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item040",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "2500萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "800"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)3135兆×2＋4180兆",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item056",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item003",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item040",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item001",
+              "chance": 0.3,
+              "quantity": null
+            },
+            {
+              "itemId": "item035",
+              "chance": 0.3,
+              "quantity": null
+            },
+            {
+              "itemId": "item061",
+              "chance": 0.3,
+              "quantity": null
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "4000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "1600"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "終極",
+          "hp": "(1)6355兆×2＋1京2870兆",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item056",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item003",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item040",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item001",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item035",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item061",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item015",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "6000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "2500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss30",
+      "name": "凱伊",
+      "image": "assets/boss-atlas/bosses/boss30.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "(1)1京6480兆",
+          "drops": [
+            {
+              "itemId": "item011",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item010",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "50"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "24"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "2500萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "800"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "(1)5京2740兆",
+          "drops": [
+            {
+              "itemId": "item011",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item012",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item002",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item050",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item047",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "65"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "32"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "4000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "1600"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss31",
+      "name": "燦爛的凶星",
+      "image": "assets/boss-atlas/bosses/boss31.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item007",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item031",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item013",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "1億"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "3000"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item007",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item030",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item013",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item032",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item035",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item061",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "150"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "150"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "100"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "100"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "100"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "100"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "3億"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "5000"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "終極",
+          "hp": "(1)2京2343兆 (2)3京5330兆 (3)1京7020兆 (4)1京",
+          "drops": [],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    },
+    {
+      "id": "boss32",
+      "name": "尤比太",
+      "image": "assets/boss-atlas/bosses/boss32.png",
+      "group": "終極",
+      "published": false,
+      "difficulties": [
+        {
+          "name": "普通",
+          "hp": "尚未開放",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item007",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item027",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item038",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "180"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "180"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "130"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "130"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "130"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "130"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "5億"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "7000"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        },
+        {
+          "name": "困難",
+          "hp": "尚未開放",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item007",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item052",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item027",
+              "chance": 0.5,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item038",
+              "chance": 100.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item008",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item035",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item061",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": null,
+              "quantity": "300"
+            },
+            {
+              "itemId": "item034",
+              "chance": null,
+              "quantity": "300"
+            },
+            {
+              "itemId": "item071",
+              "chance": null,
+              "quantity": "200"
+            },
+            {
+              "itemId": "item072",
+              "chance": null,
+              "quantity": "200"
+            },
+            {
+              "itemId": "item066",
+              "chance": null,
+              "quantity": "200"
+            },
+            {
+              "itemId": "item067",
+              "chance": null,
+              "quantity": "200"
+            },
+            {
+              "itemId": "item045",
+              "chance": null,
+              "quantity": "8億"
+            },
+            {
+              "itemId": "item046",
+              "chance": null,
+              "quantity": "10000"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": ""
+    }
+  ],
+  "items": [
+    {
+      "id": "item001",
+      "name": "不朽的遺產",
+      "image": "assets/boss-atlas/items/item001.png"
+    },
+    {
+      "id": "item002",
+      "name": "不穩定的時間碎片",
+      "image": "assets/boss-atlas/items/item002.png"
+    },
+    {
+      "id": "item003",
+      "name": "世代傳承的遠古決心",
+      "image": "assets/boss-atlas/items/item003.png"
+    },
+    {
+      "id": "item004",
+      "name": "世代傳承的遠古決心碎片",
+      "image": "assets/boss-atlas/items/item004.png"
+    },
+    {
+      "id": "item005",
+      "name": "交織的凶獸之環",
+      "image": "assets/boss-atlas/items/item005.png"
+    },
+    {
+      "id": "item006",
+      "name": "交織的凶獸之環碎片",
+      "image": "assets/boss-atlas/items/item006.png"
+    },
+    {
+      "id": "item007",
+      "name": "信念的研磨石",
+      "image": "assets/boss-atlas/items/item007.png"
+    },
+    {
+      "id": "item008",
+      "name": "傲慢的原罪",
+      "image": "assets/boss-atlas/items/item008.png"
+    },
+    {
+      "id": "item009",
+      "name": "全面控制核心",
+      "image": "assets/boss-atlas/items/item009.png"
+    },
+    {
+      "id": "item010",
+      "name": "凱伊的下級靈魂艾爾達碎片箱",
+      "image": "assets/boss-atlas/items/item010.png"
+    },
+    {
+      "id": "item011",
+      "name": "凱伊的漆黑飾品箱",
+      "image": "assets/boss-atlas/items/item011.png"
+    },
+    {
+      "id": "item012",
+      "name": "凱伊的高級靈魂艾爾達碎片箱",
+      "image": "assets/boss-atlas/items/item012.png"
+    },
+    {
+      "id": "item013",
+      "name": "凶星機器人",
+      "image": "assets/boss-atlas/items/item013.png"
+    },
+    {
+      "id": "item014",
+      "name": "創世的胸章",
+      "image": "assets/boss-atlas/items/item014.png"
+    },
+    {
+      "id": "item015",
+      "name": "卓越鐵鎚(勳章)",
+      "image": "assets/boss-atlas/items/item015.png"
+    },
+    {
+      "id": "item016",
+      "name": "卓越鐵鎚(眼飾)",
+      "image": "assets/boss-atlas/items/item016.png"
+    },
+    {
+      "id": "item017",
+      "name": "卓越鐵鎚(耳環)",
+      "image": "assets/boss-atlas/items/item017.png"
+    },
+    {
+      "id": "item018",
+      "name": "卓越鐵鎚(腰帶)",
+      "image": "assets/boss-atlas/items/item018.png"
+    },
+    {
+      "id": "item019",
+      "name": "卓越鐵鎚(臉部裝飾)",
+      "image": "assets/boss-atlas/items/item019.png"
+    },
+    {
+      "id": "item020",
+      "name": "卡洛斯機器人",
+      "image": "assets/boss-atlas/items/item020.png"
+    },
+    {
+      "id": "item021",
+      "name": "受詛咒的魔導書選擇箱",
+      "image": "assets/boss-atlas/items/item021.png"
+    },
+    {
+      "id": "item022",
+      "name": "口紅控制器標誌",
+      "image": "assets/boss-atlas/items/item022.png"
+    },
+    {
+      "id": "item023",
+      "name": "史烏機器人",
+      "image": "assets/boss-atlas/items/item023.png"
+    },
+    {
+      "id": "item024",
+      "name": "咖凌機器人",
+      "image": "assets/boss-atlas/items/item024.png"
+    },
+    {
+      "id": "item025",
+      "name": "夢幻的腰帶",
+      "image": "assets/boss-atlas/items/item025.png"
+    },
+    {
+      "id": "item026",
+      "name": "威爾機器人",
+      "image": "assets/boss-atlas/items/item026.png"
+    },
+    {
+      "id": "item027",
+      "name": "尤比太機器人",
+      "image": "assets/boss-atlas/items/item027.png"
+    },
+    {
+      "id": "item028",
+      "name": "巨大的恐怖",
+      "image": "assets/boss-atlas/items/item028.png"
+    },
+    {
+      "id": "item029",
+      "name": "巴德利斯機器人",
+      "image": "assets/boss-atlas/items/item029.png"
+    },
+    {
+      "id": "item030",
+      "name": "恍惚幻象的斷片",
+      "image": "assets/boss-atlas/items/item030.png"
+    },
+    {
+      "id": "item031",
+      "name": "恍惚幻象碎片",
+      "image": "assets/boss-atlas/items/item031.png"
+    },
+    {
+      "id": "item032",
+      "name": "恍惚的惡夢",
+      "image": "assets/boss-atlas/items/item032.png"
+    },
+    {
+      "id": "item033",
+      "name": "恢復方塊",
+      "image": "assets/boss-atlas/items/item033.png"
+    },
+    {
+      "id": "item034",
+      "name": "恢復附加方塊",
+      "image": "assets/boss-atlas/items/item034.png"
+    },
+    {
+      "id": "item035",
+      "name": "意志的永恆防具箱(帽子／護肩)",
+      "image": "assets/boss-atlas/items/item035.png"
+    },
+    {
+      "id": "item036",
+      "name": "戴米安機器人",
+      "image": "assets/boss-atlas/items/item036.png"
+    },
+    {
+      "id": "item037",
+      "name": "扭曲的欲望結晶",
+      "image": "assets/boss-atlas/items/item037.png"
+    },
+    {
+      "id": "item038",
+      "name": "扭曲的渴望碎片",
+      "image": "assets/boss-atlas/items/item038.png"
+    },
+    {
+      "id": "item039",
+      "name": "指揮官力量耳環",
+      "image": "assets/boss-atlas/items/item039.png"
+    },
+    {
+      "id": "item040",
+      "name": "敵對者機器人",
+      "image": "assets/boss-atlas/items/item040.png"
+    },
+    {
+      "id": "item041",
+      "name": "星耀耳環",
+      "image": "assets/boss-atlas/items/item041.png"
+    },
+    {
+      "id": "item042",
+      "name": "暮光印記",
+      "image": "assets/boss-atlas/items/item042.png"
+    },
+    {
+      "id": "item043",
+      "name": "林波機器人",
+      "image": "assets/boss-atlas/items/item043.png"
+    },
+    {
+      "id": "item044",
+      "name": "根源的耳語",
+      "image": "assets/boss-atlas/items/item044.png"
+    },
+    {
+      "id": "item045",
+      "name": "楓幣",
+      "image": "assets/boss-atlas/items/item045.png"
+    },
+    {
+      "id": "item046",
+      "name": "楓葉點數",
+      "image": "assets/boss-atlas/items/item046.png"
+    },
+    {
+      "id": "item047",
+      "name": "欲望的永恆防具箱(手套)",
+      "image": "assets/boss-atlas/items/item047.png"
+    },
+    {
+      "id": "item048",
+      "name": "死亡之誓",
+      "image": "assets/boss-atlas/items/item048.png"
+    },
+    {
+      "id": "item049",
+      "name": "殲滅兵器史烏機器人",
+      "image": "assets/boss-atlas/items/item049.png"
+    },
+    {
+      "id": "item050",
+      "name": "殺手的永恆防具箱(鞋子／披風)",
+      "image": "assets/boss-atlas/items/item050.png"
+    },
+    {
+      "id": "item051",
+      "name": "永恆忠誠的痕跡",
+      "image": "assets/boss-atlas/items/item051.png"
+    },
+    {
+      "id": "item052",
+      "name": "混沌的漆黑飾品箱",
+      "image": "assets/boss-atlas/items/item052.png"
+    },
+    {
+      "id": "item053",
+      "name": "瑪麗西亞機器人",
+      "image": "assets/boss-atlas/items/item053.png"
+    },
+    {
+      "id": "item054",
+      "name": "瑪麗西亞靈魂寶珠",
+      "image": "assets/boss-atlas/items/item054.png"
+    },
+    {
+      "id": "item055",
+      "name": "生命的BOSS戒指箱子",
+      "image": "assets/boss-atlas/items/item055.png"
+    },
+    {
+      "id": "item056",
+      "name": "生命研磨石",
+      "image": "assets/boss-atlas/items/item056.png"
+    },
+    {
+      "id": "item057",
+      "name": "白玉的BOSS戒指箱子",
+      "image": "assets/boss-atlas/items/item057.png"
+    },
+    {
+      "id": "item058",
+      "name": "破曉墜飾",
+      "image": "assets/boss-atlas/items/item058.png"
+    },
+    {
+      "id": "item059",
+      "name": "神祕冥界幽靈武器箱",
+      "image": "assets/boss-atlas/items/item059.png"
+    },
+    {
+      "id": "item060",
+      "name": "神祕冥界幽靈防具箱",
+      "image": "assets/boss-atlas/items/item060.png"
+    },
+    {
+      "id": "item061",
+      "name": "神聖的永恆防具箱(上衣／褲子)",
+      "image": "assets/boss-atlas/items/item061.png"
+    },
+    {
+      "id": "item062",
+      "name": "米特拉的憤怒選擇箱",
+      "image": "assets/boss-atlas/items/item062.png"
+    },
+    {
+      "id": "item063",
+      "name": "紅玉的BOSS戒指箱子",
+      "image": "assets/boss-atlas/items/item063.png"
+    },
+    {
+      "id": "item064",
+      "name": "綠玉的BOSS戒指箱子",
+      "image": "assets/boss-atlas/items/item064.png"
+    },
+    {
+      "id": "item065",
+      "name": "苦痛的根源",
+      "image": "assets/boss-atlas/items/item065.png"
+    },
+    {
+      "id": "item066",
+      "name": "萌獸方塊",
+      "image": "assets/boss-atlas/items/item066.png"
+    },
+    {
+      "id": "item067",
+      "name": "萌獸閃炫方塊",
+      "image": "assets/boss-atlas/items/item067.png"
+    },
+    {
+      "id": "item068",
+      "name": "賽蓮機器人",
+      "image": "assets/boss-atlas/items/item068.png"
+    },
+    {
+      "id": "item069",
+      "name": "遺留的卡洛斯意志",
+      "image": "assets/boss-atlas/items/item069.png"
+    },
+    {
+      "id": "item070",
+      "name": "遺留的卡洛斯的意志碎片",
+      "image": "assets/boss-atlas/items/item070.png"
+    },
+    {
+      "id": "item071",
+      "name": "閃炫方塊",
+      "image": "assets/boss-atlas/items/item071.png"
+    },
+    {
+      "id": "item072",
+      "name": "閃炫附加方塊",
+      "image": "assets/boss-atlas/items/item072.png"
+    },
+    {
+      "id": "item073",
+      "name": "附有魔力的眼罩",
+      "image": "assets/boss-atlas/items/item073.png"
+    },
+    {
+      "id": "item074",
+      "name": "露希妲機器人",
+      "image": "assets/boss-atlas/items/item074.png"
+    },
+    {
+      "id": "item075",
+      "name": "頂級培羅德戒指",
+      "image": "assets/boss-atlas/items/item075.png"
+    },
+    {
+      "id": "item076",
+      "name": "頂級培羅德烙印墜飾",
+      "image": "assets/boss-atlas/items/item076.png"
+    },
+    {
+      "id": "item077",
+      "name": "頂級培羅德烙印腰帶",
+      "image": "assets/boss-atlas/items/item077.png"
+    },
+    {
+      "id": "item078",
+      "name": "頂級培羅德耳環",
+      "image": "assets/boss-atlas/items/item078.png"
+    },
+    {
+      "id": "item079",
+      "name": "黎明守護者天使戒指",
+      "image": "assets/boss-atlas/items/item079.png"
+    },
+    {
+      "id": "item080",
+      "name": "黑玉的BOSS戒指箱子",
+      "image": "assets/boss-atlas/items/item080.png"
+    },
+    {
+      "id": "item081",
+      "name": "漆黑的BOSS飾品碎片",
+      "image": "assets/boss-atlas/items/item081.png"
+    }
+  ]
+}

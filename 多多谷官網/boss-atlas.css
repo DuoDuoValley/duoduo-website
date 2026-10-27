@@ -1,0 +1,53 @@
+/* DuoDuo original BOSS Atlas. Isolated from homepage, BGM and admin styles. */
+#ddBossAtlas{color:var(--text);font:inherit;margin:18px auto 0;min-width:0}
+#ddBossAtlas *{box-sizing:border-box}
+#ddBossAtlas .dd-atlas-head{display:flex;align-items:end;gap:14px;justify-content:space-between;margin-bottom:20px;flex-wrap:wrap}
+#ddBossAtlas .dd-atlas-head h2{font-size:clamp(24px,3vw,34px);margin:3px 0 7px;font-weight:900;letter-spacing:-.03em}
+#ddBossAtlas .dd-atlas-head p{color:var(--muted);font-size:13px;margin:0;line-height:1.7}
+#ddBossAtlas .dd-atlas-kicker{font-size:11px;letter-spacing:.2em;font-weight:900;color:var(--accent)}
+#ddBossAtlas .dd-atlas-count{font-size:12px;font-weight:800;color:var(--muted);background:var(--panel2);padding:9px 13px;border:1px solid var(--line);border-radius:99px}
+#ddBossAtlas .dd-atlas-filters{display:grid;grid-template-columns:minmax(180px,1fr) auto;gap:12px;align-items:center;margin-bottom:20px}
+#ddBossAtlas .dd-atlas-search{width:100%;min-width:0;min-height:46px;background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:11px 16px;color:var(--text);font:inherit;font-size:14px}
+#ddBossAtlas .dd-atlas-tabs{display:flex;flex-wrap:wrap;gap:6px}
+#ddBossAtlas .dd-atlas-tabs button{padding:10px 12px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:9px;cursor:pointer;font:inherit;font-size:13px}
+#ddBossAtlas .dd-atlas-tabs button.active{background:var(--panel2);color:var(--text);border-color:var(--accent);font-weight:800}
+#ddBossAtlas .dd-atlas-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+#ddBossAtlas .dd-boss{min-width:0;overflow:hidden;position:relative;display:flex;flex-direction:column;border:1px solid var(--line);background:var(--panel);border-radius:19px;box-shadow:0 12px 35px rgba(0,0,0,.05)}
+#ddBossAtlas .dd-boss-top{display:flex;align-items:center;gap:14px;padding:15px;min-width:0}
+#ddBossAtlas .dd-boss-pic{width:88px;height:106px;border-radius:13px;object-fit:cover;object-position:top center;background:var(--panel2);flex:none}
+#ddBossAtlas .dd-boss-title{min-width:0;flex:1}
+#ddBossAtlas .dd-boss-title h3{font-size:18px;line-height:1.4;overflow-wrap:anywhere;margin:8px 0 5px}
+#ddBossAtlas .dd-group-label{display:inline-block;background:var(--panel2);border:1px solid var(--line);padding:3px 8px;border-radius:99px;font-size:11px;color:var(--accent);font-weight:800}
+#ddBossAtlas .dd-boss-meta{font-size:12px;color:var(--muted);line-height:1.5}
+#ddBossAtlas .dd-boss-info{padding:0 15px 15px;flex:1;display:flex;flex-direction:column;gap:10px}
+#ddBossAtlas .dd-diff-list{display:flex;gap:5px;flex-wrap:wrap}
+#ddBossAtlas .dd-diff{border:1px solid var(--line);background:var(--panel2);color:var(--text);padding:7px 10px;border-radius:7px;cursor:pointer;font:inherit;font-size:12px;font-weight:750}
+#ddBossAtlas .dd-diff.active{border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);color:var(--accent)}
+#ddBossAtlas .dd-hp{border-radius:11px;background:var(--panel2);padding:11px 12px;min-height:70px;display:grid;align-content:center;gap:5px}
+#ddBossAtlas .dd-hp .cap{font-size:11px;color:var(--muted)}
+#ddBossAtlas .dd-hp strong{font-size:13px;font-weight:800;line-height:1.6;white-space:pre-wrap;overflow-wrap:anywhere}
+/* Requirement rows are present even before the admin enters values. */
+#ddBossAtlas .dd-requirements{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+#ddBossAtlas .dd-requirement{min-width:0;min-height:63px;background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:10px 12px;display:flex;flex-direction:column;justify-content:center;gap:5px}
+#ddBossAtlas .dd-requirement .cap{color:var(--muted);font-size:11px}
+#ddBossAtlas .dd-requirement-value{display:flex;align-items:center;gap:6px;min-width:0;flex-wrap:wrap}
+#ddBossAtlas .dd-requirement-value img{width:23px;height:23px;object-fit:contain;flex:none}
+#ddBossAtlas .dd-requirement-value strong{color:var(--text);font-size:13px;font-weight:800;overflow-wrap:anywhere}
+#ddBossAtlas .dd-requirement-value .dd-requirement-empty{font-weight:500;color:var(--muted)}
+#ddBossAtlas .dd-drops{border-top:1px solid var(--line);padding-top:10px}
+#ddBossAtlas .dd-drop-head{display:flex;align-items:center;justify-content:space-between;font-size:12px;font-weight:750;margin-bottom:9px}
+#ddBossAtlas .dd-drop-head small{color:var(--muted);font-weight:400}
+#ddBossAtlas .dd-drop-icons{display:flex;flex-wrap:wrap;gap:8px;min-height:40px;align-items:start}
+#ddBossAtlas .dd-drop{border:1px solid var(--line);background:var(--panel2);border-radius:10px;width:42px;height:42px;display:grid;place-items:center;position:relative;cursor:pointer;padding:3px}
+#ddBossAtlas .dd-drop img{width:31px;height:31px;object-fit:contain;image-rendering:auto}
+#ddBossAtlas .dd-drop:hover,#ddBossAtlas .dd-drop:focus-visible{border-color:var(--accent);outline:none;transform:translateY(-1px)}
+#ddBossAtlas .dd-drop[aria-expanded=true]{border-color:var(--accent);box-shadow:0 0 0 1px var(--accent)}
+#ddBossAtlas .dd-drop-count{position:absolute;bottom:-5px;right:-5px;min-width:17px;height:16px;display:flex;align-items:center;justify-content:center;border-radius:5px;background:var(--bg2);color:var(--text);border:1px solid var(--line);font-size:9px;font-weight:800;padding:0 2px}
+#ddBossAtlas .dd-drop-detail{margin-top:13px;background:var(--panel2);border:1px solid var(--line);border-radius:10px;display:flex;align-items:center;gap:10px;padding:10px}
+#ddBossAtlas .dd-drop-detail img{width:42px;height:42px;object-fit:contain}
+#ddBossAtlas .dd-drop-detail b{font-size:13px;display:block;margin-bottom:4px;overflow-wrap:anywhere}
+#ddBossAtlas .dd-drop-detail p{font-size:12px;color:var(--muted);margin:0;line-height:1.65}
+#ddBossAtlas .dd-empty{padding:30px;text-align:center;border:1px dashed var(--line);border-radius:16px;color:var(--muted)}
+#ddBossAtlas .dd-atlas-footnote{font-size:12px;line-height:1.8;color:var(--muted);margin:22px 0 0}
+@media(max-width:1100px){#ddBossAtlas .dd-atlas-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:700px){#ddBossAtlas .dd-atlas-grid{grid-template-columns:1fr}#ddBossAtlas .dd-atlas-filters{grid-template-columns:1fr}#ddBossAtlas .dd-boss-pic{width:82px;height:96px}}

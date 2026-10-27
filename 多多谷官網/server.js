@@ -646,7 +646,7 @@ const SITE_DATA_KEYS=[
   'duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero',
   'duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads',
   'duoduo_items','duoduo_links','duoduo_pools','duoduo_weekly_prizes',
-  'duoduo_bgm'
+  'duoduo_bgm','duoduo_boss_atlas'
 ];
 
 async function handleGetSiteData(req,res){
