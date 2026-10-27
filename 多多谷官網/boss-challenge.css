@@ -86,3 +86,8 @@
  #ddBossChallenge .bc-rule-limit{font-size:11px}
 }
 @media(max-width:350px){#ddBossChallenge .bc-rule{grid-template-columns:1fr}#ddBossChallenge .bc-rule-limit{justify-self:start}}
+
+/* V7.4: keep three original difficulty badges legible on narrow screens. */
+#ddBossChallenge .bc-rule-exception{grid-column:1/-1;justify-self:end;font-size:11px;line-height:1.3;color:var(--bc-muted);font-weight:650}
+@media(max-width:480px){#ddBossChallenge .bc-rule-badges--three img{width:55px;height:19px}}
+@media(max-width:350px){#ddBossChallenge .bc-rule-exception{justify-self:start}}
