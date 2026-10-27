@@ -7,7 +7,20 @@
 <title>多多谷｜官方網站｜活動、攻略、BOSS、下載與最新消息</title>
 <meta name="description" content="多多谷官方網站，提供最新活動、遊戲公告、BOSS 資訊、遊玩攻略、下載資源與玩家資訊。">
 <meta name="duoduo-shell-version" content="BGM-2.1.7-mobile-composited-glass-20261027">
-<script>/* 防止舊 bgm-test.html 內再載入新版播放器 */if(window.self!==window.top){location.replace(new URL("home.html"+location.search+location.hash,location.href).href);}</script>
+<script>
+/* Checklist reuses the OFFICIAL player source. Other nested uses remain blocked. */
+(function(){
+  const requested=new URLSearchParams(location.search).get('bgm_embed')==='checklist';
+  let sameOriginHost=false;
+  try{sameOriginHost=window.self!==window.top && window.parent.location.origin===location.origin;}catch(_){}
+  if(requested&&sameOriginHost){
+    document.documentElement.classList.add('dd-bgm-embed');
+    document.documentElement.classList.toggle('dd-bgm-host-mobile',window.parent.innerWidth<=600);
+  }else if(window.self!==window.top){
+    location.replace(new URL('home.html'+location.search+location.hash,location.href).href);
+  }
+})();
+</script>
 <link rel="icon" type="image/png" href="favicon-64.png">
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
 <script id="duoduo-shell-early-theme">
@@ -403,6 +416,27 @@ body.collapsed #mini {display:grid;}
   }
 }
 
+
+/* Checklist BGM: same official DOM/CSS/JS, only an isolated floating view. */
+html.dd-bgm-embed,html.dd-bgm-embed body {background:transparent!important;}
+html.dd-bgm-embed #duoduoSite {display:none!important;}
+html.dd-bgm-embed #player {
+  right:24px!important;bottom:32px!important;
+  width:min(355px,calc(100vw - 48px))!important;
+  max-width:355px!important;
+}
+html.dd-bgm-embed #mini {right:28px!important;bottom:25px!important;}
+html.dd-bgm-embed #coverPreview{display:none!important;}
+/* Narrow iframe != mobile device. Desktop Checklist keeps official desktop controls. */
+html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #volumeBox{
+  display:flex!important;min-width:72px!important;max-width:92px!important;
+  flex:0 1 92px!important;margin-left:auto!important;
+}
+html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #volume{display:block!important;}
+html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #hint{display:block!important;}
+html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #modeExplanation{display:block!important;}
+html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #skipButtons{margin-left:0!important;}
+html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #modeRow{gap:8px!important;}
 </style>
 
 </head>
@@ -465,7 +499,42 @@ function shellSourceSignature(doc){
   ]);
 }
 const loadedShellSignature=shellSourceSignature(document);
+const isChecklistEmbed=document.documentElement.classList.contains('dd-bgm-embed');
+const checklistEmbedChannel='duoduo-checklist-bgm-217';
 const byId=id=>document.getElementById(id);
+function reportChecklistPlayerSize(){
+  if(!isChecklistEmbed)return;
+  requestAnimationFrame(()=>{
+    const collapsed=document.body.classList.contains('collapsed');
+    const panel=byId('player');
+    const height=Math.ceil(panel.getBoundingClientRect().height);
+    try{window.parent.postMessage({channel:checklistEmbedChannel,
+      mode:collapsed?'collapsed':'expanded',height:collapsed?100:height},location.origin);}catch(_){}
+  });
+}
+function syncChecklistHostLayout(hostWidth){
+  if(!isChecklistEmbed)return;
+  const isMobile=Number(hostWidth)<=600;
+  document.documentElement.classList.toggle('dd-bgm-host-mobile',isMobile);
+}
+if(isChecklistEmbed){
+  byId('pageTitle').textContent='目前：Checklist';
+  byId('hint').textContent='多多谷雲端背景音樂與官網同步。若瀏覽器阻擋自動播放，點一下播放鍵即可。';
+  window.addEventListener('message',event=>{
+    if(event.origin!==location.origin||event.source!==window.parent)return;
+    if(event.data?.channel!==checklistEmbedChannel)return;
+    if(event.data.action==='host-size'){
+      syncChecklistHostLayout(event.data.width);
+      reportChecklistPlayerSize();
+    }
+  });
+  window.addEventListener('load',reportChecklistPlayerSize);
+  document.addEventListener('DOMContentLoaded',()=>{
+    if('ResizeObserver' in window)new ResizeObserver(reportChecklistPlayerSize).observe(byId('player'));
+    reportChecklistPlayerSize();
+  });
+}
+
 const audio=byId('music'),play=byId('play'),seek=byId('seek'),vol=byId('volume'),status=byId('status');
 const title=byId('trackName'),select=byId('trackList');
 let frame=byId('duoduoSite');
@@ -475,7 +544,14 @@ const coverNode=byId('musicCircle'),coverImage=byId('songCover'),incomingCover=b
 const coverPreview=byId('coverPreview'),coverPreviewImage=byId('coverPreviewImage'),coverPreviewClose=byId('coverPreviewClose');
 let artworkRequest=0,artworkTimer=0;
 const closeCoverPreview=()=>{if(coverPreview.hidden)return;coverPreview.hidden=true;coverPreviewImage.removeAttribute('src');coverNode.focus({preventScroll:true});};
-coverNode.addEventListener('click',()=>{if(coverNode.disabled||!coverImage.dataset.loaded)return;coverPreviewImage.src=coverImage.dataset.loaded;coverPreview.hidden=false;coverPreviewClose.focus({preventScroll:true});});
+coverNode.addEventListener('click',()=>{
+  if(coverNode.disabled||!coverImage.dataset.loaded)return;
+  if(isChecklistEmbed){
+    try{window.parent.postMessage({channel:checklistEmbedChannel,action:'cover-open',src:coverImage.dataset.loaded},location.origin);}catch(_){}
+    return;
+  }
+  coverPreviewImage.src=coverImage.dataset.loaded;coverPreview.hidden=false;coverPreviewClose.focus({preventScroll:true});
+});
 coverPreviewClose.addEventListener('click',closeCoverPreview);
 coverPreview.addEventListener('click',e=>{if(e.target===coverPreview)closeCoverPreview();});
 document.addEventListener('keydown',e=>{if(coverPreview.hidden)return;if(e.key==='Escape'){e.preventDefault();closeCoverPreview();}else if(e.key==='Tab'){e.preventDefault();coverPreviewClose.focus({preventScroll:true});}});
@@ -534,7 +610,7 @@ const format=v=>Number.isFinite(v)?`${Math.floor(v/60)}:${String(Math.floor(v%60
 let activeGlassPalette=null,glassTweenFrame=0,lastGlassAccent=null,glassSheenTimer=0;
 // A compositor-friendly background crossfade is used on touch / narrow screens.
 // Desktop keeps the existing 2.1.6 palette tween exactly as before.
-const compositeMobileGlass=window.matchMedia('(hover: none) and (pointer: coarse), (max-width: 600px)').matches;
+const compositeMobileGlass=isChecklistEmbed?document.documentElement.classList.contains('dd-bgm-host-mobile'):window.matchMedia('(hover: none) and (pointer: coarse), (max-width: 600px)').matches;
 const glassBaseLayer=byId('bgmGlassBase'),glassIncomingLayer=byId('bgmGlassIncoming');
 if(compositeMobileGlass){playerNode.classList.add('bgm-composited-glass');byId('mini').classList.add('bgm-composited-mini');}
 let mobileGlassFrom=null,mobileGlassTo=null,mobileGlassStarted=0;
@@ -741,7 +817,7 @@ function showArtwork(track){
   };
   preload.src=requested;
 }
-const applyCollapsed=collapsed=>{document.body.classList.toggle('collapsed',collapsed);save(storage.collapsed,collapsed?'1':'0');};
+const applyCollapsed=collapsed=>{document.body.classList.toggle('collapsed',collapsed);save(storage.collapsed,collapsed?'1':'0');reportChecklistPlayerSize();};
 byId('collapse').onclick=()=>applyCollapsed(true);byId('mini').onclick=()=>applyCollapsed(false);
 applyCollapsed(read(storage.collapsed,'1')==='1');
 // Volume icon is a real mute toggle. Keep the selected volume so unmuting
@@ -751,7 +827,10 @@ const soundIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H
 const mutedIcon='<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5zM16 9l5 6m0-6-5 6"/></svg>';
 const oldVolume=Number(read(storage.volume,'40'));
 vol.value=String(Number.isFinite(oldVolume)?Math.max(0,Math.min(100,oldVolume)):40);
-const mobileVolume=window.matchMedia('(max-width:480px)');
+const mobileVolume=isChecklistEmbed?{
+  get matches(){return document.documentElement.classList.contains('dd-bgm-host-mobile');},
+  addEventListener(){}
+}:window.matchMedia('(max-width:480px)');
 audio.muted=read(storage.muted,'0')==='1';
 function syncMuteUI(){
   const silent=audio.muted||(!mobileVolume.matches&&Number(vol.value)===0);
@@ -989,6 +1068,7 @@ setTimeout(startCloud,1200);
 setInterval(fetchCloud,60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')fetchCloud();});
 window.addEventListener('online',fetchCloud);
+if(!isChecklistEmbed){
 // V5 navigation: one persistent audio element, one shareable URL per view.
 const pageNames={'home.html':'首頁','index.html':'首頁','news.html':'最新消息','events.html':'檔期活動','event-detail.html':'活動詳情','boss.html':'BOSS 介紹','guide.html':'遊玩指南','downloads.html':'下載專區','privacy.html':'隱私政策','terms.html':'使用條款','player-tools/index.html':'玩家工具'};
 const siteBase=new URL('./',location.href);
@@ -1231,6 +1311,7 @@ const firstPaintPoll=setInterval(()=>{
 // Failsafe: don't leave a polling timer running when the frame is blocked.
 setTimeout(()=>clearInterval(firstPaintPoll),15000);
 
+} // end official-site-only routing (Checklist embeds only the player)
 // Check the *real shell source*, not just a manually maintained version tag.
 // BGM playlist changes keep their existing in-place cloud sync and do NOT reload.
 // Only a changed index.html (player HTML/CSS/JS) reloads the outer BGM shell.
