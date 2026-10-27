@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0c1320">
 <title>多多谷｜官方網站｜活動、攻略、BOSS、下載與最新消息</title>
 <meta name="description" content="多多谷官方網站，提供最新活動、遊戲公告、BOSS 資訊、遊玩攻略、下載資源與玩家資訊。">
-<meta name="duoduo-shell-version" content="BGM-V7-cloud-refresh-buffer-20261027">
+<meta name="duoduo-shell-version" content="BGM-2.1.4-auto-shell-refresh-20261027">
 <script>/* 防止舊 bgm-test.html 內再載入新版播放器 */if(window.self!==window.top){location.replace(new URL("home.html"+location.search+location.hash,location.href).href);}</script>
 <link rel="icon" type="image/png" href="favicon-64.png">
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
@@ -284,6 +284,22 @@ body.collapsed #mini {display:grid;}
 <script>
 (()=>{
 'use strict';
+// Record the pristine page source before player state, theme, and cloud data
+// mutate the live DOM. This detects real GitHub index.html updates without
+// requiring a developer to remember to bump a manual meta-version each time.
+function shellSourceSignature(doc){
+  const nodes=[...doc.querySelectorAll('script, style, link[rel="stylesheet"]')];
+  const immutableSource=nodes.map(node=>[
+    node.tagName, node.getAttribute('src')||node.getAttribute('href')||'', node.textContent||''
+  ]);
+  return JSON.stringify([
+    doc.querySelector('meta[name="duoduo-shell-version"]')?.getAttribute('content')||'',
+    immutableSource,
+    doc.getElementById('player')?.outerHTML||'',
+    doc.getElementById('duoduoSite')?.outerHTML||''
+  ]);
+}
+const loadedShellSignature=shellSourceSignature(document);
 const byId=id=>document.getElementById(id);
 const audio=byId('music'),play=byId('play'),seek=byId('seek'),vol=byId('volume'),status=byId('status');
 const title=byId('trackName'),select=byId('trackList');
@@ -906,18 +922,26 @@ const firstPaintPoll=setInterval(()=>{
 // Failsafe: don't leave a polling timer running when the frame is blocked.
 setTimeout(()=>clearInterval(firstPaintPoll),15000);
 
-// Preserve update detection for the new public entry (no forced reload when unchanged).
-const shellVersion=document.querySelector('meta[name="duoduo-shell-version"]')?.content||'';
+// Check the *real shell source*, not just a manually maintained version tag.
+// BGM playlist changes keep their existing in-place cloud sync and do NOT reload.
+// Only a changed index.html (player HTML/CSS/JS) reloads the outer BGM shell.
 let shellChecking=false;
 async function checkShellVersion(){
   if(shellChecking||document.visibilityState==='hidden'||!navigator.onLine)return;
   shellChecking=true;
   try{
-    const response=await fetch(new URL('index.html',siteBase),{cache:'no-store'});
+    const shellUrl=new URL('index.html',siteBase);
+    const response=await fetch(shellUrl,{cache:'no-store'});
     if(!response.ok)return;
     const remote=await response.text();
-    const next=remote.match(/<meta name="duoduo-shell-version" content="([^"]+)"/);
-    if(next&&shellVersion&&next[1]!==shellVersion){storePlaybackPosition();window.location.reload();}
+    const remoteDoc=new DOMParser().parseFromString(remote,'text/html');
+    // A CDN or temporary error must never cause a restart loop.
+    if(!remoteDoc.getElementById('player')||!remoteDoc.getElementById('duoduoSite'))return;
+    if(shellSourceSignature(remoteDoc)!==loadedShellSignature){
+      // Preserve song and time for the best possible resume after reloading.
+      storePlaybackPosition();
+      window.location.reload();
+    }
   }catch{}finally{shellChecking=false;}
 }
 setInterval(checkShellVersion,60000);
