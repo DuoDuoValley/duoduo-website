@@ -115,14 +115,19 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
   window.addEventListener('online', checkCloudChanges);
 })();
 </script>
-<!-- DuoDuo public pages: automatic refresh on published HTML changes -->
+<!-- DuoDuo BOSS page: refresh on published HTML + atlas asset changes -->
 <script id="duoduo-public-auto-refresh">
 (() => {
   'use strict';
   const INTERVAL_MS = 60000;
   const pageUrl = new URL(window.location.pathname, window.location.origin);
   const siteRoot = new URL('./', pageUrl);
-  const watchUrls = [...new Set([pageUrl.href, new URL('index.html', siteRoot).href])];
+  // The BOSS page is driven by JS/CSS/JSON assets. Watching only HTML
+  // misses many GitHub deployments and leaves existing tabs on old content.
+  const watchUrls = [...new Set([pageUrl.href, new URL('index.html', siteRoot).href,
+    new URL('boss-atlas.js', siteRoot).href,
+    new URL('boss-atlas.css', siteRoot).href,
+    new URL('boss-atlas-data.json', siteRoot).href])];
   const known = new Map();
   let checking = false;
   let ready = false;

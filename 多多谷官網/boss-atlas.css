@@ -116,3 +116,35 @@
   #ddBossAtlas .dd-summary-stats{gap:5px}
   #ddBossAtlas .dd-boss-summary h3{font-size:16px}
 }
+
+/* BOSS archive v1.3 - three readable, equally tall cards per desktop row.
+   Do not hide loot: each difficulty exposes its complete icon list. */
+#ddBossAtlas .dd-atlas-grid{
+ grid-template-columns:repeat(3,minmax(0,1fr));
+ gap:15px;align-items:stretch;
+}
+#ddBossAtlas .dd-boss{height:100%;min-width:0;align-self:stretch;overflow:visible}
+#ddBossAtlas .dd-boss-top{gap:12px;padding:14px;align-items:flex-start}
+#ddBossAtlas .dd-boss-pic{width:112px;aspect-ratio:422 / 500;flex:0 0 112px;object-fit:contain}
+#ddBossAtlas .dd-boss-info{flex:1;display:flex;flex-direction:column;padding:0 14px 14px}
+#ddBossAtlas .dd-boss-summary h3{font-size:15px}
+#ddBossAtlas .dd-summary-stats{gap:5px}
+#ddBossAtlas .dd-stat.hp strong{display:block;overflow:visible;white-space:normal;-webkit-line-clamp:unset;line-clamp:unset}
+#ddBossAtlas .dd-hp-phases{display:grid;gap:4px;min-width:0}
+#ddBossAtlas .dd-hp-phase{display:flex;flex-wrap:wrap;gap:3px 5px;align-items:baseline;min-width:0}
+#ddBossAtlas .dd-hp-step{flex:none;color:var(--accent);font-size:10px;font-weight:850;white-space:nowrap}
+#ddBossAtlas .dd-hp-phase strong{font-size:11px;line-height:1.3;overflow-wrap:anywhere}
+#ddBossAtlas .dd-drops{flex:1}
+#ddBossAtlas .dd-drop-list{max-height:none!important;overflow:visible!important;mask-image:none!important;-webkit-mask-image:none!important}
+#ddBossAtlas .dd-drop-toggle{display:none!important}
+#ddBossAtlas .dd-drop-icons{gap:5px}
+#ddBossAtlas .dd-drop{width:44px;min-height:49px}
+#ddBossAtlas .dd-drop img{width:28px;height:28px}
+#ddBossAtlas .dd-empty[hidden]{display:none!important}
+@media(max-width:1039px){#ddBossAtlas .dd-atlas-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:669px){
+ #ddBossAtlas .dd-atlas-grid{grid-template-columns:1fr}
+ #ddBossAtlas .dd-boss-pic{width:118px;flex-basis:118px}
+ #ddBossAtlas .dd-boss-top{padding:13px}
+ #ddBossAtlas .dd-boss-info{padding:0 13px 13px}
+}
