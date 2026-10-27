@@ -4092,407 +4092,500 @@
     {
       "id": "item001",
       "name": "不朽的遺產",
-      "image": "assets/boss-atlas/items/item001.png"
+      "image": "assets/boss-atlas/items/item001.png",
+      "category": "素材"
     },
     {
       "id": "item002",
       "name": "不穩定的時間碎片",
-      "image": "assets/boss-atlas/items/item002.png"
+      "image": "assets/boss-atlas/items/item002.png",
+      "category": "素材"
     },
     {
       "id": "item003",
       "name": "世代傳承的遠古決心",
-      "image": "assets/boss-atlas/items/item003.png"
+      "image": "assets/boss-atlas/items/item003.png",
+      "category": "素材"
     },
     {
       "id": "item004",
       "name": "世代傳承的遠古決心碎片",
-      "image": "assets/boss-atlas/items/item004.png"
+      "image": "assets/boss-atlas/items/item004.png",
+      "category": "素材"
     },
     {
       "id": "item005",
       "name": "交織的凶獸之環",
-      "image": "assets/boss-atlas/items/item005.png"
+      "image": "assets/boss-atlas/items/item005.png",
+      "category": "素材"
     },
     {
       "id": "item006",
       "name": "交織的凶獸之環碎片",
-      "image": "assets/boss-atlas/items/item006.png"
+      "image": "assets/boss-atlas/items/item006.png",
+      "category": "素材"
     },
     {
       "id": "item007",
       "name": "信念的研磨石",
-      "image": "assets/boss-atlas/items/item007.png"
+      "image": "assets/boss-atlas/items/item007.png",
+      "category": "強化"
     },
     {
       "id": "item008",
       "name": "傲慢的原罪",
-      "image": "assets/boss-atlas/items/item008.png"
+      "image": "assets/boss-atlas/items/item008.png",
+      "category": "其他"
     },
     {
       "id": "item009",
       "name": "全面控制核心",
-      "image": "assets/boss-atlas/items/item009.png"
+      "image": "assets/boss-atlas/items/item009.png",
+      "category": "其他"
     },
     {
       "id": "item010",
       "name": "凱伊的下級靈魂艾爾達碎片箱",
-      "image": "assets/boss-atlas/items/item010.png"
+      "image": "assets/boss-atlas/items/item010.png",
+      "category": "箱子"
     },
     {
       "id": "item011",
       "name": "凱伊的漆黑飾品箱",
-      "image": "assets/boss-atlas/items/item011.png"
+      "image": "assets/boss-atlas/items/item011.png",
+      "category": "箱子"
     },
     {
       "id": "item012",
       "name": "凱伊的高級靈魂艾爾達碎片箱",
-      "image": "assets/boss-atlas/items/item012.png"
+      "image": "assets/boss-atlas/items/item012.png",
+      "category": "箱子"
     },
     {
       "id": "item013",
       "name": "凶星機器人",
-      "image": "assets/boss-atlas/items/item013.png"
+      "image": "assets/boss-atlas/items/item013.png",
+      "category": "其他"
     },
     {
       "id": "item014",
       "name": "創世的胸章",
-      "image": "assets/boss-atlas/items/item014.png"
+      "image": "assets/boss-atlas/items/item014.png",
+      "category": "裝備"
     },
     {
       "id": "item015",
       "name": "卓越鐵鎚(勳章)",
-      "image": "assets/boss-atlas/items/item015.png"
+      "image": "assets/boss-atlas/items/item015.png",
+      "category": "強化"
     },
     {
       "id": "item016",
       "name": "卓越鐵鎚(眼飾)",
-      "image": "assets/boss-atlas/items/item016.png"
+      "image": "assets/boss-atlas/items/item016.png",
+      "category": "強化"
     },
     {
       "id": "item017",
       "name": "卓越鐵鎚(耳環)",
-      "image": "assets/boss-atlas/items/item017.png"
+      "image": "assets/boss-atlas/items/item017.png",
+      "category": "強化"
     },
     {
       "id": "item018",
       "name": "卓越鐵鎚(腰帶)",
-      "image": "assets/boss-atlas/items/item018.png"
+      "image": "assets/boss-atlas/items/item018.png",
+      "category": "強化"
     },
     {
       "id": "item019",
       "name": "卓越鐵鎚(臉部裝飾)",
-      "image": "assets/boss-atlas/items/item019.png"
+      "image": "assets/boss-atlas/items/item019.png",
+      "category": "強化"
     },
     {
       "id": "item020",
       "name": "卡洛斯機器人",
-      "image": "assets/boss-atlas/items/item020.png"
+      "image": "assets/boss-atlas/items/item020.png",
+      "category": "其他"
     },
     {
       "id": "item021",
       "name": "受詛咒的魔導書選擇箱",
-      "image": "assets/boss-atlas/items/item021.png"
+      "image": "assets/boss-atlas/items/item021.png",
+      "category": "箱子"
     },
     {
       "id": "item022",
       "name": "口紅控制器標誌",
-      "image": "assets/boss-atlas/items/item022.png"
+      "image": "assets/boss-atlas/items/item022.png",
+      "category": "其他"
     },
     {
       "id": "item023",
       "name": "史烏機器人",
-      "image": "assets/boss-atlas/items/item023.png"
+      "image": "assets/boss-atlas/items/item023.png",
+      "category": "其他"
     },
     {
       "id": "item024",
       "name": "咖凌機器人",
-      "image": "assets/boss-atlas/items/item024.png"
+      "image": "assets/boss-atlas/items/item024.png",
+      "category": "其他"
     },
     {
       "id": "item025",
       "name": "夢幻的腰帶",
-      "image": "assets/boss-atlas/items/item025.png"
+      "image": "assets/boss-atlas/items/item025.png",
+      "category": "裝備"
     },
     {
       "id": "item026",
       "name": "威爾機器人",
-      "image": "assets/boss-atlas/items/item026.png"
+      "image": "assets/boss-atlas/items/item026.png",
+      "category": "其他"
     },
     {
       "id": "item027",
       "name": "尤比太機器人",
-      "image": "assets/boss-atlas/items/item027.png"
+      "image": "assets/boss-atlas/items/item027.png",
+      "category": "其他"
     },
     {
       "id": "item028",
       "name": "巨大的恐怖",
-      "image": "assets/boss-atlas/items/item028.png"
+      "image": "assets/boss-atlas/items/item028.png",
+      "category": "裝備"
     },
     {
       "id": "item029",
       "name": "巴德利斯機器人",
-      "image": "assets/boss-atlas/items/item029.png"
+      "image": "assets/boss-atlas/items/item029.png",
+      "category": "其他"
     },
     {
       "id": "item030",
       "name": "恍惚幻象的斷片",
-      "image": "assets/boss-atlas/items/item030.png"
+      "image": "assets/boss-atlas/items/item030.png",
+      "category": "素材"
     },
     {
       "id": "item031",
       "name": "恍惚幻象碎片",
-      "image": "assets/boss-atlas/items/item031.png"
+      "image": "assets/boss-atlas/items/item031.png",
+      "category": "素材"
     },
     {
       "id": "item032",
       "name": "恍惚的惡夢",
-      "image": "assets/boss-atlas/items/item032.png"
+      "image": "assets/boss-atlas/items/item032.png",
+      "category": "素材"
     },
     {
       "id": "item033",
       "name": "恢復方塊",
-      "image": "assets/boss-atlas/items/item033.png"
+      "image": "assets/boss-atlas/items/item033.png",
+      "category": "強化"
     },
     {
       "id": "item034",
       "name": "恢復附加方塊",
-      "image": "assets/boss-atlas/items/item034.png"
+      "image": "assets/boss-atlas/items/item034.png",
+      "category": "強化"
     },
     {
       "id": "item035",
       "name": "意志的永恆防具箱(帽子／護肩)",
-      "image": "assets/boss-atlas/items/item035.png"
+      "image": "assets/boss-atlas/items/item035.png",
+      "category": "箱子"
     },
     {
       "id": "item036",
       "name": "戴米安機器人",
-      "image": "assets/boss-atlas/items/item036.png"
+      "image": "assets/boss-atlas/items/item036.png",
+      "category": "其他"
     },
     {
       "id": "item037",
       "name": "扭曲的欲望結晶",
-      "image": "assets/boss-atlas/items/item037.png"
+      "image": "assets/boss-atlas/items/item037.png",
+      "category": "素材"
     },
     {
       "id": "item038",
       "name": "扭曲的渴望碎片",
-      "image": "assets/boss-atlas/items/item038.png"
+      "image": "assets/boss-atlas/items/item038.png",
+      "category": "素材"
     },
     {
       "id": "item039",
       "name": "指揮官力量耳環",
-      "image": "assets/boss-atlas/items/item039.png"
+      "image": "assets/boss-atlas/items/item039.png",
+      "category": "裝備"
     },
     {
       "id": "item040",
       "name": "敵對者機器人",
-      "image": "assets/boss-atlas/items/item040.png"
+      "image": "assets/boss-atlas/items/item040.png",
+      "category": "其他"
     },
     {
       "id": "item041",
       "name": "星耀耳環",
-      "image": "assets/boss-atlas/items/item041.png"
+      "image": "assets/boss-atlas/items/item041.png",
+      "category": "裝備"
     },
     {
       "id": "item042",
       "name": "暮光印記",
-      "image": "assets/boss-atlas/items/item042.png"
+      "image": "assets/boss-atlas/items/item042.png",
+      "category": "裝備"
     },
     {
       "id": "item043",
       "name": "林波機器人",
-      "image": "assets/boss-atlas/items/item043.png"
+      "image": "assets/boss-atlas/items/item043.png",
+      "category": "其他"
     },
     {
       "id": "item044",
       "name": "根源的耳語",
-      "image": "assets/boss-atlas/items/item044.png"
+      "image": "assets/boss-atlas/items/item044.png",
+      "category": "素材"
     },
     {
       "id": "item045",
       "name": "楓幣",
-      "image": "assets/boss-atlas/items/item045.png"
+      "image": "assets/boss-atlas/items/item045.png",
+      "category": "其他"
     },
     {
       "id": "item046",
       "name": "楓葉點數",
-      "image": "assets/boss-atlas/items/item046.png"
+      "image": "assets/boss-atlas/items/item046.png",
+      "category": "其他"
     },
     {
       "id": "item047",
       "name": "欲望的永恆防具箱(手套)",
-      "image": "assets/boss-atlas/items/item047.png"
+      "image": "assets/boss-atlas/items/item047.png",
+      "category": "箱子"
     },
     {
       "id": "item048",
       "name": "死亡之誓",
-      "image": "assets/boss-atlas/items/item048.png"
+      "image": "assets/boss-atlas/items/item048.png",
+      "category": "裝備"
     },
     {
       "id": "item049",
       "name": "殲滅兵器史烏機器人",
-      "image": "assets/boss-atlas/items/item049.png"
+      "image": "assets/boss-atlas/items/item049.png",
+      "category": "其他"
     },
     {
       "id": "item050",
       "name": "殺手的永恆防具箱(鞋子／披風)",
-      "image": "assets/boss-atlas/items/item050.png"
+      "image": "assets/boss-atlas/items/item050.png",
+      "category": "箱子"
     },
     {
       "id": "item051",
       "name": "永恆忠誠的痕跡",
-      "image": "assets/boss-atlas/items/item051.png"
+      "image": "assets/boss-atlas/items/item051.png",
+      "category": "素材"
     },
     {
       "id": "item052",
       "name": "混沌的漆黑飾品箱",
-      "image": "assets/boss-atlas/items/item052.png"
+      "image": "assets/boss-atlas/items/item052.png",
+      "category": "箱子"
     },
     {
       "id": "item053",
       "name": "瑪麗西亞機器人",
-      "image": "assets/boss-atlas/items/item053.png"
+      "image": "assets/boss-atlas/items/item053.png",
+      "category": "其他"
     },
     {
       "id": "item054",
       "name": "瑪麗西亞靈魂寶珠",
-      "image": "assets/boss-atlas/items/item054.png"
+      "image": "assets/boss-atlas/items/item054.png",
+      "category": "素材"
     },
     {
       "id": "item055",
       "name": "生命的BOSS戒指箱子",
-      "image": "assets/boss-atlas/items/item055.png"
+      "image": "assets/boss-atlas/items/item055.png",
+      "category": "箱子"
     },
     {
       "id": "item056",
       "name": "生命研磨石",
-      "image": "assets/boss-atlas/items/item056.png"
+      "image": "assets/boss-atlas/items/item056.png",
+      "category": "強化"
     },
     {
       "id": "item057",
       "name": "白玉的BOSS戒指箱子",
-      "image": "assets/boss-atlas/items/item057.png"
+      "image": "assets/boss-atlas/items/item057.png",
+      "category": "箱子"
     },
     {
       "id": "item058",
       "name": "破曉墜飾",
-      "image": "assets/boss-atlas/items/item058.png"
+      "image": "assets/boss-atlas/items/item058.png",
+      "category": "裝備"
     },
     {
       "id": "item059",
       "name": "神祕冥界幽靈武器箱",
-      "image": "assets/boss-atlas/items/item059.png"
+      "image": "assets/boss-atlas/items/item059.png",
+      "category": "箱子"
     },
     {
       "id": "item060",
       "name": "神祕冥界幽靈防具箱",
-      "image": "assets/boss-atlas/items/item060.png"
+      "image": "assets/boss-atlas/items/item060.png",
+      "category": "箱子"
     },
     {
       "id": "item061",
       "name": "神聖的永恆防具箱(上衣／褲子)",
-      "image": "assets/boss-atlas/items/item061.png"
+      "image": "assets/boss-atlas/items/item061.png",
+      "category": "箱子"
     },
     {
       "id": "item062",
       "name": "米特拉的憤怒選擇箱",
-      "image": "assets/boss-atlas/items/item062.png"
+      "image": "assets/boss-atlas/items/item062.png",
+      "category": "箱子"
     },
     {
       "id": "item063",
       "name": "紅玉的BOSS戒指箱子",
-      "image": "assets/boss-atlas/items/item063.png"
+      "image": "assets/boss-atlas/items/item063.png",
+      "category": "箱子"
     },
     {
       "id": "item064",
       "name": "綠玉的BOSS戒指箱子",
-      "image": "assets/boss-atlas/items/item064.png"
+      "image": "assets/boss-atlas/items/item064.png",
+      "category": "箱子"
     },
     {
       "id": "item065",
       "name": "苦痛的根源",
-      "image": "assets/boss-atlas/items/item065.png"
+      "image": "assets/boss-atlas/items/item065.png",
+      "category": "裝備"
     },
     {
       "id": "item066",
       "name": "萌獸方塊",
-      "image": "assets/boss-atlas/items/item066.png"
+      "image": "assets/boss-atlas/items/item066.png",
+      "category": "強化"
     },
     {
       "id": "item067",
       "name": "萌獸閃炫方塊",
-      "image": "assets/boss-atlas/items/item067.png"
+      "image": "assets/boss-atlas/items/item067.png",
+      "category": "強化"
     },
     {
       "id": "item068",
       "name": "賽蓮機器人",
-      "image": "assets/boss-atlas/items/item068.png"
+      "image": "assets/boss-atlas/items/item068.png",
+      "category": "其他"
     },
     {
       "id": "item069",
       "name": "遺留的卡洛斯意志",
-      "image": "assets/boss-atlas/items/item069.png"
+      "image": "assets/boss-atlas/items/item069.png",
+      "category": "素材"
     },
     {
       "id": "item070",
       "name": "遺留的卡洛斯的意志碎片",
-      "image": "assets/boss-atlas/items/item070.png"
+      "image": "assets/boss-atlas/items/item070.png",
+      "category": "素材"
     },
     {
       "id": "item071",
       "name": "閃炫方塊",
-      "image": "assets/boss-atlas/items/item071.png"
+      "image": "assets/boss-atlas/items/item071.png",
+      "category": "強化"
     },
     {
       "id": "item072",
       "name": "閃炫附加方塊",
-      "image": "assets/boss-atlas/items/item072.png"
+      "image": "assets/boss-atlas/items/item072.png",
+      "category": "強化"
     },
     {
       "id": "item073",
       "name": "附有魔力的眼罩",
-      "image": "assets/boss-atlas/items/item073.png"
+      "image": "assets/boss-atlas/items/item073.png",
+      "category": "裝備"
     },
     {
       "id": "item074",
       "name": "露希妲機器人",
-      "image": "assets/boss-atlas/items/item074.png"
+      "image": "assets/boss-atlas/items/item074.png",
+      "category": "其他"
     },
     {
       "id": "item075",
       "name": "頂級培羅德戒指",
-      "image": "assets/boss-atlas/items/item075.png"
+      "image": "assets/boss-atlas/items/item075.png",
+      "category": "裝備"
     },
     {
       "id": "item076",
       "name": "頂級培羅德烙印墜飾",
-      "image": "assets/boss-atlas/items/item076.png"
+      "image": "assets/boss-atlas/items/item076.png",
+      "category": "裝備"
     },
     {
       "id": "item077",
       "name": "頂級培羅德烙印腰帶",
-      "image": "assets/boss-atlas/items/item077.png"
+      "image": "assets/boss-atlas/items/item077.png",
+      "category": "裝備"
     },
     {
       "id": "item078",
       "name": "頂級培羅德耳環",
-      "image": "assets/boss-atlas/items/item078.png"
+      "image": "assets/boss-atlas/items/item078.png",
+      "category": "裝備"
     },
     {
       "id": "item079",
       "name": "黎明守護者天使戒指",
-      "image": "assets/boss-atlas/items/item079.png"
+      "image": "assets/boss-atlas/items/item079.png",
+      "category": "裝備"
     },
     {
       "id": "item080",
       "name": "黑玉的BOSS戒指箱子",
-      "image": "assets/boss-atlas/items/item080.png"
+      "image": "assets/boss-atlas/items/item080.png",
+      "category": "箱子"
     },
     {
       "id": "item081",
       "name": "漆黑的BOSS飾品碎片",
-      "image": "assets/boss-atlas/items/item081.png"
+      "image": "assets/boss-atlas/items/item081.png",
+      "category": "素材"
+    },
+    {
+      "id": "item082",
+      "name": "激戰的痕跡",
+      "image": "assets/boss-atlas/items/item082.png",
+      "category": "素材"
+    },
+    {
+      "id": "item083",
+      "name": "敵對者的決心",
+      "image": "assets/boss-atlas/items/item083.png",
+      "category": "素材"
     }
   ]
 }

@@ -39,3 +39,6 @@
 #bossAtlasPanel .at-rune-preview img{width:27px;height:27px;object-fit:contain}
 #bossAtlasPanel .at-rune-preview img[hidden]{display:none!important}
 @media(max-width:700px){#bossAtlasPanel .at-requirements-admin{grid-template-columns:repeat(2,minmax(0,1fr))}#bossAtlasPanel .at-rune-preview{max-width:90px}}
+
+/* Item categories are editable in the same editor as icon and name. */
+#bossAtlasPanel #atItemCategory{width:100%;min-width:0}
