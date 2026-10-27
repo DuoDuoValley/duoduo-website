@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0c1320">
 <title>多多谷｜官方網站｜活動、攻略、BOSS、下載與最新消息</title>
 <meta name="description" content="多多谷官方網站，提供最新活動、遊戲公告、BOSS 資訊、遊玩攻略、下載資源與玩家資訊。">
-<meta name="duoduo-shell-version" content="BGM-2.1.4-auto-shell-refresh-20261027">
+<meta name="duoduo-shell-version" content="BGM-2.1.5-song-tinted-glass-20261027">
 <script>/* 防止舊 bgm-test.html 內再載入新版播放器 */if(window.self!==window.top){location.replace(new URL("home.html"+location.search+location.hash,location.href).href);}</script>
 <link rel="icon" type="image/png" href="favicon-64.png">
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
@@ -239,6 +239,84 @@ body.collapsed #mini {display:grid;}
 /* Keep mute icon available on phones (old V7 rule hides its container). */
 @media(max-width:480px){#volumeBox{display:flex!important;max-width:28px!important;flex:0 0 28px!important;min-width:28px!important;margin-left:auto;}#volume{display:none!important;}#volumeMute{width:28px;height:30px;}}
 @media (prefers-reduced-motion:reduce){#bgmEqualizer span{animation:none!important;height:5px!important}#player,#musicCircle,#songCoverIncoming{transition:none!important}}
+
+/* BGM 2.1.5 — song-toned frosted glass, safely darkened for readable controls.
+   The theme is derived from the existing track accent and NEVER changes site CSS. */
+#player {
+  --bgm-glass-top:29,45,65;
+  --bgm-glass-bottom:13,26,43;
+  --bgm-glass-control:13,29,47;
+  background:linear-gradient(148deg,
+    rgba(var(--bgm-glass-top),var(--glass-opacity,.84)) 0%,
+    rgba(var(--bgm-glass-bottom),var(--glass-opacity,.84)) 100%);
+  color:#f6f9ff;
+  border-color:color-mix(in srgb,var(--song-accent,#98cef8) 33%,rgba(223,240,255,.38));
+  box-shadow:0 18px 50px rgba(0,0,0,.46), inset 0 1px rgba(255,255,255,.16),
+    0 0 21px color-mix(in srgb,var(--song-accent,#98cef8) 16%,transparent);
+}
+/* Secondary controls use a separate dark neutral surface, not the accent fill.
+   This gives hover/focus, outlines, and white glyphs contrast for ALL song colors. */
+#player .iconButton,
+#player #modeCycle,
+#player #trackPicker,
+#player #fileLabel {
+  background:rgba(var(--bgm-glass-control),.94);
+  border-color:rgba(221,238,255,.34);
+  color:#f4f9ff;
+  box-shadow:inset 0 1px rgba(255,255,255,.055);
+}
+#player .iconButton:hover,
+#player #modeCycle:hover,
+#player #trackPicker:hover:not(:disabled),
+#player #fileLabel:hover {
+  background:color-mix(in srgb,var(--song-accent,#98cef8) 14%,#14273d);
+  border-color:rgba(235,245,255,.55);
+}
+#player .iconButton:focus-visible,
+#player #modeCycle:focus-visible,
+#player #trackPicker:focus-visible,
+#player #fileLabel:focus-visible,
+#player #volumeMute:focus-visible {
+  outline:2px solid #f6fbff;
+  outline-offset:2px;
+}
+#player #trackPicker[aria-expanded="true"] {
+  border-color:color-mix(in srgb,var(--song-accent,#98cef8) 58%,#e6f4ff);
+}
+#player #trackOptions {
+  background:rgb(var(--bgm-glass-bottom)); /* no page text visible through list */
+  border-color:rgba(224,239,255,.42);
+  box-shadow:0 16px 35px rgba(0,0,0,.65);
+}
+#player #trackOptions .dd-song-option:hover,
+#player #trackOptions .dd-song-option:focus-visible {background:rgba(232,243,255,.16);}
+#player #trackOptions .dd-song-option[aria-selected="true"] {
+  background:color-mix(in srgb,var(--song-accent,#98cef8) 25%,#19293d);
+  box-shadow:inset 3px 0 0 var(--song-accent,#98cef8);
+  color:#fff;
+}
+#player #trackOptions .dd-song-option[aria-selected="true"]:hover {
+  background:color-mix(in srgb,var(--song-accent,#98cef8) 32%,#19293d);
+}
+#player #glassSettings {background:rgba(5,15,29,.62);border-color:rgba(221,238,255,.28);}
+#player #volumeMute {color:#dcecff;}
+#player #volumeMute:hover {background:rgba(236,245,255,.15);color:#fff;}
+#player #volumeMute[aria-pressed="true"] {color:var(--song-accent,#98cef8);}
+#player #play {
+  box-shadow:0 3px 16px color-mix(in srgb,var(--song-accent,#98cef8) 15%,transparent);
+}
+#mini {
+  --bgm-glass-top:29,45,65;
+  background:rgba(var(--bgm-glass-top),var(--glass-opacity,.84));
+  border-color:color-mix(in srgb,var(--song-accent,#98cef8) 42%,rgba(223,240,255,.40));
+  color:#f6faff;
+}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))) {
+  #player { background:linear-gradient(148deg,rgb(var(--bgm-glass-top)),rgb(var(--bgm-glass-bottom))); }
+  #mini { background:rgb(var(--bgm-glass-top)); }
+}
+@media(prefers-reduced-motion:reduce){#player{transition:none!important}}
+
 </style>
 
 </head>
@@ -373,9 +451,49 @@ const refreshPlayback=()=>{
 };
 function showArtwork(track){
   const accent=/^#[0-9a-fA-F]{6}$/.test(track?.accent||'')?track.accent:'#98cef8';
-  playerNode.style.setProperty('--song-accent',accent);
+  // Build a dark, tone-matched glass palette from the admin's song color.
+  // Text/control backgrounds remain dark; the accent button remains vivid.
   const rgb=[1,3,5].map(i=>parseInt(accent.slice(i,i+2),16));
-  playerNode.style.setProperty('--song-ink',(rgb[0]*299+rgb[1]*587+rgb[2]*114)/1000<145?'#ffffff':'#092039');
+  const toHsl=([r,g,b])=>{
+    r/=255;g/=255;b/=255;
+    const max=Math.max(r,g,b),min=Math.min(r,g,b),d=max-min;
+    let h=0,s=0,l=(max+min)/2;
+    if(d){
+      s=d/(1-Math.abs(2*l-1));
+      switch(max){case r:h=((g-b)/d)%6;break;case g:h=(b-r)/d+2;break;default:h=(r-g)/d+4;}
+      h=(h*60+360)%360;
+    }
+    return [h,s,l];
+  };
+  const fromHsl=(h,s,l)=>{
+    const c=(1-Math.abs(2*l-1))*s,x=c*(1-Math.abs((h/60)%2-1)),m=l-c/2;
+    let v=h<60?[c,x,0]:h<120?[x,c,0]:h<180?[0,c,x]:h<240?[0,x,c]:h<300?[x,0,c]:[c,0,x];
+    return v.map(n=>Math.round((n+m)*255));
+  };
+  const luminance=c=>c.map(n=>{n/=255;return n<=.04045?n/12.92:((n+.055)/1.055)**2.4;}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
+  const [h,s,l]=toHsl(rgb);
+  const top=fromHsl(h,Math.min(.58,s*.70),.18);
+  const bottom=fromHsl(h,Math.min(.47,s*.56),.105);
+  const control=fromHsl(h,Math.min(.40,s*.42),.115);
+  for(const el of [playerNode,byId('mini')]){
+    el.style.setProperty('--bgm-glass-top',top.join(','));
+    el.style.setProperty('--bgm-glass-bottom',bottom.join(','));
+    el.style.setProperty('--bgm-glass-control',control.join(','));
+  }
+  // Only brighten an unusually dark admin color when needed for a legible
+  // play button and slider. Normal colors stay exactly as configured.
+  let controlAccent=rgb.slice(),lightness=l;
+  while(luminance(controlAccent)<.20&&lightness<.93){
+    lightness=Math.min(.94,lightness+.025);
+    controlAccent=fromHsl(h,s,lightness);
+  }
+  const controlHex='#'+controlAccent.map(v=>v.toString(16).padStart(2,'0')).join('');
+  playerNode.style.setProperty('--song-accent',controlHex);
+  byId('mini').style.setProperty('--song-accent',controlHex);
+  const onWhite=1.05/(luminance(controlAccent)+.05);
+  const inkLuminance=luminance([9,25,39]);
+  const onDark=(luminance(controlAccent)+.05)/(inkLuminance+.05);
+  playerNode.style.setProperty('--song-ink',onWhite>onDark?'#ffffff':'#091927');
   captionNode.textContent=String(track?.caption||'').slice(0,80);
   captionNode.hidden=!captionNode.textContent;
   const requested=validUrl(track?.cover||'');
