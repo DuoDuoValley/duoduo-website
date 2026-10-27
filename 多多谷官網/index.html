@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0c1320">
 <title>多多谷｜官方網站｜活動、攻略、BOSS、下載與最新消息</title>
 <meta name="description" content="多多谷官方網站，提供最新活動、遊戲公告、BOSS 資訊、遊玩攻略、下載資源與玩家資訊。">
-<meta name="duoduo-shell-version" content="BGM-V7-first-paint-20261027">
+<meta name="duoduo-shell-version" content="BGM-V7-cloud-refresh-buffer-20261027">
 <script>/* 防止舊 bgm-test.html 內再載入新版播放器 */if(window.self!==window.top){location.replace(new URL("home.html"+location.search+location.hash,location.href).href);}</script>
 <link rel="icon" type="image/png" href="favicon-64.png">
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
@@ -177,7 +177,8 @@ body.collapsed #mini {display:grid;}
 'use strict';
 const byId=id=>document.getElementById(id);
 const audio=byId('music'),play=byId('play'),seek=byId('seek'),vol=byId('volume'),status=byId('status');
-const title=byId('trackName'),select=byId('trackList'),frame=byId('duoduoSite');
+const title=byId('trackName'),select=byId('trackList');
+let frame=byId('duoduoSite');
 const previous=byId('prev'),next=byId('next');
 const apiBase=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
 const icons={play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg>',pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>'};
@@ -361,6 +362,84 @@ const ROUTE_PAGES=new Set(['home.html','news.html','events.html','event-detail.h
 const ROUTE_KEY='duoduo_v5_route';
 let activeFrameDocument=null;
 
+// Cloud data can arrive after the first page has already painted. Do not
+// reload the *visible* document: prepare its replacement offscreen, then
+// crossfade only when the new document's CSS and header logo are ready.
+// The persistent BGM <audio> lives in this outer shell and is never replaced.
+let cloudFrameRefreshing=false;
+window.duoduoRefreshCloudFrame=function(requestingWindow){
+  if(!frame || requestingWindow!==frame.contentWindow)return false;
+  if(cloudFrameRefreshing)return true;
+  const current=currentInner();
+  if(!current)return false;
+  cloudFrameRefreshing=true;
+  const oldFrame=frame;
+  const candidate=document.createElement('iframe');
+  candidate.title=oldFrame.title;
+  candidate.allow=oldFrame.allow;
+  candidate.referrerPolicy=oldFrame.referrerPolicy;
+  candidate.setAttribute('aria-hidden','true');
+  candidate.tabIndex=-1;
+  candidate.style.cssText='position:fixed;inset:0;width:100%;height:100%;height:100dvh;border:0;display:block;background:transparent;opacity:0;pointer-events:none;z-index:1;transition:opacity .16s ease';
+  let finished=false;
+  let poll=null;
+  let limit=null;
+  function cleanup(){
+    if(poll!==null)clearInterval(poll);
+    if(limit!==null)clearTimeout(limit);
+  }
+  function cancel(){
+    if(finished)return;
+    finished=true;
+    cleanup();
+    candidate.remove();
+    cloudFrameRefreshing=false;
+    // The cloud snapshot was saved by app.js even if this attempt failed.
+    // Another navigation will use it; never blank the visible homepage.
+  }
+  async function revealWhenReady(){
+    if(finished || frame!==oldFrame)return cancel();
+    let doc;
+    try{doc=candidate.contentDocument;}catch{return;}
+    if(!doc||doc.readyState==='loading')return;
+    const destination=safePage(doc.URL);
+    const now=currentInner();
+    if(!destination||!now||destination.href!==now.href)return;
+    const logo=doc.querySelector('header.site-header .brand img');
+    const styled=Array.from(doc.styleSheets).some(s=>s.href?.endsWith('/styles.css'));
+    if(!logo||!logo.complete||!logo.naturalWidth||!styled)return;
+    finished=true;
+    cleanup();
+    try{if(typeof logo.decode==='function')await logo.decode();}catch(_){}
+    // Two animation frames allow the replacement to be rasterized before
+    // fading it in; the old page stays fully visible underneath.
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      if(frame!==oldFrame){candidate.remove();cloudFrameRefreshing=false;return;}
+      candidate.style.opacity='1';
+      setTimeout(()=>{
+        if(frame!==oldFrame){candidate.remove();cloudFrameRefreshing=false;return;}
+        oldFrame.removeAttribute('id');
+        candidate.id='duoduoSite';
+        candidate.removeAttribute('aria-hidden');
+        candidate.removeAttribute('tabindex');
+        frame=candidate;
+        candidate.addEventListener('load',handleInnerLoad);
+        oldFrame.remove();
+        candidate.removeAttribute('style');
+        activeFrameDocument=null;
+        wirePage();
+        synchronizeFromFrame();
+        cloudFrameRefreshing=false;
+      },190);
+    }));
+  }
+  oldFrame.insertAdjacentElement('afterend',candidate);
+  poll=setInterval(revealWhenReady,60);
+  limit=setTimeout(cancel,20000);
+  candidate.src=current.href;
+  return true;
+};
+
 function safePage(raw,base=siteBase){
   try{
     if(!raw||/^\s*(?:javascript:|data:)/i.test(String(raw)))return null;
@@ -464,7 +543,7 @@ function wirePage(){
   win.addEventListener('popstate',synchronizeFromFrame);
   win.addEventListener('hashchange',synchronizeFromFrame);
 }
-frame.addEventListener('load',()=>{
+function handleInnerLoad(){
   const inner=currentInner();
   if(!inner)return;
   wirePage();
@@ -476,7 +555,8 @@ frame.addEventListener('load',()=>{
       document.documentElement.classList.add('duoduo-site-ready');
     }));
   }
-});
+}
+frame.addEventListener('load',handleInnerLoad);
 window.addEventListener('popstate',()=>{
   const want=fromLocation();
   if(!want)return;

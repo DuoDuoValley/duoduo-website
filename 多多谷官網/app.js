@@ -43,7 +43,16 @@
       try{alreadyReloaded=sessionStorage.getItem(FLAG)==='1'}catch{}
       if(changed&&!alreadyReloaded){
         try{sessionStorage.setItem(FLAG,'1')}catch{}
-        location.reload();
+        // Keep the currently visible page on screen while the BGM shell
+        // prepares a replacement iframe with the updated cloud snapshot.
+        // Standalone pages and older shells retain the original reload path.
+        let handled=false;
+        try{
+          if(window.parent!==window && typeof window.parent.duoduoRefreshCloudFrame==='function'){
+            handled=window.parent.duoduoRefreshCloudFrame(window)===true;
+          }
+        }catch(_){}
+        if(!handled)location.reload();
       }else if(!changed){
         try{sessionStorage.removeItem(FLAG)}catch{}
       }
