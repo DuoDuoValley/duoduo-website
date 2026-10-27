@@ -1,6 +1,6 @@
 {
   "schema": 1,
-  "updatedAt": "2026-10-27",
+  "updatedAt": "2026-10-28",
   "source": "官網BOSS資訊.zip、漆黑的BOSS飾品碎片.zip、管理員補充；PDF 圖示經像素比對，數量與機率獨立記錄；初階／中階共通掉落依管理員 2026-10-27 確認補齊",
   "bosses": [
     {
@@ -17,37 +17,37 @@
             {
               "itemId": "item033",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "250萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -72,37 +72,37 @@
             {
               "itemId": "item033",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "250萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -127,37 +127,37 @@
             {
               "itemId": "item033",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "250萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -182,37 +182,37 @@
             {
               "itemId": "item033",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "250萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -237,37 +237,37 @@
             {
               "itemId": "item033",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "4",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "250萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -312,37 +312,37 @@
             {
               "itemId": "item033",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "500萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -387,37 +387,37 @@
             {
               "itemId": "item033",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "500萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -462,37 +462,37 @@
             {
               "itemId": "item033",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "500萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -537,37 +537,37 @@
             {
               "itemId": "item033",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "500萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -612,37 +612,37 @@
             {
               "itemId": "item033",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "500萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -687,37 +687,37 @@
             {
               "itemId": "item033",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "500萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -762,37 +762,37 @@
             {
               "itemId": "item033",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "500萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -837,37 +837,37 @@
             {
               "itemId": "item033",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item034",
               "quantity": "12",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item071",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item072",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item066",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item067",
               "quantity": "8",
-              "chance": null
+              "chance": 100
             },
             {
               "itemId": "item045",
               "quantity": "500萬",
-              "chance": null
+              "chance": 100
             }
           ],
           "note": "",
@@ -896,42 +896,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             }
           ],
@@ -966,42 +966,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1800萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "500"
             }
           ],
@@ -1036,42 +1036,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "4000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "800"
             }
           ],
@@ -1101,42 +1101,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             }
           ],
@@ -1171,42 +1171,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1800萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "500"
             }
           ],
@@ -1241,42 +1241,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1800萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "500"
             }
           ],
@@ -1311,42 +1311,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             }
           ],
@@ -1396,42 +1396,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1800萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "500"
             }
           ],
@@ -1466,42 +1466,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             }
           ],
@@ -1551,42 +1551,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1800萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "500"
             }
           ],
@@ -1621,42 +1621,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             }
           ],
@@ -1701,42 +1701,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1800萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "500"
             }
           ],
@@ -1766,42 +1766,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             }
           ],
@@ -1841,42 +1841,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1800萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "500"
             }
           ],
@@ -1911,42 +1911,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "20"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "12"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             }
           ],
@@ -1991,42 +1991,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "35"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "18"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1800萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "500"
             }
           ],
@@ -2081,42 +2081,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "6000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500"
             }
           ],
@@ -2161,42 +2161,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "4000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "800"
             }
           ],
@@ -2236,42 +2236,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "6000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "1600"
             }
           ],
@@ -2311,42 +2311,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "800"
             }
           ],
@@ -2381,42 +2381,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "4000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "1600"
             }
           ],
@@ -2456,42 +2456,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "6000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500"
             }
           ],
@@ -2536,42 +2536,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "800"
             }
           ],
@@ -2606,42 +2606,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "4000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "1600"
             }
           ],
@@ -2691,42 +2691,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "6000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500"
             }
           ],
@@ -2776,42 +2776,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "800"
             }
           ],
@@ -2851,42 +2851,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "4000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "1600"
             }
           ],
@@ -2941,42 +2941,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "6000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500"
             }
           ],
@@ -3021,42 +3021,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "800"
             }
           ],
@@ -3111,42 +3111,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "4000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "1600"
             }
           ],
@@ -3191,42 +3191,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "800"
             }
           ],
@@ -3281,42 +3281,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "4000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "1600"
             }
           ],
@@ -3361,42 +3361,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "800"
             }
           ],
@@ -3446,42 +3446,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "4000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "1600"
             }
           ],
@@ -3536,42 +3536,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "6000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500"
             }
           ],
@@ -3606,42 +3606,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "50"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "24"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "2500萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "800"
             }
           ],
@@ -3681,42 +3681,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "65"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "32"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "4000萬"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "1600"
             }
           ],
@@ -3737,7 +3737,7 @@
       "difficulties": [
         {
           "name": "普通",
-          "hp": "",
+          "hp": "(1)10京3700兆",
           "drops": [
             {
               "itemId": "item055",
@@ -3766,42 +3766,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "80"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "40"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "1億"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "3000"
             }
           ],
@@ -3812,7 +3812,7 @@
         },
         {
           "name": "困難",
-          "hp": "",
+          "hp": "(1)23京3700兆",
           "drops": [
             {
               "itemId": "item055",
@@ -3856,42 +3856,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "150"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "150"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "100"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "100"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "100"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "100"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "3億"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "5000"
             }
           ],
@@ -3899,7 +3899,10 @@
           "runeType": "",
           "runeRequirement": "",
           "defensePercent": ""
-        },
+        }
+      ],
+      "note": "",
+      "archivedDifficulties": [
         {
           "name": "終極",
           "hp": "(1)2京2343兆 (2)3京5330兆 (3)1京7020兆 (4)1京",
@@ -3909,8 +3912,7 @@
           "runeRequirement": "",
           "defensePercent": ""
         }
-      ],
-      "note": ""
+      ]
     },
     {
       "id": "boss32",
@@ -3950,42 +3952,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "180"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "180"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "130"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "130"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "130"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "130"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "5億"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "7000"
             }
           ],
@@ -4040,42 +4042,42 @@
             },
             {
               "itemId": "item033",
-              "chance": null,
+              "chance": 100,
               "quantity": "300"
             },
             {
               "itemId": "item034",
-              "chance": null,
+              "chance": 100,
               "quantity": "300"
             },
             {
               "itemId": "item071",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             },
             {
               "itemId": "item072",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             },
             {
               "itemId": "item066",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             },
             {
               "itemId": "item067",
-              "chance": null,
+              "chance": 100,
               "quantity": "200"
             },
             {
               "itemId": "item045",
-              "chance": null,
+              "chance": 100,
               "quantity": "8億"
             },
             {
               "itemId": "item046",
-              "chance": null,
+              "chance": 100,
               "quantity": "10000"
             }
           ],
@@ -4587,5 +4589,6 @@
       "image": "assets/boss-atlas/items/item083.png",
       "category": "素材"
     }
-  ]
+  ],
+  "dataRevision": 2
 }

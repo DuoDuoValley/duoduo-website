@@ -18,6 +18,33 @@ function selectItems(options,current){return CATEGORIES.map(category=>{
  const entries=options.filter(x=>x.category===category);if(!entries.length)return '';
  return `<optgroup label="${category}">${entries.map(x=>`<option value="${esc(x.id)}" ${current===x.id?'selected':''}>${esc(x.name)}</option>`).join('')}</optgroup>`;
  }).join('')}
+
+// Atlas v2 one-time data correction. Older cloud snapshots may override the updated JSON.
+// Only apply corrections to v1 snapshots; never overwrite subsequent admin edits.
+function migrateAtlasV2(value){
+ if(!value || Number(value.dataRevision||1)>=2)return false;
+ const certainItems=new Set(['item033','item034','item045','item046','item066','item067','item071','item072']);
+ for(const it of (value.items||[]))if(String(it.name||'').includes('方塊')||['楓幣','楓葉點數'].includes(it.name))certainItems.add(it.id);
+ for(const boss of (value.bosses||[])){
+  if(boss.name==='燦爛的凶星'){
+   const ds=Array.isArray(boss.difficulties)?boss.difficulties:[];
+   const retired=ds.filter(d=>d.name==='終極');
+   if(retired.length && !Array.isArray(boss.archivedDifficulties))boss.archivedDifficulties=retired;
+   boss.difficulties=ds.filter(d=>d.name==='普通'||d.name==='困難');
+   for(const difficulty of boss.difficulties){
+    difficulty.hp=difficulty.name==='普通'?'(1)10京3700兆':'(1)23京3700兆';
+   }
+  }
+  for(const difficulty of (boss.difficulties||[])){
+   for(const drop of (difficulty.drops||[])){
+    if(certainItems.has(drop.itemId))drop.chance=100;
+   }
+  }
+ }
+ value.dataRevision=2;
+ return true;
+}
+
 function enrichData(value){
  if(!Array.isArray(value.items))value.items=[];
  const known=new Map(value.items.map(it=>[it.id,it]));
@@ -73,15 +100,25 @@ async function fetchCloud(){const r=await fetch(`${API}/api/site-data`,{cache:'n
 async function initialize(){if(loading)return;loading=true;
  try{base=await fetchBase();let cloud=null;try{cloud=await fetchCloud()}catch(e){console.warn('雲端圖鑑尚未連線，使用靜態版本',e)}
   data=enrichData(cloud?.schema===1?cloud:clone(base));
-  const saved=localStorage.getItem(DRAFT);if(saved){try{const draftValue=JSON.parse(saved);validate(draftValue);if(confirm('偵測到這台瀏覽器尚未發布的 BOSS 圖鑑草稿，是否恢復？')){data=enrichData(draftValue);dirty=true}}catch{}}
-  chosen=data.bosses[0]?.id||'';renderList();renderEditor();renderItemList();status(cloud?'已載入雲端圖鑑。':'已載入隨更新包提供的初始資料；尚未發布到雲端。');
+  const saved=localStorage.getItem(DRAFT);
+  if(saved){try{const draftValue=JSON.parse(saved);validate(draftValue);if(confirm('偵測到這台瀏覽器尚未發布的 BOSS 圖鑑草稿，是否恢復？')){data=enrichData(draftValue);dirty=true;}}catch(e){console.warn('無法恢復 BOSS 草稿',e)}}
+  const migrated=migrateAtlasV2(data);
+  if(migrated){draft();}
+  chosen=data.bosses[0]?.id||'';renderList();renderEditor();renderItemList();
+  status(migrated?'已套用 BOSS 資料更新（方塊／楓幣／楓葉點數 100% 與燦爛的凶星難度修正），尚未發布；請先備份 JSON，再發布雲端。':dirty?'已恢復這台瀏覽器的未發布草稿。':cloud?'已載入雲端圖鑑。':'已載入隨更新包提供的初始資料；尚未發布到雲端。');
  }catch(e){status('無法載入圖鑑：'+e.message,true)}finally{loading=false}
+}
+// Supabase JSONB can reorder object keys. Compare normalized structure, not raw JSON.stringify order.
+function canonicalJSON(value){
+ return JSON.stringify(value,(_key,v)=>v&&typeof v==='object'&&!Array.isArray(v)
+  ?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
 }
 async function publish(){if(!data)return;let body;
  try{validate(data);if(!token())throw Error('管理員登入已失效');if(!confirm(`確定發布 BOSS 圖鑑？\n公開 ${data.bosses.filter(b=>b.published!==false).length} 隻 BOSS。\n\n這只更新圖鑑資料，不會改 BOSS 首頁輪播。`))return;
  by('atPublish').disabled=true;status('正在發布雲端 BOSS 圖鑑…');
  const r=await fetch(`${API}/api/site-data`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token()}`},body:JSON.stringify({values:{[KEY]:data}})});body=await r.json().catch(()=>({}));if(!r.ok||!body.ok)throw Error(body.error||'雲端發布失敗');
- const verified=await fetchCloud();if(!verified||JSON.stringify(verified)!==JSON.stringify(data))throw Error('後端尚未支援 duoduo_boss_atlas，或雲端驗證未通過。請先部署 server.js 更新；草稿已保留，未宣告成功。');
+ const verified=await fetchCloud();if(!verified||verified.schema!==1)throw Error('寫入請求已送出，但雲端沒有返回 BOSS 圖鑑欄位。請確認 GitHub 的 server.js 已部署到 Render（Build & Deploy 最新成功），並使用目前網站後台重新登入後再試。草稿仍保留。');
+ if(canonicalJSON(verified)!==canonicalJSON(data))throw Error('雲端有 BOSS 圖鑑資料，但讀回與草稿不同；可能是其他管理員同時發布或後端資料被正規化。草稿已保留，請先備份 JSON 並檢查 Render Logs，避免覆蓋其他資料。');
  localStorage.removeItem(DRAFT);dirty=false;by('atDraftState').textContent='已發布';status('✅ 雲端發布成功且已讀回驗證。玩家重新整理後即可查看。');
  }catch(e){status('❌ '+e.message,true)}finally{by('atPublish').disabled=false}
 }

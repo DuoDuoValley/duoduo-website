@@ -62,3 +62,57 @@
 #ddBossAtlas .dd-drop-count{white-space:nowrap;overflow:visible;max-width:none}
 #ddBossAtlas .dd-drop:hover{box-shadow:0 4px 13px rgba(0,0,0,.09)}
 #ddBossAtlas .dd-diff:hover:not(.active){border-color:var(--accent)}
+
+/* BOSS v1.2 compact responsive archive. Keep the base website layout untouched. */
+#ddBossAtlas .dd-atlas-grid{grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;align-items:start}
+#ddBossAtlas .dd-boss{border-radius:15px;box-shadow:0 8px 22px rgba(0,0,0,.055)}
+#ddBossAtlas .dd-boss-top{padding:12px;gap:11px;align-items:stretch}
+#ddBossAtlas .dd-boss-pic{width:96px;aspect-ratio:422 / 500;border-radius:10px;object-fit:contain;align-self:start}
+#ddBossAtlas .dd-boss-summary{min-width:0;flex:1;display:flex;flex-direction:column;gap:3px}
+#ddBossAtlas .dd-boss-summary h3{font-size:14px;line-height:1.32;overflow-wrap:anywhere;margin:2px 0 0}
+#ddBossAtlas .dd-group-label{align-self:start;font-size:10px;padding:2px 7px}
+#ddBossAtlas .dd-boss-meta{font-size:10px;line-height:1.4}
+#ddBossAtlas .dd-summary-stats{min-width:0;margin-top:4px;display:grid;gap:4px}
+#ddBossAtlas .dd-stat{min-width:0;display:flex;align-items:flex-start;gap:6px;line-height:1.35;font-size:11px}
+#ddBossAtlas .dd-stat span{flex:none;white-space:nowrap;font-size:10px;color:var(--muted)}
+#ddBossAtlas .dd-stat strong,#ddBossAtlas .dd-stat b{min-width:0;font-size:11px;font-weight:750;overflow-wrap:anywhere}
+#ddBossAtlas .dd-stat.hp{flex-direction:column;gap:2px}
+#ddBossAtlas .dd-stat.hp strong{line-height:1.35;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:3;line-clamp:3;overflow:hidden;white-space:pre-wrap}
+#ddBossAtlas .dd-stat b{display:flex;align-items:center;gap:3px}
+#ddBossAtlas .dd-stat img{width:17px;height:17px;object-fit:contain;flex:none}
+#ddBossAtlas .dd-boss-info{padding:0 12px 12px;gap:7px}
+#ddBossAtlas .dd-diff-list{gap:5px}
+#ddBossAtlas .dd-diff{min-width:0;min-height:29px;padding:4px 6px;border-radius:7px}
+#ddBossAtlas .dd-diff img{width:60px;height:17px}
+#ddBossAtlas .dd-drops{padding-top:8px}
+#ddBossAtlas .dd-drop-head{font-size:11px;margin-bottom:6px}
+#ddBossAtlas .dd-drop-head small{font-size:10px}
+#ddBossAtlas .dd-drop-group{margin:5px 0 0}
+#ddBossAtlas .dd-drop-group:first-child{margin-top:0}
+#ddBossAtlas .dd-drop-group-title{font-size:10px;margin:0 0 4px}
+#ddBossAtlas .dd-drop-icons{gap:5px;min-height:0}
+#ddBossAtlas .dd-drop{width:45px;min-height:49px;padding:3px 2px;border-radius:7px;gap:1px}
+#ddBossAtlas .dd-drop img{width:28px;height:28px}
+#ddBossAtlas .dd-drop-count{font-size:9px;padding:0 3px;height:14px;line-height:12px;white-space:nowrap;max-width:none}
+#ddBossAtlas .dd-drop-list{position:relative;min-width:0}
+#ddBossAtlas .dd-drop-list-collapsed{max-height:134px;overflow:hidden;mask-image:linear-gradient(to bottom,#000 0%,#000 77%,transparent 100%);-webkit-mask-image:linear-gradient(to bottom,#000 0%,#000 77%,transparent 100%)}
+#ddBossAtlas .dd-drop-toggle{margin:6px 0 0;display:block;width:100%;border:1px solid var(--line);color:var(--accent);background:var(--panel2);border-radius:8px;font-size:11px;font-weight:800;min-height:30px;cursor:pointer}
+#ddBossAtlas .dd-drop-toggle:hover,#ddBossAtlas .dd-drop-toggle:focus-visible{border-color:var(--accent)}
+#ddBossAtlas .dd-drop-toggle span{display:inline-block;margin-left:3px}
+#ddBossAtlas .dd-no-drop{font-size:12px;color:var(--muted)}
+#ddBossAtlas .dd-drop-detail{margin-top:7px;padding:8px;gap:6px}
+#ddBossAtlas .dd-drop-detail img{width:31px;height:31px;flex:none}
+#ddBossAtlas .dd-drop-detail b{font-size:11px}
+#ddBossAtlas .dd-drop-detail p{font-size:10px}
+@media(max-width:1059px){#ddBossAtlas .dd-atlas-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:799px){#ddBossAtlas .dd-atlas-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:599px){
+  #ddBossAtlas .dd-atlas-grid{grid-template-columns:1fr}
+  #ddBossAtlas .dd-boss-pic{width:118px}
+  #ddBossAtlas .dd-boss-top{padding:13px;gap:12px}
+  #ddBossAtlas .dd-boss-info{padding:0 13px 13px}
+  #ddBossAtlas .dd-drop{width:47px;min-height:49px}
+  #ddBossAtlas .dd-drop img{width:29px;height:29px}
+  #ddBossAtlas .dd-summary-stats{gap:5px}
+  #ddBossAtlas .dd-boss-summary h3{font-size:16px}
+}
