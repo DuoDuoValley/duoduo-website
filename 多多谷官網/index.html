@@ -421,11 +421,12 @@ body.collapsed #mini {display:grid;}
 html.dd-bgm-embed,html.dd-bgm-embed body {background:transparent!important;}
 html.dd-bgm-embed #duoduoSite {display:none!important;}
 html.dd-bgm-embed #player {
-  right:24px!important;bottom:32px!important;
+  /* Position matches the official player; the host reserves separate shadow room. */
+  right:18px!important;bottom:18px!important;
   width:min(355px,calc(100vw - 48px))!important;
   max-width:355px!important;
 }
-html.dd-bgm-embed #mini {right:28px!important;bottom:25px!important;}
+html.dd-bgm-embed #mini {right:18px!important;bottom:18px!important;}
 html.dd-bgm-embed #coverPreview{display:none!important;}
 /* Narrow iframe != mobile device. Desktop Checklist keeps official desktop controls. */
 html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #volumeBox{
@@ -526,6 +527,10 @@ if(isChecklistEmbed){
     if(event.data.action==='host-size'){
       syncChecklistHostLayout(event.data.width);
       reportChecklistPlayerSize();
+    }else if(event.data.action==='host-expand-ready'){
+      // The host iframe is already large enough, so the player never flashes
+      // inside the old 112px collapsed viewport while opening.
+      finishChecklistExpand();
     }
   });
   window.addEventListener('load',reportChecklistPlayerSize);
@@ -817,7 +822,30 @@ function showArtwork(track){
   };
   preload.src=requested;
 }
-const applyCollapsed=collapsed=>{document.body.classList.toggle('collapsed',collapsed);save(storage.collapsed,collapsed?'1':'0');reportChecklistPlayerSize();};
+let checklistExpandPending=false,checklistExpandFallback=0;
+function commitCollapsed(collapsed){
+  checklistExpandPending=false;
+  clearTimeout(checklistExpandFallback);
+  document.body.classList.toggle('collapsed',collapsed);
+  save(storage.collapsed,collapsed?'1':'0');
+  reportChecklistPlayerSize();
+}
+function finishChecklistExpand(){
+  if(checklistExpandPending)commitCollapsed(false);
+}
+function applyCollapsed(collapsed){
+  if(isChecklistEmbed&&!collapsed&&document.body.classList.contains('collapsed')){
+    if(checklistExpandPending)return;
+    checklistExpandPending=true;
+    try{
+      window.parent.postMessage({channel:checklistEmbedChannel,action:'prepare-expand'},location.origin);
+    }catch(_){finishChecklistExpand();return;}
+    // Compatibility with an older Checklist host before the companion update.
+    checklistExpandFallback=setTimeout(finishChecklistExpand,400);
+    return;
+  }
+  commitCollapsed(collapsed);
+}
 byId('collapse').onclick=()=>applyCollapsed(true);byId('mini').onclick=()=>applyCollapsed(false);
 applyCollapsed(read(storage.collapsed,'1')==='1');
 // Volume icon is a real mute toggle. Keep the selected volume so unmuting
