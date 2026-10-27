@@ -159,3 +159,12 @@
 #ddBossAtlas .dd-drop-group[data-has-drops="0"] .dd-drop-icons::after{content:"—";font-size:11px;color:var(--muted);opacity:.58;display:block;padding:4px 0}
 #ddBossAtlas .dd-boss-top,#ddBossAtlas .dd-diff-list,#ddBossAtlas .dd-drop-group{box-sizing:border-box}
 @media(max-width:669px){#ddBossAtlas .dd-drop-group[data-has-drops="0"]{display:none!important}}
+
+/* BOSS Atlas v1.5 — optional per-phase rune requirements next to the icon. */
+#ddBossAtlas .dd-stat .dd-rune-wrap{display:inline-flex;flex:1 1 auto;align-items:flex-start;min-width:0;gap:4px;max-width:100%;white-space:normal;color:inherit}
+#ddBossAtlas .dd-stat .dd-rune-wrap > img{flex:none;margin-top:1px}
+#ddBossAtlas .dd-stat .dd-rune-phases{display:flex;flex:1 1 auto;flex-wrap:wrap;align-items:baseline;min-width:0;gap:3px 8px;white-space:normal;color:inherit}
+#ddBossAtlas .dd-stat .dd-rune-phase{display:inline-flex;gap:3px;align-items:baseline;white-space:nowrap}
+#ddBossAtlas .dd-stat .dd-rune-phase em{font-size:10px;font-style:normal;font-weight:800;color:var(--accent)}
+#ddBossAtlas .dd-stat .dd-rune-phase strong{font-size:11px}
+#ddBossAtlas .dd-stat .dd-rune-phases small{font-size:10px;white-space:nowrap;color:var(--muted)}

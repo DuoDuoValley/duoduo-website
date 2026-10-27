@@ -50,3 +50,12 @@
 #bossAtlasPanel .at-defense-grid input {width:100%;min-width:0}
 @media(max-width:800px){#bossAtlasPanel .at-defense-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:440px){#bossAtlasPanel .at-defense-grid{grid-template-columns:1fr}}
+
+/* BOSS Atlas v1.5 — independent 1–4 stage rune requirements, no site-wide CSS. */
+#bossAtlasPanel .at-rune-stages{margin:9px 0 14px;padding:12px;background:rgba(114,168,220,.07);border:1px solid rgba(145,182,224,.22);border-radius:11px}
+#bossAtlasPanel .at-rune-head{font-size:12px;font-weight:750;color:var(--text,#d9eaff);margin:0 0 9px}
+#bossAtlasPanel .at-rune-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+#bossAtlasPanel .at-rune-grid .at-field{min-width:0}
+#bossAtlasPanel .at-rune-grid input{width:100%;min-width:0}
+@media(max-width:800px){#bossAtlasPanel .at-rune-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:440px){#bossAtlasPanel .at-rune-grid{grid-template-columns:1fr}}

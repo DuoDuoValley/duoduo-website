@@ -153,7 +153,13 @@ function card(b,map){
  const runeType=runeNames[d?.runeType]?d.runeType:'';
  const runeValue=String(d?.runeRequirement??'').trim();
  const defenseValue=String(d?.defensePercent??'').replace(/%/g,'').trim();
- const runeContent=runeValue?(runeType?`<img src="${runeImages[runeType]}" alt="${runeNames[runeType]}" title="${runeNames[runeType]}">`:'')+`<strong>${escapeHTML(runeValue)}</strong>`:'<strong class="dd-requirement-empty">—</strong>';
+ const runeStages=(d?.runeByPhase && typeof d.runeByPhase==='object' && !Array.isArray(d.runeByPhase))?d.runeByPhase:{};
+ const runeStageNames=['','一階段','二階段','三階段','四階段'];
+ const runeStageKeys=Object.keys(runeStages).filter(k=>/^[1-4]$/.test(k)&&String(runeStages[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));
+ const runeIcon=runeType?`<img src="${runeImages[runeType]}" alt="${runeNames[runeType]}" title="${runeNames[runeType]}">`:'';
+ const runeContent=runeStageKeys.length
+  ?`<span class="dd-rune-wrap">${runeIcon}<span class="dd-rune-phases">${runeStageKeys.map(stage=>`<span class="dd-rune-phase"><em>${runeStageNames[+stage]}</em><strong>${escapeHTML(String(runeStages[stage]))}</strong></span>`).join('')}${runeValue?`<small title="未指定的階段沿用此數值">其餘 ${escapeHTML(runeValue)}</small>`:''}</span></span>`
+  :runeValue?runeIcon+`<strong>${escapeHTML(runeValue)}</strong>`:'<strong class="dd-requirement-empty">—</strong>';
  const byStage=(d?.defenseByPhase && typeof d.defenseByPhase==='object')?d.defenseByPhase:{};
  const stageNames=['','一階段','二階段','三階段','四階段'];
  const stageKeys=Object.keys(byStage).filter(k=>/^[1-4]$/.test(k)&&String(byStage[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));
