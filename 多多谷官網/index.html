@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0c1320">
 <title>多多谷｜官方網站｜活動、攻略、BOSS、下載與最新消息</title>
 <meta name="description" content="多多谷官方網站，提供最新活動、遊戲公告、BOSS 資訊、遊玩攻略、下載資源與玩家資訊。">
-<meta name="duoduo-shell-version" content="BGM-2.1.6-gradual-glass-theme-20261027">
+<meta name="duoduo-shell-version" content="BGM-2.1.7-mobile-composited-glass-20261027">
 <script>/* 防止舊 bgm-test.html 內再載入新版播放器 */if(window.self!==window.top){location.replace(new URL("home.html"+location.search+location.hash,location.href).href);}</script>
 <link rel="icon" type="image/png" href="favicon-64.png">
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
@@ -338,12 +338,54 @@ body.collapsed #mini {display:grid;}
  #player.bgm-theme-shifting::before{animation:none!important}
 }
 
+
+/* BGM 2.1.7: mobile Safari / Android: composite the glass palettes instead of
+   repainting a variable-driven blurred gradient every requestAnimationFrame.
+   The opaque paint INSIDE a fixed-alpha layer maintains legibility throughout. */
+#bgmGlassLayers{display:none;}
+#player.bgm-composited-glass{background:transparent!important;
+  transition:border-color .76s ease,box-shadow .76s ease;}
+#player.bgm-composited-glass #bgmGlassLayers{
+  display:block;position:absolute;inset:0;border-radius:inherit;overflow:hidden;
+  z-index:0;pointer-events:none;opacity:var(--glass-opacity,.84);
+  transform:translateZ(0);-webkit-transform:translateZ(0);
+}
+#player.bgm-composited-glass #bgmGlassLayers > div{
+  position:absolute;inset:0;border-radius:inherit;
+  will-change:opacity;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  transform:translateZ(0);-webkit-transform:translateZ(0);
+}
+#player.bgm-composited-glass #bgmGlassIncoming{opacity:0;}
+#player.bgm-composited-glass::before{z-index:1;}
+#player.bgm-composited-glass > #topline,#player.bgm-composited-glass > #details{
+  position:relative;z-index:2;
+}
+#player.bgm-composited-glass #play{transition:background-color .76s ease,color .16s,filter .2s ease;}
+#player.bgm-composited-glass .iconButton,#player.bgm-composited-glass #modeCycle,
+#player.bgm-composited-glass #trackPicker,#player.bgm-composited-glass #fileLabel{
+  transition:background-color .76s ease,border-color .76s ease;
+}
+#player.bgm-composited-glass input[type=range]{transition:accent-color .76s ease;}
+#player.bgm-composited-glass #volumeMute{transition:color .76s ease;}
+#mini.bgm-composited-mini{transition:background-color .76s ease,border-color .76s ease;}
+@supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+  #player.bgm-composited-glass{background:rgba(7,14,26,.35)!important;}
+}
+@media(prefers-reduced-motion:reduce){
+  #player.bgm-composited-glass,#player.bgm-composited-glass #play,
+  #player.bgm-composited-glass .iconButton,#player.bgm-composited-glass #modeCycle,
+  #player.bgm-composited-glass #trackPicker,#player.bgm-composited-glass #fileLabel{
+    transition:none!important;
+  }
+}
+
 </style>
 
 </head>
 <body>
 <iframe id="duoduoSite" title="多多谷官網" src="about:blank" allow="fullscreen; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 <div id="player" role="region" aria-label="多多谷常駐背景音樂播放器">
+  <div id="bgmGlassLayers" aria-hidden="true"><div id="bgmGlassBase"></div><div id="bgmGlassIncoming"></div></div>
   <div id="topline">
     <button id="musicCircle" type="button" aria-label="查看歌曲封面大圖" title="查看歌曲封面" disabled><img id="songCover" alt=""><img id="songCoverIncoming" alt="" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18V5l12-2v13"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="16" rx="3" ry="2"/></svg></button>
     <div id="headTitles">
@@ -466,6 +508,13 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 const validUrl=value=>{try{const url=new URL(String(value),location.href);return (url.protocol==='https:'||((url.hostname==='localhost'||url.hostname==='127.0.0.1')&&url.protocol==='http:'))?url.href:'';}catch{return '';}};
 const format=v=>Number.isFinite(v)?`${Math.floor(v/60)}:${String(Math.floor(v%60)).padStart(2,'0')}`:'0:00';
 let activeGlassPalette=null,glassTweenFrame=0,lastGlassAccent=null,glassSheenTimer=0;
+// A compositor-friendly background crossfade is used on touch / narrow screens.
+// Desktop keeps the existing 2.1.6 palette tween exactly as before.
+const compositeMobileGlass=window.matchMedia('(hover: none) and (pointer: coarse), (max-width: 600px)').matches;
+const glassBaseLayer=byId('bgmGlassBase'),glassIncomingLayer=byId('bgmGlassIncoming');
+if(compositeMobileGlass){playerNode.classList.add('bgm-composited-glass');byId('mini').classList.add('bgm-composited-mini');}
+let mobileGlassFrom=null,mobileGlassTo=null,mobileGlassStarted=0;
+let mobileGlassDone=0,mobileGlassToken=0;
 const cssRgb=values=>values.map(Math.round).join(',');
 const rgbHex=values=>'#'+values.map(x=>Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,'0')).join('');
 const contrastLuminance=values=>values.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
@@ -485,7 +534,66 @@ function paintGlassPalette(palette){
   const darkContrast=(luminosity+.05)/(contrastLuminance([9,25,39])+.05);
   playerNode.style.setProperty('--song-ink',whiteContrast>darkContrast?'#ffffff':'#091927');
 }
+// The glass layer itself has one constant alpha; only the fully-opaque theme
+// gradients inside it crossfade. This prevents midway transparency fluctuations.
+const glassGradient=p=>`linear-gradient(148deg,rgb(${cssRgb(p.top)}),rgb(${cssRgb(p.bottom)}))`;
+const blendGlass=(a,b,t)=>{
+  const m=(x,y)=>x.map((v,i)=>v+(y[i]-v)*t);
+  return {top:m(a.top,b.top),bottom:m(a.bottom,b.bottom),
+    control:m(a.control,b.control),accent:m(a.accent,b.accent)};
+};
+function animateMobileGlassPalette(palette,accent){
+  ++mobileGlassToken;
+  const token=mobileGlassToken;
+  clearTimeout(mobileGlassDone);
+  cancelAnimationFrame(glassTweenFrame);
+  const old=activeGlassPalette;
+  const changed=lastGlassAccent!==null&&lastGlassAccent!==accent;
+  const reduced=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  lastGlassAccent=accent;
+  let from=old;
+  if(mobileGlassFrom&&mobileGlassTo&&mobileGlassStarted){
+    const t=Math.max(0,Math.min(1,(performance.now()-mobileGlassStarted)/760));
+    const ease=t*t*(3-2*t);
+    from=blendGlass(mobileGlassFrom,mobileGlassTo,ease);
+  }
+  // CSS handles the contrasting controls while the GPU handles the panel fill.
+  paintGlassPalette(palette);
+  if(!from||!changed||reduced){
+    mobileGlassFrom=palette;mobileGlassTo=palette;mobileGlassStarted=0;
+    glassBaseLayer.style.background=glassGradient(palette);
+    glassIncomingLayer.style.transition='none';
+    glassIncomingLayer.style.opacity='0';
+    glassIncomingLayer.style.background=glassGradient(palette);
+    return;
+  }
+  mobileGlassFrom=from;mobileGlassTo=palette;mobileGlassStarted=performance.now();
+  glassBaseLayer.style.background=glassGradient(from);
+  glassIncomingLayer.style.transition='none';
+  glassIncomingLayer.style.opacity='0';
+  glassIncomingLayer.style.background=glassGradient(palette);
+  // Explicit flush: Safari must commit the 0-opacity frame before transitioning.
+  void glassIncomingLayer.offsetWidth;
+  requestAnimationFrame(()=>{
+    if(token!==mobileGlassToken)return;
+    glassIncomingLayer.style.transition='opacity 760ms cubic-bezier(.45,0,.25,1)';
+    glassIncomingLayer.style.opacity='1';
+  });
+  mobileGlassDone=setTimeout(()=>{
+    if(token!==mobileGlassToken)return;
+    glassBaseLayer.style.background=glassGradient(palette);
+    glassIncomingLayer.style.transition='none';
+    glassIncomingLayer.style.opacity='0';
+    mobileGlassFrom=palette;mobileGlassTo=palette;mobileGlassStarted=0;
+  },840);
+  playerNode.classList.remove('bgm-theme-shifting');
+  void playerNode.offsetWidth;
+  playerNode.classList.add('bgm-theme-shifting');
+  clearTimeout(glassSheenTimer);
+  glassSheenTimer=setTimeout(()=>playerNode.classList.remove('bgm-theme-shifting'),800);
+}
 function animateGlassPalette(palette,accent){
+  if(compositeMobileGlass){animateMobileGlassPalette(palette,accent);return;}
   cancelAnimationFrame(glassTweenFrame);
   const start=activeGlassPalette;
   const changed=lastGlassAccent!==null&&lastGlassAccent!==accent;
