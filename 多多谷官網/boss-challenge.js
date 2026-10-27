@@ -63,8 +63,10 @@ function formatHp(value){
  if(value)output+=value.toString();return output;
 }
 function ceilDiv(a,b){return (a+b-1n)/b;}
-// Data from the user's rule sheet. There is no supplied reward percentage for 20x+.
+// Reward shares remain the same at every 10x+ HP multiplier. 1x retains
+// its distinct published percentages; multiplier affects HP, not the shares.
 const rewardRates={1:[100,10,15,20,25,30],10:[100,20,30,40,50,60]};
+const rewardRateFor=(multiplier,party)=>rewardRates[multiplier===1?1:10][party-1];
 const root=document.createElement('section');root.id='ddBossChallenge';root.setAttribute('aria-label','BOSS 挑戰規則與血量計算機');
 root.innerHTML=`
  <div class="bc-header"><div><div class="bc-kicker">CHALLENGE GUIDE</div><h2>BOSS 挑戰指南與血量計算機</h2></div><p class="bc-intro">入場次數、獎勵門檻與血量倍率，一次查清楚。</p></div>
@@ -79,9 +81,9 @@ root.innerHTML=`
    <p class="bc-description">隊員必須達到個人輸出門檻才可獲得獎勵。<strong>個人門檻＝BOSS 總血量 × 倍率 ÷ 隊伍人數 × 需求比例</strong>。</p>
    <div class="bc-rate-table-wrap"><table class="bc-rate-table" aria-label="各隊伍人數的獎勵需求比例"><thead><tr><th scope="col">倍率</th>${[1,2,3,4,5,6].map(n=>`<th scope="col">${n} 人</th>`).join('')}</tr></thead><tbody>
    <tr><th scope="row">1 倍</th>${rewardRates[1].map(n=>`<td>${n}%</td>`).join('')}</tr>
-   <tr><th scope="row">10 倍</th>${rewardRates[10].map(n=>`<td>${n}%</td>`).join('')}</tr>
+   <tr><th scope="row">10 倍以上</th>${rewardRates[10].map(n=>`<td>${n}%</td>`).join('')}</tr>
    </tbody></table></div>
-   <p class="bc-note"><strong>範例：</strong>1 倍 BOSS 總血量 1.6 兆、2 人隊伍，每人至少輸出 800 億。20 倍以上的獎勵需求比例尚未提供，不會自行推定。</p>
+   <p class="bc-note"><strong>範例：</strong>1 倍 BOSS 總血量 1.6 兆、2 人隊伍，每人至少輸出 800 億。10～70 倍及更高倍率皆沿用 10 倍的隊伍需求比例，僅血量依所選倍率變化。</p>
   </section>
  </div>
  <section class="bc-card bc-calc" aria-labelledby="bc-calc-title">
@@ -96,7 +98,6 @@ root.innerHTML=`
      <div class="bc-field"><label for="bc-team" class="bc-label">④ 隊伍人數</label><select id="bc-team">${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${n===2?'selected':''}>${n} 人</option>`).join('')}</select></div>
     </div>
     <div id="bc-custom-wrap" class="bc-field" hidden><label for="bc-custom-multiplier" class="bc-label">自訂倍數（1～10000）</label><input id="bc-custom-multiplier" type="number" inputmode="numeric" min="1" max="10000" step="1" value="80"></div>
-    <div id="bc-custom-rate-wrap" class="bc-field" hidden style="margin-top:10px"><label for="bc-custom-rate" class="bc-label">自訂每人獎勵需求比例（可選）</label><input id="bc-custom-rate" type="number" inputmode="decimal" min="0" max="100" step="0.01" placeholder="例如 35，不代表官方規則"><p class="bc-hint">20 倍以上尚無已確認的比例，輸入時僅供自行試算。</p></div>
     <p class="bc-hint">使用圖鑑的原始血量逐階段換算；未提供血量的難度不會猜測數字。</p>
    </div>
    <div class="bc-output" id="bc-result" aria-live="polite"><div class="bc-status">載入 BOSS 資料後即可開始計算。</div></div>
@@ -123,10 +124,6 @@ function reconcileKnownHp(snapshot){
  }
  return normalized;
 }
-const parseRate=value=>{
- const text=String(value).trim();if(!/^\d+(?:\.\d{1,2})?$/.test(text)||Number(text)>100)return null;
- const [w,f='']=text.split('.');return BigInt(w)*100n+BigInt((f+'00').slice(0,2));
-};
 const closeMenu=()=>{$('bc-menu').hidden=true;$('bc-picker').setAttribute('aria-expanded','false');};
 function currentBoss(){return bosses.find(b=>b.id===bossId);}
 function currentDiff(){return currentBoss()?.difficulties?.find(d=>d.name===diffName);}
@@ -143,8 +140,6 @@ function renderResult(){
  $('bc-custom-wrap').hidden=selection!=='custom';
  const n=selection==='custom'?Number($('bc-custom-multiplier').value):Number(selection);
  const party=Number($('bc-team').value);
- const rate=rewardRates[n]?.[party-1]??null;
- $('bc-custom-rate-wrap').hidden=rate!==null;
  if(!Number.isSafeInteger(n)||n<1||n>10000){result.innerHTML='<p class="bc-error">請輸入介於 1～10000 的整數倍率。</p>';return;}
  let sections;try{sections=parseHp(difficulty.hp);}catch(error){result.innerHTML=`<div class="bc-output-title">${escapeHTML(difficulty.name)} · ${n} 倍</div><p class="bc-error">${escapeHTML(error.message)}</p>`;return;}
  let total=0n;const rows=[];
@@ -157,22 +152,16 @@ function renderResult(){
  }
  const adjusted=total*BigInt(n);
  const labelTitle=`${escapeHTML(difficulty.name)} · ${n} 倍 · ${party} 人`;
- let gate='';
- if(rate!==null){
-  const min=ceilDiv(adjusted*BigInt(rate),BigInt(party)*100n);
-  gate=`<div class="bc-gate"><strong>每位隊員獎勵門檻</strong><span class="bc-gate-value">${formatHp(min)}</span><div class="bc-status">${formatHp(adjusted)} ÷ ${party} 人 × ${rate}%（向上取整）</div></div>`;
- }else{
-  const raw=$('bc-custom-rate').value,scaled=raw?parseRate(raw):null;
-  gate=scaled===null?'<div class="bc-gate"><strong>每位隊員獎勵門檻</strong><div class="bc-status">這個倍率尚未提供官方獎勵需求比例，因此只計算 BOSS 血量；可在左側自訂比例試算。</div></div>'
-  :`<div class="bc-gate"><strong>自訂試算門檻（非官方比例）</strong><span class="bc-gate-value">${formatHp(ceilDiv(adjusted*scaled,BigInt(party)*10000n))}</span><div class="bc-status">${formatHp(adjusted)} ÷ ${party} 人 × ${escapeHTML(raw)}%</div></div>`;
- }
+ const rate=rewardRateFor(n,party);
+ const min=ceilDiv(adjusted*BigInt(rate),BigInt(party)*100n);
+ const gate=`<div class="bc-gate"><strong>每位隊員獎勵門檻</strong><span class="bc-gate-value">${formatHp(min)}</span><div class="bc-status">${formatHp(adjusted)} ÷ ${party} 人 × ${rate}%（向上取整）</div></div>`;
  result.innerHTML=`<div class="bc-output-head"><span class="bc-output-title">換算後 BOSS 總血量</span><span class="bc-output-badge">${labelTitle}</span></div><div class="bc-total">${formatHp(adjusted)}</div><div class="bc-stage-list">${rows.join('')}</div>${gate}`;
 }
 $('bc-picker').addEventListener('click',()=>{const menu=$('bc-menu');menu.hidden=!menu.hidden;$('bc-picker').setAttribute('aria-expanded',String(!menu.hidden));});
 $('bc-menu').addEventListener('click',e=>{const button=e.target.closest('[data-id]');if(!button)return;bossId=button.dataset.id;diffName=currentBoss()?.difficulties?.[0]?.name||'';variantChoices={};closeMenu();renderSelection();});
 root.addEventListener('click',e=>{const button=e.target.closest('[data-diff]');if(!button)return;diffName=button.dataset.diff;variantChoices={};renderSelection();});
 root.addEventListener('change',e=>{if(e.target.matches('[data-stage]')){variantChoices[e.target.dataset.stage]=e.target.value;renderResult();}else if(['bc-multiplier','bc-team'].includes(e.target.id))renderResult();});
-root.addEventListener('input',e=>{if(['bc-custom-rate','bc-custom-multiplier'].includes(e.target.id))renderResult();});
+root.addEventListener('input',e=>{if(e.target.id==='bc-custom-multiplier')renderResult();});
 document.addEventListener('pointerdown',e=>{if(!root.contains(e.target)||!e.target.closest('.bc-picker-wrap'))closeMenu();},true);
 root.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
 function accept(data){
