@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#0c1320">
 <title>多多谷｜官方網站｜活動、攻略、BOSS、下載與最新消息</title>
 <meta name="description" content="多多谷官方網站，提供最新活動、遊戲公告、BOSS 資訊、遊玩攻略、下載資源與玩家資訊。">
-<meta name="duoduo-shell-version" content="BGM-2.1.5-song-tinted-glass-20261027">
+<meta name="duoduo-shell-version" content="BGM-2.1.6-gradual-glass-theme-20261027">
 <script>/* 防止舊 bgm-test.html 內再載入新版播放器 */if(window.self!==window.top){location.replace(new URL("home.html"+location.search+location.hash,location.href).href);}</script>
 <link rel="icon" type="image/png" href="favicon-64.png">
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
@@ -240,7 +240,7 @@ body.collapsed #mini {display:grid;}
 @media(max-width:480px){#volumeBox{display:flex!important;max-width:28px!important;flex:0 0 28px!important;min-width:28px!important;margin-left:auto;}#volume{display:none!important;}#volumeMute{width:28px;height:30px;}}
 @media (prefers-reduced-motion:reduce){#bgmEqualizer span{animation:none!important;height:5px!important}#player,#musicCircle,#songCoverIncoming{transition:none!important}}
 
-/* BGM 2.1.5 — song-toned frosted glass, safely darkened for readable controls.
+/* BGM 2.1.6 — song-toned frosted glass, safely darkened for readable controls.
    The theme is derived from the existing track accent and NEVER changes site CSS. */
 #player {
   --bgm-glass-top:29,45,65;
@@ -315,7 +315,28 @@ body.collapsed #mini {display:grid;}
   #player { background:linear-gradient(148deg,rgb(var(--bgm-glass-top)),rgb(var(--bgm-glass-bottom))); }
   #mini { background:rgb(var(--bgm-glass-top)); }
 }
-@media(prefers-reduced-motion:reduce){#player{transition:none!important}}
+/* BGM 2.1.6: a barely visible glass sheen on actual song-color changes.
+   No overlay or clipping affects the popup outside the card. */
+#player {isolation:isolate;transition:none;}
+#player::before {
+  content:"";position:absolute;inset:0;z-index:0;pointer-events:none;border-radius:inherit;
+  background:linear-gradient(110deg,transparent 25%,rgba(255,255,255,.07) 49%,transparent 68%);
+  background-size:260% 100%;background-position:140% 0;opacity:0;
+}
+#player > #topline,#player > #details{position:relative;z-index:1;}
+#player.bgm-theme-shifting::before{animation:bgm-theme-glimmer .78s ease-out both;}
+@keyframes bgm-theme-glimmer{
+  0%{opacity:0;background-position:140% 0}
+  20%{opacity:.7}
+  65%{opacity:.5}
+  100%{opacity:0;background-position:-125% 0}
+}
+/* The RAF palette animates button, glow, sliders and glass in sync.
+   Do not stack a second CSS transition on every individual frame. */
+#player #play{transition:filter .2s ease;}
+@media(prefers-reduced-motion:reduce){
+ #player.bgm-theme-shifting::before{animation:none!important}
+}
 
 </style>
 
@@ -444,6 +465,54 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 
 const validUrl=value=>{try{const url=new URL(String(value),location.href);return (url.protocol==='https:'||((url.hostname==='localhost'||url.hostname==='127.0.0.1')&&url.protocol==='http:'))?url.href:'';}catch{return '';}};
 const format=v=>Number.isFinite(v)?`${Math.floor(v/60)}:${String(Math.floor(v%60)).padStart(2,'0')}`:'0:00';
+let activeGlassPalette=null,glassTweenFrame=0,lastGlassAccent=null,glassSheenTimer=0;
+const cssRgb=values=>values.map(Math.round).join(',');
+const rgbHex=values=>'#'+values.map(x=>Math.max(0,Math.min(255,Math.round(x))).toString(16).padStart(2,'0')).join('');
+const contrastLuminance=values=>values.map(v=>{v/=255;return v<=.04045?v/12.92:((v+.055)/1.055)**2.4;}).reduce((a,v,i)=>a+v*[.2126,.7152,.0722][i],0);
+function paintGlassPalette(palette){
+  activeGlassPalette=palette;
+  const miniNode=byId('mini');
+  for(const element of [playerNode,miniNode]){
+    element.style.setProperty('--bgm-glass-top',cssRgb(palette.top));
+    element.style.setProperty('--bgm-glass-bottom',cssRgb(palette.bottom));
+    element.style.setProperty('--bgm-glass-control',cssRgb(palette.control));
+    element.style.setProperty('--song-accent',rgbHex(palette.accent));
+  }
+  // Choose contrast using the *current interpolated* button color, so the
+  // pause/play icon stays visible even halfway between opposite hues.
+  const luminosity=contrastLuminance(palette.accent);
+  const whiteContrast=1.05/(luminosity+.05);
+  const darkContrast=(luminosity+.05)/(contrastLuminance([9,25,39])+.05);
+  playerNode.style.setProperty('--song-ink',whiteContrast>darkContrast?'#ffffff':'#091927');
+}
+function animateGlassPalette(palette,accent){
+  cancelAnimationFrame(glassTweenFrame);
+  const start=activeGlassPalette;
+  const changed=lastGlassAccent!==null&&lastGlassAccent!==accent;
+  const reduced=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+  lastGlassAccent=accent;
+  if(!start||!changed||reduced){
+    paintGlassPalette(palette);
+    return;
+  }
+  const old={top:[...start.top],bottom:[...start.bottom],control:[...start.control],accent:[...start.accent]};
+  const started=performance.now(),duration=760;
+  const tween=now=>{
+    const t=Math.max(0,Math.min(1,(now-started)/duration));
+    const eased=t*t*(3-2*t);
+    const mix=(a,b)=>a.map((c,i)=>c+(b[i]-c)*eased);
+    paintGlassPalette({top:mix(old.top,palette.top),bottom:mix(old.bottom,palette.bottom),
+      control:mix(old.control,palette.control),accent:mix(old.accent,palette.accent)});
+    if(t<1)glassTweenFrame=requestAnimationFrame(tween);
+    else glassTweenFrame=0;
+  };
+  glassTweenFrame=requestAnimationFrame(tween);
+  playerNode.classList.remove('bgm-theme-shifting');
+  void playerNode.offsetWidth;
+  playerNode.classList.add('bgm-theme-shifting');
+  clearTimeout(glassSheenTimer);
+  glassSheenTimer=setTimeout(()=>playerNode.classList.remove('bgm-theme-shifting'),800);
+}
 const refreshPlayback=()=>{
   play.innerHTML=audio.paused?icons.play:icons.pause;
   play.setAttribute('aria-label',audio.paused?'播放':'暫停');
@@ -475,11 +544,7 @@ function showArtwork(track){
   const top=fromHsl(h,Math.min(.58,s*.70),.18);
   const bottom=fromHsl(h,Math.min(.47,s*.56),.105);
   const control=fromHsl(h,Math.min(.40,s*.42),.115);
-  for(const el of [playerNode,byId('mini')]){
-    el.style.setProperty('--bgm-glass-top',top.join(','));
-    el.style.setProperty('--bgm-glass-bottom',bottom.join(','));
-    el.style.setProperty('--bgm-glass-control',control.join(','));
-  }
+
   // Only brighten an unusually dark admin color when needed for a legible
   // play button and slider. Normal colors stay exactly as configured.
   let controlAccent=rgb.slice(),lightness=l;
@@ -487,13 +552,7 @@ function showArtwork(track){
     lightness=Math.min(.94,lightness+.025);
     controlAccent=fromHsl(h,s,lightness);
   }
-  const controlHex='#'+controlAccent.map(v=>v.toString(16).padStart(2,'0')).join('');
-  playerNode.style.setProperty('--song-accent',controlHex);
-  byId('mini').style.setProperty('--song-accent',controlHex);
-  const onWhite=1.05/(luminance(controlAccent)+.05);
-  const inkLuminance=luminance([9,25,39]);
-  const onDark=(luminance(controlAccent)+.05)/(inkLuminance+.05);
-  playerNode.style.setProperty('--song-ink',onWhite>onDark?'#ffffff':'#091927');
+  animateGlassPalette({top,bottom,control,accent:controlAccent},accent);
   captionNode.textContent=String(track?.caption||'').slice(0,80);
   captionNode.hidden=!captionNode.textContent;
   const requested=validUrl(track?.cover||'');
