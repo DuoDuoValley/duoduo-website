@@ -148,3 +148,14 @@
  #ddBossAtlas .dd-boss-top{padding:13px}
  #ddBossAtlas .dd-boss-info{padding:0 13px 13px}
 }
+
+/* BOSS v1.4: aligned category rows and stage-based DEF. Scoped to atlas only. */
+#ddBossAtlas .dd-defense-phases{display:flex;flex-wrap:wrap;gap:3px 7px;align-items:baseline;min-width:0}
+#ddBossAtlas .dd-defense-phase{display:inline-flex;align-items:baseline;gap:3px;white-space:nowrap}
+#ddBossAtlas .dd-defense-phase em{font-size:10px;color:var(--accent);font-style:normal;font-weight:800}
+#ddBossAtlas .dd-defense-phase strong{font-size:11px}
+#ddBossAtlas .dd-defense-phases small{color:var(--muted);font-size:10px;white-space:nowrap}
+#ddBossAtlas .dd-drop-group[data-has-drops="0"] .dd-drop-group-title{color:var(--muted);opacity:.7}
+#ddBossAtlas .dd-drop-group[data-has-drops="0"] .dd-drop-icons::after{content:"—";font-size:11px;color:var(--muted);opacity:.58;display:block;padding:4px 0}
+#ddBossAtlas .dd-boss-top,#ddBossAtlas .dd-diff-list,#ddBossAtlas .dd-drop-group{box-sizing:border-box}
+@media(max-width:669px){#ddBossAtlas .dd-drop-group[data-has-drops="0"]{display:none!important}}

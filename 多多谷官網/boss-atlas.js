@@ -8,7 +8,7 @@ let data=null,group='全部',search='',selected={};
 let searchComposing=false,renderDeferred=false;
 const escapeAttr=escapeHTML;
 const CATEGORIES=['裝備','強化','素材','箱子','其他'];
-let staticCatalog=[];
+let staticCatalog=[],staticBossCatalog=[];
 
 // Atlas v2 one-time data correction. Older cloud snapshots may override the updated JSON.
 // Only apply corrections to v1 snapshots; never overwrite subsequent admin edits.
@@ -47,6 +47,29 @@ function hydrateCatalog(source){
  for(const item of value.items){if(!CATEGORIES.includes(item.category))item.category='其他';}
  return value;
 }
+// Read-only reconciliation for old cloud revisions: the initial JSON already
+// contains confirmed HP and guaranteed cube/currency drops. This never writes
+// to Supabase; the admin publishes the migrated snapshot separately.
+function reconcileOldPublicSnapshot(value){
+ if(!value || Number(value.dataRevision||1)>=3)return;
+ const baseline=new Map(staticBossCatalog.map(b=>[b.id,b]));
+ const always=new Set(['item033','item034','item045','item046','item066','item067','item071','item072']);
+ for(const it of (value.items||[]))if(String(it.name||'').includes('方塊')||['楓幣','楓葉點數'].includes(it.name))always.add(it.id);
+ for(const b of (value.bosses||[])){
+  const old=baseline.get(b.id)||staticBossCatalog.find(x=>x.name===b.name);
+  for(const d of (b.difficulties||[])){
+   const ref=old?.difficulties?.find(x=>x.name===d.name);
+   if((d.hp==null||String(d.hp).trim()==='')&&ref?.hp)d.hp=ref.hp;
+   const oldDrops=new Map((ref?.drops||[]).map(x=>[x.itemId,x]));
+   for(const entry of (d.drops||[])){
+    const other=oldDrops.get(entry.itemId);
+    if((entry.quantity==null||String(entry.quantity).trim()==='')&&other?.quantity!=null)entry.quantity=other.quantity;
+    if(always.has(entry.itemId))entry.chance=100;
+   }
+  }
+ }
+ value.dataRevision=3;
+}
 const itemMap=()=>new Map((data?.items||[]).map(x=>[x.id,x]));
 const publicBosses=()=>Array.isArray(data?.bosses)?data.bosses.filter(b=>b&&b.published!==false):[];
 // Render the frame only on first load / explicit selection, never rebuild the
@@ -64,7 +87,40 @@ function renderResults(){
  container.innerHTML=filtered.map(b=>card(b,itemMap())).join('');
  root.querySelector('.dd-atlas-count').textContent=`${filtered.length} 隻 BOSS`;
  root.querySelector('.dd-empty').hidden=filtered.length>0;
+ scheduleRowAlignment();
 }
+let alignmentFrame=0;
+function scheduleRowAlignment(){
+ if(alignmentFrame)cancelAnimationFrame(alignmentFrame);
+ alignmentFrame=requestAnimationFrame(()=>{alignmentFrame=0;alignBossRows()});
+}
+function alignBossRows(){
+ const cards=[...root.querySelectorAll('.dd-atlas-grid > .dd-boss')];
+ for(const el of root.querySelectorAll('.dd-boss-top,.dd-diff-list,.dd-drop-group')){el.style.minHeight='';el.style.display='';}
+ if(!cards.length||matchMedia('(max-width:669px)').matches)return;
+ // Only cards in the same visual row share heights; other rows stay independent.
+ const rows=new Map();
+ for(const card of cards){const y=Math.round(card.getBoundingClientRect().top);
+  if(!rows.has(y))rows.set(y,[]);rows.get(y).push(card);}
+ for(const row of rows.values()){
+  const blocks=row.map(card=>card.querySelector('.dd-boss-top'));
+  let topHeight=Math.max(...blocks.map(el=>el?.getBoundingClientRect().height||0));
+  blocks.forEach(el=>{if(el)el.style.minHeight=Math.ceil(topHeight)+'px'});
+  const tabs=row.map(card=>card.querySelector('.dd-diff-list'));
+  const tabsHeight=Math.max(...tabs.map(el=>el?.getBoundingClientRect().height||0));
+  tabs.forEach(el=>{if(el)el.style.minHeight=Math.ceil(tabsHeight)+'px'});
+  for(const category of CATEGORIES){
+   const sections=row.map(card=>[...card.querySelectorAll('.dd-drop-group')].find(e=>e.dataset.category===category));
+   const visible=sections.some(el=>el?.dataset.hasDrops==='1');
+   sections.forEach(el=>{if(el&&!visible)el.style.display='none'});
+   if(!visible)continue;
+   const height=Math.max(...sections.map(el=>el?.getBoundingClientRect().height||0));
+   sections.forEach(el=>{if(el)el.style.minHeight=Math.ceil(height)+'px'});
+  }
+ }
+}
+window.addEventListener('resize',scheduleRowAlignment,{passive:true});
+root.addEventListener('load',event=>{if(event.target.tagName==='IMG')scheduleRowAlignment()},true);
 // Keep the stored HP text unchanged, but replace its numbered stage markers
 // with readable Chinese labels in the public interface.
 function formatHp(value){
@@ -90,7 +146,7 @@ function card(b,map){
   const node=`<button type="button" class="dd-drop" data-item="${escapeAttr(entry.itemId)}" data-boss="${escapeAttr(b.id)}" aria-expanded="${active===entry.itemId?'true':'false'}" aria-label="查看${escapeAttr(it.name)}的掉落資訊" title="${escapeAttr(it.name)}">${image?`<img src="${escapeAttr(image)}" alt="" loading="lazy">`:'◇'}${entry.quantity?`<span class="dd-drop-count" title="×${escapeAttr(entry.quantity)}">×${escapeHTML(entry.quantity)}</span>`:''}</button>`;
   const cat=CATEGORIES.includes(it.category)?it.category:'其他';buckets.get(cat).push(node);
  }
- const dropCards=CATEGORIES.map(cat=>buckets.get(cat).length?`<div class="dd-drop-group"><div class="dd-drop-group-title">${cat}</div><div class="dd-drop-icons">${buckets.get(cat).join('')}</div></div>`:'').join('');
+ const dropCards=CATEGORIES.map(cat=>`<div class="dd-drop-group" data-category="${cat}" data-has-drops="${buckets.get(cat).length?'1':'0'}"><div class="dd-drop-group-title">${cat}</div><div class="dd-drop-icons">${buckets.get(cat).join('')}</div></div>`).join('');
  const img=safeImg(b.image);
  const runeNames={arcane:'祕法符文',authentic:'真實符文'};
  const runeImages={arcane:'assets/boss-atlas/symbols/arcane-symbol.png',authentic:'assets/boss-atlas/symbols/authentic-symbol.png'};
@@ -98,7 +154,10 @@ function card(b,map){
  const runeValue=String(d?.runeRequirement??'').trim();
  const defenseValue=String(d?.defensePercent??'').replace(/%/g,'').trim();
  const runeContent=runeValue?(runeType?`<img src="${runeImages[runeType]}" alt="${runeNames[runeType]}" title="${runeNames[runeType]}">`:'')+`<strong>${escapeHTML(runeValue)}</strong>`:'<strong class="dd-requirement-empty">—</strong>';
- const defenseContent=defenseValue?`<strong>${escapeHTML(defenseValue)}%</strong>`:'<strong class="dd-requirement-empty">—</strong>';
+ const byStage=(d?.defenseByPhase && typeof d.defenseByPhase==='object')?d.defenseByPhase:{};
+ const stageNames=['','一階段','二階段','三階段','四階段'];
+ const stageKeys=Object.keys(byStage).filter(k=>/^[1-4]$/.test(k)&&String(byStage[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));
+ const defenseContent=stageKeys.length?`<div class="dd-defense-phases">${stageKeys.map(stage=>`<span class="dd-defense-phase"><em>${stageNames[+stage]}</em><strong>${escapeHTML(String(byStage[stage]).replace(/%/g,''))}%</strong></span>`).join('')}${defenseValue?`<small title="未指定的階段沿用此數值">其餘 ${escapeHTML(defenseValue)}%</small>`:''}</div>`:defenseValue?`<strong>${escapeHTML(defenseValue)}%</strong>`:'<strong class="dd-requirement-empty">—</strong>';
  const hp=String(d?.hp||'尚未提供');
  return `<article class="dd-boss" data-boss-id="${escapeAttr(b.id)}">
    <div class="dd-boss-top">
@@ -118,7 +177,7 @@ function card(b,map){
     <div class="dd-diff-list" aria-label="${escapeAttr(b.name)}難度">${ds.map(x=>`<button class="dd-diff ${d===x?'active':''}" data-boss="${escapeAttr(b.id)}" data-diff="${escapeAttr(x.name)}" type="button" aria-label="${escapeAttr(x.name)}" aria-pressed="${d===x?'true':'false'}">${['簡單','普通','困難','混沌','終極'].includes(x.name)?`<img src="assets/boss-atlas/difficulties/${escapeAttr(x.name)}.png" alt="${escapeAttr(x.name)}" loading="lazy">`:escapeHTML(x.name)}</button>`).join('')}</div>
     <div class="dd-drops">
      <div class="dd-drop-head">掉落物 <small>${d?.drops?.length||0} 種</small></div>
-     <div class="dd-drop-list" id="dd-drops-${escapeAttr(b.id)}">${dropCards||'<span class="dd-no-drop">掉落資訊整理中</span>'}</div>
+     <div class="dd-drop-list" id="dd-drops-${escapeAttr(b.id)}">${d?.drops?.length?dropCards:'<span class="dd-no-drop">掉落資訊整理中</span>'}</div>
      ${item?`<div class="dd-drop-detail"><img src="${escapeAttr(safeImg(item.image))}" alt=""><div><b>${escapeHTML(item.name)}</b><p>數量：${escapeHTML(drop.quantity?'×'+drop.quantity:'未提供')}　｜　機率：${drop.chance===null||drop.chance===undefined?'未提供':escapeHTML(drop.chance)+'%'}</p></div></div>`:''}
     </div>
    </div>
@@ -144,9 +203,9 @@ root.addEventListener('input',event=>{
  renderResults();
 });
 (async()=>{
- try{const r=await fetch('boss-atlas-data.json',{cache:'no-store'});if(!r.ok)throw Error('無法讀取圖鑑預設資料');data=await r.json();staticCatalog=Array.isArray(data.items)?data.items:[];data=hydrateCatalog(data);migrateAtlasV2(data);render();}
+ try{const r=await fetch('boss-atlas-data.json',{cache:'no-store'});if(!r.ok)throw Error('無法讀取圖鑑預設資料');data=await r.json();staticCatalog=Array.isArray(data.items)?data.items:[];staticBossCatalog=structuredClone(data.bosses||[]);data=hydrateCatalog(data);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);render();}
  catch(e){root.textContent='BOSS 圖鑑目前無法載入，請稍後再試。';console.warn(e);return}
- try{const r=await fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const p=await r.json();if(p?.ok&&p?.data?.duoduo_boss_atlas?.schema===1){data=hydrateCatalog(p.data.duoduo_boss_atlas);migrateAtlasV2(data);render()}}
+ try{const r=await fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const p=await r.json();if(p?.ok&&p?.data?.duoduo_boss_atlas?.schema===1){data=hydrateCatalog(p.data.duoduo_boss_atlas);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);render()}}
  catch(e){console.warn('BOSS 圖鑑雲端資料暫時無法取得，使用預設資料。',e)}
 })();
 })();

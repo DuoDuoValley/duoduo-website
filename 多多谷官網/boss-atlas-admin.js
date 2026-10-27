@@ -45,6 +45,39 @@ function migrateAtlasV2(value){
  return true;
 }
 
+// Schema v3: older cloud snapshots may have blank fields even when the
+// shipped initial JSON and public migration already have confirmed values.
+// Backfill only missing HP / drop counts and the explicitly 100%-guaranteed
+// currencies/cubes. Never replace custom nonblank HP or other drop chances.
+function migrateAtlasV3(value){
+ if(!value || Number(value.dataRevision||1)>=3)return false;
+ const baseline=new Map((base?.bosses||[]).map(b=>[b.id,b]));
+ const certainItems=new Set(['item033','item034','item045','item046','item066','item067','item071','item072']);
+ for(const it of (value.items||[]))if(String(it.name||'').includes('方塊')||['楓幣','楓葉點數'].includes(it.name))certainItems.add(it.id);
+ let fixed=false;
+ for(const b of (value.bosses||[])){
+  const original=baseline.get(b.id)||((base?.bosses||[]).find(x=>x.name===b.name));
+  for(const d of (b.difficulties||[])){
+   const reference=original?.difficulties?.find(x=>x.name===d.name);
+   if((d.hp==null||String(d.hp).trim()==='') && reference?.hp){d.hp=reference.hp;fixed=true;}
+   const sourceDrops=new Map((reference?.drops||[]).map(x=>[x.itemId,x]));
+   for(const drop of (d.drops||[])){
+    const ref=sourceDrops.get(drop.itemId);
+    if((drop.quantity==null||String(drop.quantity).trim()==='') && ref?.quantity!=null && String(ref.quantity).trim()!==''){
+     drop.quantity=ref.quantity;fixed=true;
+    }
+    if(certainItems.has(drop.itemId) && drop.chance!==100){drop.chance=100;fixed=true;}
+   }
+  }
+ }
+ value.dataRevision=3;
+ return true;
+}
+function validateDefenseInput(value){
+ const v=String(value??'').trim().replace(/%/g,'');
+ if(v!==''&&(!Number.isFinite(Number(v))||Number(v)<0||Number(v)>1000))throw Error('防禦% 請填 0～1000，不需輸入 %');
+ return v;
+}
 function enrichData(value){
  if(!Array.isArray(value.items))value.items=[];
  const known=new Map(value.items.map(it=>[it.id,it]));
@@ -67,7 +100,14 @@ root.querySelectorAll('.at-diff').forEach(div=>{const i=Number(div.dataset.dif),
  div.querySelector('[data-field=note]').addEventListener('change',e=>{d.note=e.target.value;draft()});
  div.querySelector('[data-field=runeType]').addEventListener('change',e=>{d.runeType=e.target.value;draft();const preview=div.querySelector('.at-rune-preview img');if(preview){preview.src=runeIcon(d.runeType)||'';preview.hidden=!runeIcon(d.runeType)}});
  div.querySelector('[data-field=runeRequirement]').addEventListener('change',e=>{d.runeRequirement=e.target.value.trim();draft()});
- div.querySelector('[data-field=defensePercent]').addEventListener('change',e=>{const value=e.target.value.trim().replace(/%/g,'');if(value!==''&&(!Number.isFinite(Number(value))||Number(value)<0||Number(value)>1000)){status('防禦% 請輸入 0～1000 的數值，不需輸入 %',true);e.target.value=d.defensePercent??'';return}d.defensePercent=value; e.target.value=value;draft()});
+ div.querySelector('[data-field=defensePercent]').addEventListener('change',e=>{try{const value=validateDefenseInput(e.target.value);d.defensePercent=value;e.target.value=value;draft()}catch(err){status(err.message,true);e.target.value=d.defensePercent??''}});
+ div.querySelectorAll('[data-defense-stage]').forEach(field=>field.addEventListener('change',e=>{
+  try{const value=validateDefenseInput(e.target.value),stage=e.target.dataset.defenseStage;
+   const mapping=(d.defenseByPhase && typeof d.defenseByPhase==='object')?{...d.defenseByPhase}:{};
+   if(value==='')delete mapping[stage];else mapping[stage]=value;
+   d.defenseByPhase=mapping; e.target.value=value;draft();
+  }catch(err){status(err.message,true);e.target.value=d.defenseByPhase?.[e.target.dataset.defenseStage]??''}
+ }));
  div.querySelector('.at-diff-remove').onclick=()=>{if(!confirm(`確定刪除「${b.name} ${d.name}」的所有掉落資料？`))return;b.difficulties.splice(i,1);draft();renderEditor()};
  div.querySelector('.at-drop-add').onclick=()=>{const id=div.querySelector('.at-add-item').value;if(!id)return;const exist=d.drops.find(x=>x.itemId===id);if(exist)return status('這個難度已加入相同道具',true);d.drops.push({itemId:id,chance:null,quantity:null});draft();renderEditor()};
  div.querySelectorAll('.at-drop-line').forEach((row,j)=>{
@@ -80,7 +120,7 @@ root.querySelectorAll('.at-diff').forEach(div=>{const i=Number(div.dataset.dif),
  });
 }
 function runeIcon(type){return ({arcane:'assets/boss-atlas/symbols/arcane-symbol.png',authentic:'assets/boss-atlas/symbols/authentic-symbol.png'})[type]||''}
-function diffEditor(d,i){const options=names();return `<div class="at-diff" data-dif="${i}"><h3>${esc(d.name)}<button class="at-btn danger at-diff-remove" type="button">刪除難度</button></h3><div class="at-info"><label class="at-field">血量（可用多階段文字）<textarea rows="2" data-field="hp">${esc(d.hp||'')}</textarea></label><label class="at-field">難度補充備註<textarea rows="2" data-field="note">${esc(d.note||'')}</textarea></label></div><div class="at-requirements-admin"><label class="at-field">符文種類（可留白）<select data-field="runeType"><option value="" ${!d.runeType?'selected':''}>未設定</option><option value="arcane" ${d.runeType==='arcane'?'selected':''}>祕法符文</option><option value="authentic" ${d.runeType==='authentic'?'selected':''}>真實符文</option></select></label><label class="at-field">符文需求（可留白）<input data-field="runeRequirement" inputmode="numeric" placeholder="例如 810" value="${esc(d.runeRequirement??'')}"></label><label class="at-field">防禦%（可留白）<input data-field="defensePercent" inputmode="decimal" placeholder="例如 380；不用填 %" value="${esc(d.defensePercent??'')}"></label><span class="at-rune-preview"><img src="${runeIcon(d.runeType)}" alt="符文種類圖示" ${runeIcon(d.runeType)?'':'hidden'}></span></div><div class="at-sub">該難度掉落道具：數量和機率分開管理，未提供機率請留白。</div>${(d.drops||[]).map(x=>dropEditor(x,options)).join('')}<div class="at-toolbar"><select class="at-add-item at-search" style="max-width:360px">${selectItems(options,'')}</select><button class="at-btn at-drop-add" type="button">＋ 加入掉落物</button></div></div>`}
+function diffEditor(d,i){const options=names();return `<div class="at-diff" data-dif="${i}"><h3>${esc(d.name)}<button class="at-btn danger at-diff-remove" type="button">刪除難度</button></h3><div class="at-info"><label class="at-field">血量（可用多階段文字）<textarea rows="2" data-field="hp">${esc(d.hp||'')}</textarea></label><label class="at-field">難度補充備註<textarea rows="2" data-field="note">${esc(d.note||'')}</textarea></label></div><div class="at-requirements-admin"><label class="at-field">符文種類（可留白）<select data-field="runeType"><option value="" ${!d.runeType?'selected':''}>未設定</option><option value="arcane" ${d.runeType==='arcane'?'selected':''}>祕法符文</option><option value="authentic" ${d.runeType==='authentic'?'selected':''}>真實符文</option></select></label><label class="at-field">符文需求（可留白）<input data-field="runeRequirement" inputmode="numeric" placeholder="例如 810" value="${esc(d.runeRequirement??'')}"></label><label class="at-field">防禦%（可留白）<input data-field="defensePercent" inputmode="decimal" placeholder="例如 380；不用填 %" value="${esc(d.defensePercent??'')}"></label><span class="at-rune-preview"><img src="${runeIcon(d.runeType)}" alt="符文種類圖示" ${runeIcon(d.runeType)?'':'hidden'}></span></div><div class="at-defense-stages"><div class="at-defense-head">分階段防禦%（選填，未填時使用上方共通防禦%）</div><div class="at-defense-grid">${[1,2,3,4].map((stage)=>`<label class="at-field">${['','一','二','三','四'][stage]}階段<input data-defense-stage="${stage}" inputmode="decimal" placeholder="沿用共通防禦" value="${esc(d.defenseByPhase?.[stage]??'')}"></label>`).join('')}</div></div><div class="at-sub">該難度掉落道具：數量和機率分開管理，未提供機率請留白。</div>${(d.drops||[]).map(x=>dropEditor(x,options)).join('')}<div class="at-toolbar"><select class="at-add-item at-search" style="max-width:360px">${selectItems(options,'')}</select><button class="at-btn at-drop-add" type="button">＋ 加入掉落物</button></div></div>`}
 function dropEditor(drop,options){const item=data.items.find(x=>x.id===drop.itemId);return `<div class="at-drop-line"><img src="${esc(item?.image||'')}" alt=""><select data-drop="item" aria-label="掉落道具">${selectItems(options,drop.itemId)}</select><input data-drop="quantity" aria-label="數量" placeholder="數量" value="${esc(drop.quantity??'')}"><input data-drop="chance" aria-label="掉落機率百分比" placeholder="機率 %" value="${esc(drop.chance??'')}"><button class="at-drop-remove" type="button" title="刪除此掉落物">×</button></div>`}
 function renderItemList(){const holder=by('atItemList');holder.replaceChildren();for(const item of data.items.filter(x=>x.name.includes(itemQuery)).slice(0,140)){const btn=document.createElement('button');const img=document.createElement('img');img.src=item.image;img.alt='';const txt=document.createElement('span');txt.textContent=`【${item.category||'其他'}】${item.name}`;btn.append(img,txt);btn.onclick=()=>{chosenItem=item.id;by('atItemName').value=item.name;by('atItemImage').value=item.image;by('atItemCategory').value=CATEGORIES.includes(item.category)?item.category:'其他';by('atItemCurrent').src=item.image;status('正在編輯「'+item.name+'」')};holder.append(btn)}}
 function readItemForm(){const name=by('atItemName').value.trim(),image=by('atItemImage').value.trim();if(!name)throw Error('請輸入道具名稱');if(!/^(assets\/|https:\/\/)/.test(image))throw Error('請上傳圖片或輸入 HTTPS／assets 圖片路徑');return {name,image,category:by('atItemCategory').value}}
@@ -102,10 +142,12 @@ async function initialize(){if(loading)return;loading=true;
   data=enrichData(cloud?.schema===1?cloud:clone(base));
   const saved=localStorage.getItem(DRAFT);
   if(saved){try{const draftValue=JSON.parse(saved);validate(draftValue);if(confirm('偵測到這台瀏覽器尚未發布的 BOSS 圖鑑草稿，是否恢復？')){data=enrichData(draftValue);dirty=true;}}catch(e){console.warn('無法恢復 BOSS 草稿',e)}}
-  const migrated=migrateAtlasV2(data);
+  const migratedV2=migrateAtlasV2(data);
+  const migratedV3=migrateAtlasV3(data);
+  const migrated=migratedV2||migratedV3;
   if(migrated){draft();}
   chosen=data.bosses[0]?.id||'';renderList();renderEditor();renderItemList();
-  status(migrated?'已套用 BOSS 資料更新（方塊／楓幣／楓葉點數 100% 與燦爛的凶星難度修正），尚未發布；請先備份 JSON，再發布雲端。':dirty?'已恢復這台瀏覽器的未發布草稿。':cloud?'已載入雲端圖鑑。':'已載入隨更新包提供的初始資料；尚未發布到雲端。');
+  status(migrated?'已補齊已知血量、掉落數量及指定 100% 掉率等舊資料缺漏；已保留其他手動設定。這是未發布草稿，請先備份 JSON，再發布雲端。':dirty?'已恢復這台瀏覽器的未發布草稿。':cloud?'已載入雲端圖鑑。':'已載入隨更新包提供的初始資料；尚未發布到雲端。');
  }catch(e){status('無法載入圖鑑：'+e.message,true)}finally{loading=false}
 }
 // Supabase JSONB can reorder object keys. Compare normalized structure, not raw JSON.stringify order.
@@ -117,9 +159,22 @@ async function publish(){if(!data)return;let body;
  try{validate(data);if(!token())throw Error('管理員登入已失效');if(!confirm(`確定發布 BOSS 圖鑑？\n公開 ${data.bosses.filter(b=>b.published!==false).length} 隻 BOSS。\n\n這只更新圖鑑資料，不會改 BOSS 首頁輪播。`))return;
  by('atPublish').disabled=true;status('正在發布雲端 BOSS 圖鑑…');
  const r=await fetch(`${API}/api/site-data`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token()}`},body:JSON.stringify({values:{[KEY]:data}})});body=await r.json().catch(()=>({}));if(!r.ok||!body.ok)throw Error(body.error||'雲端發布失敗');
- const verified=await fetchCloud();if(!verified||verified.schema!==1)throw Error('寫入請求已送出，但雲端沒有返回 BOSS 圖鑑欄位。請確認 GitHub 的 server.js 已部署到 Render（Build & Deploy 最新成功），並使用目前網站後台重新登入後再試。草稿仍保留。');
- if(canonicalJSON(verified)!==canonicalJSON(data))throw Error('雲端有 BOSS 圖鑑資料，但讀回與草稿不同；可能是其他管理員同時發布或後端資料被正規化。草稿已保留，請先備份 JSON 並檢查 Render Logs，避免覆蓋其他資料。');
- localStorage.removeItem(DRAFT);dirty=false;by('atDraftState').textContent='已發布';status('✅ 雲端發布成功且已讀回驗證。玩家重新整理後即可查看。');
+ // POST succeeded, but public reads can briefly return the previous row.
+ // Retry before showing a failure, and never claim success without equality.
+ let verified=null,confirmed=false,lastReadError=null;
+ for(let attempt=0;attempt<5;attempt++){
+  if(attempt)await new Promise(resolve=>setTimeout(resolve,350*attempt));
+  try{verified=await fetchCloud();lastReadError=null;
+   if(verified?.schema===1&&canonicalJSON(verified)===canonicalJSON(data)){confirmed=true;break;}
+  }catch(err){lastReadError=err;}
+ }
+ if(!confirmed){
+  const reason=lastReadError?'無法讀回雲端（'+lastReadError.message+'）':!verified?.schema?'讀回資料缺少 BOSS 圖鑑欄位':'讀回資料與草稿仍有差異';
+  throw Error('寫入 API 已回報成功，但'+reason+'。尚不能確認完整發布；草稿會保留，請先備份 JSON，再按「重新載入雲端」確認，勿連續重複發布。');
+ }
+ localStorage.removeItem(DRAFT);dirty=false;by('atDraftState').textContent='已發布';
+ try{localStorage.setItem('duoduo_boss_atlas_published',String(Date.now()));}catch(_){}
+ status('✅ 雲端發布成功且已讀回驗證。已開啟 BOSS 頁面的玩家將於更新檢查後自動載入新版。');
  }catch(e){status('❌ '+e.message,true)}finally{by('atPublish').disabled=false}
 }
 by('atBossSearch').oninput=e=>{q=e.target.value;renderList()};by('atItemSearch').oninput=e=>{itemQuery=e.target.value;renderItemList()};
@@ -128,6 +183,6 @@ by('atNewItem').onclick=()=>{chosenItem='';by('atItemName').value='';by('atItemI
 by('atPublish').onclick=publish;
 by('atReload').onclick=async()=>{if(dirty&&!confirm('將捨棄未發布草稿，重新載入雲端或初始資料，確定嗎？'))return;localStorage.removeItem(DRAFT);dirty=false;data=null;initialize()};
 by('atExport').onclick=()=>{if(!data)return;const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='duoduo-boss-atlas-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-by('atImport').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const j=JSON.parse(await file.text());validate(j);if(!confirm('確定用匯入資料取代目前的圖鑑草稿？（不會直接發布）'))return;data=enrichData(j);chosen=data.bosses[0]?.id||'';draft();renderList();renderEditor();renderItemList();status('JSON 已匯入草稿，尚未發布。')}catch(error){status('匯入失敗：'+error.message,true)}finally{e.target.value=''}};
+by('atImport').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const j=JSON.parse(await file.text());validate(j);if(!confirm('確定用匯入資料取代目前的圖鑑草稿？（不會直接發布）'))return;data=enrichData(j);migrateAtlasV2(data);migrateAtlasV3(data);chosen=data.bosses[0]?.id||'';draft();renderList();renderEditor();renderItemList();status('JSON 已匯入草稿，尚未發布。')}catch(error){status('匯入失敗：'+error.message,true)}finally{e.target.value=''}};
 let begun=false;const nav=document.querySelector('[data-panel="bossAtlasPanel"]');nav?.addEventListener('click',()=>{if(!begun){begun=true;initialize()}});
 })();

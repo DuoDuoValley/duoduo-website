@@ -68,7 +68,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
     'news.html': ['duoduo_news'],
     'events.html': ['duoduo_events'],
     'event-detail.html': ['duoduo_events'],
-    'boss.html': ['duoduo_boss_config'],
+    'boss.html': ['duoduo_boss_config', 'duoduo_boss_atlas'],
     'downloads.html': ['duoduo_downloads', 'duoduo_resources', 'duoduo_items'],
     'guide.html': ['duoduo_resources', 'duoduo_content', 'duoduo_items'],
     'player-tools': ['duoduo_pools', 'duoduo_weekly_prizes']
@@ -92,8 +92,9 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
       for (const key of keys) {
         // A temporarily missing event/BOSS field can mean a failed subquery;
         // do not treat it as a published deletion or trigger a reload loop.
-        if (!Object.prototype.hasOwnProperty.call(data, key)) continue;
-        const value = JSON.stringify(data[key]);
+        const present = Object.prototype.hasOwnProperty.call(data, key);
+        // Track missing fields as well: the first publication must be detected.
+        const value = present ? JSON.stringify(data[key]) : '__DD_MISSING__';
         if (snapshots.has(key) && snapshots.get(key) !== value) {
           location.reload();
           return;
@@ -113,6 +114,12 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
     if (document.visibilityState === 'visible') checkCloudChanges();
   });
   window.addEventListener('online', checkCloudChanges);
+  // Immediate same-browser notification after the admin has verified its publish.
+  // Other players continue polling published cloud state normally.
+  window.addEventListener('storage', event => {
+    if(event.key === 'duoduo_boss_atlas_published' && event.newValue &&
+       document.visibilityState === 'visible') location.reload();
+  });
 })();
 </script>
 <!-- DuoDuo BOSS page: refresh on published HTML + atlas asset changes -->
