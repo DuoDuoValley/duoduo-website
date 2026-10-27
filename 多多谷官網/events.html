@@ -28,9 +28,10 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 
 </style><link rel="stylesheet" href="cursor-ui/cursor.css">
 <script defer src="cursor-ui/cursor.js"></script>
+<link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
 </head><body>
 <header class="site-header">
-  <a class="brand" href="index.html"><img src="assets/logo1.png" alt="多多谷"><span>DuoDuo Valley</span></a>
+  <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
   <nav class="main-nav">
     <a class="nav-pill" data-nav="home" href="index.html">首頁</a>
     <a class="nav-pill" data-nav="why" href="index.html#why">為什麼選多多谷</a>

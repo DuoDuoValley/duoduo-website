@@ -9,6 +9,7 @@
 <meta name="duoduo-shell-version" content="BGM-V7-first-paint-20261027">
 <script>/* 防止舊 bgm-test.html 內再載入新版播放器 */if(window.self!==window.top){location.replace(new URL("home.html"+location.search+location.hash,location.href).href);}</script>
 <link rel="icon" type="image/png" href="favicon-64.png">
+<link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
 <script id="duoduo-shell-early-theme">
 (function () {
   function syncShellBackground() {
@@ -28,11 +29,12 @@
 :root { color-scheme:dark; --panel:#101d2d; --line:rgba(175,205,245,.22); --text:#f5f7ff; --muted:#a8b7cc; --accent:#82c9ff; }
 * { box-sizing:border-box; }
 html,body { height:100%; margin:0; overflow:hidden; font-family:system-ui,-apple-system,"Microsoft JhengHei",sans-serif; }
-body { background:#0a1020; }
+body { background:#07111f; }
 /* Match the visible outer canvas to the actual site's initial color scheme. */
 :root[data-site-theme="light"] body { background:#f4f7fa; }
 :root[data-site-theme="light"] #duoduoSite { background:#f4f7fa; }
-#duoduoSite { width:100%; height:100%; height:100dvh; border:0; display:block; background:#0e1625; }
+#duoduoSite { width:100%; height:100%; height:100dvh; border:0; display:block; background:#07111f; visibility:hidden; }
+html.duoduo-site-ready #duoduoSite { visibility:visible; }
 #player { position:fixed; bottom:max(18px,env(safe-area-inset-bottom)); right:max(18px,env(safe-area-inset-right)); z-index:2147483000; width:min(355px,calc(100vw - 36px)); color:var(--text); background:linear-gradient(145deg,rgba(23,39,61,.98),rgba(11,23,39,.98)); border:1px solid var(--line); box-shadow:0 12px 45px rgba(0,0,0,.48); border-radius:19px; padding:15px; backdrop-filter:blur(16px); }
 #player[hidden] { display:none; }
 #topline { display:flex; gap:9px; align-items:center; }
@@ -467,6 +469,13 @@ frame.addEventListener('load',()=>{
   if(!inner)return;
   wirePage();
   synchronizeFromFrame();
+  // First visit only: show the completed inner document, not the intermediate blank iframe.
+  // Keep the iframe and persistent BGM routing exactly as before.
+  if(!document.documentElement.classList.contains('duoduo-site-ready')){
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      document.documentElement.classList.add('duoduo-site-ready');
+    }));
+  }
 });
 window.addEventListener('popstate',()=>{
   const want=fromLocation();
@@ -479,6 +488,33 @@ window.addEventListener('popstate',()=>{
 const firstPage=fromLocation()||safePage('home.html');
 frame.src=firstPage.href;
 showCurrentPage(firstPage);
+
+// Reveal the first real page as soon as its CSS, document and header logo are ready.
+// Do not hold the whole page hostage to below-the-fold hero/media downloads.
+let firstRevealStarted=false;
+const firstPaintPoll=setInterval(()=>{
+  if(document.documentElement.classList.contains('duoduo-site-ready')){
+    clearInterval(firstPaintPoll);
+    return;
+  }
+  if(firstRevealStarted)return;
+  let doc;
+  try{doc=frame.contentDocument;}catch{return;}
+  if(!doc||doc.readyState==='loading'||!safePage(doc.URL))return;
+  const headerLogo=doc.querySelector('header.site-header .brand img');
+  if(!headerLogo||!headerLogo.complete||!headerLogo.naturalWidth)return;
+  // An available stylesheet object means the site's shared CSS finished loading.
+  const styled=Array.from(doc.styleSheets).some(sheet=>sheet.href?.endsWith('/styles.css'));
+  if(!styled)return;
+  firstRevealStarted=true;
+  clearInterval(firstPaintPoll);
+  Promise.resolve(typeof headerLogo.decode==='function'?headerLogo.decode():null)
+    .catch(()=>{}).then(()=>requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      document.documentElement.classList.add('duoduo-site-ready');
+    })));
+},50);
+// Failsafe: don't leave a polling timer running when the frame is blocked.
+setTimeout(()=>clearInterval(firstPaintPoll),15000);
 
 // Preserve update detection for the new public entry (no forced reload when unchanged).
 const shellVersion=document.querySelector('meta[name="duoduo-shell-version"]')?.content||'';
