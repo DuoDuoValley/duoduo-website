@@ -71,3 +71,19 @@
   #ddBossChallenge .bc-rule-badges img,
   #ddBossChallenge .bc-rule-badges--three img{width:50px;height:17px}
 }
+
+/* BOSS RWD V3 (preview only): keep the original single-line name when it fits,
+   but move the full name to its own line instead of truncating it.
+   The image, stat panel, loot layout and production stylesheet are unchanged. */
+#ddBossAtlas .dd-boss-name-row{
+  flex-wrap:wrap;
+  row-gap:3px;
+}
+#ddBossAtlas .dd-boss-name-row h3{
+  flex:0 1 auto;
+  max-width:100%;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+  overflow-wrap:anywhere;
+}
