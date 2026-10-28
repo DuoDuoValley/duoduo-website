@@ -887,3 +887,63 @@ html {
   #systemCumulative:has(.totem-cumulative-stage){grid-template-columns:1fr}
   #systemCumulative .totem-cumulative-stage .material-list{grid-template-columns:repeat(3,minmax(0,1fr))}
 }
+
+
+/* DuoDuo responsive header / zoom-safe layout, 2026-10-28.
+   A 125%-175% browser zoom reduces the CSS viewport; change the layout
+   before the navigation or action controls are clipped by the header. */
+@media (max-width: 1660px) {
+  .site-header {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto auto;
+    grid-template-areas: "dd-brand dd-space dd-status dd-actions"
+                         "dd-nav dd-nav dd-nav dd-nav";
+    align-items: center;
+    column-gap: 14px;
+    row-gap: 1px;
+    min-height: 0;
+    padding: 9px clamp(12px, 3vw, 40px) 7px;
+    overflow: visible;
+  }
+  .site-header .brand { grid-area: dd-brand; min-width: 0; }
+  .site-header .header-status { grid-area: dd-status; }
+  .site-header .header-actions {
+    grid-area: dd-actions;
+    margin: 0;
+    display: flex;
+    flex-wrap: nowrap;
+    justify-self: end;
+    min-width: 0;
+  }
+  .site-header nav.main-nav {
+    grid-area: dd-nav;
+    order: initial;
+    display: flex;
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) transparent;
+    gap: 5px !important;
+    padding: 0 0 3px;
+  }
+  .site-header nav.main-nav::-webkit-scrollbar { display: block; height: 3px; }
+  .site-header nav.main-nav::-webkit-scrollbar-thumb { background: var(--accent); border-radius: 5px; }
+  .site-header nav.main-nav .nav-pill { flex: 0 0 auto; }
+}
+@media (max-width: 700px) {
+  .site-header {
+    grid-template-columns: minmax(0,1fr) auto;
+    grid-template-areas: "dd-brand dd-actions" "dd-nav dd-nav";
+    column-gap: 8px;
+    padding: 8px 3vw 5px;
+  }
+  .site-header .brand { justify-self: start; }
+  .site-header .header-actions { justify-self: end; }
+  .site-header .main-nav .nav-pill { padding: 8px 9px !important; }
+}

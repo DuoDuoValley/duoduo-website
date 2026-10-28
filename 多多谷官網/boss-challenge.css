@@ -197,3 +197,33 @@
  #ddBossChallenge .bc-mobile-keyboard{width:30px;min-width:30px}
  #ddBossChallenge .bc-mobile-damage-tools button{font-size:11px}
 }
+
+/* BOSS guide: when zoom reduces each guide card's actual width, prevent
+   three difficulty badges from colliding with the entry-frequency text. */
+#ddBossChallenge .bc-guides > .bc-card { container-type: inline-size; }
+@container (max-width: 490px) {
+  #ddBossChallenge .bc-rule {
+    grid-template-columns: minmax(0,1fr) auto;
+    column-gap: 7px;
+    row-gap: 5px;
+  }
+  #ddBossChallenge .bc-rule-type { grid-column: 1; grid-row: 1; }
+  #ddBossChallenge .bc-rule-badges {
+    grid-column: 2;
+    grid-row: 1;
+    flex-wrap: nowrap;
+    justify-self: end;
+  }
+  #ddBossChallenge .bc-rule-limit {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    justify-self: end;
+  }
+}
+@media (max-width:350px) {
+  #ddBossChallenge .bc-rule { grid-template-columns: minmax(0,1fr); }
+  #ddBossChallenge .bc-rule-type { grid-column: 1; grid-row: 1; }
+  #ddBossChallenge .bc-rule-badges { grid-column: 1; grid-row: 2; justify-self: start; }
+  #ddBossChallenge .bc-rule-limit { grid-column: 1; grid-row: 3; justify-self: start; }
+  #ddBossChallenge .bc-rule-exception { grid-column: 1; grid-row: 4; justify-self: start; }
+}
