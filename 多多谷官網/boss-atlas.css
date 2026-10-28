@@ -268,3 +268,24 @@
 #ddBossAtlas .dd-drop-fact-rate{border-color:color-mix(in srgb,var(--accent) 28%,var(--line));background:color-mix(in srgb,var(--accent) 7%,var(--panel))}
 #ddBossAtlas .dd-drop-fact-rate strong{color:var(--accent)}
 @media(max-width:420px){#ddBossAtlas .dd-drop-facts{gap:5px}#ddBossAtlas .dd-drop-fact{padding:4px 6px}}
+
+/* BOSS RWD V4 — production atlas scoped rules.
+   Keep the existing photo, tag, and statistics sizes unchanged.
+   A title retains its original inline position if it actually fits.
+   Otherwise the entire title goes onto the next line and may wrap
+   within its own width. Do not shrink it into an ellipsis. */
+#ddBossAtlas .dd-boss-name-row{
+  display:flex;
+  flex-wrap:wrap;
+  row-gap:3px;
+  min-width:0;
+}
+#ddBossAtlas .dd-boss-name-row h3{
+  flex:0 0 auto;
+  min-width:0;
+  max-width:100%;
+  white-space:normal;
+  overflow:visible;
+  text-overflow:clip;
+  overflow-wrap:anywhere;
+}

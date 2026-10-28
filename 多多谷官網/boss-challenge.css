@@ -197,3 +197,67 @@
  #ddBossChallenge .bc-mobile-keyboard{width:30px;min-width:30px}
  #ddBossChallenge .bc-mobile-damage-tools button{font-size:11px}
 }
+
+/* BOSS RWD V4 — validated entry-count layout, moved from preview. */
+#ddBossChallenge .bc-rule-list{container-type:inline-size;container-name:ddRuleWidth}
+#ddBossChallenge .bc-rule{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  justify-content:flex-start;
+  column-gap:9px;
+  row-gap:5px;
+  min-width:0;
+}
+#ddBossChallenge .bc-rule-type{
+  flex:0 0 auto;
+  min-width:0;
+  white-space:nowrap;
+}
+#ddBossChallenge .bc-rule-badges,
+#ddBossChallenge .bc-rule-badges--three{
+  display:flex;
+  flex:0 1 auto;
+  flex-wrap:nowrap;
+  align-items:center;
+  gap:5px;
+  min-width:0;
+  max-width:100%;
+  justify-self:auto;
+  overflow:visible;
+}
+#ddBossChallenge .bc-rule-badges img,
+#ddBossChallenge .bc-rule-badges--three img{
+  display:block;
+  width:69px;
+  height:21px;
+  max-width:none;
+  object-fit:contain;
+  flex:0 0 auto;
+}
+#ddBossChallenge .bc-rule-limit{
+  flex:0 0 auto;
+  min-width:0;
+  margin-left:auto;
+  justify-self:auto;
+  white-space:nowrap;
+}
+#ddBossChallenge .bc-rule-exception{
+  flex:0 0 100%;
+  width:100%;
+  min-width:0;
+  margin:0;
+  text-align:right;
+  overflow-wrap:anywhere;
+  white-space:normal;
+}
+/* On very narrow cards, the labels remain together while the limit may
+   naturally wrap below. Nothing may paint over the next column. */
+@container ddRuleWidth (max-width: 330px){
+  #ddBossChallenge .bc-rule-badges img,
+  #ddBossChallenge .bc-rule-badges--three img{width:61px;height:19px}
+}
+@container ddRuleWidth (max-width: 260px){
+  #ddBossChallenge .bc-rule-badges img,
+  #ddBossChallenge .bc-rule-badges--three img{width:50px;height:17px}
+}
