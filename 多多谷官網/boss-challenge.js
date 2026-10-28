@@ -106,6 +106,25 @@ root.innerHTML=`
  </section>`;
 anchor.parentNode.insertBefore(root,anchor);
 const $=id=>root.querySelector('#'+id);
+// Independent reverse calculator: keep the original forward calculator intact.
+const inversePanel=document.createElement('section');
+inversePanel.className='bc-card bc-inverse';
+inversePanel.setAttribute('aria-labelledby','bc-inverse-title');
+inversePanel.innerHTML=`
+ <div class="bc-calc-heading"><div class="bc-card-head" style="margin:0"><span class="bc-head-icon" aria-hidden="true">↶</span><h3 id="bc-inverse-title">個人傷害反推｜BOSS 獎勵門檻</h3></div><span class="bc-pill">反向試算</span></div>
+ <p class="bc-description">輸入自己可輸出的傷害，反推哪些 BOSS、難度與血量倍率能達到獎勵資格。此為<strong>個人獎勵門檻</strong>，不代表隊伍一定能擊敗 BOSS。</p>
+ <div class="bc-inverse-fields">
+  <div class="bc-field"><label class="bc-label" for="bc-inverse-damage">① 個人輸出傷害</label><input id="bc-inverse-damage" type="text" inputmode="decimal" maxlength="60" placeholder="例如：800億、2兆5000億" autocomplete="off"></div>
+  <div class="bc-field"><label class="bc-label" for="bc-inverse-team">② 隊伍人數</label><select id="bc-inverse-team">${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${n===2?'selected':''}>${n} 人</option>`).join('')}</select></div>
+  <div class="bc-field"><label class="bc-label" for="bc-inverse-scope">③ 查詢範圍</label><select id="bc-inverse-scope"><option value="all">全部已公開 BOSS</option><option value="selected">目前選擇的 BOSS、難度</option></select></div>
+  <div class="bc-field"><label class="bc-label" for="bc-inverse-max">④ 最高檢查倍率</label><select id="bc-inverse-max"><option value="70" selected>70 倍</option><option value="100">100 倍</option><option value="200">200 倍</option><option value="500">500 倍</option><option value="custom">自訂上限…</option></select></div>
+ </div>
+ <div class="bc-inverse-extra"><div class="bc-field" id="bc-inverse-custom-wrap" hidden><label class="bc-label" for="bc-inverse-custom">自訂最高倍率（10～10000，10 的倍數）</label><input type="number" id="bc-inverse-custom" inputmode="numeric" min="10" max="10000" step="10" value="100"></div>
+  <label class="bc-inverse-check"><input id="bc-inverse-qualified" type="checkbox" checked>只顯示可達標的難度</label></div>
+ <div id="bc-inverse-results" class="bc-inverse-results" aria-live="polite"><div class="bc-status">輸入個人傷害後，會自動列出可達標倍率。</div></div>
+ <p class="bc-note">計算範圍含 1 倍、10 倍、20 倍……所選上限；1 倍採原有比例，10 倍（含）以上採同一組多人比例。多路線 BOSS 在「全部」模式會以血量較高的路線保守估算。</p>
+`;
+root.appendChild(inversePanel);
 let bosses=[],bossId='',diffName='',variantChoices={},baselineBosses=[];
 function reconcileKnownHp(snapshot){
  if(!snapshot||!Array.isArray(snapshot.bosses))return snapshot;
@@ -134,6 +153,7 @@ function renderSelection(){
  $('bc-picker-grid').innerHTML=bosses.map(x=>`<button type="button" role="option" class="bc-boss-choice" data-id="${escapeHTML(x.id)}" aria-selected="${x.id===bossId}" title="${escapeHTML(x.name)}">${nameImage(x.name)?`<img src="${nameImage(x.name)}" alt="${escapeHTML(x.name)}" loading="lazy">`:`<span>${escapeHTML(x.name)}</span>`}</button>`).join('');
  $('bc-difficulties').innerHTML=(b.difficulties||[]).map(d=>`<button type="button" class="bc-diff" data-diff="${escapeHTML(d.name)}" aria-pressed="${d.name===diffName}">${diffImage(d.name)?`<img src="${diffImage(d.name)}" alt="${escapeHTML(d.name)}">`:escapeHTML(d.name)}</button>`).join('');
  renderResult();
+ renderInverse();
 }
 function renderResult(){
  const difficulty=currentDiff();const result=$('bc-result');if(!difficulty){result.innerHTML='<p class="bc-error">請選擇 BOSS 及難度。</p>';return;}
@@ -158,10 +178,90 @@ function renderResult(){
  const gate=`<div class="bc-gate"><strong>每位隊員獎勵門檻</strong><span class="bc-gate-value">${formatHp(min)}</span><div class="bc-status">${formatHp(adjusted)} ÷ ${party} 人 × ${rate}%（向上取整）</div></div>`;
  result.innerHTML=`<div class="bc-output-head"><span class="bc-output-title">換算後 BOSS 總血量</span><span class="bc-output-badge">${labelTitle}</span></div><div class="bc-total">${formatHp(adjusted)}</div><div class="bc-stage-list">${rows.join('')}</div>${gate}`;
 }
+
+function inverseEntries(scope){
+ if(scope==='selected'){
+  const b=currentBoss(),d=currentDiff();return b&&d?[{boss:b,difficulty:d,selected:true}]:[];
+ }
+ return bosses.flatMap(b=>(b.difficulties||[]).map(d=>({boss:b,difficulty:d,selected:false})));
+}
+function inverseHp(entry){
+ const sections=parseHp(entry.difficulty.hp);
+ let hasAlternates=false,total=0n;
+ for(const section of sections){
+  if(section.variants.length>1)hasAlternates=true;
+  // In the selected-difficulty view reuse the route selected in the forward calculator.
+  if(entry.selected){
+   const index=Math.min(Math.max(0,Number(variantChoices[String(section.stage)]||0)),section.variants.length-1);
+   total+=section.variants[index].value;
+  }else{
+   // Do not claim a route is eligible when only its easiest variant qualifies.
+   total+=section.variants.reduce((max,v)=>v.value>max?v.value:max,0n);
+  }
+ }
+ return {total,hasAlternates};
+}
+function renderInverse(){
+ const target=$('bc-inverse-results');
+ const damageText=$('bc-inverse-damage').value.trim();
+ $('bc-inverse-custom-wrap').hidden=$('bc-inverse-max').value!=='custom';
+ if(!damageText){target.innerHTML='<div class="bc-status">輸入自己的傷害量，即可反推可領獎的 BOSS 倍率清單。</div>';return;}
+ let damage;
+ try{
+  if(!/^[0-9.,，\s京兆億萬]+$/.test(damageText)||damageText.length>60)throw Error('請使用數字與京、兆、億、萬單位');
+  damage=parseChineseNumber(damageText);
+  if(damage<=0n)throw Error('傷害量必須大於 0');
+ }catch(err){target.innerHTML=`<p class="bc-error">${escapeHTML(err.message)}</p>`;return;}
+ const party=Number($('bc-inverse-team').value);
+ const scope=$('bc-inverse-scope').value;
+ const maxSelector=$('bc-inverse-max').value;
+ $('bc-inverse-custom-wrap').hidden=maxSelector!=='custom';
+ const limit=maxSelector==='custom'?Number($('bc-inverse-custom').value):Number(maxSelector);
+ if(!Number.isSafeInteger(limit)||limit<10||limit>10000||limit%10!==0){target.innerHTML='<p class="bc-error">最高倍率請填入 10～10000，且必須是 10 的倍數。</p>';return;}
+ const candidates=[1];for(let n=10;n<=limit;n+=10)candidates.push(n);
+ const onlyQualified=$('bc-inverse-qualified').checked;
+ const rows=[];let missing=0,qualifiedCount=0;let alternateCount=0;
+ for(const entry of inverseEntries(scope)){
+  let hpInfo;
+  try{hpInfo=inverseHp(entry);}catch(_){missing++;continue;}
+  if(hpInfo.hasAlternates&&!entry.selected)alternateCount++;
+  const valid=[];
+  for(const n of candidates){
+   const rate=rewardRateFor(n,party);
+   const threshold=ceilDiv(hpInfo.total*BigInt(n)*BigInt(rate),BigInt(party)*100n);
+   if(damage>=threshold)valid.push(n);
+  }
+  if(valid.length)qualifiedCount++;
+  if(onlyQualified&&!valid.length)continue;
+  const maxEligible=valid.length?Math.max(...valid):null;
+  const difficulty=entry.difficulty.name;
+  const diffIcon=diffImage(difficulty);
+  const icon=diffIcon?`<img src="${diffIcon}" alt="${escapeHTML(difficulty)}">`:`<span>${escapeHTML(difficulty)}</span>`;
+  const summary=maxEligible===null?'未達標':`最高 ${maxEligible} 倍`;
+  rows.push({id:entry.boss.id,name:entry.boss.name,html:`<div class="bc-inverse-diff"><span class="bc-inverse-diff-icon">${icon}</span><strong class="${maxEligible===null?'bc-inverse-fail':'bc-inverse-pass'}">${summary}</strong></div><div class="bc-inverse-multiples">${valid.length?valid.map(n=>`<span class="bc-inverse-multiple">${n} 倍</span>`).join(''):'目前傷害尚不足以達到所選倍率的個人領獎門檻'}</div>`});
+ }
+ // Keep original BOSS group order from atlas; no unpublished records appear.
+ const groups=[];
+ for(const row of rows){
+  let found=groups.find(group=>group.id===row.id);
+  if(!found){found={id:row.id,name:row.name,items:[]};groups.push(found);}
+  found.items.push(row.html);
+ }
+ const countText=`${qualifiedCount} 組 BOSS 難度可達標`;
+ const notice=alternateCount?`<p class="bc-inverse-warning">其中 ${alternateCount} 組含多路線血量；全部查詢採最高血量，詳細路線請切換「目前選擇的 BOSS、難度」。</p>`:'';
+ const note=missing?`<p class="bc-inverse-warning">另外 ${missing} 組難度未提供可計算的血量，已略過。</p>`:'';
+ const list=groups.map(g=>`<div class="bc-inverse-group"><div class="bc-inverse-group-title">${escapeHTML(g.name)}</div>${g.items.join('')}</div>`).join('');
+ target.innerHTML=`<div class="bc-inverse-summary"><strong>個人傷害：${formatHp(damage)}</strong><span>${party} 人隊伍 · ${countText}</span></div>${note}${notice}${list?`<div class="bc-inverse-list">${list}</div>`:'<div class="bc-status bc-inverse-empty">目前設定的傷害量，沒有符合條件的 BOSS 難度；可調整傷害、人數或顯示全部。</div>'}`;
+}
+inversePanel.addEventListener('input',e=>{if(e.target.id==='bc-inverse-damage'||e.target.id==='bc-inverse-custom')renderInverse();});
+inversePanel.addEventListener('change',e=>{
+ if(['bc-inverse-team','bc-inverse-scope','bc-inverse-max','bc-inverse-custom','bc-inverse-qualified'].includes(e.target.id))renderInverse();
+});
+
 $('bc-picker').addEventListener('click',()=>{const menu=$('bc-menu');menu.hidden=!menu.hidden;$('bc-picker').setAttribute('aria-expanded',String(!menu.hidden));});
 $('bc-menu').addEventListener('click',e=>{const button=e.target.closest('[data-id]');if(!button)return;bossId=button.dataset.id;diffName=currentBoss()?.difficulties?.[0]?.name||'';variantChoices={};closeMenu();renderSelection();});
 root.addEventListener('click',e=>{const button=e.target.closest('[data-diff]');if(!button)return;diffName=button.dataset.diff;variantChoices={};renderSelection();});
-root.addEventListener('change',e=>{if(e.target.matches('[data-stage]')){variantChoices[e.target.dataset.stage]=e.target.value;renderResult();}else if(['bc-multiplier','bc-team'].includes(e.target.id))renderResult();});
+root.addEventListener('change',e=>{if(e.target.matches('[data-stage]')){variantChoices[e.target.dataset.stage]=e.target.value;renderResult();renderInverse();}else if(['bc-multiplier','bc-team'].includes(e.target.id))renderResult();});
 root.addEventListener('input',e=>{if(e.target.id==='bc-custom-multiplier')renderResult();});
 document.addEventListener('pointerdown',e=>{if(!root.contains(e.target)||!e.target.closest('.bc-picker-wrap'))closeMenu();},true);
 root.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});

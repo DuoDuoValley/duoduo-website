@@ -103,3 +103,31 @@
   #ddBossChallenge .bc-rule-badges--three { grid-column:1/-1; }
   #ddBossChallenge .bc-rule-badges--three + .bc-rule-limit { grid-column:1/-1; justify-self:start; }
 }
+
+/* Reverse calculator -- scoped to BOSS challenge only; existing panels unchanged. */
+#ddBossChallenge .bc-inverse{margin-top:16px}
+#ddBossChallenge .bc-inverse-fields{display:grid;grid-template-columns:1.45fr .8fr 1.2fr .9fr;gap:10px;align-items:end}
+#ddBossChallenge .bc-inverse-extra{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:12px 0}
+#ddBossChallenge .bc-inverse-check{display:flex;align-items:center;gap:7px;font-size:12px;font-weight:750;color:var(--bc-ink);cursor:pointer}
+#ddBossChallenge .bc-inverse-check input{accent-color:var(--bc-accent);width:16px;height:16px}
+#ddBossChallenge #bc-inverse-custom-wrap{max-width:260px;flex:1 1 200px}
+#ddBossChallenge .bc-inverse-results{min-width:0;margin-top:14px}
+#ddBossChallenge .bc-inverse-summary{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;border:1px solid var(--bc-line);background:var(--bc-soft);border-radius:12px;padding:11px 13px;font-size:12px}
+#ddBossChallenge .bc-inverse-summary strong{font-size:15px}
+#ddBossChallenge .bc-inverse-summary span{color:var(--bc-muted);font-weight:750}
+#ddBossChallenge .bc-inverse-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:11px;margin-top:12px}
+#ddBossChallenge .bc-inverse-group{border:1px solid var(--bc-line);background:var(--bc-bg);border-radius:12px;padding:11px 12px;min-width:0}
+#ddBossChallenge .bc-inverse-group-title{font-size:14px;font-weight:900;border-bottom:1px solid var(--bc-line);padding-bottom:7px;margin-bottom:8px}
+#ddBossChallenge .bc-inverse-diff{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:8px}
+#ddBossChallenge .bc-inverse-diff-icon img{display:block;width:70px;height:20px;object-fit:contain}
+#ddBossChallenge .bc-inverse-diff strong{font-size:12px;white-space:nowrap}
+#ddBossChallenge .bc-inverse-pass{color:var(--bc-accent)}
+#ddBossChallenge .bc-inverse-fail{color:var(--bc-muted)}
+#ddBossChallenge .bc-inverse-multiples{display:flex;flex-wrap:wrap;gap:5px;padding:6px 0 9px;border-bottom:1px dashed var(--bc-line);color:var(--bc-muted);font-size:11px;line-height:1.5}
+#ddBossChallenge .bc-inverse-group .bc-inverse-multiples:last-child{border-bottom:0;padding-bottom:0}
+#ddBossChallenge .bc-inverse-multiple{background:var(--bc-soft);border:1px solid var(--bc-line);border-radius:7px;color:var(--bc-ink);font-variant-numeric:tabular-nums;white-space:nowrap;padding:3px 6px;font-size:11px;font-weight:800}
+#ddBossChallenge .bc-inverse-warning{font-size:11px;line-height:1.6;color:var(--bc-muted);margin:9px 0 0}
+#ddBossChallenge .bc-inverse-empty{border:1px dashed var(--bc-line);border-radius:11px;padding:15px;text-align:center}
+@media(max-width:960px){#ddBossChallenge .bc-inverse-fields{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){#ddBossChallenge .bc-inverse-list{grid-template-columns:1fr}#ddBossChallenge .bc-inverse-summary{align-items:flex-start;flex-direction:column}}
+@media(max-width:400px){#ddBossChallenge .bc-inverse-fields{grid-template-columns:1fr}}
