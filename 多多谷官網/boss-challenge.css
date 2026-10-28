@@ -261,3 +261,11 @@
   #ddBossChallenge .bc-rule-badges img,
   #ddBossChallenge .bc-rule-badges--three img{width:50px;height:17px}
 }
+
+/* RWD mobile damage entry — wrap shortcuts only when the example needs room.
+   Keep the original controls, text and desktop styles unchanged. */
+@media (max-width:600px){
+ #ddBossChallenge .bc-damage-input-row{display:flex;flex-wrap:wrap;align-items:center;column-gap:5px;row-gap:7px}
+ #ddBossChallenge .bc-damage-input-wrap{flex:1 1 240px;min-width:0}
+ #ddBossChallenge .bc-mobile-damage-tools{flex:0 0 auto;margin-left:auto}
+}
