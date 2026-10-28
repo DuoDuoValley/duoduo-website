@@ -1,0 +1,43 @@
+/* DuoDuo Valley / Website(10) / BOSS isolated RWD test v1.
+   This stylesheet is referenced ONLY by boss-rwd-preview.html.
+   Never include it in production pages until approved. */
+.dd-rwd-test-ribbon{box-sizing:border-box;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px 12px;margin:9px auto;padding:9px 14px;max-width:1100px;width:calc(100% - 28px);border:1px dashed #28a9d1;border-radius:10px;color:#205f73;background:#e9f7fb;font:600 12px/1.4 system-ui,"Microsoft JhengHei",sans-serif}
+.dd-rwd-test-ribbon strong{font-weight:850}
+:root[data-theme="dark"] .dd-rwd-test-ribbon{color:#bceeff;background:#123347;border-color:#2486a4}
+
+/* Use actual rule-card width, rather than window size (iframe/zoom compatible). */
+#ddBossChallenge .bc-rule-list{container-type:inline-size;container-name:ddRuleWidth}
+/* Keep the approved three-part layout at comfortable widths. Explicit
+   intrinsic sizes prevent the third badge from painting under the limit. */
+#ddBossChallenge .bc-rule{
+  grid-template-columns:max-content max-content minmax(max-content,1fr);
+  column-gap:9px;
+}
+#ddBossChallenge .bc-rule-type{min-width:0}
+#ddBossChallenge .bc-rule-badges{min-width:0;flex-wrap:nowrap;justify-self:start}
+#ddBossChallenge .bc-rule-limit{min-width:0;justify-self:end}
+/* In a genuinely narrow card, use two lines rather than hiding/overlapping.
+   Day/week limit sits beneath the other fields and remains easy to read. */
+@container ddRuleWidth (max-width: 450px){
+  #ddBossChallenge .bc-rule{
+    grid-template-columns:max-content minmax(0,1fr);
+    gap:7px 10px;
+    align-items:center;
+  }
+  #ddBossChallenge .bc-rule-type{grid-column:1;grid-row:1}
+  #ddBossChallenge .bc-rule-badges{grid-column:2;grid-row:1;justify-self:start;gap:4px}
+  #ddBossChallenge .bc-rule-limit{grid-column:1 / -1;grid-row:2;justify-self:start;font-size:12px}
+  #ddBossChallenge .bc-rule-exception{grid-column:1 / -1;grid-row:3;justify-self:start}
+}
+/* Very narrow cards: preserve all three difficulty labels without collision.
+   Badges use their intrinsic full size and may take their own row. */
+@container ddRuleWidth (max-width: 320px){
+  #ddBossChallenge .bc-rule{grid-template-columns:1fr;gap:5px}
+  #ddBossChallenge .bc-rule-type{grid-column:1;grid-row:1}
+  #ddBossChallenge .bc-rule-badges{grid-column:1;grid-row:2;justify-self:start}
+  #ddBossChallenge .bc-rule-limit{grid-column:1;grid-row:3;justify-self:start}
+  #ddBossChallenge .bc-rule-exception{grid-column:1;grid-row:4}
+  #ddBossChallenge .bc-rule-badges img{width:65px;height:20px}
+}
+/* A long note must never force overflow in fixed width contexts. */
+#ddBossChallenge .bc-rule-exception{white-space:normal;overflow-wrap:anywhere}
