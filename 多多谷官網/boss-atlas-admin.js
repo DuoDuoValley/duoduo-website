@@ -6,6 +6,19 @@ const KEY='duoduo_boss_atlas',DRAFT='duoduo_boss_atlas_draft';
 const by=id=>p.querySelector('#'+id);const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let base=null,data=null,chosen='',q='',itemQuery='',chosenItem='',dirty=false,loading=false;
 const CATEGORIES=['裝備','強化','素材','箱子','其他'];
+const defaultBossMultiplier=name=>['瑪麗西亞','巴德利斯'].includes(name)?1:70;
+const validBossMultiplier=v=>Number.isSafeInteger(Number(v))&&(Number(v)===1||(Number(v)>=10&&Number(v)<=10000&&Number(v)%10===0));
+function migrateAtlasV4(value){
+ if(!value||!Array.isArray(value.bosses))return false;
+ let changed=false;
+ for(const boss of value.bosses){
+  if(boss.maxMultiplier===undefined||boss.maxMultiplier===null||boss.maxMultiplier===''){
+   boss.maxMultiplier=defaultBossMultiplier(boss.name);changed=true;
+  }
+ }
+ if(Number(value.dataRevision||1)<4){value.dataRevision=4;changed=true;}
+ return changed;
+}
 const clone=x=>JSON.parse(JSON.stringify(x));
 function token(){return sessionStorage.getItem('duoduo_admin_session')||''}
 function status(msg,error=false){const el=by('atStatus');el.textContent=msg;el.classList.toggle('error',error)}
@@ -96,8 +109,22 @@ function enrichData(value){
 }
 function renderList(){if(!data)return;const list=by('atBossList');list.replaceChildren();for(const boss of data.bosses.filter(b=>b.name.includes(q))){const b=document.createElement('button');b.type='button';b.className=boss.id===chosen?'selected':'';const img=document.createElement('img');img.src=boss.image||'';img.alt='';const text=document.createElement('span');text.textContent=boss.name+(boss.published===false?'（隱藏）':'');b.append(img,text);b.onclick=()=>{chosen=boss.id;renderList();renderEditor()};list.append(b)}}
 function renderEditor(){const root=by('atBossEditor'),b=chooseBoss();if(!b){root.innerHTML='<p class="at-sub">請選擇 BOSS 或新增 BOSS。</p>';return}
-root.innerHTML=`<h2>👹 ${esc(b.name)}</h2><div class="at-info"><label class="at-field">BOSS 名稱<input data-boss-key="name" value="${esc(b.name)}"></label><label class="at-field">分類<select data-boss-key="group">${['初階','中階','高階','終極'].map(v=>`<option ${b.group===v?'selected':''}>${v}</option>`).join('')}</select></label><label class="at-field at-full">圖片網址<input data-boss-key="image" value="${esc(b.image)}" placeholder="assets/... 或 https://"></label><label class="at-field at-full">備註<input data-boss-key="note" value="${esc(b.note||'')}"></label><label class="at-field at-full"><span>公開狀態（未勾選：只有後台保存，玩家看不到）</span><span><input type="checkbox" data-boss-key="published" style="width:auto" ${b.published!==false?'checked':''}> 在 BOSS 圖鑑公開</span></label></div><div class="at-toolbar"><button class="at-btn" id="atAddDifficulty" type="button">＋ 新增難度</button><label class="at-btn">更換 BOSS 圖片<input id="atBossImageUpload" type="file" accept="image/png,image/jpeg,image/webp" hidden></label></div>${(b.difficulties||[]).map((d,i)=>diffEditor(d,i)).join('')}`;
+root.innerHTML=`<h2>👹 ${esc(b.name)}</h2><div class="at-info"><label class="at-field">BOSS 名稱<input data-boss-key="name" value="${esc(b.name)}"></label><label class="at-field">分類<select data-boss-key="group">${['初階','中階','高階','終極'].map(v=>`<option ${b.group===v?'selected':''}>${v}</option>`).join('')}</select></label><label class="at-field">目前開放最高倍率<select id="atBossMaxMultiplier" aria-label="目前開放最高倍率">${[1,10,20,30,40,50,60,70].map(n=>`<option value="${n}" ${Number(b.maxMultiplier??defaultBossMultiplier(b.name))===n?'selected':''}>${n} 倍</option>`).join('')}<option value="custom" ${Number(b.maxMultiplier??defaultBossMultiplier(b.name))>70?'selected':''}>自訂更高倍率…</option></select></label><label class="at-field" id="atBossCustomMaxWrap" ${Number(b.maxMultiplier??defaultBossMultiplier(b.name))>70?'':'hidden'}>自訂最高倍率（80～10000，10 的倍數）<input id="atBossCustomMax" type="number" min="80" max="10000" step="10" value="${Number(b.maxMultiplier??defaultBossMultiplier(b.name))>70?esc(b.maxMultiplier):80}"></label><label class="at-field at-full">圖片網址<input data-boss-key="image" value="${esc(b.image)}" placeholder="assets/... 或 https://"></label><label class="at-field at-full">備註<input data-boss-key="note" value="${esc(b.note||'')}"></label><label class="at-field at-full"><span>公開狀態（未勾選：只有後台保存，玩家看不到）</span><span><input type="checkbox" data-boss-key="published" style="width:auto" ${b.published!==false?'checked':''}> 在 BOSS 圖鑑公開</span></label></div><div class="at-toolbar"><button class="at-btn" id="atAddDifficulty" type="button">＋ 新增難度</button><label class="at-btn">更換 BOSS 圖片<input id="atBossImageUpload" type="file" accept="image/png,image/jpeg,image/webp" hidden></label></div>${(b.difficulties||[]).map((d,i)=>diffEditor(d,i)).join('')}`;
 root.querySelectorAll('[data-boss-key]').forEach(el=>el.addEventListener('change',()=>{const key=el.dataset.bossKey;b[key]=el.type==='checkbox'?el.checked:el.value;draft();renderList();if(key==='name')root.querySelector('h2').textContent='👹 '+b.name}));
+const maxSelect=root.querySelector('#atBossMaxMultiplier');
+ const maxCustom=root.querySelector('#atBossCustomMax');
+ const maxWrap=root.querySelector('#atBossCustomMaxWrap');
+ maxSelect.addEventListener('change',()=>{
+  if(maxSelect.value==='custom'){
+   maxWrap.hidden=false;maxCustom.focus();return;
+  }
+  maxWrap.hidden=true;b.maxMultiplier=Number(maxSelect.value);draft();status(`已設定「${b.name}」目前最高開放 ${b.maxMultiplier} 倍（尚未發布）。`);
+ });
+ maxCustom.addEventListener('change',()=>{
+  const n=Number(maxCustom.value);
+  if(!validBossMultiplier(n)||n<=70){status('自訂倍率請填 80～10000，且必須是 10 的倍數。',true);maxCustom.value=Number(b.maxMultiplier)>70?b.maxMultiplier:80;return;}
+  b.maxMultiplier=n;draft();status(`已設定「${b.name}」目前最高開放 ${n} 倍（尚未發布）。`);
+ });
 root.querySelector('#atAddDifficulty').onclick=()=>{const name=prompt('新增難度（簡單、普通、困難、混沌、終極）');if(!name)return;if(b.difficulties.some(d=>d.name===name.trim()))return status('已有相同難度',true);b.difficulties.push({name:name.trim(),hp:'',runeType:'',runeRequirement:'',runeByPhase:{},defensePercent:'',defenseByPhase:{},drops:[],note:''});draft();renderEditor()};
 root.querySelector('#atBossImageUpload').onchange=e=>uploadIcon(e.target.files?.[0],url=>{b.image=url;draft();renderList();renderEditor()});
 root.querySelectorAll('.at-diff').forEach(div=>{const i=Number(div.dataset.dif),d=b.difficulties[i];
@@ -156,10 +183,11 @@ async function initialize(){if(loading)return;loading=true;
   if(saved){try{const draftValue=JSON.parse(saved);validate(draftValue);if(confirm('偵測到這台瀏覽器尚未發布的 BOSS 圖鑑草稿，是否恢復？')){data=enrichData(draftValue);dirty=true;}}catch(e){console.warn('無法恢復 BOSS 草稿',e)}}
   const migratedV2=migrateAtlasV2(data);
   const migratedV3=migrateAtlasV3(data);
-  const migrated=migratedV2||migratedV3;
+  const migratedV4=migrateAtlasV4(data);
+  const migrated=migratedV2||migratedV3||migratedV4;
   if(migrated){draft();}
   chosen=data.bosses[0]?.id||'';renderList();renderEditor();renderItemList();
-  status(migrated?'已補齊已知血量、掉落數量及指定 100% 掉率等舊資料缺漏；已保留其他手動設定。這是未發布草稿，請先備份 JSON，再發布雲端。':dirty?'已恢復這台瀏覽器的未發布草稿。':cloud?'已載入雲端圖鑑。':'已載入隨更新包提供的初始資料；尚未發布到雲端。');
+  status(migrated?'已補齊舊資料必要欄位（包含 BOSS 最高開放倍率）；瑪麗西亞、巴德利斯預設 1 倍，其餘預設 70 倍，原有手動設定不覆蓋。這是未發布草稿，請先備份 JSON，再發布雲端。':dirty?'已恢復這台瀏覽器的未發布草稿。':cloud?'已載入雲端圖鑑。':'已載入隨更新包提供的初始資料；尚未發布到雲端。');
  }catch(e){status('無法載入圖鑑：'+e.message,true)}finally{loading=false}
 }
 // Supabase JSONB can reorder object keys. Compare normalized structure, not raw JSON.stringify order.
@@ -190,11 +218,11 @@ async function publish(){if(!data)return;let body;
  }catch(e){status('❌ '+e.message,true)}finally{by('atPublish').disabled=false}
 }
 by('atBossSearch').oninput=e=>{q=e.target.value;renderList()};by('atItemSearch').oninput=e=>{itemQuery=e.target.value;renderItemList()};
-by('atAddBoss').onclick=()=>{const name=prompt('新 BOSS 名稱');if(!name)return;const b={id:uid('boss'),name:name.trim(),image:'',group:'高階',published:false,difficulties:[],note:''};data.bosses.push(b);chosen=b.id;draft();renderList();renderEditor()};
+by('atAddBoss').onclick=()=>{const name=prompt('新 BOSS 名稱');if(!name)return;const b={id:uid('boss'),name:name.trim(),image:'',group:'高階',published:false,difficulties:[],note:'',maxMultiplier:70};data.bosses.push(b);chosen=b.id;draft();renderList();renderEditor()};
 by('atNewItem').onclick=()=>{chosenItem='';by('atItemName').value='';by('atItemImage').value='';by('atItemCategory').value='素材';by('atItemCurrent').removeAttribute('src')};by('atSaveItem').onclick=saveItem;by('atItemImageUpload').onchange=e=>uploadIcon(e.target.files?.[0],url=>{by('atItemImage').value=url;by('atItemCurrent').src=url});
 by('atPublish').onclick=publish;
 by('atReload').onclick=async()=>{if(dirty&&!confirm('將捨棄未發布草稿，重新載入雲端或初始資料，確定嗎？'))return;localStorage.removeItem(DRAFT);dirty=false;data=null;initialize()};
 by('atExport').onclick=()=>{if(!data)return;const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='duoduo-boss-atlas-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-by('atImport').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const j=JSON.parse(await file.text());validate(j);if(!confirm('確定用匯入資料取代目前的圖鑑草稿？（不會直接發布）'))return;data=enrichData(j);migrateAtlasV2(data);migrateAtlasV3(data);chosen=data.bosses[0]?.id||'';draft();renderList();renderEditor();renderItemList();status('JSON 已匯入草稿，尚未發布。')}catch(error){status('匯入失敗：'+error.message,true)}finally{e.target.value=''}};
+by('atImport').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const j=JSON.parse(await file.text());validate(j);if(!confirm('確定用匯入資料取代目前的圖鑑草稿？（不會直接發布）'))return;data=enrichData(j);migrateAtlasV2(data);migrateAtlasV3(data);migrateAtlasV4(data);chosen=data.bosses[0]?.id||'';draft();renderList();renderEditor();renderItemList();status('JSON 已匯入草稿，尚未發布。')}catch(error){status('匯入失敗：'+error.message,true)}finally{e.target.value=''}};
 let begun=false;const nav=document.querySelector('[data-panel="bossAtlasPanel"]');nav?.addEventListener('click',()=>{if(!begun){begun=true;initialize()}});
 })();

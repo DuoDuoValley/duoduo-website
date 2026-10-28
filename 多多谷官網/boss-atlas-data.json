@@ -56,7 +56,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss02",
@@ -111,7 +112,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss03",
@@ -166,7 +168,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss04",
@@ -221,7 +224,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss05",
@@ -276,7 +280,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss06",
@@ -351,7 +356,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss07",
@@ -426,7 +432,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss08",
@@ -501,7 +508,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss09",
@@ -576,7 +584,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss10",
@@ -651,7 +660,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss11",
@@ -726,7 +736,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss12",
@@ -801,7 +812,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss13",
@@ -876,7 +888,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss14",
@@ -1081,7 +1094,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss15",
@@ -1216,7 +1230,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss16",
@@ -1286,7 +1301,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss17",
@@ -1441,7 +1457,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss18",
@@ -1596,7 +1613,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss19",
@@ -1746,7 +1764,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss20",
@@ -1886,7 +1905,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss21",
@@ -2036,7 +2056,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss22",
@@ -2126,7 +2147,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 1
     },
     {
       "id": "boss23",
@@ -2281,7 +2303,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss24",
@@ -2501,7 +2524,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss25",
@@ -2736,7 +2760,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss26",
@@ -2986,7 +3011,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss27",
@@ -3156,7 +3182,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss28",
@@ -3326,7 +3353,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 1
     },
     {
       "id": "boss29",
@@ -3581,7 +3609,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss30",
@@ -3726,7 +3755,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     },
     {
       "id": "boss31",
@@ -3912,7 +3942,8 @@
           "runeRequirement": "",
           "defensePercent": ""
         }
-      ]
+      ],
+      "maxMultiplier": 70
     },
     {
       "id": "boss32",
@@ -4087,7 +4118,8 @@
           "defensePercent": ""
         }
       ],
-      "note": ""
+      "note": "",
+      "maxMultiplier": 70
     }
   ],
   "items": [
@@ -4590,5 +4622,5 @@
       "category": "素材"
     }
   ],
-  "dataRevision": 3
+  "dataRevision": 4
 }

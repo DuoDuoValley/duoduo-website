@@ -96,7 +96,7 @@ root.innerHTML=`
     <div class="bc-picker-wrap"><button type="button" class="bc-picker" id="bc-picker" aria-haspopup="listbox" aria-expanded="false" aria-controls="bc-menu" aria-labelledby="bc-boss-label bc-picked"><span class="bc-picked" id="bc-picked">正在載入 BOSS…</span><span class="bc-picker-arrow" aria-hidden="true">⌄</span></button><div id="bc-menu" class="bc-picker-menu" role="listbox" aria-label="選擇 BOSS" hidden><div id="bc-picker-grid" class="bc-picker-grid"></div></div></div>
     <label class="bc-label" style="margin-top:13px">② 選擇難度</label><div id="bc-difficulties" class="bc-difficulties" role="group" aria-label="選擇 BOSS 難度"></div>
     <div class="bc-form-grid">
-     <div class="bc-field"><label for="bc-multiplier" class="bc-label">③ 血量倍率</label><select id="bc-multiplier">${[1,10,20,30,40,50,60,70].map(n=>`<option value="${n}" ${n===10?'selected':''}>${n} 倍</option>`).join('')}<option value="custom">自訂倍率…</option></select></div>
+     <div class="bc-field"><label for="bc-multiplier" class="bc-label">③ 血量倍率 <span id="bc-multiplier-hint" style="font-weight:500;font-size:11px;margin-left:5px" aria-live="polite"></span></label><select id="bc-multiplier">${[1,10,20,30,40,50,60,70].map(n=>`<option value="${n}" ${n===10?'selected':''}>${n} 倍</option>`).join('')}<option value="custom">自訂倍率…</option></select></div>
      <div class="bc-field"><label for="bc-team" class="bc-label">④ 隊伍人數</label><select id="bc-team">${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${n===2?'selected':''}>${n} 人</option>`).join('')}</select></div>
     </div>
     <div id="bc-custom-wrap" class="bc-field" hidden><label for="bc-custom-multiplier" class="bc-label">自訂倍數（1～10000）</label><input id="bc-custom-multiplier" type="number" inputmode="numeric" min="1" max="10000" step="1" value="80"></div>
@@ -128,11 +128,31 @@ inversePanel.innerHTML=`
   <div id="bc-inverse-bosses" class="bc-inverse-bosses" role="group" aria-label="BOSS 圖片選擇"></div>
  </div>
  <div id="bc-inverse-results" class="bc-inverse-results" aria-live="polite"><div class="bc-status">輸入個人傷害後，會自動列出可達標倍率。</div></div>
- <p class="bc-note">計算範圍含 1 倍、10 倍、20 倍……所選上限；1 倍採原有比例，10 倍（含）以上採同一組多人比例。多路線 BOSS 在「全部」模式會以血量較高的路線保守估算。</p>
+ <p class="bc-note">計算範圍包含 1 倍、10 倍、20 倍……所選上限，並以後台公布的各 BOSS 開放最高倍率為準；1 倍採原有比例，10 倍（含）以上採同一組多人比例。多路線 BOSS 在「全部」模式會以血量較高的路線保守估算。</p>
 `;
 root.appendChild(inversePanel);
 let bosses=[],bossId='',diffName='',variantChoices={},baselineBosses=[];
 let inverseCategory='全部',inverseBossId='all';
+// A limit belongs to each BOSS, not individual difficulties. Older cloud records
+// lacking this new field use the verified default until the admin publishes it.
+const defaultBossMultiplier=name=>['瑪麗西亞','巴德利斯'].includes(name)?1:70;
+function getBossMaxMultiplier(boss){
+ const raw=boss?.maxMultiplier;
+ const max=Number(raw);
+ return raw!==undefined&&raw!==null&&raw!==''&&Number.isSafeInteger(max)&&(max===1||(max>=10&&max<=10000&&max%10===0))
+  ?max:defaultBossMultiplier(boss?.name);
+}
+function syncForwardMultiplierOptions(){
+ const max=getBossMaxMultiplier(currentBoss());
+ const select=$('bc-multiplier'),old=select.value;
+ const allowed=[1,...Array.from({length:Math.min(7,Math.floor(max/10))},(_,i)=>(i+1)*10)];
+ select.innerHTML=allowed.map(n=>`<option value="${n}">${n} 倍</option>`).join('')+(max>70?'<option value="custom">自訂倍率…</option>':'');
+ select.value=old==='custom'&&max>70?'custom':allowed.includes(Number(old))?old:(max===1?'1':'10');
+ const custom=$('bc-custom-multiplier');custom.max=String(max);
+ if(Number(custom.value)>max)custom.value=String(max);
+ const hint=$('bc-multiplier-hint');if(hint)hint.textContent=`此 BOSS 目前開放最高 ${max} 倍`;
+}
+
 // Atlas and reverse calculator must use the same published, normalized HP.
 // Cache the most recent atlas event in case the scripts finish in either order.
 let hasSharedAtlasSnapshot=false;
@@ -169,6 +189,7 @@ function renderSelection(){
  const b=currentBoss();if(!b)return;
  $('bc-picked').innerHTML=nameImage(b.name)?`<img src="${nameImage(b.name)}" alt="${escapeHTML(b.name)}">`:`<span class="bc-picker-fallback">${escapeHTML(b.name)}</span>`;
  $('bc-picker-grid').innerHTML=bosses.map(x=>`<button type="button" role="option" class="bc-boss-choice" data-id="${escapeHTML(x.id)}" aria-selected="${x.id===bossId}" title="${escapeHTML(x.name)}">${nameImage(x.name)?`<img src="${nameImage(x.name)}" alt="${escapeHTML(x.name)}" loading="lazy">`:`<span>${escapeHTML(x.name)}</span>`}</button>`).join('');
+ syncForwardMultiplierOptions();
  $('bc-difficulties').innerHTML=(b.difficulties||[]).map(d=>`<button type="button" class="bc-diff" data-diff="${escapeHTML(d.name)}" aria-pressed="${d.name===diffName}">${diffImage(d.name)?`<img src="${diffImage(d.name)}" alt="${escapeHTML(d.name)}">`:escapeHTML(d.name)}</button>`).join('');
  renderResult();
  renderInverse();
@@ -179,7 +200,8 @@ function renderResult(){
  $('bc-custom-wrap').hidden=selection!=='custom';
  const n=selection==='custom'?Number($('bc-custom-multiplier').value):Number(selection);
  const party=Number($('bc-team').value);
- if(!Number.isSafeInteger(n)||n<1||n>10000){result.innerHTML='<p class="bc-error">請輸入介於 1～10000 的整數倍率。</p>';return;}
+ const max=getBossMaxMultiplier(currentBoss());
+ if(!Number.isSafeInteger(n)||(n!==1&&(n<10||n%10!==0))||n>max){result.innerHTML=`<p class="bc-error">目前該 BOSS 最高只開放 ${max} 倍，請選擇已開放的血量倍率。</p>`;return;}
  let sections;try{sections=parseHp(difficulty.hp);}catch(error){result.innerHTML=`<div class="bc-output-title">${escapeHTML(difficulty.name)} · ${n} 倍</div><p class="bc-error">${escapeHTML(error.message)}</p>`;return;}
  let total=0n;const rows=[];
  for(const section of sections){
@@ -265,6 +287,7 @@ function renderInverse(){
   if(hpInfo.hasAlternates&&!entry.selected)alternateCount++;
   const valid=[];
   for(const n of candidates){
+   if(n>getBossMaxMultiplier(entry.boss))continue;
    const rate=rewardRateFor(n,party);
    const threshold=ceilDiv(hpInfo.total*BigInt(n)*BigInt(rate),BigInt(party)*100n);
    if(damage>=threshold)valid.push(n);
