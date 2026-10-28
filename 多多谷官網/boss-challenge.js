@@ -75,14 +75,14 @@ root.innerHTML=`
    <div class="bc-rule"><span class="bc-rule-type">初階 BOSS</span><span class="bc-rule-badges"><img src="assets/boss-atlas/difficulties/簡單.png" alt="簡單" loading="lazy"><img src="assets/boss-atlas/difficulties/普通.png" alt="普通" loading="lazy"></span><strong class="bc-rule-limit">每日可進行 1 次</strong></div>
    <div class="bc-rule"><span class="bc-rule-type">中階 BOSS</span><span class="bc-rule-badges bc-rule-badges--three"><img src="assets/boss-atlas/difficulties/簡單.png" alt="簡單" loading="lazy"><img src="assets/boss-atlas/difficulties/普通.png" alt="普通" loading="lazy"><img src="assets/boss-atlas/difficulties/混沌.png" alt="混沌" loading="lazy"></span><strong class="bc-rule-limit">每日可進行 1 次</strong></div>
    <div class="bc-rule"><span class="bc-rule-type">高階 BOSS</span><span class="bc-rule-badges"><img src="assets/boss-atlas/difficulties/普通.png" alt="普通" loading="lazy"><img src="assets/boss-atlas/difficulties/困難.png" alt="困難" loading="lazy"></span><strong class="bc-rule-limit">每日可進行 1 次</strong></div>
-   <div class="bc-rule"><span class="bc-rule-type">終極 BOSS</span><span class="bc-rule-badges"><img src="assets/boss-atlas/difficulties/普通.png" alt="普通" loading="lazy"></span><strong class="bc-rule-limit">每日可進行 1 次</strong><small class="bc-rule-exception">※ 燦爛的凶星除外</small></div>
+   <div class="bc-rule"><span class="bc-rule-type">終極 BOSS</span><span class="bc-rule-badges"><img src="assets/boss-atlas/difficulties/普通.png" alt="普通" loading="lazy"></span><strong class="bc-rule-limit">每日可進行 1 次</strong><small class="bc-rule-exception">※ 燦爛的凶星、尤比太除外</small></div>
    <div class="bc-rule"><span class="bc-rule-type">終極 BOSS</span><span class="bc-rule-badges"><img src="assets/boss-atlas/difficulties/困難.png" alt="困難" loading="lazy"><img src="assets/boss-atlas/difficulties/終極.png" alt="終極" loading="lazy"></span><strong class="bc-rule-limit">每週可進行 1 次</strong></div>
   </div></section>
   <section class="bc-card" aria-labelledby="bc-reward-title"><div class="bc-card-head"><span class="bc-head-icon" aria-hidden="true">◇</span><h3 id="bc-reward-title">獎勵門檻計算規則</h3></div>
    <p class="bc-description">隊員必須達到個人輸出門檻才可獲得獎勵。<strong>個人門檻＝BOSS 總血量 × 倍率 ÷ 隊伍人數 × 需求比例</strong>。</p>
    <div class="bc-rate-table-wrap"><table class="bc-rate-table" aria-label="各隊伍人數的獎勵需求比例"><thead><tr><th scope="col">倍率</th>${[1,2,3,4,5,6].map(n=>`<th scope="col">${n} 人</th>`).join('')}</tr></thead><tbody>
    <tr><th scope="row">1 倍</th>${rewardRates[1].map(n=>`<td>${n}%</td>`).join('')}</tr>
-   <tr><th scope="row">10 倍以上</th>${rewardRates[10].map(n=>`<td>${n}%</td>`).join('')}</tr>
+   <tr><th scope="row">10 倍（含）以上</th>${rewardRates[10].map(n=>`<td>${n}%</td>`).join('')}</tr>
    </tbody></table></div>
    <p class="bc-note"><strong>範例：</strong>1 倍 BOSS 總血量 1.6 兆、2 人隊伍，每人至少輸出 800 億。10～70 倍及更高倍率皆沿用 10 倍的隊伍需求比例，僅血量依所選倍率變化。</p>
   </section>
