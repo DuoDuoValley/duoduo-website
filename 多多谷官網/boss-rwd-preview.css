@@ -72,18 +72,29 @@
   #ddBossChallenge .bc-rule-badges--three img{width:50px;height:17px}
 }
 
-/* BOSS RWD V3 (preview only): keep the original single-line name when it fits,
-   but move the full name to its own line instead of truncating it.
-   The image, stat panel, loot layout and production stylesheet are unchanged. */
+/* BOSS RWD V4 — isolated preview only.
+   Keep the existing photo, tag, and statistics sizes unchanged.
+   A title retains its original inline position if it actually fits.
+   Otherwise the entire title goes onto the next line and may wrap
+   within its own width. Do not shrink it into an ellipsis. */
 #ddBossAtlas .dd-boss-name-row{
+  display:flex;
   flex-wrap:wrap;
   row-gap:3px;
+  min-width:0;
 }
 #ddBossAtlas .dd-boss-name-row h3{
-  flex:0 1 auto;
+  flex:0 0 auto;
+  min-width:0;
   max-width:100%;
   white-space:normal;
   overflow:visible;
   text-overflow:clip;
   overflow-wrap:anywhere;
 }
+/* Visible proof that the preview-only stylesheet was loaded. */
+.dd-rwd-test-ribbon strong::after{
+  content:" · V4 排版已載入";
+  color:#127a9e;
+}
+:root[data-theme="dark"] .dd-rwd-test-ribbon strong::after{color:#83d8fb}
