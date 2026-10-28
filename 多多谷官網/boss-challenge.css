@@ -144,9 +144,14 @@
 #ddBossChallenge .bc-inverse-category{border:1px solid var(--bc-line);background:var(--bc-bg);color:var(--bc-muted);font-weight:850;font-size:12px;border-radius:9px;padding:8px 14px;transition:border-color .18s ease,background .18s ease,color .18s ease}
 #ddBossChallenge .bc-inverse-category:hover,#ddBossChallenge .bc-inverse-category[aria-pressed="true"]{border-color:var(--bc-accent);color:var(--bc-accent);background:color-mix(in srgb,var(--bc-accent) 10%,var(--bc-bg))}
 #ddBossChallenge .bc-inverse-bosses{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;max-height:193px;overflow-y:auto;padding:2px 3px 4px;overscroll-behavior:contain}
-#ddBossChallenge .bc-inverse-boss-choice{min-height:49px;min-width:0;display:flex;align-items:center;justify-content:center;border:2px solid transparent;border-radius:10px;padding:5px;background:var(--bc-bg);color:var(--bc-ink);transition:border-color .2s ease,background .2s ease;overflow:hidden}
+#ddBossChallenge .bc-inverse-boss-choice{min-height:58px;min-width:0;display:flex;align-items:center;justify-content:flex-start;gap:9px;text-align:left;border:2px solid transparent;border-radius:10px;padding:4px 7px;background:var(--bc-bg);color:var(--bc-ink);transition:border-color .2s ease,background .2s ease;overflow:hidden}
 #ddBossChallenge .bc-inverse-boss-choice:hover,#ddBossChallenge .bc-inverse-boss-choice[aria-pressed="true"]{border-color:var(--bc-accent);background:color-mix(in srgb,var(--bc-accent) 12%,var(--bc-bg))}
 #ddBossChallenge .bc-inverse-boss-choice img{display:block;width:100%;height:auto;max-height:42px;object-fit:contain;object-position:center}
+#ddBossChallenge .bc-inverse-boss-choice .bc-inverse-portrait{display:block;width:46px;height:47px;max-width:none;max-height:none;flex:0 0 auto;object-fit:contain;border-radius:8px}
+#ddBossChallenge .bc-inverse-boss-choice .bc-inverse-portrait--fallback{display:grid;place-items:center;background:var(--bc-soft);color:var(--bc-muted);font-size:19px;font-weight:900}
+#ddBossChallenge .bc-inverse-boss-choice .bc-inverse-choice-name{flex:1;min-width:0;font-size:12px;font-weight:850;line-height:1.3;overflow-wrap:anywhere}
+#ddBossChallenge .bc-inverse-boss-choice.bc-inverse-all-choice{justify-content:center}
+
 #ddBossChallenge .bc-inverse-image-fallback{font-size:12px;font-weight:850;line-height:1.3;white-space:normal;overflow-wrap:anywhere;text-align:center}
 #ddBossChallenge .bc-inverse-all-choice{display:flex;gap:7px;font-size:12px;font-weight:850;white-space:nowrap}
 #ddBossChallenge .bc-inverse-all-symbol{font-size:19px;color:var(--bc-accent)}
@@ -157,3 +162,6 @@
 @media(max-width:960px){#ddBossChallenge .bc-inverse-fields{grid-template-columns:repeat(2,minmax(0,1fr))}#ddBossChallenge .bc-inverse-bosses{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:640px){#ddBossChallenge .bc-inverse-bosses{grid-template-columns:repeat(2,minmax(0,1fr));max-height:206px}#ddBossChallenge .bc-inverse-category{padding:8px 10px;font-size:11px}#ddBossChallenge .bc-inverse-select{padding:10px}#ddBossChallenge .bc-inverse-group-title img{max-width:145px}}
 @media(max-width:400px){#ddBossChallenge .bc-inverse-fields{grid-template-columns:1fr}#ddBossChallenge .bc-inverse-category{padding:7px 9px}}
+
+/* UI2 portraits in the BOSS selector only. V7.8 result cards unchanged. */
+@media(max-width:640px){#ddBossChallenge .bc-inverse-boss-choice{gap:7px;padding:4px 5px}#ddBossChallenge .bc-inverse-boss-choice .bc-inverse-portrait{width:39px;height:40px}#ddBossChallenge .bc-inverse-boss-choice .bc-inverse-choice-name{font-size:11px}}

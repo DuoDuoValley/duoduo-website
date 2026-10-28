@@ -9,6 +9,7 @@ const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','
 const label=['','一階段','二階段','三階段','四階段'];
 const baseUrl='assets/boss-atlas/calculator-ui/';
 const nameImage=name=>assetNames.has(name)?baseUrl+encodeURIComponent(name)+'.png':'';
+const inversePortraitUrl=name=>assetNames.has(name)?'assets/boss-atlas/inverse-ui/'+encodeURIComponent(name)+'.png':'';
 const diffImage=name=>diffNames.has(name)?'assets/boss-atlas/difficulties/'+encodeURIComponent(name)+'.png':'';
 const units=[['京',10000000000000000n],['兆',1000000000000n],['億',100000000n],['萬',10000n]];
 const unitMap=new Map([...units,['',1n]]);
@@ -192,6 +193,11 @@ function inverseEntries(){
   &&(inverseBossId==='all'||b.id===inverseBossId))
   .flatMap(b=>(b.difficulties||[]).map(d=>({boss:b,difficulty:d,selected:false})));
 }
+function inversePortrait(b){
+ const src=inversePortraitUrl(b.name);
+ return src?`<img class="bc-inverse-portrait" src="${src}" alt="" loading="lazy" decoding="async">`
+  :`<span class="bc-inverse-portrait bc-inverse-portrait--fallback" aria-hidden="true">◇</span>`;
+}
 function inverseBanner(b){
  const src=nameImage(b.name);
  return src?`<img src="${src}" alt="${escapeHTML(b.name)}" loading="lazy" decoding="async">`
@@ -205,7 +211,7 @@ function renderInverseFilters(){
  if(inverseBossId!=='all'&&!filtered.some(b=>b.id===inverseBossId))inverseBossId='all';
  $('bc-inverse-filter-count').textContent=`${filtered.length} 隻已公開 BOSS`;
  $('bc-inverse-bosses').innerHTML=`<button type="button" class="bc-inverse-boss-choice bc-inverse-all-choice" data-inverse-boss="all" aria-pressed="${inverseBossId==='all'}"><span class="bc-inverse-all-symbol" aria-hidden="true">▦</span><span>全部 BOSS</span></button>`
- +filtered.map(b=>`<button type="button" class="bc-inverse-boss-choice" data-inverse-boss="${escapeHTML(b.id)}" aria-pressed="${inverseBossId===b.id}" title="${escapeHTML(b.name)}">${inverseBanner(b)}</button>`).join('');
+ +filtered.map(b=>`<button type="button" class="bc-inverse-boss-choice" data-inverse-boss="${escapeHTML(b.id)}" aria-pressed="${inverseBossId===b.id}" title="${escapeHTML(b.name)}">${inversePortrait(b)}<span class="bc-inverse-choice-name">${escapeHTML(b.name)}</span></button>`).join('');
 }
 function inverseHp(entry){
  const sections=parseHp(entry.difficulty.hp);
