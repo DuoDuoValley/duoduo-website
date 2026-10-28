@@ -19,6 +19,20 @@ function migrateAtlasV4(value){
  if(Number(value.dataRevision||1)<4){value.dataRevision=4;changed=true;}
  return changed;
 }
+
+// Keep the requested canonical order even when an older cloud snapshot is loaded.
+// Only move the existing boss object; no HP, drop rates, multiplier or visibility changes.
+function alignMariaBossOrder(value){
+ const entries=value?.bosses;
+ if(!Array.isArray(entries))return false;
+ const isMaria=b=>b?.id==='boss22'||['瑪麗西亞','瑪莉西亞'].includes(b?.name);
+ const isKai=b=>b?.id==='boss30'||b?.name==='凱伊';
+ const mariaIndex=entries.findIndex(isMaria),kaiIndex=entries.findIndex(isKai);
+ if(mariaIndex<0||kaiIndex<0||mariaIndex===kaiIndex+1)return false;
+ const [maria]=entries.splice(mariaIndex,1);
+ entries.splice(entries.findIndex(isKai)+1,0,maria);
+ return true;
+}
 const clone=x=>JSON.parse(JSON.stringify(x));
 function token(){return sessionStorage.getItem('duoduo_admin_session')||''}
 function status(msg,error=false){const el=by('atStatus');el.textContent=msg;el.classList.toggle('error',error)}
@@ -184,10 +198,11 @@ async function initialize(){if(loading)return;loading=true;
   const migratedV2=migrateAtlasV2(data);
   const migratedV3=migrateAtlasV3(data);
   const migratedV4=migrateAtlasV4(data);
-  const migrated=migratedV2||migratedV3||migratedV4;
+  const reordered=alignMariaBossOrder(data);
+  const migrated=migratedV2||migratedV3||migratedV4||reordered;
   if(migrated){draft();}
   chosen=data.bosses[0]?.id||'';renderList();renderEditor();renderItemList();
-  status(migrated?'已補齊舊資料必要欄位（包含 BOSS 最高開放倍率）；瑪麗西亞、巴德利斯預設 1 倍，其餘預設 70 倍，原有手動設定不覆蓋。這是未發布草稿，請先備份 JSON，再發布雲端。':dirty?'已恢復這台瀏覽器的未發布草稿。':cloud?'已載入雲端圖鑑。':'已載入隨更新包提供的初始資料；尚未發布到雲端。');
+  status(migrated?'已套用必要資料相容調整與 BOSS 排序（瑪麗西亞移至凱伊後方）；原有血量、倍率及掉落設定不覆蓋。這是未發布草稿，請先備份 JSON，再發布雲端。':dirty?'已恢復這台瀏覽器的未發布草稿。':cloud?'已載入雲端圖鑑。':'已載入隨更新包提供的初始資料；尚未發布到雲端。');
  }catch(e){status('無法載入圖鑑：'+e.message,true)}finally{loading=false}
 }
 // Supabase JSONB can reorder object keys. Compare normalized structure, not raw JSON.stringify order.
@@ -223,6 +238,6 @@ by('atNewItem').onclick=()=>{chosenItem='';by('atItemName').value='';by('atItemI
 by('atPublish').onclick=publish;
 by('atReload').onclick=async()=>{if(dirty&&!confirm('將捨棄未發布草稿，重新載入雲端或初始資料，確定嗎？'))return;localStorage.removeItem(DRAFT);dirty=false;data=null;initialize()};
 by('atExport').onclick=()=>{if(!data)return;const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='duoduo-boss-atlas-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
-by('atImport').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const j=JSON.parse(await file.text());validate(j);if(!confirm('確定用匯入資料取代目前的圖鑑草稿？（不會直接發布）'))return;data=enrichData(j);migrateAtlasV2(data);migrateAtlasV3(data);migrateAtlasV4(data);chosen=data.bosses[0]?.id||'';draft();renderList();renderEditor();renderItemList();status('JSON 已匯入草稿，尚未發布。')}catch(error){status('匯入失敗：'+error.message,true)}finally{e.target.value=''}};
+by('atImport').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const j=JSON.parse(await file.text());validate(j);if(!confirm('確定用匯入資料取代目前的圖鑑草稿？（不會直接發布）'))return;data=enrichData(j);migrateAtlasV2(data);migrateAtlasV3(data);migrateAtlasV4(data);alignMariaBossOrder(data);chosen=data.bosses[0]?.id||'';draft();renderList();renderEditor();renderItemList();status('JSON 已匯入草稿，尚未發布。')}catch(error){status('匯入失敗：'+error.message,true)}finally{e.target.value=''}};
 let begun=false;const nav=document.querySelector('[data-panel="bossAtlasPanel"]');nav?.addEventListener('click',()=>{if(!begun){begun=true;initialize()}});
 })();

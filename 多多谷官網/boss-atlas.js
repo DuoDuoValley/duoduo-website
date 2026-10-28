@@ -71,7 +71,18 @@ function reconcileOldPublicSnapshot(value){
  value.dataRevision=3;
 }
 const itemMap=()=>new Map((data?.items||[]).map(x=>[x.id,x]));
-const publicBosses=()=>Array.isArray(data?.bosses)?data.bosses.filter(b=>b&&b.published!==false):[];
+// Reorder only the presentation list; cloud data is edited/published through the admin.
+function bossDisplayOrder(records){
+ const result=[...records];
+ const isMaria=b=>b?.id==='boss22'||['瑪麗西亞','瑪莉西亞'].includes(b?.name);
+ const isKai=b=>b?.id==='boss30'||b?.name==='凱伊';
+ const maria=result.findIndex(isMaria);
+ if(maria<0||!result.some(isKai))return result;
+ const [entry]=result.splice(maria,1);
+ result.splice(result.findIndex(isKai)+1,0,entry);
+ return result;
+}
+const publicBosses=()=>Array.isArray(data?.bosses)?bossDisplayOrder(data.bosses.filter(b=>b&&b.published!==false)):[];
 // Share the exact public atlas snapshot currently rendered on this page.
 // The calculator must not depend on a second cloud request to see admin HP.
 function sharePublicAtlasData(){

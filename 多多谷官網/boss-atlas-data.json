@@ -2060,97 +2060,6 @@
       "maxMultiplier": 70
     },
     {
-      "id": "boss22",
-      "name": "瑪麗西亞",
-      "image": "assets/boss-atlas/bosses/boss22.png",
-      "group": "終極",
-      "published": true,
-      "difficulties": [
-        {
-          "name": "終極",
-          "hp": "",
-          "drops": [
-            {
-              "itemId": "item055",
-              "chance": 10.0,
-              "quantity": "1"
-            },
-            {
-              "itemId": "item007",
-              "chance": 10.0,
-              "quantity": "1"
-            },
-            {
-              "itemId": "item054",
-              "chance": 10.0,
-              "quantity": "1"
-            },
-            {
-              "itemId": "item053",
-              "chance": 5.0,
-              "quantity": "1"
-            },
-            {
-              "itemId": "item050",
-              "chance": 0.3,
-              "quantity": "1"
-            },
-            {
-              "itemId": "item047",
-              "chance": 0.3,
-              "quantity": "1"
-            },
-            {
-              "itemId": "item033",
-              "chance": 100,
-              "quantity": "80"
-            },
-            {
-              "itemId": "item034",
-              "chance": 100,
-              "quantity": "80"
-            },
-            {
-              "itemId": "item071",
-              "chance": 100,
-              "quantity": "40"
-            },
-            {
-              "itemId": "item072",
-              "chance": 100,
-              "quantity": "40"
-            },
-            {
-              "itemId": "item066",
-              "chance": 100,
-              "quantity": "40"
-            },
-            {
-              "itemId": "item067",
-              "chance": 100,
-              "quantity": "40"
-            },
-            {
-              "itemId": "item045",
-              "chance": 100,
-              "quantity": "6000萬"
-            },
-            {
-              "itemId": "item046",
-              "chance": 100,
-              "quantity": "2500"
-            }
-          ],
-          "note": "",
-          "runeType": "",
-          "runeRequirement": "",
-          "defensePercent": ""
-        }
-      ],
-      "note": "",
-      "maxMultiplier": 1
-    },
-    {
       "id": "boss23",
       "name": "黑魔法師",
       "image": "assets/boss-atlas/bosses/boss23.png",
@@ -3757,6 +3666,97 @@
       ],
       "note": "",
       "maxMultiplier": 70
+    },
+    {
+      "id": "boss22",
+      "name": "瑪麗西亞",
+      "image": "assets/boss-atlas/bosses/boss22.png",
+      "group": "終極",
+      "published": true,
+      "difficulties": [
+        {
+          "name": "終極",
+          "hp": "",
+          "drops": [
+            {
+              "itemId": "item055",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item007",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item054",
+              "chance": 10.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item053",
+              "chance": 5.0,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item050",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item047",
+              "chance": 0.3,
+              "quantity": "1"
+            },
+            {
+              "itemId": "item033",
+              "chance": 100,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item034",
+              "chance": 100,
+              "quantity": "80"
+            },
+            {
+              "itemId": "item071",
+              "chance": 100,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item072",
+              "chance": 100,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item066",
+              "chance": 100,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item067",
+              "chance": 100,
+              "quantity": "40"
+            },
+            {
+              "itemId": "item045",
+              "chance": 100,
+              "quantity": "6000萬"
+            },
+            {
+              "itemId": "item046",
+              "chance": 100,
+              "quantity": "2500"
+            }
+          ],
+          "note": "",
+          "runeType": "",
+          "runeRequirement": "",
+          "defensePercent": ""
+        }
+      ],
+      "note": "",
+      "maxMultiplier": 1
     },
     {
       "id": "boss31",

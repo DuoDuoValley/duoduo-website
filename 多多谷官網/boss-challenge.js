@@ -333,13 +333,25 @@ root.addEventListener('change',e=>{if(e.target.matches('[data-stage]')){variantC
 root.addEventListener('input',e=>{if(e.target.id==='bc-custom-multiplier')renderResult();});
 document.addEventListener('pointerdown',e=>{if(!root.contains(e.target)||!e.target.closest('.bc-picker-wrap'))closeMenu();},true);
 root.addEventListener('keydown',e=>{if(e.key==='Escape')closeMenu();});
+// Use identical BOSS order in both forward and reverse calculators,
+// regardless of whether data came from the static JSON or older cloud records.
+function bossDisplayOrder(records){
+ const result=[...records];
+ const isMaria=b=>b?.id==='boss22'||['瑪麗西亞','瑪莉西亞'].includes(b?.name);
+ const isKai=b=>b?.id==='boss30'||b?.name==='凱伊';
+ const maria=result.findIndex(isMaria);
+ if(maria<0||!result.some(isKai))return result;
+ const [entry]=result.splice(maria,1);
+ result.splice(result.findIndex(isKai)+1,0,entry);
+ return result;
+}
 function accept(data){
  if(!data||!Array.isArray(data.bosses))return;
  // The public reader does not show records flagged as unpublished.
  const items=data.bosses.filter(b=>b&&b.published!==false&&!['尤比太'].includes(b.name)&&Array.isArray(b.difficulties));
- bosses=items.filter(b=>b.difficulties.length).sort((a,b)=>{
+ bosses=bossDisplayOrder(items.filter(b=>b.difficulties.length).sort((a,b)=>{
   const d=publicGroups.indexOf(a.group)-publicGroups.indexOf(b.group);return d||0;
- });
+ }));
  if(!bosses.length){$('bc-picked').textContent='目前沒有可選擇的 BOSS';return;}
  if(!bosses.some(b=>b.id===bossId))bossId=bosses.find(b=>b.name==='黑魔法師')?.id||bosses[0].id;
  const b=currentBoss();
