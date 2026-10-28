@@ -133,6 +133,17 @@ inversePanel.innerHTML=`
 root.appendChild(inversePanel);
 let bosses=[],bossId='',diffName='',variantChoices={},baselineBosses=[];
 let inverseCategory='全部',inverseBossId='all';
+// Atlas and reverse calculator must use the same published, normalized HP.
+// Cache the most recent atlas event in case the scripts finish in either order.
+let hasSharedAtlasSnapshot=false;
+function receiveSharedAtlasSnapshot(snapshot){
+ if(!snapshot||!Array.isArray(snapshot.bosses))return;
+ hasSharedAtlasSnapshot=true;
+ accept(snapshot);
+}
+window.addEventListener('duoduo:boss-atlas-snapshot',event=>receiveSharedAtlasSnapshot(event.detail));
+if(window.__ddBossPublicAtlasSnapshot)receiveSharedAtlasSnapshot(window.__ddBossPublicAtlasSnapshot);
+
 function reconcileKnownHp(snapshot){
  if(!snapshot||!Array.isArray(snapshot.bosses))return snapshot;
  const revision=Number(snapshot.dataRevision||1);
@@ -316,12 +327,12 @@ function accept(data){
 (async()=>{
  try{
   const response=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||Date.now().toString(36)),{cache:'no-store'});if(!response.ok)throw Error('預設資料無法取得');
-  const fallback=await response.json();baselineBosses=Array.isArray(fallback.bosses)?fallback.bosses:[];accept(fallback);
- }catch(e){$('bc-picked').textContent='BOSS 資料載入失敗';console.warn('BOSS Calculator',e);}
+  const fallback=await response.json();baselineBosses=Array.isArray(fallback.bosses)?fallback.bosses:[];if(!hasSharedAtlasSnapshot)accept(fallback);
+ }catch(e){if(!hasSharedAtlasSnapshot)$('bc-picked').textContent='BOSS 資料載入失敗';console.warn('BOSS Calculator',e);}
  try{
   const response=await fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
   if(!response.ok)return;const json=await response.json();
-  if(json?.ok&&json.data?.duoduo_boss_atlas?.schema===1)accept(reconcileKnownHp(json.data.duoduo_boss_atlas));
+  if(!hasSharedAtlasSnapshot&&json?.ok&&json.data?.duoduo_boss_atlas?.schema===1)accept(reconcileKnownHp(json.data.duoduo_boss_atlas));
  }catch(e){console.warn('BOSS Calculator cloud fallback',e);}
 })();
 })();

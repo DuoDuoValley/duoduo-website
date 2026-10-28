@@ -72,6 +72,15 @@ function reconcileOldPublicSnapshot(value){
 }
 const itemMap=()=>new Map((data?.items||[]).map(x=>[x.id,x]));
 const publicBosses=()=>Array.isArray(data?.bosses)?data.bosses.filter(b=>b&&b.published!==false):[];
+// Share the exact public atlas snapshot currently rendered on this page.
+// The calculator must not depend on a second cloud request to see admin HP.
+function sharePublicAtlasData(){
+ const snapshot={schema:1,dataRevision:data?.dataRevision??1,
+  bosses:publicBosses().filter(b=>b.name!=='尤比太').map(b=>structuredClone(b))};
+ window.__ddBossPublicAtlasSnapshot=snapshot;
+ window.dispatchEvent(new CustomEvent('duoduo:boss-atlas-snapshot',{detail:snapshot}));
+}
+
 // Render the frame only on first load / explicit selection, never rebuild the
 // focused search input on each keystroke (especially during Zhuyin IME input).
 function render(){
@@ -209,9 +218,9 @@ root.addEventListener('input',event=>{
  renderResults();
 });
 (async()=>{
- try{const r=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||Date.now().toString(36)),{cache:'no-store'});if(!r.ok)throw Error('無法讀取圖鑑預設資料');data=await r.json();staticCatalog=Array.isArray(data.items)?data.items:[];staticBossCatalog=structuredClone(data.bosses||[]);data=hydrateCatalog(data);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);render();}
+ try{const r=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||Date.now().toString(36)),{cache:'no-store'});if(!r.ok)throw Error('無法讀取圖鑑預設資料');data=await r.json();staticCatalog=Array.isArray(data.items)?data.items:[];staticBossCatalog=structuredClone(data.bosses||[]);data=hydrateCatalog(data);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);render();sharePublicAtlasData();}
  catch(e){root.textContent='BOSS 圖鑑目前無法載入，請稍後再試。';console.warn(e);return}
- try{const r=await fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const p=await r.json();if(p?.ok&&p?.data?.duoduo_boss_atlas?.schema===1){data=hydrateCatalog(p.data.duoduo_boss_atlas);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);render()}}
+ try{const r=await fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const p=await r.json();if(p?.ok&&p?.data?.duoduo_boss_atlas?.schema===1){data=hydrateCatalog(p.data.duoduo_boss_atlas);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);render();sharePublicAtlasData()}}
  catch(e){console.warn('BOSS 圖鑑雲端資料暫時無法取得，使用預設資料。',e)}
 })();
 })();
