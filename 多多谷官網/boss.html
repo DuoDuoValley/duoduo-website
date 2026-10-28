@@ -155,50 +155,108 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
   });
 })();
 </script>
-<!-- DuoDuo BOSS page: refresh on published HTML and BOSS assets; new URL defeats cached HTML. -->
+<!-- BOSS-only update check: immutable source comparison + one-time reload guard. -->
 <script id="duoduo-public-auto-refresh">
 (() => {
   'use strict';
   const INTERVAL_MS = 60000;
-  const pageUrl = new URL(window.location.pathname, window.location.origin);
-  const siteRoot = new URL('./', pageUrl);
-  // The BOSS page is driven by JS/CSS/JSON assets. Watching only HTML
-  // misses many GitHub deployments and leaves existing tabs on old content.
-  const watchUrls = [...new Set([pageUrl.href,
-    new URL('boss-atlas.js', siteRoot).href,
-    new URL('boss-atlas.css', siteRoot).href,
-    new URL('boss-challenge.js', siteRoot).href,
-    new URL('boss-challenge.css', siteRoot).href,
-    new URL('boss-atlas-data.json', siteRoot).href])];
-  const known = new Map();
-  let checking = false;
-  let ready = false;
+  const root = new URL('./', location.href);
+  const files = ['boss.html', 'boss-atlas.js', 'boss-atlas.css',
+    'boss-challenge.js', 'boss-challenge.css', 'boss-atlas-data.json'];
+  const urls = files.map(name => new URL(name, root).href);
+  const attemptKey = 'duoduo_boss_update_attempt_v8:' + location.pathname;
+  const currentSource = immutableSource(document);
+  const knownAssets = new Map();
+  let seeded = false;
+  let working = false;
 
-  async function readPage(url) {
-    const requestUrl = new URL(url);
-    requestUrl.searchParams.set('_duoduo_check', Date.now().toString());
-    const response = await fetch(requestUrl.href, { cache: 'no-store', credentials: 'same-origin' });
-    if (!response.ok) throw new Error('Update check failed: ' + response.status);
-    return response.text();
+  // Compare only static pieces of the loaded HTML. Stylesheet hrefs and
+  // navigation/card nodes are changed by app.js and must NOT be compared.
+  function immutableSource(doc) {
+    const blocks = ['duoduo-early-theme', 'dd-boss-cache-bootstrap',
+      'duoduo-public-cloud-refresh', 'duoduo-public-auto-refresh'];
+    return JSON.stringify([
+      doc.title,
+      doc.querySelector('meta[name="description"]')?.getAttribute('content') || '',
+      doc.querySelector('.page-hero')?.innerHTML || '',
+      doc.querySelector('main.content-wrap')?.firstElementChild?.id || '',
+      ...blocks.map(id => doc.getElementById(id)?.textContent || '')
+    ]);
+  }
+
+  function checksum(data) {
+    // Deterministic, fast identifier for a deployment candidate (not security).
+    let hash = 2166136261;
+    for (const value of data) {
+      for (let i = 0; i < value.length; i++) {
+        hash = Math.imul(hash ^ value.charCodeAt(i), 16777619);
+      }
+      hash = Math.imul(hash ^ value.length, 16777619);
+    }
+    return (hash >>> 0).toString(36) + '-' + data.map(x => x.length).join('-');
+  }
+
+  async function loadFresh(url) {
+    const request = new URL(url);
+    request.searchParams.set('_boss_probe', Date.now().toString(36));
+    const response = await fetch(request.href, {
+      cache: 'no-store', credentials: 'same-origin'
+    });
+    if (!response.ok) throw new Error('Update check HTTP ' + response.status);
+    const text = await response.text();
+    if (!text.trim()) throw new Error('Empty update response');
+    return text;
+  }
+
+  async function snapshot() {
+    const data = await Promise.all(urls.map(loadFresh));
+    const doc = new DOMParser().parseFromString(data[0], 'text/html');
+    if (!doc.getElementById('ddBossAtlas') ||
+        !doc.getElementById('duoduo-public-auto-refresh')) {
+      throw new Error('Incomplete BOSS HTML');
+    }
+    for (let i = 1; i < data.length; i++) {
+      if (/<!doctype\s+html/i.test(data[i])) throw new Error('Invalid asset response');
+    }
+    JSON.parse(data[5]); // Reject an incomplete JSON deployment.
+    return { data, signature: immutableSource(doc) };
   }
 
   async function check() {
-    if (checking || document.visibilityState === 'hidden' || !navigator.onLine) return;
-    checking = true;
+    if (working || window.__ddBossReloadPending ||
+        document.visibilityState === 'hidden' || !navigator.onLine) return;
+    working = true;
     try {
-      const responses = await Promise.all(watchUrls.map(readPage));
-      if (!ready) {
-        responses.forEach((html, index) => known.set(watchUrls[index], html));
-        ready = true;
+      const latest = await snapshot();
+      const htmlChanged = latest.signature !== currentSource;
+      const assetChanged = seeded && latest.data.slice(1).some((value, i) =>
+        knownAssets.get(urls[i + 1]) !== value);
+      if (htmlChanged || assetChanged) {
+        // Do not reload while GitHub Pages is serving inconsistent files.
+        await new Promise(resolve => setTimeout(resolve, 1200));
+        const confirmation = await snapshot();
+        if (confirmation.data.some((value, i) => value !== latest.data[i])) return;
+        const candidate = checksum(confirmation.data);
+        try {
+          // A candidate that failed to replace cached assets must never
+          // cause reload after reload. Later deployments have a new candidate.
+          if (sessionStorage.getItem(attemptKey) === candidate) return;
+          sessionStorage.setItem(attemptKey, candidate);
+        } catch (_) {
+          // Without storage, skip automatic reload rather than risk a loop.
+          return;
+        }
+        window.__ddBossRefreshFresh();
         return;
       }
-      if (responses.some((html, index) => html !== known.get(watchUrls[index]))) {
-        window.__ddBossRefreshFresh();
-      }
+      // First load establishes the remote asset baseline. HTML is compared
+      // against the currently executing page even on the first check.
+      latest.data.slice(1).forEach((value, i) => knownAssets.set(urls[i + 1], value));
+      seeded = true;
     } catch (_) {
-      // Network and deployment errors are retried on the next check.
+      // Network/deployment errors do not trigger refreshes.
     } finally {
-      checking = false;
+      working = false;
     }
   }
 
