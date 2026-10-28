@@ -96,7 +96,7 @@ root.innerHTML=`
     <div class="bc-picker-wrap"><button type="button" class="bc-picker" id="bc-picker" aria-haspopup="listbox" aria-expanded="false" aria-controls="bc-menu" aria-labelledby="bc-boss-label bc-picked"><span class="bc-picked" id="bc-picked">正在載入 BOSS…</span><span class="bc-picker-arrow" aria-hidden="true">⌄</span></button><div id="bc-menu" class="bc-picker-menu" role="listbox" aria-label="選擇 BOSS" hidden><div id="bc-picker-grid" class="bc-picker-grid"></div></div></div>
     <label class="bc-label" style="margin-top:13px">② 選擇難度</label><div id="bc-difficulties" class="bc-difficulties" role="group" aria-label="選擇 BOSS 難度"></div>
     <div class="bc-form-grid">
-     <div class="bc-field"><label for="bc-multiplier" class="bc-label">③ 血量倍率 <span id="bc-multiplier-hint" style="font-weight:500;font-size:11px;margin-left:5px" aria-live="polite"></span></label><select id="bc-multiplier">${[1,10,20,30,40,50,60,70].map(n=>`<option value="${n}" ${n===10?'selected':''}>${n} 倍</option>`).join('')}<option value="custom">自訂倍率…</option></select></div>
+     <div class="bc-field"><label for="bc-multiplier" class="bc-label">③ 血量倍率 <span id="bc-multiplier-hint" style="font-weight:500;font-size:11px;margin-left:5px" aria-live="polite"></span></label><select id="bc-multiplier">${[1,10,20,30,40,50,60,70].map(n=>`<option value="${n}" ${n===10?'selected':''}>${n} 倍</option>`).join('')}<option value="custom">自訂倍率…</option></select><span id="bc-mobile-multiplier-hint" class="bc-mobile-multiplier-hint" aria-live="polite"></span></div>
      <div class="bc-field"><label for="bc-team" class="bc-label">④ 隊伍人數</label><select id="bc-team">${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${n===2?'selected':''}>${n} 人</option>`).join('')}</select></div>
     </div>
     <div id="bc-custom-wrap" class="bc-field" hidden><label for="bc-custom-multiplier" class="bc-label">自訂倍數（1～10000）</label><input id="bc-custom-multiplier" type="number" inputmode="numeric" min="1" max="10000" step="1" value="80"></div>
@@ -115,7 +115,7 @@ inversePanel.innerHTML=`
  <div class="bc-calc-heading"><div class="bc-card-head" style="margin:0"><span class="bc-head-icon" aria-hidden="true">↶</span><h3 id="bc-inverse-title">個人傷害反推｜BOSS 獎勵門檻</h3></div><span class="bc-pill">反向試算</span></div>
  <p class="bc-description">輸入自己可輸出的傷害，反推哪些 BOSS、難度與血量倍率能達到獎勵資格。此為<strong>個人獎勵門檻</strong>，不代表隊伍一定能擊敗 BOSS。</p>
  <div class="bc-inverse-fields">
-  <div class="bc-field"><label class="bc-label" for="bc-inverse-damage">① 個人輸出傷害</label><input id="bc-inverse-damage" type="text" inputmode="decimal" maxlength="60" placeholder="例如：800億、2兆5000億" autocomplete="off"></div>
+  <div class="bc-field"><label class="bc-label" for="bc-inverse-damage">① 個人輸出傷害</label><input id="bc-inverse-damage" type="text" inputmode="decimal" maxlength="60" placeholder="例如：800億、2兆5000億" autocomplete="off"><div class="bc-mobile-damage-tools" aria-label="手機傷害輸入輔助"><span class="bc-mobile-damage-tools-label">快速加單位</span><div class="bc-mobile-unit-buttons" role="group" aria-label="插入傷害單位">${['萬','億','兆','京'].map(u=>`<button type="button" class="bc-mobile-unit" data-bc-unit="${u}" aria-label="插入${u}">${u}</button>`).join('')}</div><button type="button" id="bc-mobile-keyboard" class="bc-mobile-keyboard" aria-pressed="false" aria-label="切換文字鍵盤">文字鍵盤</button></div></div>
   <div class="bc-field"><label class="bc-label" for="bc-inverse-team">② 隊伍人數</label><select id="bc-inverse-team">${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${n===2?'selected':''}>${n} 人</option>`).join('')}</select></div>
   <div class="bc-field"><label class="bc-label" for="bc-inverse-max">③ 最高檢查倍率</label><select id="bc-inverse-max"><option value="70" selected>70 倍</option><option value="100">100 倍</option><option value="200">200 倍</option><option value="500">500 倍</option><option value="custom">自訂上限…</option></select></div>
  </div>
@@ -151,6 +151,7 @@ function syncForwardMultiplierOptions(){
  const custom=$('bc-custom-multiplier');custom.max=String(max);
  if(Number(custom.value)>max)custom.value=String(max);
  const hint=$('bc-multiplier-hint');if(hint)hint.textContent=`此 BOSS 目前開放最高 ${max} 倍`;
+ const mobileHint=$('bc-mobile-multiplier-hint');if(mobileHint)mobileHint.textContent=`此 BOSS 目前開放最高 ${max} 倍`;
 }
 
 // Atlas and reverse calculator must use the same published, normalized HP.
@@ -320,6 +321,32 @@ inversePanel.addEventListener('change',e=>{
  if(['bc-inverse-team','bc-inverse-max','bc-inverse-custom','bc-inverse-status'].includes(e.target.id))renderInverse();
 });
 
+// Phone input: keep the numeric keypad by default; allow Chinese-unit insertion
+// or switch to a full keyboard. Existing damage parsing and calculations are unchanged.
+inversePanel.addEventListener('click',e=>{
+ const unitButton=e.target.closest('[data-bc-unit]');
+ const keyboardButton=e.target.closest('#bc-mobile-keyboard');
+ if(unitButton){
+  const input=$('bc-inverse-damage'),unit=unitButton.dataset.bcUnit;
+  if(!['萬','億','兆','京'].includes(unit))return;
+  const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
+  if(input.value.length+unit.length>input.maxLength)return;
+  input.setRangeText(unit,start,end,'end');
+  input.dispatchEvent(new Event('input',{bubbles:true}));
+  input.focus({preventScroll:true});
+  return;
+ }
+ if(keyboardButton){
+  const input=$('bc-inverse-damage');
+  const fullText=keyboardButton.getAttribute('aria-pressed')!=='true';
+  input.blur();
+  input.setAttribute('inputmode',fullText?'text':'decimal');
+  keyboardButton.setAttribute('aria-pressed',String(fullText));
+  keyboardButton.textContent=fullText?'數字鍵盤':'文字鍵盤';
+  keyboardButton.setAttribute('aria-label',fullText?'切換數字鍵盤':'切換文字鍵盤');
+  input.focus({preventScroll:true});
+ }
+});
 inversePanel.addEventListener('click',e=>{
  const category=e.target.closest('[data-category]');
  if(category){inverseCategory=category.dataset.category;inverseBossId='all';renderInverseFilters();renderInverse();return;}

@@ -165,3 +165,21 @@
 
 /* UI2 portraits in the BOSS selector only. V7.8 result cards unchanged. */
 @media(max-width:640px){#ddBossChallenge .bc-inverse-boss-choice{gap:7px;padding:4px 5px}#ddBossChallenge .bc-inverse-boss-choice .bc-inverse-portrait{width:39px;height:40px}#ddBossChallenge .bc-inverse-boss-choice .bc-inverse-choice-name{font-size:11px}}
+
+/* V7.13 — mobile-only form clarity / damage keypad controls.
+   Desktop layout and the reverse-result cards are deliberately untouched. */
+#ddBossChallenge .bc-mobile-multiplier-hint,
+#ddBossChallenge .bc-mobile-damage-tools{display:none}
+@media(max-width:600px){
+ #ddBossChallenge .bc-form-grid{align-items:start}
+ #ddBossChallenge .bc-form-grid .bc-field>.bc-label{min-height:18px;margin-bottom:7px;white-space:nowrap;font-size:12px}
+ #ddBossChallenge #bc-multiplier-hint{display:none}
+ #ddBossChallenge .bc-mobile-multiplier-hint{display:block;margin-top:7px;font-size:11px;line-height:1.35;color:var(--bc-muted);font-weight:650;overflow-wrap:anywhere}
+ #ddBossChallenge .bc-mobile-damage-tools{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:8px}
+ #ddBossChallenge .bc-mobile-damage-tools-label{color:var(--bc-muted);font-size:11px;font-weight:750;white-space:nowrap}
+ #ddBossChallenge .bc-mobile-unit-buttons{display:flex;align-items:center;gap:5px}
+ #ddBossChallenge .bc-mobile-damage-tools button{width:auto;min-height:30px;border:1px solid var(--bc-line);border-radius:8px;background:var(--bc-soft);color:var(--bc-ink);font-size:12px;font-weight:800;padding:5px 8px;line-height:1.1;touch-action:manipulation}
+ #ddBossChallenge .bc-mobile-damage-tools button:active{background:color-mix(in srgb,var(--bc-accent) 17%,var(--bc-bg));border-color:var(--bc-accent)}
+ #ddBossChallenge .bc-mobile-keyboard{margin-left:auto;white-space:nowrap}
+ #ddBossChallenge .bc-mobile-keyboard[aria-pressed="true"]{border-color:var(--bc-accent);color:var(--bc-accent);background:color-mix(in srgb,var(--bc-accent) 9%,var(--bc-bg))}
+}
