@@ -116,31 +116,55 @@ function scheduleRowAlignment(){
 }
 function alignBossRows(){
  const cards=[...root.querySelectorAll('.dd-atlas-grid > .dd-boss')];
- for(const el of root.querySelectorAll('.dd-boss-top,.dd-diff-toolbar,.dd-drop-group')){el.style.minHeight='';el.style.display='';}
+ // Clear old alignment first, then READ all sizes before WRITING any new ones.
+ // Interleaving reads and writes used to trigger repeated full-page reflows.
+ for(const el of root.querySelectorAll('.dd-boss-top,.dd-diff-toolbar,.dd-drop-group')){
+  el.style.minHeight='';el.style.display='';
+ }
  if(!cards.length||matchMedia('(max-width:669px)').matches)return;
- // Only cards in the same visual row share heights; other rows stay independent.
- const rows=new Map();
+ const rows=new Map(),updates=[];
  for(const card of cards){const y=Math.round(card.getBoundingClientRect().top);
   if(!rows.has(y))rows.set(y,[]);rows.get(y).push(card);}
  for(const row of rows.values()){
   const blocks=row.map(card=>card.querySelector('.dd-boss-top'));
-  let topHeight=Math.max(...blocks.map(el=>el?.getBoundingClientRect().height||0));
-  blocks.forEach(el=>{if(el)el.style.minHeight=Math.ceil(topHeight)+'px'});
+  const topHeight=Math.ceil(Math.max(...blocks.map(el=>el?.getBoundingClientRect().height||0)));
+  blocks.forEach(el=>{if(el)updates.push([el,'minHeight',topHeight+'px'])});
   const tabs=row.map(card=>card.querySelector('.dd-diff-toolbar'));
-  const tabsHeight=Math.max(...tabs.map(el=>el?.getBoundingClientRect().height||0));
-  tabs.forEach(el=>{if(el)el.style.minHeight=Math.ceil(tabsHeight)+'px'});
+  const tabsHeight=Math.ceil(Math.max(...tabs.map(el=>el?.getBoundingClientRect().height||0)));
+  tabs.forEach(el=>{if(el)updates.push([el,'minHeight',tabsHeight+'px'])});
   for(const category of CATEGORIES){
    const sections=row.map(card=>[...card.querySelectorAll('.dd-drop-group')].find(e=>e.dataset.category===category));
    const visible=sections.some(el=>el?.dataset.hasDrops==='1');
-   sections.forEach(el=>{if(el&&!visible)el.style.display='none'});
-   if(!visible)continue;
-   const height=Math.max(...sections.map(el=>el?.getBoundingClientRect().height||0));
-   sections.forEach(el=>{if(el)el.style.minHeight=Math.ceil(height)+'px'});
+   if(!visible){sections.forEach(el=>{if(el)updates.push([el,'display','none'])});continue;}
+   const height=Math.ceil(Math.max(...sections.map(el=>el?.getBoundingClientRect().height||0)));
+   sections.forEach(el=>{if(el)updates.push([el,'minHeight',height+'px'])});
   }
  }
+ for(const [el,prop,value] of updates)el.style[prop]=value;
 }
 window.addEventListener('resize',scheduleRowAlignment,{passive:true});
-root.addEventListener('load',event=>{if(event.target.tagName==='IMG')scheduleRowAlignment()},true);
+// All BOSS portraits, difficulty symbols and loot icons already reserve their
+// dimensions in CSS. Lazy image load must NOT realign the whole atlas on scroll.
+
+// Restore the reader's current BOSS when a later cloud snapshot replaces the
+// local preview. This prevents a late network response from jumping the page.
+function captureViewportAnchor(){
+ const bounds=root.getBoundingClientRect();
+ if(bounds.top>0||bounds.bottom<=0)return null;
+ const cards=[...root.querySelectorAll('.dd-atlas-grid > .dd-boss')];
+ const index=cards.findIndex(card=>card.getBoundingClientRect().bottom>0);
+ if(index<0)return null;
+ const card=cards[index];
+ return {id:card.dataset.bossId,index,top:card.getBoundingClientRect().top};
+}
+function restoreViewportAnchor(anchor){
+ if(!anchor)return;
+ const cards=[...root.querySelectorAll('.dd-atlas-grid > .dd-boss')];
+ const card=cards.find(el=>el.dataset.bossId===anchor.id)||cards[anchor.index];
+ if(!card)return;
+ const delta=card.getBoundingClientRect().top-anchor.top;
+ if(Math.abs(delta)>0.5)window.scrollTo({top:window.scrollY+delta,behavior:'instant'});
+}
 // Keep the stored HP text unchanged, but replace its numbered stage markers
 // with readable Chinese labels in the public interface.
 function formatHp(value){
@@ -231,7 +255,17 @@ root.addEventListener('input',event=>{
 (async()=>{
  try{const r=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||Date.now().toString(36)),{cache:'no-store'});if(!r.ok)throw Error('無法讀取圖鑑預設資料');data=await r.json();staticCatalog=Array.isArray(data.items)?data.items:[];staticBossCatalog=structuredClone(data.bosses||[]);data=hydrateCatalog(data);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);render();sharePublicAtlasData();}
  catch(e){root.textContent='BOSS 圖鑑目前無法載入，請稍後再試。';console.warn(e);return}
- try{const r=await fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const p=await r.json();if(p?.ok&&p?.data?.duoduo_boss_atlas?.schema===1){data=hydrateCatalog(p.data.duoduo_boss_atlas);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);render();sharePublicAtlasData()}}
+ try{const r=await fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const p=await r.json();if(p?.ok&&p?.data?.duoduo_boss_atlas?.schema===1){
+  const incoming=hydrateCatalog(p.data.duoduo_boss_atlas);
+  migrateAtlasV2(incoming);reconcileOldPublicSnapshot(incoming);
+  // Identical cloud data must not recreate dozens of cards or restart lazy images.
+  if(JSON.stringify(incoming)!==JSON.stringify(data)){
+   const anchor=captureViewportAnchor();
+   data=incoming;render();sharePublicAtlasData();
+   // Row alignment is queued by renderResults() before this restoration.
+   if(anchor)requestAnimationFrame(()=>restoreViewportAnchor(anchor));
+  }
+ }}
  catch(e){console.warn('BOSS 圖鑑雲端資料暫時無法取得，使用預設資料。',e)}
 })();
 })();
