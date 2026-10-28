@@ -268,3 +268,19 @@
     font-size:clamp(9px, calc(5vw - 7px), 13px);
   }
 }
+
+/* Forward BOSS calculator: both fields keep their labels at the same top edge
+   and selects on the same baseline when the multiplier hint wraps.
+   Mobile's already-verified compact rules remain unchanged. */
+@media (min-width: 601px) {
+  #ddBossChallenge .bc-calc-body .bc-form-grid > .bc-field {
+    display: flex;
+    flex-direction: column;
+  }
+  #ddBossChallenge .bc-calc-body .bc-form-grid > .bc-field > select {
+    margin-top: auto;
+  }
+  #ddBossChallenge .bc-calc-body #bc-multiplier-hint {
+    white-space: nowrap;
+  }
+}
