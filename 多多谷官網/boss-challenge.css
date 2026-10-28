@@ -166,20 +166,34 @@
 /* UI2 portraits in the BOSS selector only. V7.8 result cards unchanged. */
 @media(max-width:640px){#ddBossChallenge .bc-inverse-boss-choice{gap:7px;padding:4px 5px}#ddBossChallenge .bc-inverse-boss-choice .bc-inverse-portrait{width:39px;height:40px}#ddBossChallenge .bc-inverse-boss-choice .bc-inverse-choice-name{font-size:11px}}
 
-/* V7.13 — mobile-only form clarity / damage keypad controls.
-   Desktop layout and the reverse-result cards are deliberately untouched. */
+/* V7.14 — mobile-only damage entry: numeric/text keyboards are separate
+   inputs, and the units sit to the right of the damage field. */
 #ddBossChallenge .bc-mobile-multiplier-hint,
 #ddBossChallenge .bc-mobile-damage-tools{display:none}
+#ddBossChallenge .bc-damage-input-wrap{min-width:0}
+#ddBossChallenge .bc-damage-input-wrap input{width:100%}
 @media(max-width:600px){
  #ddBossChallenge .bc-form-grid{align-items:start}
  #ddBossChallenge .bc-form-grid .bc-field>.bc-label{min-height:18px;margin-bottom:7px;white-space:nowrap;font-size:12px}
  #ddBossChallenge #bc-multiplier-hint{display:none}
  #ddBossChallenge .bc-mobile-multiplier-hint{display:block;margin-top:7px;font-size:11px;line-height:1.35;color:var(--bc-muted);font-weight:650;overflow-wrap:anywhere}
- #ddBossChallenge .bc-mobile-damage-tools{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin-top:8px}
- #ddBossChallenge .bc-mobile-damage-tools-label{color:var(--bc-muted);font-size:11px;font-weight:750;white-space:nowrap}
- #ddBossChallenge .bc-mobile-unit-buttons{display:flex;align-items:center;gap:5px}
- #ddBossChallenge .bc-mobile-damage-tools button{width:auto;min-height:30px;border:1px solid var(--bc-line);border-radius:8px;background:var(--bc-soft);color:var(--bc-ink);font-size:12px;font-weight:800;padding:5px 8px;line-height:1.1;touch-action:manipulation}
+ /* Damage spans the whole row; party and max checks start at the LEFT below it. */
+ #ddBossChallenge .bc-inverse-fields{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 9px;align-items:start}
+ #ddBossChallenge .bc-inverse-fields>.bc-field:first-child{grid-column:1/-1}
+ #ddBossChallenge .bc-inverse-fields>.bc-field:nth-child(2){grid-column:1}
+ #ddBossChallenge .bc-inverse-fields>.bc-field:nth-child(3){grid-column:2}
+ #ddBossChallenge .bc-damage-input-row{display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:5px;min-width:0}
+ #ddBossChallenge .bc-mobile-damage-tools{display:flex;align-items:center;flex-wrap:nowrap;gap:4px;margin:0;min-width:0}
+ #ddBossChallenge .bc-mobile-unit-buttons{display:flex;align-items:center;gap:3px}
+ #ddBossChallenge .bc-mobile-damage-tools button{display:grid;place-items:center;min-height:40px;border:1px solid var(--bc-line);border-radius:7px;background:var(--bc-soft);color:var(--bc-ink);font-size:12px;font-weight:850;padding:0;line-height:1;touch-action:manipulation}
+ #ddBossChallenge .bc-mobile-unit{width:30px;min-width:30px}
+ #ddBossChallenge .bc-mobile-keyboard{width:34px;min-width:34px}
+ #ddBossChallenge .bc-mobile-keyboard svg{display:block;width:18px;height:18px}
  #ddBossChallenge .bc-mobile-damage-tools button:active{background:color-mix(in srgb,var(--bc-accent) 17%,var(--bc-bg));border-color:var(--bc-accent)}
- #ddBossChallenge .bc-mobile-keyboard{margin-left:auto;white-space:nowrap}
  #ddBossChallenge .bc-mobile-keyboard[aria-pressed="true"]{border-color:var(--bc-accent);color:var(--bc-accent);background:color-mix(in srgb,var(--bc-accent) 9%,var(--bc-bg))}
+}
+@media(max-width:350px){
+ #ddBossChallenge .bc-mobile-unit{width:26px;min-width:26px}
+ #ddBossChallenge .bc-mobile-keyboard{width:30px;min-width:30px}
+ #ddBossChallenge .bc-mobile-damage-tools button{font-size:11px}
 }

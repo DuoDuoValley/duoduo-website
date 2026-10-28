@@ -115,7 +115,7 @@ inversePanel.innerHTML=`
  <div class="bc-calc-heading"><div class="bc-card-head" style="margin:0"><span class="bc-head-icon" aria-hidden="true">↶</span><h3 id="bc-inverse-title">個人傷害反推｜BOSS 獎勵門檻</h3></div><span class="bc-pill">反向試算</span></div>
  <p class="bc-description">輸入自己可輸出的傷害，反推哪些 BOSS、難度與血量倍率能達到獎勵資格。此為<strong>個人獎勵門檻</strong>，不代表隊伍一定能擊敗 BOSS。</p>
  <div class="bc-inverse-fields">
-  <div class="bc-field"><label class="bc-label" for="bc-inverse-damage">① 個人輸出傷害</label><input id="bc-inverse-damage" type="text" inputmode="decimal" maxlength="60" placeholder="例如：800億、2兆5000億" autocomplete="off"><div class="bc-mobile-damage-tools" aria-label="手機傷害輸入輔助"><span class="bc-mobile-damage-tools-label">快速加單位</span><div class="bc-mobile-unit-buttons" role="group" aria-label="插入傷害單位">${['萬','億','兆','京'].map(u=>`<button type="button" class="bc-mobile-unit" data-bc-unit="${u}" aria-label="插入${u}">${u}</button>`).join('')}</div><button type="button" id="bc-mobile-keyboard" class="bc-mobile-keyboard" aria-pressed="false" aria-label="切換文字鍵盤">文字鍵盤</button></div></div>
+  <div class="bc-field"><label class="bc-label" for="bc-inverse-damage">① 個人輸出傷害</label><div class="bc-damage-input-row"><div class="bc-damage-input-wrap"><input id="bc-inverse-damage" type="text" inputmode="decimal" maxlength="60" placeholder="例如：800億、2兆5000億" autocomplete="off"><input id="bc-inverse-damage-text" type="text" inputmode="text" maxlength="60" placeholder="例如：800億、2兆5000億" autocomplete="off" aria-label="個人輸出傷害（文字鍵盤）" hidden></div><div class="bc-mobile-damage-tools" aria-label="快速輸入單位與鍵盤切換"><div class="bc-mobile-unit-buttons" role="group" aria-label="插入傷害單位">${['萬','億','兆','京'].map(u=>`<button type="button" class="bc-mobile-unit" data-bc-unit="${u}" aria-label="插入${u}">${u}</button>`).join('')}</div><button type="button" id="bc-mobile-keyboard" class="bc-mobile-keyboard" aria-pressed="false" aria-label="切換至文字鍵盤" title="切換至文字鍵盤"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M6 12h.01M10 12h.01M14 12h.01M18 12h.01M7 16h10"/></svg></button></div></div></div>
   <div class="bc-field"><label class="bc-label" for="bc-inverse-team">② 隊伍人數</label><select id="bc-inverse-team">${[1,2,3,4,5,6].map(n=>`<option value="${n}" ${n===2?'selected':''}>${n} 人</option>`).join('')}</select></div>
   <div class="bc-field"><label class="bc-label" for="bc-inverse-max">③ 最高檢查倍率</label><select id="bc-inverse-max"><option value="70" selected>70 倍</option><option value="100">100 倍</option><option value="200">200 倍</option><option value="500">500 倍</option><option value="custom">自訂上限…</option></select></div>
  </div>
@@ -316,35 +316,48 @@ function renderInverse(){
  const list=groups.map(g=>`<div class="bc-inverse-group"><div class="bc-inverse-group-title">${inverseBanner(g.boss)}<span class="bc-inverse-group-name">${escapeHTML(g.name)}<small>${escapeHTML(g.boss.group)} BOSS</small></span></div>${g.items.join('')}</div>`).join('');
  target.innerHTML=`<div class="bc-inverse-summary"><strong>個人傷害：${formatHp(damage)}</strong><span>${party} 人隊伍 · ${countText}</span></div>${note}${notice}${list?`<div class="bc-inverse-list">${list}</div>`:'<div class="bc-status bc-inverse-empty">目前設定的傷害量，沒有符合條件的 BOSS 難度；可調整傷害、人數或顯示全部。</div>'}`;
 }
-inversePanel.addEventListener('input',e=>{if(e.target.id==='bc-inverse-damage'||e.target.id==='bc-inverse-custom')renderInverse();});
+const numericDamageInput=$('bc-inverse-damage');
+const textDamageInput=$('bc-inverse-damage-text');
+function activeDamageInput(){return textDamageInput.hidden?numericDamageInput:textDamageInput;}
+function syncDamageInputs(source){(source===numericDamageInput?textDamageInput:numericDamageInput).value=source.value;}
+inversePanel.addEventListener('input',e=>{
+ if(e.target===numericDamageInput||e.target===textDamageInput){syncDamageInputs(e.target);renderInverse();}
+ else if(e.target.id==='bc-inverse-custom')renderInverse();
+});
 inversePanel.addEventListener('change',e=>{
  if(['bc-inverse-team','bc-inverse-max','bc-inverse-custom','bc-inverse-status'].includes(e.target.id))renderInverse();
 });
 
-// Phone input: keep the numeric keypad by default; allow Chinese-unit insertion
-// or switch to a full keyboard. Existing damage parsing and calculations are unchanged.
+// V7.14: iOS may keep the original soft keyboard when inputmode is changed
+// on a focused element. Use TWO real inputs (numeric and text), focus the
+// other input synchronously during the user's tap, and keep their values in sync.
 inversePanel.addEventListener('click',e=>{
  const unitButton=e.target.closest('[data-bc-unit]');
  const keyboardButton=e.target.closest('#bc-mobile-keyboard');
  if(unitButton){
-  const input=$('bc-inverse-damage'),unit=unitButton.dataset.bcUnit;
+  const input=activeDamageInput(),unit=unitButton.dataset.bcUnit;
   if(!['萬','億','兆','京'].includes(unit))return;
   const start=input.selectionStart??input.value.length,end=input.selectionEnd??start;
-  if(input.value.length+unit.length>input.maxLength)return;
+  if(input.value.length-(end-start)+unit.length>input.maxLength)return;
   input.setRangeText(unit,start,end,'end');
   input.dispatchEvent(new Event('input',{bubbles:true}));
   input.focus({preventScroll:true});
   return;
  }
  if(keyboardButton){
-  const input=$('bc-inverse-damage');
-  const fullText=keyboardButton.getAttribute('aria-pressed')!=='true';
-  input.blur();
-  input.setAttribute('inputmode',fullText?'text':'decimal');
-  keyboardButton.setAttribute('aria-pressed',String(fullText));
-  keyboardButton.textContent=fullText?'數字鍵盤':'文字鍵盤';
-  keyboardButton.setAttribute('aria-label',fullText?'切換數字鍵盤':'切換文字鍵盤');
-  input.focus({preventScroll:true});
+  const from=activeDamageInput(),to=from===numericDamageInput?textDamageInput:numericDamageInput;
+  const caret=from.selectionStart??from.value.length;
+  syncDamageInputs(from);
+  from.blur();
+  from.hidden=true;
+  to.hidden=false;
+  const textMode=to===textDamageInput;
+  keyboardButton.setAttribute('aria-pressed',String(textMode));
+  const hint=textMode?'切換至數字鍵盤':'切換至文字鍵盤';
+  keyboardButton.setAttribute('aria-label',hint);
+  keyboardButton.title=hint;
+  to.focus({preventScroll:true});
+  try{to.setSelectionRange(caret,caret);}catch(_){}
  }
 });
 inversePanel.addEventListener('click',e=>{
