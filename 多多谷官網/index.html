@@ -1098,10 +1098,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('online',fetchCloud);
 if(!isChecklistEmbed){
 // V5 navigation: one persistent audio element, one shareable URL per view.
-const pageNames={'home.html':'首頁','index.html':'首頁','news.html':'最新消息','events.html':'檔期活動','event-detail.html':'活動詳情','boss.html':'BOSS 介紹','guide.html':'遊玩指南','downloads.html':'下載專區','privacy.html':'隱私政策','terms.html':'使用條款','player-tools/index.html':'玩家工具'};
+const pageNames={'home.html':'首頁','index.html':'首頁','news.html':'最新消息','events.html':'檔期活動','event-detail.html':'活動詳情','boss.html':'BOSS 介紹','guide.html':'遊玩指南','downloads.html':'下載專區','privacy.html':'隱私政策','terms.html':'使用條款','player-tools/index.html':'玩家工具','jobs/jobs.html':'職業圖鑑'};
 const siteBase=new URL('./',location.href);
 const siteRoot=siteBase.pathname;
-const ROUTE_PAGES=new Set(['home.html','news.html','events.html','event-detail.html','boss.html','guide.html','downloads.html','privacy.html','terms.html','player-tools/index.html']);
+const ROUTE_PAGES=new Set(['home.html','news.html','events.html','event-detail.html','boss.html','guide.html','downloads.html','privacy.html','terms.html','player-tools/index.html','jobs/jobs.html']);
 const ROUTE_KEY='duoduo_v5_route';
 let activeFrameDocument=null;
 
@@ -1228,7 +1228,11 @@ function changeInner(to,method='push'){
   if(!target)return false;
   const current=currentInner();
   updateAddress(target,method);
-  if(current&&current.href===target.href){showCurrentPage(target);return true;}
+  if(current&&current.href===target.href){
+    // Clicking an already-open main heading must return to the page top.
+    try{if(target.hash){frame.contentDocument?.getElementById(decodeURIComponent(target.hash.slice(1)))?.scrollIntoView();}else{frame.contentWindow.scrollTo(0,0);}}catch{}
+    showCurrentPage(target);return true;
+  }
   if(current&&current.pathname===target.pathname&&current.search===target.search){
     // Same page, different anchor: no page or audio reload, no iframe history duplication.
     try{

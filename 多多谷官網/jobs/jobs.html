@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0">
+  <meta name="color-scheme" content="dark light">
+  <meta name="description" content="多多谷職業圖鑑：依 12 大系列快速查詢角色卡（聯盟戰地）SSS 效果與傳授連結技能。">
+  <title>職業圖鑑｜多多谷官方網站</title>
+  <link rel="stylesheet" href="jobs.css">
+  <script src="jobs-data.js" defer></script>
+  <script src="jobs.js" defer></script>
+</head>
+<body>
+  <div class="site-wrap">
+    <header class="site-topbar">
+      <a class="dd-jobs-back" href="../guide.html">← 返回遊玩指南</a>
+      <div class="brand" aria-label="多多谷職業圖鑑">
+        <div class="brand-mark" aria-hidden="true">D</div>
+        <div><strong>多多谷</strong><span>CLASS ARCHIVE</span></div>
+      </div>
+      <div class="top-actions">
+        <span class="test-chip"><span class="test-dot"></span> 官方職業圖鑑 V6.5</span>
+        <button id="themeToggle" class="theme-switch" type="button" aria-label="切換深淺模式" title="切換深淺模式">☀ <span>淺色模式</span></button>
+      </div>
+    </header>
+    <main>
+      <section class="hero" aria-labelledby="heroTitle">
+        <div class="hero-copy">
+          <p class="eyebrow"><span class="eyebrow-line"></span> ADVENTURERS & LEGENDS</p>
+          <h1 id="heroTitle">職業<span>圖鑑</span><small>職業、戰地與傳授連結技能，一次查詢</small></h1>
+          <p class="hero-desc">從冒險家到江湖、超越者，快速查找每個職業的 SSS 聯盟戰地角色卡能力，以及對應的傳授連結技能。</p>
+          <div class="hero-info">
+            <span><strong id="seriesTotal">12</strong> 大職業系列</span>
+            <span><strong id="jobTotal">51</strong> 個職業</span>
+            <span><strong id="skillTotal">34</strong> 種傳授連結技能</span>
+          </div>
+        </div>
+        <div class="hero-emblem" aria-hidden="true">
+          <div class="hero-ring ring-a"></div><div class="hero-ring ring-b"></div>
+          <div class="hero-c">✦</div>
+          <span class="hero-deco deco-one">✧</span><span class="hero-deco deco-two">✦</span>
+        </div>
+      </section>
+
+      <section class="browser-section" aria-labelledby="browseTitle">
+        <div class="section-head">
+          <div><p class="section-kicker">THE CLASS COLLECTION</p><h2 id="browseTitle">探索所有職業</h2></div>
+          <p class="section-hint">依照你提供的 ZIP 原始分類排序，不更動職業所屬系列。</p>
+        </div>
+        <div class="filter-panel">
+          <div class="filters-top">
+            <label class="search-wrap">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.7" cy="10.7" r="6.2"/><path d="m15.4 15.4 4.8 4.8"/></svg>
+              <span class="sr-only">搜尋職業或技能</span>
+              <input id="searchInput" type="search" placeholder="搜尋職業、聯盟戰地或傳授連結技能…" autocomplete="off">
+              <kbd>/</kbd>
+            </label>
+            <label class="select-wrap"><span>職業類型</span><select id="typeSelect"><option value="">全部類型</option></select></label>
+            <label class="select-wrap"><span>能力效果</span><select id="traitSelect"><option value="">全部效果</option><option value="爆擊">爆擊相關</option><option value="BOSS">BOSS 傷害</option><option value="無視">無視防禦</option><option value="STR">STR</option><option value="DEX">DEX</option><option value="INT">INT</option><option value="LUK">LUK</option><option value="HP">HP／MP</option><option value="經驗">經驗值</option><option value="總傷害">總傷害</option></select></label>
+          </div>
+          <div class="filter-divider"></div>
+          <div id="seriesTabs" class="series-tabs" role="group" aria-label="職業系列分類"></div>
+        </div>
+        <div class="result-bar">
+          <p id="resultCount" aria-live="polite">正在載入職業資料…</p>
+          <button id="resetFilters" class="text-action" type="button" hidden>清除篩選 <span aria-hidden="true">↗</span></button>
+        </div>
+        <div id="jobsGrid" class="jobs-grid"></div>
+        <div id="emptyState" class="empty-state" hidden><div class="empty-glyph">⌕</div><strong>沒有符合條件的職業</strong><p>試試其他關鍵字，或清除目前篩選。</p><button id="emptyReset" type="button">清除篩選</button></div>
+      </section>
+
+      <aside class="preview-note"><div class="note-symbol">i</div><div><strong>資料說明</strong><p>職業、聯盟戰地與傳授連結技能資訊以多多谷伺服器實際遊戲內容及官方公告為準。</p></div></aside>
+    </main>
+    <footer class="site-footer"><span>多多谷 · 職業圖鑑</span><span>多多谷官方網站 · 資料持續更新</span></footer>
+  </div>
+  <dialog id="jobDialog" class="job-dialog" aria-label="職業詳細資料"><div id="jobDialogContent"></div></dialog>
+</body>
+</html>
