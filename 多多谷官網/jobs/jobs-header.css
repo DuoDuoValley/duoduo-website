@@ -1,0 +1,11 @@
+/* 職業圖鑑沿用正式官網 V9 頁首；僅隔離頁首色票，其他職業圖鑑 CSS 不更動。 */
+.site-header{--bg:#07111f;--bg2:#0b1726;--panel:#0e1c2d;--panel2:#13253a;--text:#f7fbff;--muted:#9cafc2;--muted2:#7f91a5;--accent:#72e6ff;--accent2:#a9f1ff;--gold:#d9a94a;--gold2:#f4d28a;--line:#25384b;--soft:#ffffff08;--header:rgba(7,17,31,.84);--shadow:0 28px 90px rgba(0,0,0,.28)}
+:root[data-theme="light"] .site-header{--bg:#f4f7fa;--bg2:#eaf0f5;--panel:#fff;--panel2:#edf3f7;--text:#172536;--muted:#586b7e;--muted2:#718296;--accent:#079bc0;--accent2:#007fa2;--gold:#f4bd3f;--gold2:#ffd86b;--line:#d7e0e8;--soft:#0b1d2d08;--header:rgba(244,247,250,.88);--shadow:0 24px 70px rgba(24,46,66,.12)}
+.site-header .brand{gap:10px;font-weight:900;white-space:nowrap;text-decoration:none}
+.site-header .brand img{width:118px;height:62px;max-width:none;object-fit:contain;border-radius:0}
+.site-header .brand span{font-size:12px;font-weight:750;letter-spacing:.06em;color:var(--muted)!important}
+.site-header .header-status{font-size:13px;color:var(--muted)!important;font-weight:750!important}
+.site-header a{text-decoration:none}
+.site-header .theme-toggle{font-family:inherit}
+.site-header.dd-nav-ready nav.dd-main-nav .dd-top-link{box-sizing:border-box}
+@media(max-width:680px){.site-header .brand span{display:none}.site-header .brand img{width:105px;height:48px}}

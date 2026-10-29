@@ -5,7 +5,8 @@ const header=document.querySelector('header.site-header');
 const nav=header?.querySelector('nav.dd-main-nav');
 if(!nav||!header)return;
 const inTools=location.pathname.includes('/player-tools/');
-const prefix=inTools?'../':'';
+const inJobs=location.pathname.includes('/jobs/');
+const prefix=(inTools||inJobs)?'../':'';
 const groups=[
  {key:'news',name:'最新消息',href:'news.html',items:[['全部','news.html?ddnav=全部'],['重要','news.html?ddnav=重要消息'],['維護','news.html?ddnav=維護通知'],['更新','news.html?ddnav=更新說明'],['活動','news.html?ddnav=活動資訊']]},
  {key:'events',name:'檔期活動',href:'events.html',items:[['全部','events.html?ddnav=all'],['進行中','events.html?ddnav=active'],['已結束','events.html?ddnav=ended']]},

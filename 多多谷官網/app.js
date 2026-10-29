@@ -161,7 +161,23 @@ const navContainers=new Set();document.querySelectorAll('header .nav-pill[data-n
 document.querySelectorAll("[data-footer]").forEach(el=>{const key=el.dataset.footer;if(SITE_SETTINGS.footer[key]!==undefined)el.textContent=SITE_SETTINGS.footer[key]});
 const guideResources=document.getElementById("guide-resources-grid");
 if(guideResources){
-  guideResources.innerHTML=RESOURCES.filter(r=>r.enabled!==false).map(r=>`<article class="guide-resource-card"><div class="guide-resource-head"><div><span class="eyebrow">RESOURCE</span><h3>${esc(r.title)}</h3><p>${esc(r.desc||"")}</p></div><a class="btn btn-outline" href="${esc(r.url)}" target="_blank" rel="noopener">另開完整頁面 ↗</a></div>${r.embed!==false&&r.embedUrl?`<div class="guide-embed"><iframe src="${esc(r.embedUrl)}" loading="lazy" title="${esc(r.title)}" referrerpolicy="strict-origin-when-cross-origin"></iframe></div><div class="guide-embed-note">如果外部服務限制嵌入，仍可使用上方「另開完整頁面」正常查看。</div>`:`<div class="guide-open-only">此資源目前以外部頁面開啟。<a href="${esc(r.url)}" target="_blank" rel="noopener">立即開啟 ↗</a></div>`}</article>`).join("");
+  guideResources.innerHTML=RESOURCES.filter(r=>r.enabled!==false).map(r=>`<article class="guide-resource-card"><div class="guide-resource-head"><div><span class="eyebrow">RESOURCE</span><h3>${esc(r.title)}</h3><p>${esc(r.desc||"")}</p></div><a class="btn btn-outline" href="${esc(r.url)}" target="_blank" rel="noopener">另開完整頁面 ↗</a></div>${r.embed!==false&&r.embedUrl?`<div class="guide-embed guide-embed-deferred"><button type="button" class="guide-embed-load" data-embed-url="${esc(r.embedUrl)}" data-embed-title="${esc(r.title)}">載入「${esc(r.title)}」內嵌預覽 ↗</button></div><div class="guide-embed-note">為避免嵌入文件自動移動頁面，請點擊上方按鈕後再載入。亦可使用「另開完整頁面」。</div>`:`<div class="guide-open-only">此資源目前以外部頁面開啟。<a href="${esc(r.url)}" target="_blank" rel="noopener">立即開啟 ↗</a></div>`}</article>`).join("");
+  // 必須由玩家點擊才插入 iframe：避免 Google 文件初始載入後取得焦點並將遊玩指南捲到底部。
+  guideResources.addEventListener('click',event=>{
+    const button=event.target.closest('.guide-embed-load');
+    if(!button||!guideResources.contains(button))return;
+    const frame=new URL(button.dataset.embedUrl||'',location.href);
+    if(!['https:','http:'].includes(frame.protocol))return;
+    const area=button.parentElement;
+    const iframe=document.createElement('iframe');
+    iframe.src=frame.href;
+    iframe.title=button.dataset.embedTitle||'官方文件預覽';
+    iframe.loading='lazy';
+    iframe.referrerPolicy='strict-origin-when-cross-origin';
+    iframe.tabIndex=-1;
+    area.classList.remove('guide-embed-deferred');
+    area.replaceChildren(iframe);
+  });
 }
 
 

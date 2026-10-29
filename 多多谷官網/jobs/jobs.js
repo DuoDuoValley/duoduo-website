@@ -599,9 +599,26 @@
     updateFloatingRank();
   });
   document.addEventListener('keydown',e=>{if(e.key==='/' && !/^(INPUT|TEXTAREA|SELECT)$/.test(document.activeElement.tagName) && !byId('jobDialog').open){e.preventDefault();byId('searchInput').focus();}});
+  // 與官網完全共用 duoduo_theme：從圖鑑切換後，返回官網會保持相同模式。
   const themeToggle=byId('themeToggle');
-  const applyTheme=theme=>{document.documentElement.dataset.theme=theme;themeToggle.innerHTML=theme==='dark'?'☀ <span>淺色模式</span>':'☾ <span>深色模式</span>';};
-  let theme='dark';try{theme=localStorage.getItem('dd-jobs-preview-theme')==='light'?'light':'dark';}catch{}applyTheme(theme);
-  themeToggle.addEventListener('click',()=>{theme=theme==='dark'?'light':'dark';applyTheme(theme);try{localStorage.setItem('dd-jobs-preview-theme',theme);}catch{}});
+  const applyTheme=(value)=>{
+    const light=value!=='dark';
+    document.documentElement.dataset.theme=light?'light':'dark';
+    const icon=byId('themeIcon'),label=byId('themeLabel');
+    if(icon)icon.textContent=light?'☾':'☼';
+    if(label)label.textContent=light?'深色模式':'淺色模式';
+    if(themeToggle)themeToggle.title=light?'切換深色模式':'切換淺色模式';
+  };
+  let theme='light';
+  try{theme=localStorage.getItem('duoduo_theme')==='dark'?'dark':'light';}catch{}
+  applyTheme(theme);
+  themeToggle?.addEventListener('click',()=>{
+    theme=document.documentElement.dataset.theme==='dark'?'light':'dark';
+    applyTheme(theme);
+    try{localStorage.setItem('duoduo_theme',theme);}catch{}
+  });
+  window.addEventListener('storage',e=>{
+    if(e.key==='duoduo_theme')applyTheme(e.newValue==='dark'?'dark':'light');
+  });
   render();
 })();

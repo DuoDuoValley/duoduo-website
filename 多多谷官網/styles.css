@@ -449,3 +449,8 @@ footer{padding:35px 5vw;border-top:1px solid var(--line);display:flex;justify-co
   .site-header .header-actions { justify-self: end; }
   .site-header .main-nav .nav-pill { padding: 8px 9px !important; }
 }
+
+/* 遊玩指南：內嵌文件改為使用者主動載入，避免進頁自動捲動。 */
+.guide-embed-deferred{display:grid;place-items:center;height:210px;min-height:210px;background:var(--panel2)}
+.guide-embed-load{border:1px solid var(--accent);border-radius:12px;padding:13px 19px;background:var(--soft);color:var(--accent2);font:inherit;font-weight:800;cursor:pointer;max-width:calc(100% - 32px);overflow-wrap:anywhere}
+.guide-embed-load:hover,.guide-embed-load:focus-visible{background:var(--panel);outline-offset:3px}

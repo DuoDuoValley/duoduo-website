@@ -52,7 +52,13 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
     <span data-footer="copyright">© 2026 DuoDuo Valley · 多多谷</span>
     <span class="footer-legal"><a href="privacy.html">隱私權政策</a><a href="terms.html">使用條款</a></span>
   </div>
-</footer><script src="app.js"></script>
+</footer><script>
+// 無錨點進入遊玩指南時，預設從頁首開始；有指定主題錨點則由導覽程式處理。
+if (!location.hash) {
+  try { history.scrollRestoration = 'manual'; } catch (_) {}
+  window.addEventListener('load', () => requestAnimationFrame(() => window.scrollTo({top:0,behavior:'instant'})), {once:true});
+}
+</script><script src="app.js"></script>
 <!-- DuoDuo public pages: refresh after published cloud content changes -->
 <script id="duoduo-public-cloud-refresh">
 (() => {
