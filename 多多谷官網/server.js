@@ -734,14 +734,22 @@ async function handleSaveSiteData(req,res){
 // Server-authoritative maintenance switch, separate from the general site-data draft.
 // Public GET is intentionally small; POST requires the existing authenticated admin session.
 const MAINT_ROW='__maintenance__';
-const MAINT_DEFAULT={enabled:false,title:'多多谷官網維護中',message:'官網正在進行維護與調整，請稍後再回來看看。'};
+const MAINT_DEFAULT={enabled:false,title:'多多谷官方網站維護中',message:'親愛的多多谷玩家您好：\n\n為提供更穩定、完善的網站服務，多多谷官方網站目前正在進行系統維護與功能調整，相關頁面將暫時停止開放。\n\n維護完成後，網站將恢復正常使用。造成不便，敬請見諒，感謝您的耐心等候與支持。\n\n最新維護進度及相關消息，請留意多多谷官方 Discord 公告。'};
+// Display migration only: previous built-in copy is updated; customized notices remain unchanged.
+const MAINT_LEGACY_TITLES=new Set(['多多谷官網維護中']);
+const MAINT_LEGACY_MESSAGES=new Set(['官網正在進行維護與調整，請稍後再回來看看。','官網正在進行維護與調整，請稍後再回來看看。遊戲相關消息請留意 Discord 官方公告。']);
+function readMaintenanceCopy(data){
+ const title=String(data.title||'').trim(),message=String(data.message||'').trim();
+ return {title:!title||MAINT_LEGACY_TITLES.has(title)?MAINT_DEFAULT.title:title,
+         message:!message||MAINT_LEGACY_MESSAGES.has(message)?MAINT_DEFAULT.message:message};
+}
 async function handleMaintenanceGet(req,res){
  try{const url=process.env.SUPABASE_URL,secret=process.env.SUPABASE_SECRET_KEY;
   if(!url||!secret)return sendJSON(res,503,{ok:false,error:'伺服器維護管理尚未設定'});
   const upstream=await fetch(`${url}/rest/v1/events?id=eq.${MAINT_ROW}&select=data`,{headers:{apikey:secret,Authorization:'Bearer '+secret},cache:'no-store'});
   if(!upstream.ok)return sendJSON(res,503,{ok:false,error:'無法取得維護狀態'});
   const rows=await upstream.json();const data=rows?.[0]?.data||{};
-  return sendJSON(res,200,{ok:true,enabled:data.enabled===true,title:String(data.title||MAINT_DEFAULT.title).slice(0,60),message:String(data.message||MAINT_DEFAULT.message).slice(0,500),updatedAt:data.updatedAt||null});
+  const copy=readMaintenanceCopy(data);return sendJSON(res,200,{ok:true,enabled:data.enabled===true,title:copy.title.slice(0,60),message:copy.message.slice(0,500),updatedAt:data.updatedAt||null});
  }catch(err){console.error('維護狀態讀取失敗',err);return sendJSON(res,503,{ok:false,error:'維護服務暫時無法連線'});}
 }
 async function handleMaintenancePost(req,res){
