@@ -947,3 +947,70 @@ html {
   .site-header .header-actions { justify-self: end; }
   .site-header .main-nav .nav-pill { padding: 8px 9px !important; }
 }
+/* Player Tools RWD: mobile-only header and tool-category alignment.
+   Desktop layout, simulation rules and existing components are untouched. */
+@media (max-width: 700px) {
+  /* Keep the logo and the two actions in separate, non-overlapping cells. */
+  .site-header {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas: "dd-brand dd-actions" "dd-nav dd-nav";
+    align-items: center;
+    gap: 6px 8px;
+    padding: 8px 12px 7px;
+  }
+  .site-header .brand { min-width: 0; }
+  .site-header .brand img { width: 106px !important; height: 52px !important; max-width: 100%; }
+  .site-header .brand span { display: none !important; }
+  /* The old forced display:inline-flex !important placed this in an implicit grid row. */
+  .site-header .header-status { display: none !important; }
+  .site-header .header-actions { min-width: 0; gap: 6px; flex-wrap: nowrap; }
+  .site-header .header-actions .btn-discord { display: none; }
+  .site-header .theme-toggle {
+    padding: 8px 9px !important;
+    font-size: 12px !important;
+    gap: 5px !important;
+    min-width: 0 !important;
+  }
+  .site-header .theme-toggle #themeLabel { font-size: 12px !important; }
+  .site-header .header-actions .btn-gold { padding: 8px 12px; font-size: 13px; }
+  .site-header nav.main-nav {
+    min-width: 0; max-width: 100%;
+    border-top: 1px solid var(--line);
+    padding: 6px 0 5px;
+    scroll-snap-type: x proximity;
+  }
+  .site-header nav.main-nav .nav-pill { scroll-snap-align: start; }
+
+  /* Six tools must be visible on mobile without a cropped horizontal scroller. */
+  .tabbar {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%; max-width: 100%;
+    overflow: visible;
+    flex-wrap: initial;
+    gap: 7px;
+    padding: 7px;
+  }
+  .tabbar .tab {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+    min-width: 0;
+    min-height: 54px;
+    padding: 9px 10px;
+    gap: 7px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.4;
+    font-size: 12px;
+  }
+  .tabbar .tab-icon { width: 21px; height: 21px; flex: 0 0 21px; }
+}
+@media (min-width: 550px) and (max-width: 700px) {
+  .tabbar { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 360px) {
+  .tabbar .tab { padding: 8px 7px; gap: 5px; font-size: 11px; }
+  .tabbar .tab-icon { width: 19px; height: 19px; flex-basis: 19px; }
+}
