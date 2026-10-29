@@ -35,3 +35,32 @@
 }
 @media(max-width:350px){.dd-nav-menu .dd-nav-rail{grid-template-columns:1fr}}
 @media(prefers-reduced-motion:reduce){.site-header.dd-nav-ready .dd-top-link,.site-header.dd-nav-ready .dd-top-link::after{transition:none}}
+
+/* Navigation theme-switch stability (2026-10-30):
+   One shared header typography context for the website, Jobs and Player Tools.
+   Only colours/backgrounds change with data-theme; font metrics and button
+   content-box dimensions must remain invariant across the two theme labels. */
+.site-header.dd-nav-ready{
+  font-family:"Noto Sans TC",system-ui,sans-serif;
+  line-height:1.7;
+}
+.site-header.dd-nav-ready .theme-toggle{
+  white-space:nowrap;
+}
+.site-header.dd-nav-ready .theme-toggle #themeIcon{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  inline-size:1em;
+  min-inline-size:1em;
+  flex:0 0 1em;
+  line-height:inherit;
+}
+.site-header.dd-nav-ready .theme-toggle #themeLabel{
+  display:inline-block;
+  inline-size:4em;
+  flex:0 0 4em;
+  text-align:center;
+  white-space:nowrap;
+  line-height:1.7;
+}
