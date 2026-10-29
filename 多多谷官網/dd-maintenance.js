@@ -25,6 +25,10 @@
  const own=document.currentScript;
  const base=own?.src?new URL('./',own.src):new URL('./',location.href);
  const api=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const MAINT_MUSIC_NAME='Kerning Square Field';
+ const MAINT_MUSIC_URL=new URL('assets/maintenance-bgm.mp3?v=4',base).href;
+ // A nested site iframe can also check maintenance; only the top-level page may play audio.
+ const canPlayMusic=window.self===window.top;
  const MAINT_DEFAULT_TITLE='多多谷官方網站維護中';
  const MAINT_DEFAULT_MESSAGE='親愛的多多谷玩家您好：\n\n為提供更穩定、完善的網站服務，多多谷官方網站目前正在進行系統維護與功能調整，相關頁面將暫時停止開放。\n\n維護完成後，網站將恢復正常使用。造成不便，敬請見諒，感謝您的耐心等候與支持。\n\n最新維護進度及相關消息，請留意多多谷官方 Discord 公告。';
  const css=document.createElement('style');css.id='dd-maintenance-style';css.textContent=`
@@ -44,6 +48,11 @@
  #dd-maintenance-screen button{border:1px solid #83cadc;background:#153c52;color:#efffff;border-radius:999px;padding:10px 23px;font:inherit;font-weight:750;cursor:pointer}
  #dd-maintenance-screen button:hover{background:#245772}
  #dd-maintenance-screen .dd-maint-note{color:#95b5ca;font-size:12px;margin-top:13px;line-height:1.6}
+ /* Audio has no visible player. Only show a small activation button if the browser blocks autoplay. */
+ #dd-maintenance-screen #dd-maint-audio-unlock{display:none;margin:0 auto 12px;padding:8px 17px;font-size:12px;font-weight:700}
+ #dd-maintenance-screen.dd-maint-audio-blocked #dd-maint-audio-unlock{display:inline-block}
+ #dd-maintenance-screen #dd-maint-audio-unlock:focus-visible{outline:2px solid #d5f5ff;outline-offset:3px}
+
  @media(max-width:540px){#dd-maintenance-screen{padding:12px}#dd-maintenance-screen .dd-maint-panel{padding:12px;border-radius:18px}#dd-maintenance-screen .dd-maint-hero{border-radius:12px}#dd-maintenance-screen .dd-maint-eyebrow{margin-top:16px}#dd-maintenance-screen .dd-maint-message{line-height:1.75;margin-bottom:20px}}
  @media(prefers-reduced-motion:reduce){#dd-maintenance-screen .dd-maint-hero video{display:none}#dd-maintenance-screen .dd-maint-hero .dd-maint-still{display:block}}
 `;document.head.appendChild(css);
@@ -58,12 +67,34 @@
     <img class="dd-maint-still" src="${posterUrl}" alt="多多谷 DUODUO VALLEY 官方 LOGO">
   </div><div class="dd-maint-eyebrow">DUODUO VALLEY · MAINTENANCE NOTICE</div>
   <h1 id="dd-maint-title">多多谷官方網站維護中</h1><p class="dd-maint-message" id="dd-maint-message"></p>
+  <audio id="dd-maint-audio" preload="auto" loop src="${MAINT_MUSIC_URL}" aria-hidden="true"></audio>
+  <button id="dd-maint-audio-unlock" type="button" aria-label="啟用維護背景音樂">♫ 點擊啟用背景音樂</button>
   <button id="dd-maint-check" type="button">重新檢查維護狀態</button><div class="dd-maint-note" id="dd-maint-note">網站恢復開放後，本頁將自動重新載入。</div></div>`;
   document.documentElement.appendChild(panel);
   const vid=panel.querySelector('video');
   vid.addEventListener('error',()=>panel.classList.add('dd-maint-video-failed'));
   panel.querySelector('source')?.addEventListener('error',()=>panel.classList.add('dd-maint-video-failed'));
-  panel.querySelector('button').addEventListener('click',()=>check(true));return panel;
+  const music=panel.querySelector('#dd-maint-audio');
+  music.volume=0.55; // Maintain a comfortable background level without affecting site BGM settings.
+  music.addEventListener('playing',()=>panel.classList.remove('dd-maint-audio-blocked'));
+  music.addEventListener('error',()=>{if(canPlayMusic&&visible)panel.classList.add('dd-maint-audio-blocked')});
+  panel.querySelector('#dd-maint-audio-unlock').addEventListener('click',()=>startMusic(true));
+  panel.querySelector('#dd-maint-check').addEventListener('click',()=>check(true));return panel;
+ }
+ let musicAttempted=false;
+ async function startMusic(fromGesture=false){
+  if(!visible||!canPlayMusic||!panel)return;
+  const music=panel.querySelector('#dd-maint-audio');
+  if(!music||!music.paused)return;
+  if(musicAttempted&&!fromGesture)return; // 30s status checks must never restart the track.
+  musicAttempted=true;
+  try{
+   await music.play();
+   panel.classList.remove('dd-maint-audio-blocked');
+  }catch(_){
+   // Unmuted autoplay is often blocked by the browser. A direct click is the fallback.
+   if(visible)panel.classList.add('dd-maint-audio-blocked');
+  }
  }
  function show(data){
   if(!document.body){document.addEventListener('DOMContentLoaded',()=>show(data),{once:true});return;}
@@ -74,8 +105,13 @@
   // Keep the provided muted branding video playing while pausing the actual site's BGM/media.
   try{document.querySelectorAll('audio,video').forEach(el=>{if(!el.closest('#dd-maintenance-screen'))el.pause()})}catch{}
   if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){const vid=panel.querySelector('video');vid?.play().catch(()=>panel.classList.add('dd-maint-video-failed'))}
+  if(canPlayMusic)void startMusic();
  }
- function hide(){document.documentElement.classList.remove('dd-maintenance-checking','dd-maintenance-on');visible=false}
+ function hide(){
+  if(panel){const music=panel.querySelector('#dd-maint-audio');if(music&&!music.paused)music.pause();panel.classList.remove('dd-maint-audio-blocked')}
+  musicAttempted=false;
+  document.documentElement.classList.remove('dd-maintenance-checking','dd-maintenance-on');visible=false;
+ }
  async function check(manual=false){if(working)return;working=true;
    if(manual&&panel)panel.querySelector('#dd-maint-note').textContent='正在檢查最新狀態…';
    const ctrl=new AbortController();const timer=setTimeout(()=>ctrl.abort(),6000);
