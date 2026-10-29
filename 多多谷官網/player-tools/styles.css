@@ -1014,3 +1014,30 @@ html {
   .tabbar .tab { padding: 8px 7px; gap: 5px; font-size: 11px; }
   .tabbar .tab-icon { width: 19px; height: 19px; flex-basis: 19px; }
 }
+
+/* Player Tools header theme stability - V9 (2026-10-30)
+   The older FINAL HEADER PARITY PATCH above uses width:auto!important on
+   #themeIcon/#themeLabel, unintentionally overriding the shared nav's fixed
+   widths.  Match the approved shared header geometry without altering the
+   Player Tools body, simulator, mobile toolbar or button font size. */
+.site-header.dd-nav-ready .theme-toggle #themeIcon {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 1em !important;
+  min-width: 1em !important;
+  max-width: 1em !important;
+  flex: 0 0 1em !important;
+  line-height: 1.7 !important;
+  text-align: center !important;
+}
+.site-header.dd-nav-ready .theme-toggle #themeLabel {
+  display: inline-block !important;
+  width: 4em !important;
+  min-width: 4em !important;
+  max-width: 4em !important;
+  flex: 0 0 4em !important;
+  line-height: 1.7 !important;
+  text-align: center !important;
+  white-space: nowrap !important;
+}
