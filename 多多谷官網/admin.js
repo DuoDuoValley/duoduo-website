@@ -132,8 +132,17 @@ const defaultSettings={name:'DuoDuo Valley｜多多谷',subtitle:'你的冒險�
 const defaultHero={images:['assets/ad3.png','assets/birthday.png','assets/boss.png','assets/experience-rate.png'],interval:5000};
 let hero=read('duoduo_hero',defaultHero);if(!Array.isArray(hero.slides)||!hero.slides.length){hero.slides=(Array.isArray(hero.images)&&hero.images.length?hero.images:defaultHero.images).map((image,i)=>({image,title:`多多谷宣傳 ${i+1}`,link:'',enabled:true}));}hero.slides=hero.slides.map((x,i)=>({image:x.image||'',title:x.title||`多多谷宣傳 ${i+1}`,link:x.link||'',enabled:x.enabled!==false}));hero.images=hero.slides.map(x=>x.image);hero.interval=Math.max(2000,Number(hero.interval)||5000);
 let settings=read('duoduo_settings',defaultSettings);settings.nav=Object.assign({},defaultSettings.nav,settings.nav||{});settings.nav.playerTools=settings.nav.playerTools||'玩家工具';settings.footer=Object.assign({},defaultSettings.footer,settings.footer||{});const defaultNavOrder=['home','news','events','boss','guide','downloads','player-tools'];settings.navOrder=Array.isArray(settings.navOrder)?settings.navOrder.filter(k=>defaultNavOrder.includes(k)):[];settings.navOrder=[...settings.navOrder,...defaultNavOrder.filter(k=>!settings.navOrder.includes(k))];
-const defaultResources=[{id:'guide',title:'完整遊玩指南',desc:'新手規則、系統說明與遊玩資訊。',url:defaultLinks['遊玩指南'],embedUrl:'https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/preview',embed:true,enabled:true},{id:'checklist',title:'每日 Checklist',desc:'每天完成進度、活動與日常內容的快速檢查。',url:defaultLinks['每日 Checklist'],embedUrl:defaultLinks['每日 Checklist'],embed:true,enabled:true},{id:'rates',title:'機率型道具說明',desc:'查看機率型道具與相關說明。',url:defaultLinks['機率型道具說明'],embedUrl:'https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing',embed:true,enabled:true},{id:'products',title:'上架商品',desc:'查看目前可取得的商品與內容。',url:defaultLinks['上架商品'],embedUrl:'https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing',embed:true,enabled:true}];
+const defaultResources=[{id:'guide',title:'玩法與系統介紹',desc:'新手規則、系統說明與遊玩資訊。',url:defaultLinks['遊玩指南'],embedUrl:'https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/preview',embed:true,enabled:true},{id:'checklist',title:'每日 Checklist',desc:'每天完成進度、活動與日常內容的快速檢查。',url:defaultLinks['每日 Checklist'],embedUrl:defaultLinks['每日 Checklist'],embed:true,enabled:true},{id:'rates',title:'機率型道具說明',desc:'查看機率型道具與相關說明。',url:defaultLinks['機率型道具說明'],embedUrl:'https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing',embed:true,enabled:true},{id:'products',title:'上架商品',desc:'查看目前可取得的商品與內容。',url:defaultLinks['上架商品'],embedUrl:'https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing',embed:true,enabled:true}];
 let resources=read('duoduo_resources',defaultResources);
+// 舊版已儲存的資源資料不會因變更預設值自動更新；後台載入時只校正既有舊名稱。
+// 不自動寫回雲端；管理員按原本的「儲存」與「手動同步」流程即可正式保存。
+if(Array.isArray(resources)){
+  for(const resource of resources){
+    if(resource?.id==='guide' && ['完整遊玩指南','完整指南','完整官方指南'].includes(String(resource.title||'').trim())){
+      resource.title='玩法與系統介紹';
+    }
+  }
+} 
 
 // 若仍是舊版預設順序，將 Checklist 移到第二個；已自行調整過的順序則完全保留。
 (function(){

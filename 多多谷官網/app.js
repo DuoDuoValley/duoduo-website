@@ -76,12 +76,20 @@ for(const [label,key] of Object.entries(LINK_LABEL_TO_KEY)){
   if(typeof value==='string')LINKS[key]=value;
 }
 const DEFAULT_RESOURCES=[
-  {id:"guide",title:"完整遊玩指南",desc:"新手規則、系統說明與遊玩資訊。",url:DEFAULT_LINKS.guide,embedUrl:"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/preview",embed:true},
+  {id:"guide",title:"玩法與系統介紹",desc:"新手規則、系統說明與遊玩資訊。",url:DEFAULT_LINKS.guide,embedUrl:"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/preview",embed:true},
   {id:"rates",title:"機率型道具說明",desc:"查看機率型道具與相關說明。",url:DEFAULT_LINKS.rates,embedUrl:"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing",embed:true},
   {id:"products",title:"上架商品",desc:"查看目前可取得的商品與內容。",url:DEFAULT_LINKS.products,embedUrl:"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing",embed:true},
   {id:"checklist",title:"每日 Checklist",desc:"每天完成進度、活動與日常內容的快速檢查。",url:DEFAULT_LINKS.checklist,embedUrl:DEFAULT_LINKS.checklist,embed:true}
 ];
 const RESOURCES=getJSONSafe("duoduo_resources",DEFAULT_RESOURCES);
+// 舊版的後台／雲端資源名稱已儲存時，前台仍以新版名稱顯示；其餘自訂名稱與連結保持不變。
+if(Array.isArray(RESOURCES)){
+  for(const resource of RESOURCES){
+    if(resource?.id==='guide' && ['完整遊玩指南','完整指南','完整官方指南'].includes(String(resource.title||'').trim())){
+      resource.title='玩法與系統介紹';
+    }
+  }
+}
 const DEFAULT_DOWNLOADS=[
   {id:"manager",title:"遊戲橘子遊戲管理器",type:"遊戲本體",url:"https://tw.beanfun.com/beanfunCommon/Redirect/Redirect.aspx?ID=B258",desc:"第一次安裝遊戲時，先使用官方遊戲管理器下載新楓之谷。",instructions:"1.於官方網站或多多谷Discord下載並安裝「遊戲橘子遊戲管理器」。\n2.開啟「遊戲橘子遊戲管理器」，找到「新楓之谷」點擊開始下載並選擇安裝路徑。",image:"assets/download-manager-guide.png",enabled:true},
   {id:"patch281to282",title:"V281 ～ V282 更新檔",type:"版本更新",url:"https://maplestory-download.beanfun.com/maplestory/download/282DTOpqU2UWtIc/8MCDwQMvJ47u/MaplePatch281to282.zip",desc:"已經安裝對應遊戲版本的玩家，可使用此檔案更新至 V282。",instructions:"1.於官方網站下載符合需求的更新檔案。\n2.下載完畢後，使用右鍵選更新檔，並選擇「以系統管理員身分執行」。\n3.選擇自己安裝新楓之谷主程式時的位置。",image:"assets/manual-update-guide.png",enabled:true},
