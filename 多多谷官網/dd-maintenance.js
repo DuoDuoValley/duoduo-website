@@ -1,6 +1,24 @@
 /* DuoDuo public maintenance screen. This is a visual gate for static GitHub Pages,
    not security/access control. Server-side publishing must use authenticated APIs. */
 (()=>{'use strict';
+ // The official Checklist embeds the existing BGM-only player from this site.
+ // This narrow exception must run BEFORE the maintenance checking class is set,
+ // otherwise the iframe would be hidden even though it should keep playing.
+ // A URL query alone is insufficient: it must be an iframe hosted directly by
+ // the official same-origin Checklist project, not a direct visit to the site.
+ function isOfficialChecklistPlayer(){
+  try{
+   if(new URLSearchParams(location.search).get('bgm_embed')!=='checklist')return false;
+   if(window.self===window.top||window.parent!==window.top)return false;
+   if(window.parent.location.origin!==location.origin)return false;
+   const path=window.parent.location.pathname.replace(/\/+$/,'');
+   return path==='/duoduo-checklist'||path.startsWith('/duoduo-checklist/');
+  }catch(_){return false;}
+ }
+ if(isOfficialChecklistPlayer()){
+  document.documentElement.setAttribute('data-dd-maintenance-checklist-bgm','1');
+  return; // No maintenance overlay/pause/reload; BGM keeps its own 60s cloud sync.
+ }
  if(document.documentElement.hasAttribute('data-dd-maintenance-guard'))return;
  document.documentElement.setAttribute('data-dd-maintenance-guard','1');
  document.documentElement.classList.add('dd-maintenance-checking');
