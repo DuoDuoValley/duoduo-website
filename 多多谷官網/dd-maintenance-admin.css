@@ -1,0 +1,14 @@
+/* Maintenance panel only; does not affect the public navigation or player tools. */
+#maintenancePanel .dd-maint-card{max-width:830px;margin:24px 0;padding:22px;border:1px solid #3b526a;border-radius:14px;background:#12253a}
+#maintenancePanel .dd-maint-state{border:1px solid #4a6884;border-radius:9px;padding:12px 14px;color:#c8e8fe;line-height:1.6;font-weight:700;margin:0 0 20px}
+#maintenancePanel .dd-maint-state.dd-on{background:#382922;border-color:#ad745a;color:#ffd4b9}
+#maintenancePanel .dd-maint-state.dd-off{background:#152f2b;border-color:#3b998a;color:#b9f6df}
+#maintenancePanel .dd-maint-state.dd-error{background:#422529;border-color:#a65b63;color:#ffd1d5}
+#maintenancePanel .dd-maint-card .form{display:grid;gap:14px;margin-bottom:14px}
+#maintenancePanel .dd-maint-card label{display:grid;gap:8px}
+#maintenancePanel .dd-maint-card input,#maintenancePanel .dd-maint-card textarea{box-sizing:border-box;width:100%;min-height:42px}
+#maintenancePanel .dd-maint-actions{display:flex;flex-wrap:wrap;gap:10px}
+#maintenancePanel .dd-maint-actions button{min-height:42px}
+#maintenancePanel .dd-maint-actions button:disabled{opacity:.45;cursor:wait}
+#maintenancePanel .dd-maint-hint{color:#91aabd;font-size:12px;line-height:1.9;margin:16px 0 0}
+@media(max-width:620px){#maintenancePanel .dd-maint-card{padding:13px}}

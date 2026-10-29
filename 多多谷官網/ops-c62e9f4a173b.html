@@ -1,0 +1,328 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DuoDuo Valley｜管理中心</title><link rel="stylesheet" href="admin.css"><link rel="stylesheet" href="dd-maintenance-admin.css"><style>
+/* 日期／時間輸入：日曆可選、文字可逐字輸入，禁止瀏覽器 type=time 自動改寫數字 */
+.dd-date-field{display:grid;gap:7px;min-width:0;color:#b9c1cc;font-size:13px}
+.dd-date-entry{display:flex;gap:7px;align-items:center;min-width:0}
+.dd-date-entry>input.dd-date-manual{flex:1;min-width:0;width:0}
+.dd-date-open{flex:0 0 auto;display:inline-flex;gap:6px;align-items:center;justify-content:center;min-height:44px;border:1px solid #445e78;border-radius:9px;padding:0 12px;background:#17283b;color:#d9ebfc;font-weight:600;cursor:pointer;font-size:12px}
+.dd-date-open:hover{border-color:#6eabde;background:#203852}
+.dd-date-open svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.dd-date-picker-anchor{position:absolute;width:1px!important;height:1px!important;opacity:0!important;pointer-events:none;left:auto;bottom:auto;padding:0!important;border:0!important}
+.dd-time-set{display:grid;gap:8px;align-content:start;margin-top:9px}
+.dd-time-set .dd-time-toggle{display:inline-flex;align-items:center;gap:7px;color:#bed0e2;font-size:13px;font-weight:500;cursor:pointer}
+.dd-time-set .dd-time-toggle input{width:16px;height:16px;accent-color:#58adf0;flex:none}
+.dd-time-controls{display:flex;align-items:center;flex-wrap:wrap;gap:7px}
+.dd-time-controls[hidden]{display:none!important}
+.dd-time-controls .dd-time-manual{width:93px!important;max-width:100%;font-variant-numeric:tabular-nums;letter-spacing:.4px}
+.dd-time-shortcut{border:1px solid #445e78;border-radius:8px;padding:9px 10px;background:#182b3f;color:#d7e9f9;font-size:12px;cursor:pointer}
+.dd-time-shortcut:hover{border-color:#69a9df;background:#24415e}
+.dd-field-hint{font-size:11px;color:#93abc0;line-height:1.5}
+.event-date-time{grid-template-columns:minmax(0,1fr)!important;gap:0!important;align-items:start!important}
+@media(max-width:700px){.dd-date-entry{flex-wrap:wrap}.dd-date-open{min-height:40px}.dd-date-entry>input.dd-date-manual{min-width:150px}}
+
+.event-date-time{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:8px;align-items:end;}
+.event-date-time label{display:grid;gap:7px;color:#b9c1cc;font-size:13px;}
+.event-date-time input{min-width:0;}
+@media(max-width:700px){.event-date-time{grid-template-columns:1fr 112px;}}
+
+/* 檔期活動：可自訂區塊管理，僅套用此後台區域 */
+.event-section-editor{grid-column:1/-1;border:1px solid var(--line,#34465c);border-radius:16px;padding:18px;background:rgba(120,150,190,.065);min-width:0}
+.event-section-editor h2{font-size:18px;margin:0 0 10px}
+.event-section-editor .event-section-help{color:#aebccd;font-size:13px;line-height:1.75;margin:0 0 14px}
+.event-section-editor .event-section-help:last-child{margin:14px 0 0}
+.event-section-toolbar{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin:0 0 14px}
+.event-section-editor button{cursor:pointer}
+.event-section-toolbar button{border:1px solid #4c7198;border-radius:10px;background:rgba(49,113,166,.24);color:#e7f2ff;font-weight:700;padding:10px 14px}
+.event-section-list{display:grid;grid-template-columns:1fr;gap:14px}
+.event-section-toolbar.event-section-bottom{justify-content:flex-end;margin:14px 0 0}
+.event-section-empty{border:1px dashed #4e6075;border-radius:12px;padding:20px;color:#aebccd;text-align:center;line-height:1.8}
+.event-section-row{min-width:0;border:1px solid #3a4a5d;border-radius:14px;padding:14px;background:rgba(5,13,23,.34);display:grid;gap:12px}
+.event-section-row-head{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.event-section-row-name{color:#dbe8f7;font-weight:700;font-size:14px}
+.event-section-actions{display:flex;gap:6px;flex-wrap:wrap}
+.event-section-actions button{border:1px solid #465b72;border-radius:8px;background:rgba(100,122,151,.13);padding:7px 10px;color:#dbe8f7;font-size:12px}
+.event-section-actions button:disabled{opacity:.35;cursor:not-allowed}
+.event-section-actions button.event-section-delete{color:#ffb9b9}
+.event-section-row-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 16px}
+.event-section-row-fields label{display:flex;flex-direction:column;gap:7px;min-width:0;color:#c9d8eb;font-size:13px}
+.event-section-row-fields select,.event-section-row-fields input,.event-section-row-fields textarea{box-sizing:border-box;width:100%;min-width:0}
+.event-section-row-fields textarea{min-height:105px;resize:vertical}
+.event-section-row-fields .event-section-full{grid-column:1/-1}
+.event-section-row-fields .event-section-custom-title[hidden]{display:none}
+.event-section-icon-field{min-width:0;display:grid;gap:9px}
+.event-section-icon-header{display:flex;align-items:center;justify-content:flex-start;flex-wrap:wrap;gap:12px;color:#c9d8eb;font-size:13px}
+.event-section-icon-selected{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:#b7cee6}
+.event-section-icon-selected svg{width:19px;height:19px;flex-shrink:0}
+.event-section-editor .event-section-icon-toggle{margin-left:auto;border:1px solid #4c7198;border-radius:9px;padding:7px 12px;background:#172e45;color:#d4e9fd;font-size:12px}
+.event-section-icon-gallery[hidden]{display:none}
+.event-section-icon-gallery{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:8px}
+.event-section-editor .event-section-icon-option{background:#101b2b;color:#c4d1df;border:1px solid #344860;border-radius:11px;min-width:0;min-height:68px;padding:8px 3px;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:5px;transition:border-color .14s,background .14s}
+.event-section-editor .event-section-icon-option:hover{background:#1b3049;border-color:#78a8da}
+.event-section-editor .event-section-icon-option:focus-visible{outline:2px solid #76b9ff;outline-offset:2px}
+.event-section-editor .event-section-icon-option.is-selected{border-color:#65b8f6;background:#193958;color:#e5f5ff;box-shadow:inset 0 0 0 1px rgba(101,184,246,.28)}
+.event-section-svg-icon{display:flex;align-items:center;justify-content:center}
+.event-section-svg-icon svg{width:23px;height:23px}
+.event-section-icon-caption{font-size:11px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+@media(max-width:900px){.event-section-icon-gallery{grid-template-columns:repeat(5,minmax(0,1fr))}}
+@media(max-width:520px){.event-section-icon-gallery{grid-template-columns:repeat(4,minmax(0,1fr))}.event-section-editor .event-section-icon-option{min-height:62px}}
+@media(max-width:740px){.event-section-editor{padding:14px}.event-section-row-fields{grid-template-columns:minmax(0,1fr)}}
+
+/* FIX：檔期活動的圖示搜尋／分類／預覽未套用樣式；僅修復 #events，不變更其他區塊 */
+#events .event-section-editor .event-section-icon-tools{display:grid;gap:10px;margin-top:1px;min-width:0}
+#events .event-section-editor .event-section-icon-tools[hidden],
+#events .event-section-editor .event-section-icon-option[hidden]{display:none!important}
+#events .event-section-editor .event-section-icon-search{box-sizing:border-box;width:100%;max-width:none;min-height:40px;padding:9px 13px;border:1px solid #415772;border-radius:10px;background:#0b1522;color:#e5eefb;font-size:13px}
+#events .event-section-editor .event-section-icon-search:focus{outline:2px solid rgba(90,174,244,.25);border-color:#75baff}
+#events .event-section-editor .event-section-icon-categories{display:flex;flex-wrap:wrap;gap:7px}
+#events .event-section-editor button.event-section-icon-category{border:1px solid #385370;border-radius:100px;padding:6px 12px;background:#102035;color:#b8cadc;font-size:12px;font-weight:500;line-height:1.5;cursor:pointer}
+#events .event-section-editor button.event-section-icon-category:hover{background:#1a354d;color:#fff}
+#events .event-section-editor button.event-section-icon-category.is-active{background:#214b71;color:#f4faff;border-color:#68b4ed}
+#events .event-section-editor .event-section-icon-count{font-size:12px;color:#99b6cc}
+#events .event-section-editor .event-section-icon-live-preview{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid #354d66;border-radius:11px;background:rgba(87,153,213,.08);font-size:13px;font-weight:600;color:#dcecff;overflow-wrap:anywhere}
+#events .event-section-editor .event-section-icon-live-preview svg{width:20px;height:20px;flex-shrink:0;color:#9ed3ff}
+@media(max-width:520px){#events .event-section-editor .event-section-icon-categories{gap:5px}#events .event-section-editor button.event-section-icon-category{padding:6px 9px;font-size:11px}}
+
+/* 最新消息：結構化段落與序號專屬欄位；不影響檔期活動 */
+#news .news-struct-full{width:100%;min-width:0}
+#news .news-section-editor,#news .news-serial-editor{box-sizing:border-box}
+#news .news-section-editor .event-section-icon-tools[hidden],#news .event-section-icon-gallery[hidden],#news .news-serial-editor[hidden]{display:none!important}
+/* 公告分段圖示選擇器：補足原本活動編輯器已有、公告編輯器遺漏的樣式 */
+#news .news-section-editor .event-section-icon-tools{display:grid;gap:10px;margin-top:1px;min-width:0}
+#news .news-section-editor .event-section-icon-tools[hidden],
+#news .news-section-editor .event-section-icon-option[hidden]{display:none!important}
+#news .news-section-editor .event-section-icon-search{box-sizing:border-box;width:100%;max-width:none;min-height:40px;padding:9px 13px;border:1px solid #415772;border-radius:10px;background:#0b1522;color:#e5eefb;font-size:13px}
+#news .news-section-editor .event-section-icon-search:focus{outline:2px solid rgba(90,174,244,.25);border-color:#75baff}
+#news .news-section-editor .event-section-icon-categories{display:flex;flex-wrap:wrap;gap:7px}
+#news .news-section-editor button.event-section-icon-category{border:1px solid #385370;border-radius:100px;padding:6px 12px;background:#102035;color:#b8cadc;font-size:12px;font-weight:500;line-height:1.5;cursor:pointer}
+#news .news-section-editor button.event-section-icon-category:hover{background:#1a354d;color:#fff}
+#news .news-section-editor button.event-section-icon-category.is-active{background:#214b71;color:#f4faff;border-color:#68b4ed}
+#news .news-section-editor .event-section-icon-count{font-size:12px;color:#99b6cc}
+#news .news-section-editor .event-section-icon-live-preview{display:flex;align-items:center;gap:9px;padding:10px 12px;border:1px solid #354d66;border-radius:11px;background:rgba(87,153,213,.08);font-size:13px;font-weight:600;color:#dcecff;overflow-wrap:anywhere}
+#news .news-section-editor .event-section-icon-live-preview svg{width:20px;height:20px;flex-shrink:0;color:#9ed3ff}
+@media(max-width:520px){#news .news-section-editor .event-section-icon-categories{gap:5px}#news .news-section-editor button.event-section-icon-category{padding:6px 9px;font-size:11px}}
+#news .news-serial-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+#news .news-serial-grid label{min-width:0;display:flex;flex-direction:column;gap:8px;color:#c9d8eb;font-size:13px}
+#news .news-serial-grid input,#news .news-serial-grid textarea{box-sizing:border-box;width:100%;min-width:0}
+#news .news-serial-grid .news-serial-wide{grid-column:1/-1}
+#news .news-legacy-editor{border:1px solid #34465c;border-radius:12px;padding:16px;background:rgba(120,150,190,.04)}
+#news .news-legacy-editor summary{font-weight:700;color:#c9d8eb;cursor:pointer}
+#news .news-legacy-editor textarea{display:block;width:100%;box-sizing:border-box;margin:14px 0;min-height:140px}
+#news .news-legacy-editor .news-check-legacy{display:flex;gap:8px;align-items:center;font-size:13px;color:#c9d8eb}
+#news .news-legacy-editor .news-check-legacy input{width:auto}
+#news .news-editor-actions{display:flex;justify-content:flex-end;gap:10px;flex-wrap:wrap}
+#news .news-section-editor .event-section-icon-selected svg{vertical-align:middle}
+@media(max-width:700px){#news .news-serial-grid{grid-template-columns:1fr}}
+
+/* 公告 / 檔期活動共用精簡管理列表 — 僅限定在這兩個後台區塊 */
+#news .manage-list-panel,#events .manage-list-panel{border:1px solid #34465c;background:rgba(93,139,193,.045);border-radius:16px;padding:17px;margin:17px 0 22px;min-width:0}
+#news .manage-list-heading,#events .manage-list-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+#news .manage-list-heading h2,#events .manage-list-heading h2{margin:0;font-size:18px;color:#e6f3ff}
+#news .manage-list-heading p,#events .manage-list-heading p{font-size:12px;color:#aabed1;margin:5px 0 0}
+#news .manage-new-btn,#events .manage-new-btn{border:1px solid #4b83b6;background:#1d496c;border-radius:10px;padding:10px 16px;font-weight:700;color:#f4fbff;cursor:pointer}
+#news .manage-controls,#events .manage-controls{display:grid;grid-template-columns:minmax(0,1fr) minmax(135px,175px) 112px;gap:10px;margin-bottom:10px;align-items:end}
+#news .manage-controls label,#events .manage-controls label{display:flex;flex-direction:column;gap:5px;font-size:12px;color:#b8ccdf;min-width:0}
+#news .manage-controls input,#events .manage-controls input,#news .manage-controls select,#events .manage-controls select{width:100%;box-sizing:border-box;border-radius:9px;min-width:0;min-height:41px;border:1px solid #405774;background:#0b1625;color:#e1edfa;padding:9px 11px;font-size:13px}
+#news .manage-filter-row,#events .manage-filter-row{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0 14px}
+#news .manage-filter-row button,#events .manage-filter-row button{background:#112238;color:#b9d2e7;border:1px solid #385671;border-radius:99px;padding:7px 13px;font-size:12px;cursor:pointer}
+#news .manage-filter-row button.is-active,#events .manage-filter-row button.is-active{background:#1a496c;color:#f7fbff;border-color:#6aaee1;font-weight:700}
+#news .manage-result-head,#events .manage-result-head{color:#aac0d4;font-size:12px;margin:0 0 9px;display:flex;justify-content:space-between;gap:9px;flex-wrap:wrap}
+#news .manage-rows,#events .manage-rows{border:1px solid #32465c;border-radius:12px;overflow:hidden}
+#news .manage-entry,#events .manage-entry{border-bottom:1px solid #30435b;background:#0d1929}
+#news .manage-entry:last-child,#events .manage-entry:last-child{border-bottom:0}
+#news .manage-entry:hover,#events .manage-entry:hover{background:#112139}
+#news .manage-entry-main,#events .manage-entry-main{display:flex;align-items:center;gap:12px;min-width:0;padding:13px 14px}
+#news .manage-entry-body,#events .manage-entry-body{flex:1;min-width:0}
+#news .manage-entry-title,#events .manage-entry-title{font-weight:700;color:#edf5ff;font-size:14px;line-height:1.55;overflow-wrap:anywhere}
+#news .manage-entry-info,#events .manage-entry-info{display:flex;align-items:center;gap:8px;flex-wrap:wrap;color:#9eb6cc;font-size:12px;margin-top:5px}
+#news .manage-tag,#events .manage-tag{display:inline-flex;padding:3px 9px;border:1px solid #45617f;border-radius:999px;color:#c6e2fc;background:rgba(90,154,212,.09);font-size:11px;flex-shrink:0}
+#events .manage-tag.status-active{border-color:#327c70;color:#a9f1d0;background:rgba(35,133,100,.15)}
+#events .manage-tag.status-done{border-color:#515e71;color:#bac6d5;background:#1a2636}
+#events .manage-tag.status-hidden{border-color:#856955;color:#f2c79d;background:#332920}
+#news .manage-entry-actions,#events .manage-entry-actions{display:flex;gap:7px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+#news .manage-entry-actions button,#events .manage-entry-actions button{border-radius:8px;border:1px solid #496079;color:#daedfd;background:#15273e;font-size:12px;cursor:pointer;padding:7px 10px;white-space:nowrap}
+#news .manage-entry-actions button.manage-edit,#events .manage-entry-actions button.manage-edit{border-color:#558ab8;background:#1c4061;color:#fff}
+#news .manage-entry-actions button.manage-delete,#events .manage-entry-actions button.manage-delete{color:#ffbcbc;border-color:#664c53;background:#291a26}
+#news .manage-entry-preview,#events .manage-entry-preview{border-top:1px solid #32465c;padding:12px 16px 15px;background:#122237;color:#bcd0e2;font-size:13px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.75;max-height:300px;overflow:auto}
+#news .manage-entry-preview[hidden],#events .manage-entry-preview[hidden]{display:none}
+#news .manage-thumb,#events .manage-thumb{width:66px;height:48px;object-fit:cover;border-radius:8px;background:#111b29;border:1px solid #40526a;flex-shrink:0}
+#news .manage-empty,#events .manage-empty{padding:28px;text-align:center;color:#acbed0;font-size:13px}
+#news .manage-pagination,#events .manage-pagination{display:flex;align-items:center;justify-content:flex-end;flex-wrap:wrap;gap:12px;padding-top:13px;color:#afc3d7;font-size:12px}
+#news .manage-pagination button,#events .manage-pagination button{padding:7px 13px;border-radius:8px;background:#142a44;color:#e0efff;border:1px solid #415976;cursor:pointer}
+#news .manage-pagination button:disabled,#events .manage-pagination button:disabled{opacity:.4;cursor:not-allowed}
+#news .manage-edit-drawer,#events .manage-edit-drawer{border:1px solid #38516d;border-radius:13px;padding:0;margin:15px 0 21px;background:rgba(61,104,151,.045)}
+#news .manage-edit-drawer>summary,#events .manage-edit-drawer>summary{list-style:none;cursor:pointer;padding:13px 17px;font-weight:700;color:#d5e9fb}
+#news .manage-edit-drawer>summary::-webkit-details-marker,#events .manage-edit-drawer>summary::-webkit-details-marker{display:none}
+#news .manage-edit-drawer>summary::before,#events .manage-edit-drawer>summary::before{content:'▸';margin-right:8px}
+#news .manage-edit-drawer[open]>summary::before,#events .manage-edit-drawer[open]>summary::before{content:'▾'}
+#news .manage-edit-drawer>.form,#events .manage-edit-drawer>.form{padding:4px 17px 19px;margin:0}
+@media(max-width:760px){#news .manage-controls,#events .manage-controls{grid-template-columns:minmax(0,1fr) 1fr}#news .manage-controls label:first-child,#events .manage-controls label:first-child{grid-column:1/-1}#news .manage-entry-main,#events .manage-entry-main{align-items:flex-start;flex-wrap:wrap}#news .manage-entry-actions,#events .manage-entry-actions{width:100%;justify-content:flex-start;margin-left:0}}
+@media(max-width:420px){#news .manage-list-panel,#events .manage-list-panel{padding:11px}#news .manage-thumb,#events .manage-thumb{width:55px;height:44px}#news .manage-entry-main,#events .manage-entry-main{padding:11px}}
+</style><style id="duoduo-bgm-admin-style">
+#bgmPanel .bgm-admin-form{box-sizing:border-box}
+#bgmPanel .bgm-admin-form .check{display:flex;align-items:center;gap:8px}
+#bgmPanel .bgm-admin-form .check input{width:16px;height:16px}
+#bgmPanel .bgm-admin-form .form-actions{display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-start}
+#bgmPanel .bgm-admin-rows{display:grid;gap:10px;margin:17px 0}
+#bgmPanel .bgm-admin-row{display:flex;justify-content:space-between;gap:14px;align-items:center;border:1px solid #34475e;background:#101a28;border-radius:13px;padding:14px}
+#bgmPanel .bgm-admin-label{display:grid;gap:5px;min-width:0;overflow-wrap:anywhere}
+#bgmPanel .bgm-admin-label strong{font-size:14px;color:#e1eaf7}
+#bgmPanel .bgm-admin-label small{color:#9aaec5;font-size:11px;overflow-wrap:anywhere}
+#bgmPanel .bgm-admin-actions{display:flex;gap:6px;flex-wrap:wrap;align-items:center;justify-content:flex-end}
+#bgmPanel .bgm-admin-actions button{background:#1c3046;border:1px solid #405772;border-radius:9px;color:#d8e7f7;cursor:pointer;padding:8px 10px;font-size:12px}
+#bgmPanel .bgm-admin-actions button:disabled{opacity:.38;cursor:not-allowed}
+#bgmPanel .bgm-admin-actions button.bgm-danger{color:#ffb9bc;border-color:#654047}
+#bgmPanel .bgm-admin-actions button:hover:not(:disabled){background:#2b4663}
+#bgmPanel .bgm-help{font-size:13px;color:#9aaec5;line-height:1.6}
+#bgmPanel .bgm-mode-label{display:flex;align-items:center;gap:9px;font-size:13px;color:#b6c8d8}
+#bgmPanel .bgm-mode-label select{min-width:145px}
+#bgmPanel .bgm-status{font-size:12px;color:#98c4e9;line-height:1.6}
+#bgmPanel .bgm-status.error{color:#ffadad}
+#bgmPanel .bgm-empty{padding:22px;border:1px dashed #3e526a;border-radius:12px;text-align:center;color:#94aac0;font-size:13px}
+@media(max-width:720px){#bgmPanel .bgm-admin-row{flex-direction:column;align-items:stretch}#bgmPanel .bgm-admin-actions{justify-content:flex-start}}
+
+/* BGM 2.0: dedicated artwork cropper and edit previews. */
+#bgmPanel .bgm-cover-editor {display:flex;gap:18px;align-items:flex-start;flex-wrap:wrap;padding:14px;border:1px solid #34495e;border-radius:12px;background:#0e1c2b;}
+#bgmPanel .bgm-cover-stage {width:min(240px,100%);flex:0 0 240px;max-width:100%;}
+#bgmPanel #bgmCoverCanvas {width:100%;height:auto;aspect-ratio:1;display:block;touch-action:none;cursor:grab;border:1px solid #5f85ab;border-radius:12px;background:#142538;}
+#bgmPanel #bgmCoverCanvas.dragging{cursor:grabbing;}
+#bgmPanel #bgmCoverCanvas[hidden],#bgmPanel #bgmExistingCover[hidden],#bgmPanel #bgmCoverEmpty[hidden]{display:none;}
+#bgmPanel #bgmExistingCover{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;border:1px solid #425b73;display:block;}
+#bgmPanel #bgmCoverEmpty{aspect-ratio:1;display:grid;place-items:center;text-align:center;border:1px dashed #4b6380;border-radius:12px;color:#9cb1cb;font-size:12px;padding:15px;}
+#bgmPanel .bgm-cover-controls {flex:1;min-width:min(220px,100%);display:grid;gap:11px;align-content:start;}
+#bgmPanel .bgm-cover-controls label{font-size:12px;}
+#bgmPanel #bgmCoverZoom{width:100%;accent-color:#91c9ff;}
+#bgmPanel #bgmCoverZoom:disabled{opacity:.45;}
+#bgmPanel .bgm-cover-meta{font-size:11px;color:#9fb3cc;line-height:1.6;}
+#bgmPanel .bgm-cover-preview-small{width:45px;height:45px;border-radius:8px;object-fit:cover;border:1px solid #426284;flex:none;}
+#bgmPanel .bgm-admin-label {flex:1;min-width:0;}
+#bgmPanel .bgm-track-summary{display:flex;align-items:center;gap:11px;min-width:0;flex:1;}
+#bgmPanel .bgm-track-detail{font-size:11px;color:#99b3cd;margin-top:3px;}
+#bgmPanel #bgmAccent {width:100%;height:43px;padding:3px;cursor:pointer;}
+@media(max-width:720px){#bgmPanel .bgm-cover-stage{flex-basis:200px}}
+</style><link rel="stylesheet" href="boss-atlas-admin.css"></head><body>
+<header><a href="index.html">← 回到網站</a><b>DuoDuo Valley Admin</b><span>目前為前端原型，資料儲存在此瀏覽器</span></header><div class="layout"><aside>
+<button class="nav active" data-panel="overview">📊 總覽</button><button class="nav" data-panel="reviews">💬 玩家心得</button><button class="nav" data-panel="layoutPanel">🧩 首頁版面</button><button class="nav" data-panel="contentPanel">✏️ 首頁內容</button><button class="nav" data-panel="news">📢 公告管理</button><button class="nav" data-panel="events">📅 檔期活動管理</button><button class="nav" data-panel="bosses">👹 BOSS 輪播管理</button><button class="nav" data-panel="bossAtlasPanel">📖 BOSS 圖鑑管理</button><button class="nav" data-panel="bgmPanel">🎵 BGM 音樂管理</button><button class="nav" data-panel="items">🧰 道具資料庫</button><button class="nav" data-panel="pools">🎁 抽獎獎池管理</button><button class="nav" data-panel="images">🖼️ 圖片管理</button><button class="nav" data-panel="links">🔗 網址管理</button><button class="nav" data-panel="resources">📚 文件與 Checklist</button><button class="nav" data-panel="downloads">⬇️ 下載專區</button><button class="nav" data-panel="maintenancePanel">🛠️ 網站維護模式</button><button class="nav" data-panel="settings">⚙️ 網站設定</button></aside>
+<main>
+<section id="overview" class="panel active"><h1>網站總覽</h1><div class="cards"><div><small>網站</small><strong>🟢 前台預覽</strong></div><div><small>公告</small><strong id="newsCount">0</strong></div><div><small>活動</small><strong id="eventCount">0</strong></div><div><small>道具</small><strong id="itemCount">0</strong></div></div><div class="note">首頁 BOSS 輪播已接上雲端儲存；儲存後會同步到官網，其他尚未接雲端的內容仍維持原本管理方式。</div></section>
+<section id="layoutPanel" class="panel"><h1>首頁版面</h1><div class="toolbar"><button class="save" id="saveLayout">儲存版面</button><button class="ghost" id="resetLayout">恢復預設</button><a class="preview-link" href="index.html" target="_blank">開啟前台 ↗</a></div><div class="note">拖曳 ☰ 調整首頁區塊順序；關閉 👁 後該區塊不會顯示。</div><div id="layoutList" class="layout-list"></div><div class="builder-card"><h2>首頁主視覺輪播</h2><div class="note">圖片順序可以拖曳。每張都能設定圖片、標題、點擊連結與顯示狀態；也可以直接「瀏覽檔案」選擇圖片，網站會自動淡入淡出輪播。</div><div id="heroSlidesAdmin" class="hero-slides-admin"></div><div class="form two"><label>自動切換秒數<input id="heroInterval" type="number" min="2" step="1" value="5"></label><div class="form-actions"><button class="ghost" id="addHeroSlide" type="button">＋ 新增輪播圖片</button></div></div></div><div class="builder-card"><h2>首頁文字</h2><div class="form two"><label>Hero 小標<input id="heroEyebrow"></label><label>Hero 標題<input id="heroTitle"></label><label>Hero 副標題<input id="heroSubtitle"></label><label>About 標題<input id="aboutTitle"></label></div></div><div class="builder-card"><h2>特色卡片</h2><label class="inline-setting">每列卡片數 <select id="featureColumns"><option value="2">2</option><option value="3">3</option><option value="4">4</option></select></label></div></section>
+<section id="contentPanel" class="panel"><h1>首頁內容</h1><div class="toolbar"><button class="save" id="saveContent">儲存全部內容</button><button class="ghost" id="resetContent">恢復預設內容</button></div><div class="note">這裡可以直接修改首頁各個板塊的標題、介紹文字與卡片內容。儲存後重新整理前台即可看到結果。</div><div id="contentEditor" class="content-editor"></div></section>
+<section id="reviews" class="panel"><h1>玩家心得管理</h1><div class="note">把玩家實際留下的心得直接貼進來即可。你可以拖曳排序、設定精選心得；前台會自動依你設定的順序排列，並使用響應式卡片網格。</div><div class="form two"><label>玩家名稱／顯示名稱<input id="reviewAuthor" placeholder="例如：某位玩家、匿名玩家"></label><label>評分<select id="reviewRating"><option value="5">★★★★★ 5</option><option value="4">★★★★☆ 4</option><option value="3">★★★☆☆ 3</option><option value="2">★★☆☆☆ 2</option><option value="1">★☆☆☆☆ 1</option></select></label><label class="check full"><input id="reviewFeatured" type="checkbox"> 設為精選心得</label><label class="full">玩家心得<textarea id="reviewText" placeholder="直接貼上玩家實際留下的內容，不需要另外整理格式。"></textarea></label><div class="form-actions full"><button class="save" id="addReview">＋ 新增玩家心得</button></div></div><div id="reviewsAdmin"></div></section><section id="news" class="panel"><h1>公告管理</h1>
+<div class="manage-list-panel"><div class="manage-list-heading"><div><h2>公告列表</h2><p>搜尋、分類、預覽或編輯既有公告，不必展開整篇文章</p></div><button type="button" id="manageNewNews" class="manage-new-btn">＋ 新增公告</button></div>
+<div class="manage-controls"><label>搜尋公告<input id="manageNewsSearch" type="search" placeholder="輸入公告標題、日期或內文關鍵字"></label><label>排序<select id="manageNewsSort"><option value="new">最新優先</option><option value="old">最舊優先</option></select></label><label>每頁<select id="manageNewsSize"><option value="10">10 篇</option><option value="20">20 篇</option><option value="50">50 篇</option></select></label></div>
+<div id="manageNewsFilters" class="manage-filter-row"></div><div id="manageNewsCount" class="manage-result-head"></div><div id="newsAdmin" class="manage-rows"></div><div id="manageNewsPagination" class="manage-pagination"></div></div>
+<details id="newsManageForm" class="manage-edit-drawer"><summary>新增／編輯公告</summary>
+<div class="note">所有公告都能使用「自訂段落＋線條圖示」編輯；序號類公告另外提供兌換碼、獎勵與期限專屬欄位。尚未公開的編輯仍依原本流程手動同步雲端。</div>
+<div class="form">
+<label>分類<select id="newsTag"><option value="重要消息">重要</option><option value="維護通知">維護</option><option value="更新說明">更新</option><option value="活動資訊">活動</option><option value="序號發放">序號</option><option value="處分名單">處分</option></select></label>
+<label>標題<input id="newsTitle" placeholder="輸入公告標題"></label>
+<div class="news-struct-full"><div class="dd-date-field"><label for="newsDate">公告日期</label><div class="dd-date-entry"><input class="dd-date-manual" id="newsDate" type="text" inputmode="numeric" placeholder="YYYY/MM/DD" autocomplete="off" spellcheck="false"><button type="button" class="dd-date-open" data-date-target="newsDate" aria-label="選擇公告日期"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>選日期</button><input id="newsDatePicker" class="dd-date-picker-anchor" type="date" tabindex="-1" aria-label="公告日期日曆"></div><small class="dd-field-hint">可點日曆，也可手動輸入 YYYY/MM/DD</small></div><div class="dd-time-set"><label class="dd-time-toggle" for="newsUseTime"><input type="checkbox" id="newsUseTime"> 設定發布時間（選填）</label><div class="dd-time-controls" id="newsTimeControls"><input id="newsTime" class="dd-time-manual" type="text" inputmode="numeric" maxlength="5" autocomplete="off" spellcheck="false" placeholder="HH:mm" aria-label="發布時間"><button type="button" class="dd-time-shortcut" data-set-time="newsTime" data-time="12:00">12:00</button><button type="button" class="dd-time-shortcut" data-set-time="newsTime" data-time="20:00">20:00</button></div><small class="dd-field-hint">時間可自行輸入，例如 02:30；不會自動補成 22</small></div></div>
+<label class="news-struct-full">前言／開場白（可留空）<textarea id="newsLead" rows="4" placeholder="例如：哈囉！多多居民，我是 YuYu 🤍：
+這次為大家帶來新的遊戲更新。"></textarea></label>
+<div class="event-section-editor news-section-editor news-struct-full" id="newsSectionEditor">
+<h2>公告內文｜自訂段落</h2>
+<p class="event-section-help">可以自由選擇段落名稱、161 款線條圖示、內容及順序。沒有內容的段落不會顯示在前台。每篇公告都適用。</p>
+<div class="event-section-toolbar"><span class="event-section-help">可新增「更新內容」「維護時間」「補償獎勵」「注意事項」等段落</span><button type="button" id="newsAddSection">＋ 新增段落</button></div>
+<div id="newsSectionList" class="event-section-list"></div>
+<div class="event-section-toolbar event-section-bottom"><button type="button" id="newsAddSectionBottom">＋ 新增段落</button></div>
+</div>
+<div id="newsSerialEditor" class="event-section-editor news-serial-editor news-struct-full" hidden>
+<h2>序號公告｜專屬資訊</h2>
+<p class="event-section-help">只有分類選擇「序號」時才會顯示。玩家可直接複製兌換碼，獎勵會自動整理成清單；不必在一般公告使用這些欄位。</p>
+<div class="news-serial-grid">
+<label class="news-serial-wide">序號獎勵（每行一項）<textarea id="newsSerialRewards" rows="5" placeholder="白金蘋果 ×30
+黃金蘋果 ×30
+楓葉點數 ×5000"></textarea></label>
+<label>兌換序號<input id="newsSerialCode" autocomplete="off" spellcheck="false" placeholder="例如：channelcomp-4"></label>
+<label>兌換期限<input id="newsSerialExpiry" placeholder="例如：2026 / 11 / 01（日）23:59 前"></label>
+<label class="news-serial-wide">使用方式<input id="newsSerialMethod" placeholder="例如：功能選單 → 個人相關 → 序號兌換"></label>
+<label class="news-serial-wide">兌換注意事項（可留空）<textarea id="newsSerialNotes" rows="3" placeholder="例如：每個帳號限兌換一次。"></textarea></label>
+</div></div>
+<details class="news-legacy-editor news-struct-full" id="newsLegacyEditor"><summary>舊版公告內容（相容舊資料／可展開）</summary>
+<p class="event-section-help">既有公告文字不會刪除。若尚未填入分段內容，前台仍顯示此欄原文。當你填寫新段落後，預設會顯示新版內容；如果還想顯示舊文字，請勾選下方選項。</p>
+<textarea id="newsBody" rows="7" placeholder="舊版自由內文"></textarea>
+<label class="news-check-legacy"><input id="newsIncludeLegacy" type="checkbox"> 新版分段公告下方仍顯示這份舊版內容</label>
+</details>
+<div class="news-editor-actions"><button type="button" class="ghost" id="cancelEditNews">取消編輯／清空欄位</button><button class="save" id="addNews">＋ 新增公告</button></div>
+</div></details></section>
+<section id="events" class="panel"><h1>📅 檔期活動管理</h1>
+<div class="manage-list-panel"><div class="manage-list-heading"><div><h2>檔期活動列表</h2><p>搜尋活動、篩選進行狀態，檢查封面與日期</p></div><button type="button" id="manageNewEvent" class="manage-new-btn">＋ 新增檔期活動</button></div>
+<div class="manage-controls"><label>搜尋檔期活動<input id="manageEventSearch" type="search" placeholder="輸入活動名稱、日期或內容"></label><label>排序<select id="manageEventSort"><option value="new">最新優先</option><option value="old">最舊優先</option></select></label><label>每頁<select id="manageEventSize"><option value="10">10 筆</option><option value="20">20 筆</option><option value="50">50 筆</option></select></label></div>
+<div id="manageEventFilters" class="manage-filter-row"></div><div id="manageEventCount" class="manage-result-head"></div><div id="eventsAdmin" class="manage-rows"></div><div id="manageEventPagination" class="manage-pagination"></div></div>
+<details id="eventManageForm" class="manage-edit-drawer"><summary>新增／編輯檔期活動</summary><div class="form two"><label>檔期活動名稱<input id="eventName" placeholder="例如：週末登入禮"></label><label>活動首圖／封面（可直接選檔）<input id="eventImageFile" type="file" accept="image/png,image/jpeg,image/webp,image/gif"><small class="field-note">也可以繼續使用下面的圖片網址。</small></label><label>活動首圖／封面網址（選填）<input id="eventImage" placeholder="assets/ad3.png 或圖片網址"></label><div id="eventImagePreview" class="event-upload-preview full"><span>尚未選擇新圖片</span></div><label>自動切換秒數<input id="eventInterval" type="number" min="2" step="1" value="5" placeholder="5"></label><label class="full">輪播圖片（可一次選擇多張）<input id="eventImagesFiles" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple><small class="field-note">選擇的圖片會依檔案順序加入輪播；也可以使用下面的網址。</small></label><div id="eventImagesPreview" class="event-upload-preview full"><span>尚未選擇新輪播圖片</span></div><label class="full">輪播圖片網址（每行一個，可選）<textarea id="eventImages" rows="5" placeholder="assets/ad3.png
+https://.../image2.jpg
+https://.../image3.jpg"></textarea></label><div class="event-date-time"><div class="dd-date-field"><label for="eventStart">開始日期</label><div class="dd-date-entry"><input class="dd-date-manual" id="eventStart" type="text" inputmode="numeric" placeholder="YYYY/MM/DD" autocomplete="off" spellcheck="false"><button type="button" class="dd-date-open" data-date-target="eventStart" aria-label="選擇開始日期"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>選日期</button><input id="eventStartPicker" class="dd-date-picker-anchor" type="date" tabindex="-1" aria-label="開始日期日曆"></div><small class="dd-field-hint">可點日曆，也可手動輸入 YYYY/MM/DD</small></div><div class="dd-time-set"><label class="dd-time-toggle" for="eventStartUseTime"><input type="checkbox" id="eventStartUseTime"> 設定開始時間（選填）</label><div class="dd-time-controls" id="eventStartTimeControls"><input id="eventStartTime" class="dd-time-manual" type="text" inputmode="numeric" maxlength="5" autocomplete="off" spellcheck="false" placeholder="HH:mm" aria-label="開始時間"><button type="button" class="dd-time-shortcut" data-set-time="eventStartTime" data-time="00:00">00:00</button><button type="button" class="dd-time-shortcut" data-set-time="eventStartTime" data-time="12:00">12:00</button></div><small class="dd-field-hint">時間可自行輸入，例如 02:30；不會自動補成 22</small></div></div><div class="event-date-time"><div class="dd-date-field"><label for="eventEnd">結束日期</label><div class="dd-date-entry"><input class="dd-date-manual" id="eventEnd" type="text" inputmode="numeric" placeholder="YYYY/MM/DD" autocomplete="off" spellcheck="false"><button type="button" class="dd-date-open" data-date-target="eventEnd" aria-label="選擇結束日期"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/></svg>選日期</button><input id="eventEndPicker" class="dd-date-picker-anchor" type="date" tabindex="-1" aria-label="結束日期日曆"></div><small class="dd-field-hint">可點日曆，也可手動輸入 YYYY/MM/DD</small></div><div class="dd-time-set"><label class="dd-time-toggle" for="eventEndUseTime"><input type="checkbox" id="eventEndUseTime"> 設定結束時間（選填）</label><div class="dd-time-controls" id="eventEndTimeControls"><input id="eventEndTime" class="dd-time-manual" type="text" inputmode="numeric" maxlength="5" autocomplete="off" spellcheck="false" placeholder="HH:mm" aria-label="結束時間"><button type="button" class="dd-time-shortcut" data-set-time="eventEndTime" data-time="23:59">23:59</button><button type="button" class="dd-time-shortcut" data-set-time="eventEndTime" data-time="20:00">20:00</button></div><small class="dd-field-hint">時間可自行輸入，例如 02:30；不會自動補成 22</small></div></div><label class="full">列表簡介<textarea id="eventDesc" placeholder="首頁與活動列表顯示的簡短介紹"></textarea></label><div class="event-section-editor full" aria-label="活動詳細頁自訂段落">
+  <h2>活動詳細頁｜自訂段落</h2>
+  <p class="event-section-help">依活動需求新增段落，自行選擇標題類別及線條圖示，也可以輸入自訂標題。前台會依照下方順序顯示，每個活動不限制使用固定六種欄位。</p>
+  <div class="event-section-toolbar"><span class="event-section-help" style="margin:0">沒有填入內容的段落不會顯示；活動時間仍由上方日期欄位管理。</span><button id="eventAddSection" type="button">＋ 新增段落</button></div>
+  <div id="eventSectionList" class="event-section-list" aria-live="polite"></div>
+  <div class="event-section-toolbar event-section-bottom"><button id="eventAddSectionBottom" type="button">＋ 新增段落</button></div>
+  <p class="event-section-help">舊活動原本的分段內容會在編輯時自動帶入；未使用自訂段落時仍會顯示下方的舊版詳細說明，避免既有活動突然消失。</p>
+</div><label class="full">舊版詳細說明（未使用分段內容時顯示）<textarea id="eventDetail" placeholder="舊版活動的完整內容；如果已使用上方分段欄位，可保留當作備份。"></textarea></label><label class="full">活動連結（可留空）<input id="eventUrl" placeholder="https://..."></label><label class="check"><input id="eventPublished" type="checkbox" checked> 立即顯示在官網</label><div class="form-actions full"><button class="save" id="saveEvent">＋ 新增檔期活動</button></div></div></details></section>
+<section id="bgmPanel" class="panel">
+<h1>🎵 多多谷 BGM 管理</h1>
+<div class="note">只有你在這裡發布並「上架」的歌曲才會出現在玩家播放器。上傳 MP3 或輸入可直接播放的 HTTPS 音樂網址，調整順序後按「儲存並同步雲端」。玩家不能上傳自己的音樂。<br><strong>注意：</strong>上架前請確認擁有網站公開播放的授權；空播放清單不會自動播放。</div>
+<div class="builder-card bgm-admin-card">
+<h2>新增或編輯歌曲</h2>
+<div class="form two bgm-admin-form">
+<label>歌曲名稱<input id="bgmTitle" maxlength="120" placeholder="例如：主題 BGM"></label>
+<label>MP3 上傳（最多 18 MB）<input id="bgmFile" type="file" accept=".mp3,audio/mpeg,audio/mp3"></label>
+<label class="full">歌曲網址（或上傳後自動填入）<input id="bgmUrl" type="url" placeholder="https://.../music.mp3" autocomplete="off"><small class="field-note">必須是能直接載入的 HTTPS 音訊檔案網址，不可填 YouTube 影片頁面或網路硬碟分享頁。</small></label>
+<label>播放器主題色<input id="bgmAccent" type="color" value="#98cef8"><small class="field-note">只影響此歌曲的播放按鈕、進度條、音量條及邊框微光。</small></label>
+<label>歌曲專屬文案<input id="bgmCaption" maxlength="80" placeholder="例如：今夜的冒險，從這首歌開始。"><small class="field-note">選填；獨立顯示，不覆蓋「播放／暫停」狀態。</small></label>
+<div class="full">
+  <label>歌曲封面（選填，PNG／JPG／WebP，最多 8 MB）<input id="bgmCoverFile" type="file" accept="image/png,image/jpeg,image/webp"></label>
+  <small class="field-note">支援直式、橫式及正方形圖片。選擇後可拖曳移動、調整縮放；只裁出 1:1 封面（512 × 512 WebP），原始圖片不會被覆蓋。</small>
+  <div class="bgm-cover-editor">
+    <div class="bgm-cover-stage"><div id="bgmCoverEmpty">尚未設定封面<br>播放器會顯示原本的音樂圖示</div><img id="bgmExistingCover" hidden alt="目前歌曲封面"><canvas id="bgmCoverCanvas" width="240" height="240" hidden aria-label="歌曲封面裁切預覽，可拖曳改變取景位置"></canvas></div>
+    <div class="bgm-cover-controls">
+      <label for="bgmCoverZoom">裁切縮放 <input id="bgmCoverZoom" type="range" min="1" max="3" step="0.01" value="1" disabled></label>
+      <button type="button" class="ghost" id="bgmCoverCenter">重新置中</button>
+      <label class="check"><input id="bgmCoverRemove" type="checkbox"> 移除這首歌曲的封面</label>
+      <div class="bgm-cover-meta" id="bgmCoverHelp">上傳後，播放器會自動以正方形顯示封面；沒有封面時仍使用預設圖示。</div>
+    </div>
+  </div>
+</div>
+<label class="check"><input id="bgmEnabled" type="checkbox" checked>上架（玩家可播放）</label>
+<label class="check"><input id="bgmDefault" type="checkbox">設為預設歌曲</label>
+<div class="form-actions full"><button class="ghost" type="button" id="bgmCancel">清空表單</button><button class="save" type="button" id="bgmAdd">＋ 加入歌曲清單</button></div>
+</div></div>
+<div class="builder-card bgm-admin-card"><h2>播放清單與順序</h2><p class="bgm-help">按 ↑ ↓ 調整順序。新增、編輯、移除只影響畫面草稿，按下面的「儲存並同步雲端」才會發布。</p>
+<div class="toolbar"><label class="bgm-mode-label">播放模式 <select id="bgmMode"><option value="sequential">順序循環</option><option value="shuffle">隨機播放</option><option value="single">單曲循環</option></select></label><button type="button" class="ghost" id="bgmReload">重新載入雲端</button><a class="preview-link" href="bgm-test.html" target="_blank" rel="noopener">開啟 BGM 播放器 ↗</a></div>
+<div id="bgmRows" class="bgm-admin-rows"></div>
+<div class="toolbar"><button type="button" class="save" id="bgmPublish">儲存並同步雲端</button><span id="bgmStatus" class="bgm-status" role="status" aria-live="polite">尚未載入</span></div>
+</div></section>
+<section id="bosses" class="panel"><h1>👹 BOSS 輪播管理</h1><div class="note">這裡管理首頁「挑戰更高的極限」右側的 BOSS 輪播。你可以直接上傳多張圖片、調整順序、設定點擊連結與自動切換時間；儲存後會同步到官網。</div><div class="builder-card"><h2>輪播設定</h2><div class="form two"><label>自動切換秒數<input id="bossInterval" type="number" min="2" step="1" value="5"></label><label class="full">一次新增多張圖片<input id="bossImagesFiles" type="file" accept="image/png,image/jpeg,image/webp,image/gif" multiple><small class="field-note">選擇圖片後會先顯示預覽，按「儲存 BOSS 輪播」才會正式上傳。</small></label></div></div><div id="bossSlidesAdmin" class="hero-slides-admin"></div><div class="toolbar"><button class="save" id="saveBosses">儲存 BOSS 輪播</button><button class="ghost" id="resetBosses">恢復預設 BOSS</button><a class="preview-link" href="index.html#boss" target="_blank">查看前台 ↗</a></div></section><section id="bossAtlasPanel" class="panel"><h1>📖 BOSS 圖鑑管理</h1>
+<div class="at-note">這裡管理 BOSS 血量、<b>符文種類與需求、防禦%、掉落分類</b>、難度、掉落數量與掉落機率，<b>不會修改首頁 BOSS 輪播</b>。先編輯草稿，再按「發布雲端」；沒有提供機率的項目請留空。<br><b>尤比太</b>預設不公開；在你確認前不要勾選。圖片可直接上傳至現有雲端。</div>
+<div class="at-toolbar"><button class="at-btn primary" id="atPublish" type="button">☁️ 儲存並發布雲端</button><button class="at-btn" id="atReload" type="button">重新載入雲端／預設資料</button><button class="at-btn" id="atExport" type="button">備份 JSON</button><label class="at-btn">匯入 JSON <input id="atImport" type="file" accept="application/json,.json" hidden></label><span id="atDraftState" style="font-size:12px;color:#a5bed4">尚未載入</span></div>
+<p class="at-status" id="atStatus" role="status">點擊左側「BOSS 圖鑑管理」後開始載入資料。</p>
+<div class="at-grid"><aside class="at-side"><input class="at-search" id="atBossSearch" placeholder="搜尋 BOSS…"><div class="at-list" id="atBossList"></div><div class="at-toolbar"><button class="at-btn" id="atAddBoss" type="button">＋ 新增 BOSS</button></div></aside><div class="at-editor" id="atBossEditor">選取 BOSS 後編輯。</div></div>
+<div class="at-editor" style="margin-top:17px"><h2>🧩 掉落道具圖示資料庫</h2><p class="at-sub">新增或更新道具名稱／圖示／分類時，所有引用該道具的 BOSS 會自動使用新資料，不必逐隻重傳圖片。</p>
+<div class="at-items-grid"><div><input id="atItemSearch" class="at-search" placeholder="搜尋道具名稱…"><div class="at-item-table" id="atItemList"></div></div><div class="at-info"><label class="at-field">道具名稱<input id="atItemName" placeholder="完整道具名稱"></label><label class="at-field">圖片網址<input id="atItemImage" placeholder="上傳後自動填入"></label><label class="at-field">掉落分類<select id="atItemCategory"><option>裝備</option><option>強化</option><option>素材</option><option>箱子</option><option>其他</option></select></label><img id="atItemCurrent" alt="道具預覽" style="width:72px;height:72px;object-fit:contain;background:#18293d;border-radius:10px"><div class="at-toolbar"><label class="at-btn">上傳 PNG／JPG／WebP<input id="atItemImageUpload" type="file" accept="image/png,image/jpeg,image/webp" hidden></label><button id="atNewItem" class="at-btn" type="button">＋ 新道具</button><button id="atSaveItem" class="at-btn primary" type="button">保存道具草稿</button></div></div></div>
+<p class="at-tip">注意：圖片上傳會儲存在雲端，但道具清單與掉落機率要按上方「儲存並發布雲端」才會顯示在前台。</p></div></section><section id="pools" class="panel"><h1>🎁 抽獎獎池管理</h1>
+<div class="note">在此管理玩家工具抽獎模擬器的獎池。新增／刪除整個獎池，並編輯獎池名稱、圖片與獎品清單。儲存到雲端後，玩家工具會讀取共用設定。獎品清單請使用 JSON 陣列格式，每項需包含 name 與 prob（0～1）。</div>
+<div class="builder-card"><div class="form two">
+<label>選擇獎池<select id="poolAdminSelect"></select></label><div class="form-actions"><button class="ghost" id="poolNew" type="button">＋ 新增獎池</button><button class="ghost" id="poolDelete" type="button">刪除選取獎池</button></div>
+<label>獎池識別碼（英文／數字／連字號）<input id="poolKey" placeholder="例如：golden"></label>
+<label>獎池名稱<input id="poolName" placeholder="例如：黃金蘋果"></label>
+<label class="full">獎池圖片路徑或網址<input id="poolImage" placeholder="assets/golden-apple.png"></label>
+<div class="full builder-card" style="margin:0"><h2>黃金蘋果｜本週大獎</h2><div class="note">在這裡新增、刪除或修改本週大獎；機率直接輸入百分比（例如 0.05 代表 0.05%），儲存獎池時會一併同步到玩家工具。</div><div id="weeklyPrizeAdminRows" class="form two"></div><div class="form-actions"><button class="ghost" id="weeklyPrizeAdd" type="button">＋ 新增本週大獎</button></div></div>
+<label class="full">獎品清單 JSON<textarea id="poolItemsJson" rows="14" spellcheck="false"></textarea></label>
+<div class="form-actions full"><button class="ghost" id="poolItemAdd" type="button">＋ 新增獎品範本</button><button class="ghost" id="poolItemRemove" type="button">－ 刪除最後一項獎品</button></div>
+<div class="form-actions full"><button class="save" id="poolSave" type="button">儲存獎池並同步雲端</button></div>
+</div></div><div id="poolAdminStatus" class="note" role="status">尚未載入獎池資料。</div></section>
+<section id="items" class="panel"><h1>道具資料庫</h1><div class="note">測試版道具資料儲存在瀏覽器。正式版會改為真正資料庫。</div><div class="item-db-toolbar"><input id="itemSearch" placeholder="搜尋道具名稱…"><button class="save" id="openItemForm">＋ 新增道具</button></div><div id="itemForm" class="builder-card item-form" hidden><h2 id="itemFormTitle">新增道具</h2><div class="form two"><label>道具名稱<input id="itemName" placeholder="例如：苦行戒指"></label><label>分類<select id="itemCategory"><option>裝備</option><option>消耗品</option><option>材料</option><option>特殊</option><option>其他</option></select></label><label class="full">道具圖片<input id="itemImage" type="file" accept="image/png,image/jpeg,image/webp,image/gif"></label><div id="itemImagePreview" class="item-image-preview full"><span>尚未選擇圖片</span></div><label class="full">道具描述<textarea id="itemDescription"></textarea></label><div class="form-actions full"><button class="ghost" id="cancelItem">取消</button><button class="save" id="saveItem">儲存道具</button></div></div></div><div id="itemsAdmin" class="item-table"></div></section>
+<section id="images" class="panel"><h1>圖片管理</h1><div class="image-grid"><div><img src="assets/ad3.png"><b>首頁宣傳</b></div><div><img src="assets/boss.png"><b>BOSS 宣傳</b></div><div><img src="assets/birthday.png"><b>福利活動</b></div><div><img src="assets/logo1.png"><b>主 Logo</b></div><div><img src="assets/logo3.jpg"><b>世界背景</b></div></div><div class="note">目前提供素材預覽。正式版會加入上傳、替換、尺寸檢查與版本管理。</div></section>
+<section id="links" class="panel"><h1>網址管理</h1><div class="form" id="linksForm"></div></section><section id="resources" class="panel"><h1>文件與 Checklist</h1><div class="note">這裡可以決定哪些 Google 文件、試算表或 Checklist 要直接鑲嵌在「遊玩指南」。玩家也會保留「另開完整頁面」按鈕。若外部服務禁止 iframe，網站會提示玩家改用另開方式。</div><div id="resourcesForm"></div><button class="save" id="saveResources">儲存文件設定</button></section>
+<section id="downloads" class="panel"><h1>下載專區管理</h1><div class="note">這裡管理前台「下載專區」的所有項目。你可以直接修改下載網址、簡短介紹、完整使用說明、說明圖片與顯示狀態，也可以新增或刪除下載項目。</div><div class="builder-card"><h2>新增／編輯下載項目</h2><div class="form two"><label>名稱<input id="downloadTitle" placeholder="例如：V282 ～ V282.4 手動更新檔"></label><label>分類<input id="downloadType" placeholder="例如：版本更新／DuoDuo"></label><label class="full">下載網址<input id="downloadUrl" placeholder="https://..."></label><label class="full">簡短介紹<textarea id="downloadDesc" placeholder="在下載卡片上顯示的簡短說明"></textarea></label><label class="full">使用說明<textarea id="downloadInstructions" placeholder="一行一個步驟，例如：1. ...
+2. ...
+3. ..."></textarea></label><label class="full">說明圖片路徑（可留空）<input id="downloadImage" placeholder="例如：assets/manual-update-guide.png"></label><label class="check"><input id="downloadEnabled" type="checkbox" checked> 顯示在官網</label><div class="form-actions full"><button class="ghost" id="cancelDownload">取消編輯</button><button class="save" id="saveDownload">＋ 新增下載項目</button></div></div></div><div id="downloadsAdmin"></div></section><section id="maintenancePanel" class="panel">
+<h1>🛠️ 網站維護模式</h1>
+<div class="note">此設定儲存在伺服器，不需要上傳 GitHub。啟用後，訪客頁面將改顯示「網站維護中」，後台管理仍可登入。已開啟官網的玩家會在下一次檢查時切換（最長約 30 秒）。</div>
+<div class="dd-maint-card">
+<p class="dd-maint-state" id="ddMaintStatus" role="status">正在取得維護狀態…</p>
+<div class="form"><label>維護頁標題<input id="ddMaintTitle" maxlength="60" value="多多谷官網維護中" autocomplete="off"></label>
+<label>給玩家的公告內容<textarea id="ddMaintMessage" maxlength="500" rows="4">官網正在進行維護與調整，請稍後再回來看看。遊戲相關消息請留意 Discord 官方公告。</textarea></label></div>
+<div class="dd-maint-actions"><button class="save" type="button" id="ddMaintEnable">啟用維護模式</button><button class="ghost" type="button" id="ddMaintDisable">結束維護模式</button><button class="ghost" type="button" id="ddMaintReload">重新查詢狀態</button></div>
+<p class="dd-maint-hint">操作會立即寫入 Render／Supabase，並非儲存在本機。更新標題與公告後若目前已在維護中，請再次按「儲存並更新維護公告」。本功能不會封鎖靜態檔案的直接下載；若需要真正限制存取，必須在伺服器或 CDN 層設定。</p>
+</div></section><section id="settings" class="panel"><h1>網站設定</h1><div class="note">設定七個正式導覽標題，以及下方分類的文字、順序、連結與顯示狀態。儲存後同步至雲端才會公開。</div><div class="builder-card"><h2>網站基本資料</h2><div class="form two"><label>網站名稱<input id="siteName"></label><label>網站副標題<input id="siteSubtitle"></label></div></div><div class="builder-card"><h2>上方導覽列名稱</h2><div class="form two"><label>首頁<input id="navHome"></label><label hidden>為什麼選多多谷（已下架）<input id="navWhy"></label><label hidden>特色系統（已下架）<input id="navFeatures"></label><label>檔期活動<input id="navEvents"></label><label>BOSS<input id="navBoss"></label><label>最新消息<input id="navNews"></label><label>遊玩指南<input id="navGuide"></label><label>下載專區<input id="navDownloads"></label><label>玩家工具<input id="navPlayerTools" value="玩家工具"></label></div></div><div class="builder-card"><h2>上方導覽列排序</h2><div class="note">拖曳 ☰ 調整前台上方導覽列的順序，儲存設定後所有頁面會同步更新。</div><div id="navOrderList" class="nav-order-list"></div></div><div class="builder-card"><h2>GitHub 自動更新檢查</h2><div class="note">請在 GitHub Pages 正式網站確認下方是否出現 40 位版本識別碼。若出現未處理的範本字樣，請確認 GitHub Pages 使用 Jekyll 建置，而非直接發布原始檔。</div><button type="button" id="ddCheckDeployVersion" class="ghost">檢查目前部署版本</button><div id="ddDeployVersionState" class="note" role="status">尚未檢查</div></div><div class="builder-card" id="ddNavAdminPanel"><h2>V9 下拉選單管理</h2><div class="note">調整各分類的子項目名稱、目的地、排序及顯示狀態；直接點上方分類標題仍前往該頁頂端。長期保留固定目的地 ID，請勿把連結改成 javascript: 等非 http/https 網址。下方「儲存設定」會同步這些項目。</div><div id="ddNavSubmenus"></div></div><div class="builder-card"><h2>頁尾內容</h2><div class="form two"><label class="full">介紹文字<textarea id="footerDescription"></textarea></label><label>第一欄標題<input id="footerNavTitle"></label><label>第二欄標題<input id="footerResourceTitle"></label><label class="full">版權文字<input id="footerCopyright"></label></div></div><button class="save" id="saveSettings">儲存設定</button></section>
+</main></div><script src="player-tools/data.js"></script><script src="admin.js"></script><script src="dd-nav-data.js"></script><script src="dd-navigation-admin.js"></script><script src="bgm-admin-v2.js" defer></script><script defer src="boss-atlas-admin.js"></script><script src="dd-site-update.js" defer></script><script src="dd-maintenance-admin.js" defer></script>
+</body></html>

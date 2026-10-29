@@ -415,7 +415,7 @@ async function handleGetEvents(req,res){
     }
 
     const rows=JSON.parse(text);
-    const events=rows.filter(row=>String(row.id)!=='__boss_config__');
+    const events=rows.filter(row=>!['__boss_config__','__site_data__','__maintenance__'].includes(String(row.id)));
 
     return sendJSON(res,200,{
       ok:true,
@@ -506,7 +506,7 @@ async function handleSaveEvents(req,res){
         );
 
         for(const row of existingRows){
-          if(['__boss_config__','__site_data__'].includes(String(row.id)))continue;
+          if(['__boss_config__','__site_data__','__maintenance__'].includes(String(row.id)))continue;
           if(!newIds.has(String(row.id))){
             const deleteUrl=
               `${supabaseUrl}/rest/v1/events?id=eq.${encodeURIComponent(row.id)}`;
@@ -668,7 +668,7 @@ async function handleGetSiteData(req,res){
     const eventsResponse=await fetch(`${supabaseUrl}/rest/v1/events?select=id,data,updated_at&order=updated_at.desc`,{method:'GET',headers});
     if(eventsResponse.ok){
       const rows=await eventsResponse.json();
-      const eventRows=rows.filter(row=>!['__boss_config__','__site_data__'].includes(String(row.id)));
+      const eventRows=rows.filter(row=>!['__boss_config__','__site_data__','__maintenance__'].includes(String(row.id)));
       data.duoduo_events=eventRows.map(row=>row.data).filter(Boolean);
     }
 
@@ -730,6 +730,38 @@ async function handleSaveSiteData(req,res){
   }catch(err){console.error('網站資料儲存 API 發生錯誤:',err);return sendJSON(res,500,{ok:false,error:'網站資料 API 發生錯誤'});}
 }
 
+
+// Server-authoritative maintenance switch, separate from the general site-data draft.
+// Public GET is intentionally small; POST requires the existing authenticated admin session.
+const MAINT_ROW='__maintenance__';
+const MAINT_DEFAULT={enabled:false,title:'多多谷官網維護中',message:'官網正在進行維護與調整，請稍後再回來看看。'};
+async function handleMaintenanceGet(req,res){
+ try{const url=process.env.SUPABASE_URL,secret=process.env.SUPABASE_SECRET_KEY;
+  if(!url||!secret)return sendJSON(res,503,{ok:false,error:'伺服器維護管理尚未設定'});
+  const upstream=await fetch(`${url}/rest/v1/events?id=eq.${MAINT_ROW}&select=data`,{headers:{apikey:secret,Authorization:'Bearer '+secret},cache:'no-store'});
+  if(!upstream.ok)return sendJSON(res,503,{ok:false,error:'無法取得維護狀態'});
+  const rows=await upstream.json();const data=rows?.[0]?.data||{};
+  return sendJSON(res,200,{ok:true,enabled:data.enabled===true,title:String(data.title||MAINT_DEFAULT.title).slice(0,60),message:String(data.message||MAINT_DEFAULT.message).slice(0,500),updatedAt:data.updatedAt||null});
+ }catch(err){console.error('維護狀態讀取失敗',err);return sendJSON(res,503,{ok:false,error:'維護服務暫時無法連線'});}
+}
+async function handleMaintenancePost(req,res){
+ if(!getAdminSession(req))return sendJSON(res,401,{ok:false,error:'未登入或登入已失效'});
+ const url=process.env.SUPABASE_URL,secret=process.env.SUPABASE_SECRET_KEY;
+ if(!url||!secret)return sendJSON(res,503,{ok:false,error:'伺服器維護管理尚未設定'});
+ let body='';req.setEncoding('utf8');let tooLarge=false;
+ req.on('data',chunk=>{body+=chunk;if(body.length>4096){tooLarge=true;req.destroy();}});
+ req.on('end',async()=>{if(tooLarge)return sendJSON(res,413,{ok:false,error:'維護公告內容過長'});
+  try{const payload=JSON.parse(body||'{}');if(typeof payload.enabled!=='boolean')return sendJSON(res,400,{ok:false,error:'維護狀態格式錯誤'});
+   const title=String(payload.title||'').trim(),message=String(payload.message||'').trim();
+   if(!title||title.length>60||!message||message.length>500)return sendJSON(res,400,{ok:false,error:'標題需 1～60 字，公告需 1～500 字'});
+   const row={id:MAINT_ROW,data:{enabled:payload.enabled,title,message,updatedAt:new Date().toISOString()},updated_at:new Date().toISOString()};
+   const upstream=await fetch(`${url}/rest/v1/events`,{method:'POST',headers:{apikey:secret,Authorization:'Bearer '+secret,'Content-Type':'application/json',Prefer:'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([row])});
+   if(!upstream.ok){console.error('維護狀態存檔失敗',await upstream.text());return sendJSON(res,503,{ok:false,error:'維護狀態未成功儲存，請重試'});}
+   return sendJSON(res,200,{ok:true,enabled:payload.enabled,title,message,updatedAt:row.data.updatedAt});
+  }catch(err){console.error('維護狀態寫入錯誤',err);return sendJSON(res,400,{ok:false,error:'維護狀態寫入失敗'});}
+ });
+}
+
 const server=http.createServer((req,res)=>{
 
   res.setHeader(
@@ -753,6 +785,8 @@ const server=http.createServer((req,res)=>{
   }
 
   const requestPath=(req.url||'').split('?')[0];
+  if(req.method==='GET' && requestPath==='/api/maintenance')return handleMaintenanceGet(req,res);
+  if(req.method==='POST' && requestPath==='/api/maintenance')return handleMaintenancePost(req,res);
 
   if(
     req.method==='POST' &&

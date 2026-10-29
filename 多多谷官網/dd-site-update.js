@@ -25,13 +25,13 @@
   // Fetch real asset URLs with cache:'reload', otherwise reloading HTML alone
   // can reuse old CSS/JS served with a 10-minute browser cache lifetime.
   const paths=['styles.css','dd-navigation.css','dd-navigation.js','dd-nav-data.js','dd-navigation-admin.js','dd-site-update.js','app.js',
-   'admin.css','admin.js','jobs/jobs.css','jobs/jobs.js','jobs/jobs-data.js',
+   'admin.css','admin.js','dd-maintenance.js','dd-maintenance-admin.js','dd-maintenance-admin.css','jobs/jobs.css','jobs/jobs.js','jobs/jobs-data.js',
    'jobs/jobs-header.css','jobs/jobs-header.js',
    'player-tools/styles.css','player-tools/app.js','player-tools/systems.js',
    'player-tools/data.js','player-tools/systems-data.js',
    'boss-atlas.js','boss-challenge.js',
    'index.html','home.html','news.html','events.html','event-detail.html',
-   'boss.html','guide.html','downloads.html','jobs/jobs.html','player-tools/index.html','admin.html'];
+   'boss.html','guide.html','downloads.html','jobs/jobs.html','player-tools/index.html','ops-c62e9f4a173b.html'];
   await Promise.allSettled(paths.map(path=>fetch(new URL(path,root).href,{
    cache:'reload',credentials:'same-origin'})));
  }
