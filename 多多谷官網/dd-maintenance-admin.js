@@ -12,7 +12,8 @@
  async function request(url,opts={}){const res=await fetch(base+url,{cache:'no-store',...opts});const data=await res.json().catch(()=>({}));if(!res.ok||!data.ok)throw new Error(data.error||'HTTP '+res.status);return data}
  async function load(){if(busy)return;lock(true);try{
    const result=await request('/api/maintenance');current=!!result.enabled;
-   $('ddMaintTitle').value=String(result.title||'多多谷官網維護中');$('ddMaintMessage').value=String(result.message||'官網正在進行維護與調整，請稍後再回來看看。');
+   $('ddMaintTitle').value=String(result.title||'多多谷官方網站維護中');$('ddMaintMessage').value=String(result.message||'親愛的多多谷玩家您好：\n\n為提供更穩定、完善的網站服務，多多谷官方網站目前正在進行系統維護與功能調整，相關頁面將暫時停止開放。\n\n維護完成後，網站將恢復正常使用。造成不便，敬請見諒，感謝您的耐心等候與支持。\n\n最新維護進度及相關消息，請留意多多谷官方 Discord 公告。');
+   enable.textContent=current?'儲存並更新維護公告':'啟用維護模式';
    setStatus(current?'網站目前正在維護｜訪客只看到維護畫面':'網站目前正常開放｜玩家可瀏覽官網',current?'on':'off');
  }catch(err){current=null;setStatus('讀取失敗：'+err.message+'。請確認 Render 已更新 server.js，且後端服務可連線。','error')}finally{lock(false)}}
  async function save(wantOn){if(busy)return;if(!token())return setStatus('後台登入已失效，請重新登入。','error');
@@ -21,7 +22,7 @@
    const title=$('ddMaintTitle').value.trim();const message=$('ddMaintMessage').value.trim();
    if(!title||!message){setStatus('請填寫維護頁標題及公告內容。','error');return}
    lock(true);setStatus('正在儲存至伺服器…');
-   try{const payload=await request('/api/maintenance',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token()},body:JSON.stringify({enabled:wantOn,title,message})});current=!!payload.enabled;
+   try{const payload=await request('/api/maintenance',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+token()},body:JSON.stringify({enabled:wantOn,title,message})});current=!!payload.enabled;enable.textContent=current?'儲存並更新維護公告':'啟用維護模式';
     setStatus(current?'維護模式已啟用，訪客畫面即將更新。':'維護模式已關閉，訪客可重新進入官網。',current?'on':'off');
    }catch(err){setStatus('儲存失敗，狀態尚未確認：'+err.message,'error')}
    finally{lock(false)}

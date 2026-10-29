@@ -7,25 +7,55 @@
  const own=document.currentScript;
  const base=own?.src?new URL('./',own.src):new URL('./',location.href);
  const api=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const MAINT_DEFAULT_TITLE='多多谷官方網站維護中';
+ const MAINT_DEFAULT_MESSAGE='親愛的多多谷玩家您好：\n\n為提供更穩定、完善的網站服務，多多谷官方網站目前正在進行系統維護與功能調整，相關頁面將暫時停止開放。\n\n維護完成後，網站將恢復正常使用。造成不便，敬請見諒，感謝您的耐心等候與支持。\n\n最新維護進度及相關消息，請留意多多谷官方 Discord 公告。';
  const css=document.createElement('style');css.id='dd-maintenance-style';css.textContent=`
  html.dd-maintenance-checking body,html.dd-maintenance-on body{visibility:hidden!important;pointer-events:none!important}
  html.dd-maintenance-on{overflow:hidden!important}
- #dd-maintenance-screen{position:fixed;z-index:2147483647;inset:0;overflow-y:auto;box-sizing:border-box;display:none;align-items:center;justify-content:center;padding:28px 16px;background:radial-gradient(circle at 80% 10%,#1d4352 0,transparent 45%),linear-gradient(130deg,#081a2c,#0e3140);color:#eaf6ff;font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;visibility:visible!important;pointer-events:auto!important}
+ #dd-maintenance-screen{position:fixed;z-index:2147483647;inset:0;overflow:auto;box-sizing:border-box;display:none;align-items:safe center;justify-content:center;padding:28px 16px;background:radial-gradient(circle at 80% 10%,#1d4352 0,transparent 45%),linear-gradient(130deg,#081a2c,#0e3140);color:#eaf6ff;font-family:"Noto Sans TC","Microsoft JhengHei",system-ui,sans-serif;visibility:visible!important;pointer-events:auto!important}
  html.dd-maintenance-on #dd-maintenance-screen{display:flex}
- #dd-maintenance-screen .dd-maint-panel{text-align:center;max-width:690px;width:100%;box-sizing:border-box;padding:clamp(25px,5vw,62px) clamp(20px,5vw,55px);border:1px solid rgba(155,223,235,.3);border-radius:23px;background:rgba(9,29,44,.82);box-shadow:0 30px 100px #0006}
- #dd-maintenance-screen img{display:block;object-fit:contain;max-width:min(180px,65vw);max-height:98px;height:auto;margin:0 auto 24px}
- #dd-maintenance-screen .dd-maint-eyebrow{letter-spacing:.22em;font-size:11px;font-weight:800;color:#80d7e7}
- #dd-maintenance-screen h1{font-size:clamp(26px,5vw,42px);line-height:1.3;letter-spacing:.03em;color:#f2fdff;margin:16px auto 18px}
- #dd-maintenance-screen p{line-height:1.9;font-size:clamp(14px,2vw,16px);white-space:pre-line;overflow-wrap:anywhere;color:#bfd5e4;margin:0 auto 24px}
- #dd-maintenance-screen button{border:1px solid #83cadc;background:#153c52;color:#efffff;border-radius:999px;padding:11px 23px;font:inherit;font-weight:750;cursor:pointer}
+ #dd-maintenance-screen .dd-maint-panel{text-align:center;max-width:760px;width:100%;box-sizing:border-box;padding:clamp(18px,3vw,29px);border:1px solid rgba(155,223,235,.34);border-radius:24px;background:rgba(9,29,44,.92);box-shadow:0 30px 100px #0007}
+ #dd-maintenance-screen .dd-maint-hero{position:relative;overflow:hidden;aspect-ratio:16/9;border-radius:15px;background:linear-gradient(130deg,#17485f,#276b84)}
+ #dd-maintenance-screen .dd-maint-hero video,#dd-maintenance-screen .dd-maint-hero .dd-maint-still{display:block;width:100%;height:100%;object-fit:cover}
+ #dd-maintenance-screen .dd-maint-hero .dd-maint-still{display:none}
+ #dd-maintenance-screen.dd-maint-video-failed .dd-maint-hero video{display:none}
+ #dd-maintenance-screen.dd-maint-video-failed .dd-maint-hero .dd-maint-still{display:block}
+ #dd-maintenance-screen .dd-maint-eyebrow{margin:22px auto 0;letter-spacing:.18em;font-size:11px;font-weight:800;color:#80d7e7}
+ #dd-maintenance-screen h1{font-size:clamp(25px,4.5vw,37px);line-height:1.35;letter-spacing:.025em;color:#f2fdff;margin:11px auto 13px}
+ #dd-maintenance-screen .dd-maint-message{max-width:635px;line-height:1.85;font-size:clamp(13px,1.9vw,15px);white-space:pre-line;overflow-wrap:anywhere;color:#cfdeeb;margin:0 auto 23px;text-align:left}
+ #dd-maintenance-screen button{border:1px solid #83cadc;background:#153c52;color:#efffff;border-radius:999px;padding:10px 23px;font:inherit;font-weight:750;cursor:pointer}
  #dd-maintenance-screen button:hover{background:#245772}
- #dd-maintenance-screen .dd-maint-note{color:#8eadc0;font-size:12px;margin-top:19px}
- `;document.head.appendChild(css);
+ #dd-maintenance-screen .dd-maint-note{color:#95b5ca;font-size:12px;margin-top:13px;line-height:1.6}
+ @media(max-width:540px){#dd-maintenance-screen{padding:12px}#dd-maintenance-screen .dd-maint-panel{padding:12px;border-radius:18px}#dd-maintenance-screen .dd-maint-hero{border-radius:12px}#dd-maintenance-screen .dd-maint-eyebrow{margin-top:16px}#dd-maintenance-screen .dd-maint-message{line-height:1.75;margin-bottom:20px}}
+ @media(prefers-reduced-motion:reduce){#dd-maintenance-screen .dd-maint-hero video{display:none}#dd-maintenance-screen .dd-maint-hero .dd-maint-still{display:block}}
+`;document.head.appendChild(css);
  let panel=null,visible=false,working=false,lastKnown=null;
- function make(){if(panel)return panel;panel=document.createElement('div');panel.id='dd-maintenance-screen';panel.setAttribute('role','main');panel.innerHTML=`<div class="dd-maint-panel"><img src="${new URL('assets/logo1-header.png',base).href}" alt="多多谷"><div class="dd-maint-eyebrow">DUODUO VALLEY · MAINTENANCE</div><h1 id="dd-maint-title">多多谷官網維護中</h1><p id="dd-maint-message">官網正在進行維護與調整，請稍後再回來看看。</p><button id="dd-maint-check" type="button">重新檢查維護狀態</button><div class="dd-maint-note" id="dd-maint-note">維護完成後，本頁將自動恢復。</div></div>`;document.documentElement.appendChild(panel);panel.querySelector('button').addEventListener('click',()=>check(true));return panel}
- function show(data){if(!document.body){document.addEventListener('DOMContentLoaded',()=>show(data),{once:true});return;}make();panel.querySelector('#dd-maint-title').textContent=String(data.title||'多多谷官網維護中');panel.querySelector('#dd-maint-message').textContent=String(data.message||'官網正在進行維護與調整，請稍後再回來看看。');
-   document.documentElement.classList.remove('dd-maintenance-checking');document.documentElement.classList.add('dd-maintenance-on');visible=true;
-   try{document.querySelectorAll('audio,video').forEach(el=>el.pause())}catch{}
+ function make(){
+  if(panel)return panel;
+  panel=document.createElement('div');panel.id='dd-maintenance-screen';panel.setAttribute('role','main');
+  const videoUrl=new URL('assets/maintenance-logo.mp4',base).href;
+  const posterUrl=new URL('assets/maintenance-poster.webp',base).href;
+  panel.innerHTML=`<div class="dd-maint-panel"><div class="dd-maint-hero" aria-label="多多谷官方 LOGO 動態主視覺">
+    <video muted autoplay loop playsinline preload="metadata" poster="${posterUrl}" aria-hidden="true"><source src="${videoUrl}" type="video/mp4"></video>
+    <img class="dd-maint-still" src="${posterUrl}" alt="多多谷 DUODUO VALLEY 官方 LOGO">
+  </div><div class="dd-maint-eyebrow">DUODUO VALLEY · MAINTENANCE NOTICE</div>
+  <h1 id="dd-maint-title">多多谷官方網站維護中</h1><p class="dd-maint-message" id="dd-maint-message"></p>
+  <button id="dd-maint-check" type="button">重新檢查維護狀態</button><div class="dd-maint-note" id="dd-maint-note">網站恢復開放後，本頁將自動重新載入。</div></div>`;
+  document.documentElement.appendChild(panel);
+  const vid=panel.querySelector('video');
+  vid.addEventListener('error',()=>panel.classList.add('dd-maint-video-failed'));
+  panel.querySelector('source')?.addEventListener('error',()=>panel.classList.add('dd-maint-video-failed'));
+  panel.querySelector('button').addEventListener('click',()=>check(true));return panel;
+ }
+ function show(data){
+  if(!document.body){document.addEventListener('DOMContentLoaded',()=>show(data),{once:true});return;}
+  make();
+  panel.querySelector('#dd-maint-title').textContent=String(data.title||MAINT_DEFAULT_TITLE);
+  panel.querySelector('#dd-maint-message').textContent=String(data.message||MAINT_DEFAULT_MESSAGE);
+  document.documentElement.classList.remove('dd-maintenance-checking');document.documentElement.classList.add('dd-maintenance-on');visible=true;
+  // Keep the provided muted branding video playing while pausing the actual site's BGM/media.
+  try{document.querySelectorAll('audio,video').forEach(el=>{if(!el.closest('#dd-maintenance-screen'))el.pause()})}catch{}
+  if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){const vid=panel.querySelector('video');vid?.play().catch(()=>panel.classList.add('dd-maint-video-failed'))}
  }
  function hide(){document.documentElement.classList.remove('dd-maintenance-checking','dd-maintenance-on');visible=false}
  async function check(manual=false){if(working)return;working=true;
@@ -34,7 +64,7 @@
    try{const res=await fetch(api+'/api/maintenance?check='+Date.now(),{cache:'no-store',signal:ctrl.signal});if(!res.ok)throw Error('HTTP '+res.status);
      const result=await res.json();if(result.ok!==true||typeof result.enabled!=='boolean')throw Error('maintenance status unavailable');
      lastKnown=result;
-     if(result.enabled){show(result);if(panel)panel.querySelector('#dd-maint-note').textContent='維護完成後，本頁將自動恢復。'}
+     if(result.enabled){show(result);if(panel)panel.querySelector('#dd-maint-note').textContent='網站恢復開放後，本頁將自動重新載入。'}
      else if(visible){location.reload()}
      else hide();
    }catch(e){if(visible){if(panel)panel.querySelector('#dd-maint-note').textContent='暫時無法取得伺服器狀態，請稍後再試。';}

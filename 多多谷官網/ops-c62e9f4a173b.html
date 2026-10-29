@@ -319,10 +319,16 @@ https://.../image3.jpg"></textarea></label><div class="event-date-time"><div cla
 <div class="note">此設定儲存在伺服器，不需要上傳 GitHub。啟用後，訪客頁面將改顯示「網站維護中」，後台管理仍可登入。已開啟官網的玩家會在下一次檢查時切換（最長約 30 秒）。</div>
 <div class="dd-maint-card">
 <p class="dd-maint-state" id="ddMaintStatus" role="status">正在取得維護狀態…</p>
-<div class="form"><label>維護頁標題<input id="ddMaintTitle" maxlength="60" value="多多谷官網維護中" autocomplete="off"></label>
-<label>給玩家的公告內容<textarea id="ddMaintMessage" maxlength="500" rows="4">官網正在進行維護與調整，請稍後再回來看看。遊戲相關消息請留意 Discord 官方公告。</textarea></label></div>
+<div class="form"><label>維護頁標題<input id="ddMaintTitle" maxlength="60" value="多多谷官方網站維護中" autocomplete="off"></label>
+<label>給玩家的公告內容<textarea id="ddMaintMessage" maxlength="500" rows="4">親愛的多多谷玩家您好：
+
+為提供更穩定、完善的網站服務，多多谷官方網站目前正在進行系統維護與功能調整，相關頁面將暫時停止開放。
+
+維護完成後，網站將恢復正常使用。造成不便，敬請見諒，感謝您的耐心等候與支持。
+
+最新維護進度及相關消息，請留意多多谷官方 Discord 公告。</textarea></label></div>
 <div class="dd-maint-actions"><button class="save" type="button" id="ddMaintEnable">啟用維護模式</button><button class="ghost" type="button" id="ddMaintDisable">結束維護模式</button><button class="ghost" type="button" id="ddMaintReload">重新查詢狀態</button></div>
-<p class="dd-maint-hint">操作會立即寫入 Render／Supabase，並非儲存在本機。更新標題與公告後若目前已在維護中，請再次按「儲存並更新維護公告」。本功能不會封鎖靜態檔案的直接下載；若需要真正限制存取，必須在伺服器或 CDN 層設定。</p>
+<p class="dd-maint-hint">操作會立即寫入 Render／Supabase，並非儲存在本機。更新標題與公告後若目前已在維護中，請按「儲存並更新維護公告」。本功能不會封鎖靜態檔案的直接下載；若需要真正限制存取，必須在伺服器或 CDN 層設定。</p>
 </div></section><section id="settings" class="panel"><h1>網站設定</h1><div class="note">設定七個正式導覽標題，以及下方分類的文字、順序、連結與顯示狀態。儲存後同步至雲端才會公開。</div><div class="builder-card"><h2>網站基本資料</h2><div class="form two"><label>網站名稱<input id="siteName"></label><label>網站副標題<input id="siteSubtitle"></label></div></div><div class="builder-card"><h2>上方導覽列名稱</h2><div class="form two"><label>首頁<input id="navHome"></label><label hidden>為什麼選多多谷（已下架）<input id="navWhy"></label><label hidden>特色系統（已下架）<input id="navFeatures"></label><label>檔期活動<input id="navEvents"></label><label>BOSS<input id="navBoss"></label><label>最新消息<input id="navNews"></label><label>遊玩指南<input id="navGuide"></label><label>下載專區<input id="navDownloads"></label><label>玩家工具<input id="navPlayerTools" value="玩家工具"></label></div></div><div class="builder-card"><h2>上方導覽列排序</h2><div class="note">拖曳 ☰ 調整前台上方導覽列的順序，儲存設定後所有頁面會同步更新。</div><div id="navOrderList" class="nav-order-list"></div></div><div class="builder-card"><h2>GitHub 自動更新檢查</h2><div class="note">請在 GitHub Pages 正式網站確認下方是否出現 40 位版本識別碼。若出現未處理的範本字樣，請確認 GitHub Pages 使用 Jekyll 建置，而非直接發布原始檔。</div><button type="button" id="ddCheckDeployVersion" class="ghost">檢查目前部署版本</button><div id="ddDeployVersionState" class="note" role="status">尚未檢查</div></div><div class="builder-card" id="ddNavAdminPanel"><h2>V9 下拉選單管理</h2><div class="note">調整各分類的子項目名稱、目的地、排序及顯示狀態；直接點上方分類標題仍前往該頁頂端。長期保留固定目的地 ID，請勿把連結改成 javascript: 等非 http/https 網址。下方「儲存設定」會同步這些項目。</div><div id="ddNavSubmenus"></div></div><div class="builder-card"><h2>頁尾內容</h2><div class="form two"><label class="full">介紹文字<textarea id="footerDescription"></textarea></label><label>第一欄標題<input id="footerNavTitle"></label><label>第二欄標題<input id="footerResourceTitle"></label><label class="full">版權文字<input id="footerCopyright"></label></div></div><button class="save" id="saveSettings">儲存設定</button></section>
 </main></div><script src="player-tools/data.js"></script><script src="admin.js"></script><script src="dd-nav-data.js"></script><script src="dd-navigation-admin.js"></script><script src="bgm-admin-v2.js" defer></script><script defer src="boss-atlas-admin.js"></script><script src="dd-site-update.js" defer></script><script src="dd-maintenance-admin.js" defer></script>
 </body></html>
