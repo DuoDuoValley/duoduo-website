@@ -1366,10 +1366,12 @@ async function checkShellVersion(){
     }
   }catch{}finally{shellChecking=false;}
 }
+window.duoduoPrepareForUpdate=()=>{try{storePlaybackPosition()}catch(_){}};
 setInterval(checkShellVersion,60000);
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkShellVersion();});
 window.addEventListener('online',checkShellVersion);
 })();
 </script>
+<script src="dd-site-update.js" defer></script>
 </body>
 </html>
