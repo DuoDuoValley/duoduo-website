@@ -1,28 +1,21 @@
-# Simple workflow for deploying static content to GitHub Pages
+# Deploy the public static website and embed one monotonic release revision.
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: read
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -33,10 +26,27 @@ jobs:
         uses: actions/checkout@v4
       - name: Setup Pages
         uses: actions/configure-pages@v5
+      - name: Stamp deployed revision
+        shell: bash
+        run: |
+          python3 - <<'PYCODE'
+          import json, os
+          from pathlib import Path
+          root = Path('多多谷官網')
+          run = int(os.environ['GITHUB_RUN_NUMBER'])
+          sha = os.environ['GITHUB_SHA']
+          watcher = root / 'dd-site-update.js'
+          src = watcher.read_text(encoding='utf-8')
+          assert '__DD_BUILD_RUN__' in src and '__DD_BUILD_SHA__' in src, 'Deployment watcher placeholder missing'
+          src = src.replace('__DD_BUILD_RUN__', str(run)).replace('__DD_BUILD_SHA__', sha)
+          watcher.write_text(src, encoding='utf-8')
+          (root / 'dd-release.json').write_text(json.dumps({'run': run, 'sha': sha})+'\n', encoding='utf-8')
+          (root / 'dd-release.txt').write_text(sha+'\n', encoding='utf-8')
+          print(f'Deploying DuoDuo release {run} ({sha[:12]})')
+          PYCODE
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
           path: './多多谷官網'
       - name: Deploy to GitHub Pages
         id: deployment

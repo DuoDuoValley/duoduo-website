@@ -1,164 +1,96 @@
-/* DuoDuo deployment watcher v2.1 (2026-10-30)
-   Prefer a generated commit SHA (Jekyll/CI); GitHub Pages Actions may serve
-   dd-release.txt as raw Liquid text, so also watch response validators of the
-   live static files actually used by the page. Never reload on an HTTP error,
-   missing response validators, or the user's BGM cloud-data changes. */
+/* DuoDuo deployment watcher v4.0 — single deployment revision, not asset/CDN ETags.
+ * Deployment workflow substitutes BUILD_RUN/BUILD_SHA in the uploaded artifact.
+ * One deployed run => at most one automatic reload in this browser tab.
+ * BGM shell is the only watcher when browsing embedded public pages.
+ */
 (()=>{'use strict';
+ const BUILD_RUN=Number('__DD_BUILD_RUN__');
+ const BUILD_SHA='__DD_BUILD_SHA__';
  const script=document.currentScript;
  if(!script?.src)return;
  const root=new URL('./',script.src);
- const current=new URL(location.href);
- if(current.origin!==root.origin||!current.pathname.startsWith(root.pathname))return;
+ if(location.origin!==root.origin||!location.pathname.startsWith(root.pathname))return;
  if(document.documentElement.classList.contains('dd-bgm-embed'))return;
- try{if(window!==window.top && window.parent.DuoDuoSiteUpdate?.active)return;}catch{}
- const shell=window===window.top&&!!document.getElementById('duoduoSite');
- const revisionKey='dd_site_revision_v2:'+root.pathname;
- const signaturesKey='dd_site_signatures_v2:'+root.pathname;
- const debug={active:true,mode:'starting',status:'initializing',checkedAt:null,watched:0,lastChange:null,lastError:null};
+ try{
+   if(window!==window.top &&
+      (window.parent.DuoDuoSiteUpdate?.active || window.parent.document.getElementById('duoduoSite')))return;
+ }catch(_){}
+ const KEY='duoduo_site_deployment_seen_v4:'+root.pathname;
+ const debug={active:true,revision:'v4.0',mode:'deployment-run',buildRun:BUILD_RUN,
+   status:'initializing',checkedAt:null,lastError:null,remoteRun:null,lastChange:null};
  window.DuoDuoSiteUpdate=debug;
- const sha=/^[0-9a-f]{40}$/i;
- // Shared assets are checked from every page. Route-specific files are
- // checked while that page is visible, avoiding ~30 HEAD requests/minute per
- // visitor when most of the site is not in use.
- const sharedPaths=['dd-release.txt','index.html','dd-site-update.js','styles.css',
-   'dd-navigation.css','dd-navigation.js','dd-nav-data.js','app.js','dd-maintenance.js'];
- const routeAssets={
-   'jobs/':['jobs/jobs.html','jobs/jobs.css','jobs/jobs.js','jobs/jobs-data.js',
-     'jobs/jobs-header.css','jobs/jobs-header.js','jobs/jobs-hero-banner.webp'],
-   'player-tools/':['player-tools/index.html','player-tools/styles.css',
-     'player-tools/app.js','player-tools/systems.js','player-tools/data.js','player-tools/systems-data.js'],
-   'boss.html':['boss.html','boss-atlas.js','boss-atlas.css','boss-challenge.js','boss-challenge.css'],
-   'ops-c62e9f4a173b.html':['ops-c62e9f4a173b.html','admin.js','admin.css','dd-navigation-admin.js']
- };
- function currentRoute(){
-   let url=location;
-   if(shell){
-     try{const frame=document.getElementById('duoduoSite');
-       if(frame?.contentWindow?.location.origin===root.origin)url=frame.contentWindow.location;
-     }catch{}
-   }
-   let path='';
-   try{path=decodeURI(url.pathname).slice(decodeURI(root.pathname).length);}catch{}
-   return path;
+ let seen=[BUILD_RUN], busy=false, refreshing=false, candidate=null;
+ try{
+   const raw=JSON.parse(sessionStorage.getItem(KEY)||'[]');
+   if(Array.isArray(raw))seen=[...new Set([...raw.filter(x=>Number.isInteger(x)&&x>0),BUILD_RUN])].slice(-24);
+ }catch(_){}
+ function saveSeen(run){
+   if(!seen.includes(run))seen.push(run);
+   seen=seen.slice(-24);
+   try{sessionStorage.setItem(KEY,JSON.stringify(seen))}catch(_){}
  }
- function pathsToCheck(){
-   const paths=new Set(sharedPaths),route=currentRoute();
-   if(route.startsWith('jobs/'))routeAssets['jobs/'].forEach(p=>paths.add(p));
-   else if(route.startsWith('player-tools/'))routeAssets['player-tools/'].forEach(p=>paths.add(p));
-   else if(routeAssets[route])routeAssets[route].forEach(p=>paths.add(p));
-   else if(route&&/^[\w./%-]+$/.test(route)&&!route.includes('..'))paths.add(route);
-   return [...paths];
- }
- function cacheURL(relative){const u=new URL(relative,root);u.searchParams.set('_dd_check',Date.now().toString());return u.href;}
- function store(key,value){try{sessionStorage.setItem(key,value)}catch{}}
- function load(key){try{return sessionStorage.getItem(key)||''}catch{return''}}
- async function getCommit(){
-   const r=await fetch(cacheURL('dd-release.txt'),{cache:'no-store',credentials:'same-origin'});
-   if(!r.ok) return null;
-   const txt=(await r.text()).trim();
-   return sha.test(txt)?txt.toLowerCase():null;
- }
- function digest(text){let h=2166136261;for(let i=0;i<text.length;i++){h^=text.charCodeAt(i);h=Math.imul(h,16777619);}return (h>>>0).toString(36);}
- async function signature(path){
-   const opts={method:'HEAD',cache:'no-store',credentials:'same-origin'};
-   let r=await fetch(cacheURL(path),opts);
-   if(!r.ok)throw new Error('probe '+path+' HTTP '+r.status);
-   let tag=r.headers.get('etag')||'';
-   let mod=r.headers.get('last-modified')||'';
-   let len=r.headers.get('content-length')||'';
-   // Some static hosts send no validators. Content hashing avoids a false
-   // 'everything unchanged' result in that case; bounded to small text files.
-   if(!tag&&!mod){
-     r=await fetch(cacheURL(path),{cache:'no-store',credentials:'same-origin'});
-     if(!r.ok)throw new Error('read '+path+' HTTP '+r.status);
-     const bytes=await r.arrayBuffer();
-     // Hash bytes (not text) to handle images as well as JS, CSS and HTML.
-     let h=2166136261;const b=new Uint8Array(bytes);
-     for(let i=0;i<b.length;i++){h^=b[i];h=Math.imul(h,16777619);}
-     return 'body:'+(h>>>0).toString(36)+':'+b.length;
-   }
-   return tag?'etag:'+tag:'modified:'+mod+':'+len;
- }
- async function getSignatures(){
-   const paths=pathsToCheck();
-   // A failed HEAD must NOT replace an existing fingerprint with an error page.
-   const results=await Promise.allSettled(paths.map(p=>signature(p)));
-   const all={};let failed=0;
-   for(let i=0;i<paths.length;i++){
-     if(results[i].status==='fulfilled')all[paths[i]]=results[i].value;
-     else failed++;
-   }
-   if(!Object.keys(all).length)throw new Error('no site files available');
-   debug.watched=Object.keys(all).length;
-   return {all,failed};
- }
- async function refreshFiles(){
-   // Prime the browser cache with the actual asset URLs before reloading the
-   // outer player shell, so CSS/JS do not stay stale for the cache TTL.
-   const paths=pathsToCheck();
-   await Promise.allSettled(paths.map(p=>fetch(new URL(p,root).href,{cache:'reload',credentials:'same-origin'})));
- }
- function nextURL(version){
-   const u=new URL(location.href);
-   u.searchParams.set('ddv',version.replace(/[^a-z\d]/gi,'').slice(0,16));
+ function deployedVersionURL(){
+   const u=new URL('dd-release.json',root);
+   u.searchParams.set('_dd_check',String(Date.now()));
    return u.href;
  }
- let busy=false,restarting=false;
- async function restart(version,why){
-   if(restarting)return;
-   restarting=true;debug.status='refreshing';debug.lastChange=why;
-   await refreshFiles();
-   try{
-     if(typeof window.duoduoPrepareForUpdate==='function')window.duoduoPrepareForUpdate();
-     else if(window!==window.top&&typeof window.parent.duoduoPrepareForUpdate==='function')window.parent.duoduoPrepareForUpdate();
-   }catch{}
-   if(window!==window.top){
-     try{if(window.parent.location.origin===location.origin){
-       const parentURL=new URL(window.parent.location.href);
-       parentURL.searchParams.set('ddv',version.replace(/[^a-z\d]/gi,'').slice(0,16));
-       window.parent.location.replace(parentURL.href);
-       return;
-     }}catch{}
-   }
-   location.replace(nextURL(version));
+ async function readRemote(){
+   const response=await fetch(deployedVersionURL(),{cache:'no-store',credentials:'same-origin'});
+   if(!response.ok)throw Error('部署版本查詢 HTTP '+response.status);
+   const payload=await response.json();
+   const run=Number(payload?.run),sha=String(payload?.sha||'');
+   if(!Number.isSafeInteger(run)||run<1||!/^[a-f0-9]{40}$/i.test(sha))throw Error('尚無有效的部署版號');
+   return {run,sha};
  }
+ function isNewer(r){return r.run>BUILD_RUN&&r.sha!==BUILD_SHA&&!seen.includes(r.run)}
  async function check(){
-   if(busy||restarting||document.visibilityState==='hidden'||!navigator.onLine)return;
-   busy=true;debug.lastError=null;
+   if(busy||refreshing||document.visibilityState==='hidden'||navigator.onLine===false)return;
+   if(!(BUILD_RUN>0)&&BUILD_SHA==='__DD_BUILD_SHA__'){
+     debug.status='not-stamped (needs GitHub Actions deployment)';return;
+   }
+   busy=true;
    try{
-     const commit=await getCommit();
-     debug.mode=commit?'commit-sha':'static-files';
-     if(commit){
-       const old=load(revisionKey);
-       if(old&&old!==commit){
-         // Save just before restart, not during a failed probe.
-         store(revisionKey,commit);
-         await restart(commit,'GitHub commit changed');
-         return;
-       }
-       if(!old)store(revisionKey,commit);
-       debug.status='watching';
-     }else{
-       const snapshot=await getSignatures();
-       let previous={};try{previous=JSON.parse(load(signaturesKey)||'{}')||{}}catch{}
-       const changed=Object.keys(snapshot.all).filter(k=>previous[k]&&previous[k]!==snapshot.all[k]);
-       // Do not erase validator entries on temporary 404/timeout.
-       store(signaturesKey,JSON.stringify({...previous,...snapshot.all}));
-       if(changed.length){
-         await restart('s'+digest(changed.map(k=>snapshot.all[k]).join('|')),'Changed: '+changed.join(', '));
-         return;
-       }
-       debug.status=snapshot.failed?'watching (some checks will retry)':'watching';
+     const remote=await readRemote();
+     debug.checkedAt=new Date().toISOString();debug.remoteRun=remote.run;debug.lastError=null;
+     if(!isNewer(remote)){
+       candidate=null;debug.status='up-to-date';return;
      }
-     debug.checkedAt=new Date().toISOString();
+     // Compare the same *deployment identifier* twice, separated in time.
+     if(!candidate||candidate.run!==remote.run||candidate.sha!==remote.sha){
+       candidate={...remote,firstSeen:Date.now()};debug.status='confirming deployment';return;
+     }
+     if(Date.now()-candidate.firstSeen<10000){debug.status='confirming deployment';return;}
+     // An independent second request is essential during GitHub Pages propagation.
+     const confirmed=await readRemote();
+     if(confirmed.run!==remote.run||confirmed.sha!==remote.sha){candidate=null;debug.status='waiting for stable deployment';return;}
+     if(!isNewer(confirmed))return;
+     refreshing=true;saveSeen(confirmed.run);
+     debug.status='refreshing';debug.lastChange='GitHub Pages deployment '+confirmed.run;
+     // Make the next navigation use the newly deployed watcher, if available.
+     try{await fetch(new URL('dd-site-update.js',root),{cache:'reload',credentials:'same-origin'})}catch(_){}
+     try{if(typeof window.duoduoPrepareForUpdate==='function')window.duoduoPrepareForUpdate()}catch(_){}
+     const url=new URL(location.href);url.searchParams.set('ddv',String(confirmed.run));
+     try{
+       if(window!==window.top&&window.parent.location.origin===location.origin){
+         const outer=new URL(window.parent.location.href);outer.searchParams.set('ddv',String(confirmed.run));
+         window.parent.location.replace(outer.href);return;
+       }
+     }catch(_){}
+     location.replace(url.href);
    }catch(error){
-     debug.status='retrying';debug.lastError=String(error?.message||error);
-     console.warn('多多谷官網更新偵測稍後重試',error);
+     candidate=null;debug.status='retrying';debug.lastError=String(error?.message||error);
    }finally{busy=false;}
  }
  debug.checkNow=check;
- setTimeout(check,1800);
+ saveSeen(BUILD_RUN);
+ setTimeout(check,2000);
  setInterval(check,60000);
- window.addEventListener('online',check);
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check()});
+ // Returning to a tab is not itself an update. Schedule a normal version check.
+ let focusTimer=null;
+ function scheduleCheck(){
+   if(focusTimer!==null)clearTimeout(focusTimer);
+   focusTimer=setTimeout(()=>{focusTimer=null;check()},4000);
+ }
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')scheduleCheck()});
+ window.addEventListener('online',scheduleCheck);
 })();

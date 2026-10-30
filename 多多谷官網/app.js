@@ -22,6 +22,16 @@
   const KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_links'];
   const SESSION_PREFIX='duoduo_cloud_';
   const FLAG='duoduo_cloud_snapshot_v2';
+  // Cloud JSON object key ordering can vary without any published data changing.
+  function sameCloudJSON(a,b){
+    if(a===b)return true;
+    if(a===null)return false;
+    try{
+      const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'
+        ?Object.keys(v).sort().reduce((o,k)=>(o[k]=canonical(v[k]),o),{}):v;
+      return JSON.stringify(canonical(JSON.parse(a)))===JSON.stringify(canonical(JSON.parse(b)));
+    }catch(_){return false}
+  }
   (async()=>{
     try{
       const res=await fetch(`${API_BASE}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
@@ -32,11 +42,11 @@
       for(const key of KEYS){
         if(!Object.prototype.hasOwnProperty.call(payload.data,key))continue;
         const next=JSON.stringify(payload.data[key]);
-        let current='';
-        try{current=sessionStorage.getItem(SESSION_PREFIX+key)||''}catch{}
-        if(current!==next){
+        let current=null;
+        try{current=sessionStorage.getItem(SESSION_PREFIX+key)}catch{}
+        if(!sameCloudJSON(current,next)){
           try{sessionStorage.setItem(SESSION_PREFIX+key,next)}catch{}
-          changed=true;
+          if(current!==null)changed=true; // No refresh on a visitor's first cloud snapshot.
         }
       }
       let alreadyReloaded=false;
