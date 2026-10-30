@@ -78,7 +78,7 @@
   try{const res=await fetch('dd-release.txt?_dd_check='+Date.now(),{cache:'no-store'});
    if(!res.ok)throw Error('HTTP '+res.status);
    const value=(await res.text()).trim();
-   versionState.textContent=/^[0-9a-f]{40}$/i.test(value)?'版本識別碼：'+value+'（每次 GitHub 提交將由 Jekyll 自動更換）':'版本識別尚未生效：請檢查 GitHub Pages Jekyll 建置設定。';
+   versionState.textContent=/^[0-9a-f]{40}$/i.test(value)?'GitHub 版本碼：'+value+'（SHA 偵測正常）':'此站未產生 Jekyll 版本碼；官網已啟用靜態檔案更新偵測。';
   }catch(err){versionState.textContent='讀取失敗：'+(err.message||err)}finally{checkVersion.disabled=false}
  });
  draw();
