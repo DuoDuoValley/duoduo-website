@@ -405,7 +405,7 @@ function pageShowDetail(index){
 
 pageButtons.forEach(b=>b.addEventListener('click',()=>pageRenderList(b.dataset.category,1)));
 pageList.addEventListener('click',e=>{const row=e.target.closest('.news-title-row');if(row)pageShowDetail(Number(row.dataset.index));});
-function pageOpenFromUrl(){const params=new URLSearchParams(location.search);let id=params.get('id');if(id===null&&location.hash.startsWith('#n-'))id=location.hash.slice(3);if(id!==null&&pageNewsData[Number(id)])pageShowDetail(Number(id));else {const requested=new URLSearchParams(location.search).get('ddnav');pageRenderList(['全部','重要消息','維護通知','更新說明','活動資訊'].includes(requested)?requested:'全部');}}
+function pageOpenFromUrl(){const params=new URLSearchParams(location.search);let id=params.get('id');if(id===null&&location.hash.startsWith('#n-'))id=location.hash.slice(3);if(id!==null&&pageNewsData[Number(id)])pageShowDetail(Number(id));else {const requested=new URLSearchParams(location.search).get('ddnav');pageRenderList(['全部','重要消息','維護通知','更新說明','活動資訊','序號發放'].includes(requested)?requested:'全部');}}
 window.addEventListener('popstate',pageOpenFromUrl);
 document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!pageDetail.hidden)pageCloseDetail(true);});
 pageLoadNews().then(loaded=>{

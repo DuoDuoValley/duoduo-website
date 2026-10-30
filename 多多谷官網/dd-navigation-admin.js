@@ -23,7 +23,10 @@
   return item;
  };
  if(saved&&typeof saved==='object')for(const key of Object.keys(groups)){
-  if(Array.isArray(saved[key]?.items))groups[key].items=saved[key].items.map(x=>upgradeJobsTitle({...x})).slice(0,20);
+  if(Array.isArray(saved[key]?.items)){
+   const items=saved[key].items.map(x=>upgradeJobsTitle({...x})).slice(0,20);
+   groups[key].items=key==='news'?window.DuoDuoNavEnsureNewsSerial(items,root?.navDropdown?.newsSerialAdded):items;
+  }
  }
  const nameMap={'news':'最新消息',events:'檔期活動',boss:'BOSS',guide:'遊玩指南',downloads:'下載專區','player-tools':'玩家工具'};
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
@@ -68,7 +71,7 @@
     }
    }}
   if(typeof settings!=='undefined'){
-   settings.navDropdown={groups:structuredClone(groups)};
+   settings.navDropdown={groups:structuredClone(groups),newsSerialAdded:true};
   }
  },true);
  const checkVersion=document.getElementById('ddCheckDeployVersion');
