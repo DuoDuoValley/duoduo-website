@@ -333,22 +333,22 @@
   byId('skillTotal').textContent=Object.keys(data.skills).length;
   const chip=document.querySelector('.test-chip');if(chip&&chip.lastChild?.nodeType===3)chip.lastChild.textContent=' 獨立測試版 V6.5';
   const hint=document.querySelector('.section-hint');if(hint)hint.textContent='相同傳授連結技能合併顯示；S、SS、SSS 可一鍵切換，各職業效果仍獨立。';
-  const heroDesc=document.querySelector('.hero-desc');if(heroDesc)heroDesc.textContent='從冒險家到江湖、超越者，快速查找各職業 S／SS／SSS 聯盟戰地角色卡能力，以及對應的傳授連結技能。';
+  const heroDesc=document.querySelector('.hero-desc');if(heroDesc)heroDesc.textContent='從冒險家到江湖、超越者，快速查找各職業 S／SS／SSS 角色卡能力，以及對應的傳授連結技能。';
   const types=[...new Set(data.jobs.map(j=>j.type))];
   types.forEach(type=>{const option=document.createElement('option');option.value=type;option.textContent=type;byId('typeSelect').append(option);});
   const seriesTabs=byId('seriesTabs');
   // 在 V3 現有的篩選面板下方加入全域戰地等級切換，不更動既有 HTML 結構。
   const rankToolbar=document.createElement('div');
   rankToolbar.className='union-rank-toolbar';
-  rankToolbar.innerHTML=`<div class="union-rank-description"><strong>聯盟戰地角色卡</strong><span>選擇顯示等級 · 一般 S Lv.140／SS Lv.200／SSS Lv.250（神之子 S 為 Lv.180）</span></div><div class="union-rank-actions" role="group" aria-label="聯盟戰地角色卡等級"><button type="button" data-union-rank="S" aria-pressed="false">S</button><button type="button" data-union-rank="SS" aria-pressed="false">SS</button><button type="button" data-union-rank="SSS" aria-pressed="true" class="active">SSS</button></div>`;
+  rankToolbar.innerHTML=`<div class="union-rank-description"><strong>角色卡</strong><span>選擇顯示等級 · 一般 S Lv.140／SS Lv.200／SSS Lv.250（神之子 S 為 Lv.180）</span></div><div class="union-rank-actions" role="group" aria-label="角色卡等級"><button type="button" data-union-rank="S" aria-pressed="false">S</button><button type="button" data-union-rank="SS" aria-pressed="false">SS</button><button type="button" data-union-rank="SSS" aria-pressed="true" class="active">SSS</button></div>`;
   document.querySelector('.filter-panel').insertAdjacentElement('afterend',rankToolbar);
   // V6.1：原位切換保留；捲過控制列後只浮動小型 S／SS／SSS 切換器。
   // 兩組都控制同一個 state.rank，避免外頁與內頁顯示不同等級。
   const floatingRank=document.createElement('div');
   floatingRank.className='union-rank-floating';
   floatingRank.hidden=true;
-  floatingRank.setAttribute('aria-label','浮動聯盟戰地等級切換');
-  floatingRank.innerHTML=`<span class="union-floating-label">聯盟戰地</span><div class="union-rank-actions" role="group" aria-label="浮動聯盟戰地等級"><button type="button" data-union-rank="S" aria-pressed="false">S</button><button type="button" data-union-rank="SS" aria-pressed="false">SS</button><button type="button" data-union-rank="SSS" aria-pressed="true" class="active">SSS</button></div>`;
+  floatingRank.setAttribute('aria-label','浮動角色卡等級切換');
+  floatingRank.innerHTML=`<span class="union-floating-label">角色卡</span><div class="union-rank-actions" role="group" aria-label="浮動角色卡等級"><button type="button" data-union-rank="S" aria-pressed="false">S</button><button type="button" data-union-rank="SS" aria-pressed="false">SS</button><button type="button" data-union-rank="SSS" aria-pressed="true" class="active">SSS</button></div>`;
   document.body.append(floatingRank);
   function updateFloatingRank(){
     const dialog=byId('jobDialog');
@@ -371,8 +371,8 @@
       const job=data.jobs.find(j=>String(j.id)===el.dataset.unionJob);
       if(job)el.textContent=unionStat(job);
     });
-    document.querySelectorAll('[data-union-label]').forEach(el=>{el.textContent=state.rank+' 聯盟戰地';});
-    document.querySelectorAll('[data-dialog-union-title]').forEach(el=>{el.textContent=el.dataset.dialogUnionTitle==='multiple'?'各職業獨立的聯盟戰地 · '+state.rank+' 效果':'聯盟戰地 · '+state.rank+' 角色卡效果';});
+    document.querySelectorAll('[data-union-label]').forEach(el=>{el.textContent=state.rank+' 角色卡';});
+    document.querySelectorAll('[data-dialog-union-title]').forEach(el=>{el.textContent=el.dataset.dialogUnionTitle==='multiple'?'各職業獨立的角色卡 · '+state.rank+' 效果':'角色卡 · '+state.rank+' 效果';});
     document.querySelectorAll('[data-union-rank]').forEach(el=>{
       const active=el.dataset.unionRank===state.rank;
       el.classList.toggle('active',active);
@@ -415,11 +415,11 @@
   }
   function jobCard(job,group){
     const skill=skillFor(job);const typeIcon=data.typeIcons[job.type];
-    return `<button type="button" class="job-card solo-card-tile" data-groupid="${group.id}" aria-label="查看${escapeHtml(job.name)}的戰地角色卡與傳授連結技能">
+    return `<button type="button" class="job-card solo-card-tile" data-groupid="${group.id}" aria-label="查看${escapeHtml(job.name)}的角色卡與傳授連結技能">
       <img class="solo-banner" src="${escapeHtml(job.image)}" alt="${escapeHtml(job.name)}職業卡片" width="152" height="74" loading="lazy" decoding="async">
       <strong class="solo-member-name">${escapeHtml(job.name)}</strong>
       <span class="solo-member-type">${escapeHtml(job.series)} <span>·</span> <img src="${escapeHtml(typeIcon)}" alt="" width="14" height="14">${escapeHtml(job.type)}</span>
-      <div class="solo-member-stat"><span data-union-label>${state.rank} 聯盟戰地</span><b data-union-job="${escapeHtml(job.id)}">${escapeHtml(unionStat(job))}</b></div>
+      <div class="solo-member-stat"><span data-union-label>${state.rank} 角色卡</span><b data-union-job="${escapeHtml(job.id)}">${escapeHtml(unionStat(job))}</b></div>
       <div class="solo-skill"><img src="${escapeHtml(skill.image)}" alt="" width="26" height="26" loading="lazy"><div><span>傳授連結技能</span><strong>${escapeHtml(skill.name)}</strong></div></div>
       <p class="solo-skill-summary">${escapeHtml(skill.summary)}</p>
       <div class="solo-view-more"><span>查看完整技能說明</span><span aria-hidden="true">↗</span></div>
@@ -431,16 +431,16 @@
       <img class="shared-banner" src="${escapeHtml(job.image)}" alt="${escapeHtml(job.name)}職業卡片" width="152" height="74" loading="lazy" decoding="async">
       <strong class="shared-member-name">${escapeHtml(job.name)}</strong>
       <span class="shared-member-type"><img src="${escapeHtml(icon)}" alt="" width="14" height="14">${escapeHtml(job.type)}</span>
-      <div class="shared-member-stat"><span data-union-label>${state.rank} 聯盟戰地</span><b data-union-job="${escapeHtml(job.id)}">${escapeHtml(unionStat(job))}</b></div>
+      <div class="shared-member-stat"><span data-union-label>${state.rank} 角色卡</span><b data-union-job="${escapeHtml(job.id)}">${escapeHtml(unionStat(job))}</b></div>
     </div>`;
   }
   function sharedCard(group){
     const skill=skillFor(group.jobs[0]);
-    return `<button type="button" class="job-card shared-card" data-groupid="${group.id}" aria-label="查看${escapeHtml(group.jobs.map(j=>j.name).join('、'))}共用的${escapeHtml(skill.name)}與各自戰地效果">
+    return `<button type="button" class="job-card shared-card" data-groupid="${group.id}" aria-label="查看${escapeHtml(group.jobs.map(j=>j.name).join('、'))}共用的${escapeHtml(skill.name)}與各自角色卡效果">
       <div class="shared-head"><div><div class="shared-eyebrow">${escapeHtml(group.series)} <span>·</span> 共用傳授連結技能</div><strong class="shared-heading">${escapeHtml(skill.name)}</strong></div><span class="shared-count">${group.jobs.length} 個職業</span></div>
       <div class="shared-roster">${group.jobs.map(memberTile).join('')}</div>
       <div class="shared-skill"><img class="skill-icon" src="${escapeHtml(skill.image)}" alt="" width="32" height="32" loading="lazy"><div><span>共同傳授連結技能</span><strong>${escapeHtml(skill.name)}</strong><p>${escapeHtml(skill.summary)}</p></div></div>
-      <div class="card-footer"><span>查看全部職業戰地與完整技能說明</span><span class="arrow" aria-hidden="true">↗</span></div>
+      <div class="card-footer"><span>查看全部職業角色卡與完整技能說明</span><span class="arrow" aria-hidden="true">↗</span></div>
     </button>`;
   }
   function render(){
@@ -484,14 +484,14 @@
       ?`<div class="skill-level-tabs" role="group" aria-label="${escapeHtml(skill.name)}技能等級">${levelOptions.map((row,i)=>`<button type="button" class="skill-level-tab ${i===selectedLevel?'active':''}" data-level-index="${i}" aria-pressed="${i===selectedLevel}">${escapeHtml(row.label)}</button>`).join('')}</div>`
       :`<div class="skill-level-selection"><div class="skill-level-picker"><label for="skillLevelSelect">選擇技能等級</label><div class="skill-level-stepper"><button type="button" class="skill-level-step" id="skillLevelPrev" aria-label="上一級技能效果" title="上一級">‹</button><select class="skill-level-select" id="skillLevelSelect" aria-label="${escapeHtml(skill.name)}等級切換"><option value="">選擇 Lv.1～Lv.${selfMax}</option>${ownRows.map((row,i)=>`<option value="${i}">Lv.${row.level}</option>`).join('')}</select><button type="button" class="skill-level-step" id="skillLevelNext" aria-label="下一級技能效果" title="下一級">›</button></div></div><button type="button" class="skill-transfer-button ${selectedLevel===transferIndex?'active':''}" data-transfer-index="${transferIndex}" aria-pressed="${selectedLevel===transferIndex}">傳授連結技能</button></div>`;
     const levelHtml=levelOptions.length?`<section class="dialog-section-card dialog-transfer-card"><div class="dialog-section-head"><div><span class="dialog-section-kicker">LINK SKILL</span><h3>等級效果與傳授連結技能</h3></div><span class="dialog-section-badge">Lv.1～Lv.${selfMax}</span></div><p class="dialog-section-help">可比較 Lv.1～Lv.${selfMax} 各級技能效果，或切換查看作為傳授連結技能提供給其他角色時的效果。</p>${levelControls}<div class="skill-level-result" role="status" aria-live="polite"><div class="skill-level-result-heading"><div class="skill-level-result-title" id="skillLevelResultLabel">${escapeHtml(skillLevelLabel(selectedLevel))}</div><button type="button" class="skill-copy-button" id="copySkillEffect" title="複製目前選擇的技能效果" aria-label="複製目前技能名稱、等級和效果">複製效果</button></div><p class="skill-level-effect" id="skillLevelEffect">${escapeHtml(displaySkillEffect(levelOptions[selectedLevel].effect))}</p></div><p class="skill-level-note">${escapeHtml(skill.levelNote||'')}</p></section>`:'';
-    const members=group.jobs.map(job=>`<div class="dialog-member"><img src="${escapeHtml(job.image)}" alt="${escapeHtml(job.name)}職業卡片" width="152" height="74"><div><strong>${escapeHtml(job.name)}</strong><span>${escapeHtml(job.type)} · <span data-union-label>${state.rank} 聯盟戰地</span></span><b data-union-job="${escapeHtml(job.id)}">${escapeHtml(unionStat(job))}</b></div></div>`).join('');
+    const members=group.jobs.map(job=>`<div class="dialog-member"><img src="${escapeHtml(job.image)}" alt="${escapeHtml(job.name)}職業卡片" width="152" height="74"><div><strong>${escapeHtml(job.name)}</strong><span>${escapeHtml(job.type)} · <span data-union-label>${state.rank} 角色卡</span></span><b data-union-job="${escapeHtml(job.id)}">${escapeHtml(unionStat(job))}</b></div></div>`).join('');
     byId('jobDialog').querySelector('.job-skill-tooltip')?.remove();
     byId('jobDialogContent').innerHTML=`<div class="dialog-head dialog-group-head"><img src="${escapeHtml(group.jobs[0].image)}" alt="" width="152" height="74"><div><div class="dialog-sub">${escapeHtml(group.series)}</div><h2>${multiple?'共用傳授連結技能':escapeHtml(group.jobs[0].name)}</h2><div class="dialog-meta">${multiple?`${group.jobs.length} 個職業 · ${escapeHtml(skill.name)}`:`${escapeHtml(group.jobs[0].type)} · 職業資料`}</div></div><button type="button" class="dialog-close" id="closeJobDialog" aria-label="關閉詳細資料">×</button></div>
       <div class="dialog-body dialog-body-v60">
         <section class="dialog-info dialog-skill-top"><div class="dialog-skill"><button type="button" id="skillDetailTrigger" class="skill-detail-trigger" aria-expanded="false" aria-label="查看${escapeHtml(skill.name)}的完整技能介紹與等級表" title="查看完整技能介紹與等級表"><img src="${escapeHtml(skill.image)}" alt="" width="40" height="40"></button><div class="dialog-skill-name"><span class="dialog-section-kicker">技能資訊</span><strong>${escapeHtml(skill.name)}</strong><span>自身與傳授連結技能共用相同技能圖示</span></div><button type="button" class="skill-open-table" id="skillOpenTable">完整等級表 <span aria-hidden="true">↗</span></button></div></section>
         <section class="dialog-section-card dialog-self-card" aria-label="角色自身技能效果"><div class="dialog-section-head"><div><span class="dialog-section-kicker">OWN SKILL</span><h3>角色自身效果</h3></div><span class="dialog-section-badge">最高 Lv.${selfMax}</span></div><p class="dialog-self-effect">${escapeHtml(displaySkillEffect(selfEffect))}</p>${ownMetrics}</section>
         ${levelHtml}
-        <section class="dialog-info dialog-union-section"><div class="dialog-section-head"><div><span class="dialog-section-kicker">LEGION</span><h3 data-dialog-union-title="${multiple?'multiple':'single'}">${multiple?`各職業獨立的聯盟戰地 · ${state.rank} 效果`:`聯盟戰地 · ${state.rank} 角色卡效果`}</h3></div></div><div class="dialog-union-ranks" role="group" aria-label="詳細資料：聯盟戰地等級"><button type="button" data-union-rank="S">S</button><button type="button" data-union-rank="SS">SS</button><button type="button" data-union-rank="SSS">SSS</button></div>${multiple?`<div class="dialog-members">${members}</div>`:`<div class="dialog-stat" data-union-job="${escapeHtml(group.jobs[0].id)}">${escapeHtml(unionStat(group.jobs[0]))}</div>`}</section>
+        <section class="dialog-info dialog-union-section"><div class="dialog-section-head"><div><span class="dialog-section-kicker">LEGION</span><h3 data-dialog-union-title="${multiple?'multiple':'single'}">${multiple?`各職業獨立的角色卡 · ${state.rank} 效果`:`角色卡 · ${state.rank} 效果`}</h3></div></div><div class="dialog-union-ranks" role="group" aria-label="詳細資料：角色卡等級"><button type="button" data-union-rank="S">S</button><button type="button" data-union-rank="SS">SS</button><button type="button" data-union-rank="SSS">SSS</button></div>${multiple?`<div class="dialog-members">${members}</div>`:`<div class="dialog-stat" data-union-job="${escapeHtml(group.jobs[0].id)}">${escapeHtml(unionStat(group.jobs[0]))}</div>`}</section>
       </div>`;
     const dialog=byId('jobDialog');if(!dialog.open)dialog.showModal();
     refreshUnionRank();

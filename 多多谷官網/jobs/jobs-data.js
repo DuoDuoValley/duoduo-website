@@ -1,7 +1,7 @@
 "use strict";
 window.DuoDuoJobsData = {
   "meta": {
-    "title": "多多谷職業圖鑑",
+    "title": "多多谷角色卡與傳授技能",
     "source": "使用者提供的職業UI.zip及角色卡及傳授連結技能表.pdf（10頁）",
     "status": "V6.5：多多谷 V282 WZ 與使用者遊戲截圖交叉核對；氣魄、海盜的祝福、實戰的知識自身與傳授連結技能已由截圖核實；其他差異仍依各技能備註。",
     "unionRankSource": "S/SS/SSS 效果對照：冒險者小屋聯盟戰地系統（2026-08-05）及使用者 PDF SSS 資料。正式上線前需確認多多谷伺服器設定。",

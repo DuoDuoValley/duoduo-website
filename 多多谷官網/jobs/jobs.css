@@ -625,3 +625,47 @@ html:has(#jobDialog[open]),body:has(#jobDialog[open]){overflow:hidden}
 
 .dd-jobs-back{font-size:12px;font-weight:750;color:var(--accent);white-space:nowrap;text-decoration:none}.dd-jobs-back:hover{text-decoration:underline}
 @media(max-width:600px){.site-topbar .dd-jobs-back{order:3;flex-basis:100%;text-align:right}.site-topbar{height:auto;min-height:86px;flex-wrap:wrap;padding:12px 0}}
+
+
+/* 官網 2026-10-30：角色卡與傳授技能專屬橫幅，僅覆寫此頁 hero，不改卡片及技能 UI。 */
+.hero {
+  background-image:
+    linear-gradient(90deg,rgba(3,20,34,.97) 0%,rgba(5,25,40,.94) 23%,rgba(5,28,45,.85) 40%,rgba(5,26,43,.40) 67%,rgba(5,22,37,.08) 100%),
+    url('jobs-hero-banner.webp');
+  background-position:center,center 48%;
+  background-size:cover,cover;
+  background-repeat:no-repeat;
+  border-color:rgba(90,167,193,.36);
+  min-height:375px;
+}
+.hero::before {opacity:0}
+.hero::after {content:none}
+.hero-copy {max-width:min(710px,74%);position:relative;z-index:1;text-shadow:0 1px 3px rgba(0,0,0,.45)}
+.hero h1 {font-size:clamp(32px,3.75vw,52px);letter-spacing:.4px;line-height:1.2;overflow-wrap:anywhere}
+.hero h1 span {color:#9debf2}
+.hero h1 small {color:#f2faff;font-size:clamp(13px,1.3vw,17px);line-height:1.5}
+.hero-desc {color:#e2edf3;max-width:620px;font-size:14px;line-height:1.8}
+.hero .eyebrow {color:#b4f0f6}
+.hero-info>span {background:rgba(3,21,34,.68);border-color:rgba(162,226,238,.33);color:#f3fbff;backdrop-filter:blur(3px)}
+.hero-info strong {color:#a5f5ff}
+@media (min-width:781px) and (max-width:1090px){
+  .hero {background-position:center,56% 48%}
+  .hero-copy {max-width:78%}
+  .hero h1{font-size:clamp(33px,4vw,44px)}
+}
+@media(max-width:780px){
+  .hero {min-height:335px;background-image:linear-gradient(90deg,rgba(3,18,32,.96),rgba(4,20,34,.83) 60%,rgba(4,20,34,.58)),url('jobs-hero-banner.webp');background-position:center,60% center}
+  .hero-copy {max-width:100%}
+  .hero h1 {font-size:clamp(29px,5.9vw,41px)}
+}
+@media(max-width:580px){
+  .hero {min-height:340px;background-image:linear-gradient(90deg,rgba(3,18,32,.94),rgba(3,18,32,.81)),url('jobs-hero-banner.webp');background-position:center,57% center}
+  .hero h1 {font-size:clamp(28px,7.4vw,37px);letter-spacing:0}
+  .hero h1 small {font-size:13px}
+  .hero-desc {color:#edf6fa;font-size:12px}
+  .hero-info>span {background:rgba(2,18,32,.78)}
+}
+
+/* 局部覆蓋主站淺色模式 .hero p 的深色字設定，確保照片上仍有足夠對比。 */
+:root[data-theme="light"] .hero p.eyebrow,
+:root[data-theme="light"] .hero p.hero-desc { color:#eaf6fb; }

@@ -8,6 +8,15 @@ const inTools=location.pathname.includes('/player-tools/');
 const inJobs=location.pathname.includes('/jobs/');
 const prefix=(inTools||inJobs)?'../':'';
 const defaultGroups=window.DuoDuoNavDefaults||[];
+// Old published nav data may retain the previous default title. Upgrade only this exact link and label.
+const currentJobsLabel=item=>{
+ const label=String(item.label||'').trim();
+ if(label!=='職業圖鑑')return label;
+ try{const u=new URL(item.href,new URL(prefix,document.baseURI));
+  if(u.pathname.endsWith('/jobs/jobs.html'))return '角色卡與傳授技能';
+ }catch(_){}
+ return label;
+};
 const cleanHref=value=>{
  const raw=String(value||'').trim();
  if(!raw||raw.length>700||/[\\\x00-\x1f]/.test(raw))return null;
@@ -36,7 +45,7 @@ function applyNavSettings(cfg){
   const section=sections[g.key]||{};
   const items=Array.isArray(section.items)?section.items:g.items.map((x,i)=>({id:g.key+'-'+i,label:x[0],href:x[1],enabled:true}));
   return {...g,items:items.filter(x=>x&&x.enabled!==false&&cleanHref(x.href))
-   .slice(0,20).map(x=>({id:String(x.id||''),label:String(x.label||'').trim().slice(0,50),href:String(x.href)}))};
+   .slice(0,20).map(x=>({id:String(x.id||''),label:currentJobsLabel(x).slice(0,50),href:String(x.href)}))};
  }).sort((a,b)=>sorted.indexOf(a.key)-sorted.indexOf(b.key));
  const navLabels=siteNavConfig.nav||{};
  for(const a of nav.querySelectorAll('[data-dd-nav]')){

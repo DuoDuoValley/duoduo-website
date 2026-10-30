@@ -17,8 +17,13 @@
  try{root=JSON.parse(localStorage.getItem('duoduo_settings')||'{}')}catch{root={}}
  const saved=root?.navDropdown?.groups;
  const groups=base();
+ const upgradeJobsTitle=item=>{
+  if(String(item.label||'').trim()!=='職業圖鑑')return item;
+  try{if(new URL(item.href,document.baseURI).pathname.endsWith('/jobs/jobs.html'))item.label='角色卡與傳授技能'}catch(_){}
+  return item;
+ };
  if(saved&&typeof saved==='object')for(const key of Object.keys(groups)){
-  if(Array.isArray(saved[key]?.items))groups[key].items=saved[key].items.map(x=>({...x})).slice(0,20);
+  if(Array.isArray(saved[key]?.items))groups[key].items=saved[key].items.map(x=>upgradeJobsTitle({...x})).slice(0,20);
  }
  const nameMap={'news':'最新消息',events:'檔期活動',boss:'BOSS',guide:'遊玩指南',downloads:'下載專區','player-tools':'玩家工具'};
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
