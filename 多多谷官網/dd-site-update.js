@@ -4,6 +4,11 @@
  * BGM shell is the only watcher when browsing embedded public pages.
  */
 (()=>{'use strict';
+ // A maintenance-preview tab is refreshed manually by the verified admin.
+ // This flag is not an authentication bypass; dd-maintenance.js checks Render /api/admin/me.
+ try{if(sessionStorage.getItem('duoduo_maintenance_admin_preview_v1')==='1' &&
+        sessionStorage.getItem('duoduo_admin_session'))return;}catch(_){}
+
  const BUILD_RUN=Number('__DD_BUILD_RUN__');
  const BUILD_SHA='__DD_BUILD_SHA__';
  const script=document.currentScript;

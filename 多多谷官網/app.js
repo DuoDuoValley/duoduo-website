@@ -19,6 +19,8 @@
 /* ===== 多多谷雲端網站資料同步 ===== */
 (function(){
   const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+  let inMaintenancePreview=false;
+  try{inMaintenancePreview=sessionStorage.getItem('duoduo_maintenance_admin_preview_v1')==='1'&&!!sessionStorage.getItem('duoduo_admin_session')}catch(_){}
   const KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_links'];
   const SESSION_PREFIX='duoduo_cloud_';
   const FLAG='duoduo_cloud_snapshot_v2';
@@ -51,7 +53,7 @@
       }
       let alreadyReloaded=false;
       try{alreadyReloaded=sessionStorage.getItem(FLAG)==='1'}catch{}
-      if(changed&&!alreadyReloaded){
+      if(changed&&!alreadyReloaded&&!inMaintenancePreview){
         try{sessionStorage.setItem(FLAG,'1')}catch{}
         // Keep the currently visible page on screen while the BGM shell
         // prepares a replacement iframe with the updated cloud snapshot.

@@ -484,22 +484,7 @@ html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #modeRow{gap:8px!important;}
 <script>
 (()=>{
 'use strict';
-// Record the pristine page source before player state, theme, and cloud data
-// mutate the live DOM. This detects real GitHub index.html updates without
-// requiring a developer to remember to bump a manual meta-version each time.
-function shellSourceSignature(doc){
-  const nodes=[...doc.querySelectorAll('script, style, link[rel="stylesheet"]')];
-  const immutableSource=nodes.map(node=>[
-    node.tagName, node.getAttribute('src')||node.getAttribute('href')||'', node.textContent||''
-  ]);
-  return JSON.stringify([
-    doc.querySelector('meta[name="duoduo-shell-version"]')?.getAttribute('content')||'',
-    immutableSource,
-    doc.getElementById('player')?.outerHTML||'',
-    doc.getElementById('duoduoSite')?.outerHTML||''
-  ]);
-}
-const loadedShellSignature=shellSourceSignature(document);
+// Static update verification is provided exclusively by dd-site-update.js.
 const isChecklistEmbed=document.documentElement.classList.contains('dd-bgm-embed');
 const checklistEmbedChannel='duoduo-checklist-bgm-217';
 const byId=id=>document.getElementById(id);
@@ -1111,6 +1096,7 @@ let activeFrameDocument=null;
 // The persistent BGM <audio> lives in this outer shell and is never replaced.
 let cloudFrameRefreshing=false;
 window.duoduoRefreshCloudFrame=function(requestingWindow){
+  try{if(sessionStorage.getItem('duoduo_maintenance_admin_preview_v1')==='1' && sessionStorage.getItem('duoduo_admin_session'))return true;}catch(_){}
   if(!frame || requestingWindow!==frame.contentWindow)return false;
   if(cloudFrameRefreshing)return true;
   const current=currentInner();
@@ -1344,32 +1330,12 @@ const firstPaintPoll=setInterval(()=>{
 setTimeout(()=>clearInterval(firstPaintPoll),15000);
 
 } // end official-site-only routing (Checklist embeds only the player)
-// Check the *real shell source*, not just a manually maintained version tag.
-// BGM playlist changes keep their existing in-place cloud sync and do NOT reload.
-// Only a changed index.html (player HTML/CSS/JS) reloads the outer BGM shell.
-let shellChecking=false;
-async function checkShellVersion(){
-  if(shellChecking||document.visibilityState==='hidden'||!navigator.onLine)return;
-  shellChecking=true;
-  try{
-    const shellUrl=new URL('index.html',siteBase);
-    const response=await fetch(shellUrl,{cache:'no-store'});
-    if(!response.ok)return;
-    const remote=await response.text();
-    const remoteDoc=new DOMParser().parseFromString(remote,'text/html');
-    // A CDN or temporary error must never cause a restart loop.
-    if(!remoteDoc.getElementById('player')||!remoteDoc.getElementById('duoduoSite'))return;
-    if(shellSourceSignature(remoteDoc)!==loadedShellSignature){
-      // Preserve song and time for the best possible resume after reloading.
-      storePlaybackPosition();
-      window.location.reload();
-    }
-  }catch{}finally{shellChecking=false;}
-}
+// Do not compare a partially parsed live document with fetched complete HTML.
+// The shared byte-verified update monitor is the single reload authority.
 window.duoduoPrepareForUpdate=()=>{try{storePlaybackPosition()}catch(_){}};
-setInterval(checkShellVersion,60000);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkShellVersion();});
-window.addEventListener('online',checkShellVersion);
+
+
+
 })();
 </script>
 <script src="dd-site-update.js" defer></script>

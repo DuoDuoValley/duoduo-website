@@ -3,6 +3,11 @@
  * Confirm a relevant, canonical payload change on two independent fetches.
  */
 (()=>{'use strict';
+ // A maintenance-preview tab is refreshed manually by the verified admin.
+ // This flag is not an authentication bypass; dd-maintenance.js checks Render /api/admin/me.
+ try{if(sessionStorage.getItem('duoduo_maintenance_admin_preview_v1')==='1' &&
+        sessionStorage.getItem('duoduo_admin_session'))return;}catch(_){}
+
  const script=document.currentScript;
  if(!script?.src)return;
  const root=new URL('./',script.src);

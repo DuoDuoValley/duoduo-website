@@ -53,13 +53,66 @@
  /* Audio has no visible player. Show a same-style action button only if the browser blocks autoplay. */
  #dd-maintenance-screen #dd-maint-audio-unlock{display:none}
  #dd-maintenance-screen.dd-maint-audio-blocked #dd-maint-audio-unlock{display:inline-flex}
+ #dd-maint-admin-preview-bar{position:fixed;z-index:2147483646;top:12px;right:12px;max-width:calc(100vw - 24px);display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 12px;background:rgba(12,29,43,.96);border:1px solid #77b7c3;border-radius:12px;box-shadow:0 10px 35px #0007;color:#f1fbff;font:600 12px/1.4 system-ui,"Microsoft JhengHei",sans-serif;visibility:visible!important;pointer-events:auto!important}
+ #dd-maint-admin-preview-bar button,#dd-maint-admin-preview-bar a{font:inherit;color:#f1fbff;cursor:pointer;border:1px solid #477388;border-radius:7px;background:#1d4a63;padding:8px 10px;text-decoration:none;white-space:nowrap}
+ #dd-maint-admin-preview-bar button:hover,#dd-maint-admin-preview-bar a:hover{background:#2b607b}
+ #dd-maint-admin-preview-bar button:focus-visible,#dd-maint-admin-preview-bar a:focus-visible{outline:2px solid #fff;outline-offset:2px}
+ @media(max-width:650px){#dd-maint-admin-preview-bar{left:8px;right:8px;top:8px;justify-content:center;padding:7px;gap:5px}#dd-maint-admin-preview-bar .dd-maint-preview-status{width:100%;text-align:center}#dd-maint-admin-preview-bar button,#dd-maint-admin-preview-bar a{padding:7px;font-size:11px}}
  #dd-maintenance-screen .dd-maint-hero video::-webkit-media-controls{display:none!important}
  #dd-maintenance-screen .dd-maint-hero video::-webkit-media-controls-enclosure{display:none!important}
 
  @media(max-width:540px){#dd-maintenance-screen{padding:12px}#dd-maintenance-screen .dd-maint-panel{padding:12px;border-radius:18px}#dd-maintenance-screen .dd-maint-hero{border-radius:12px}#dd-maintenance-screen .dd-maint-eyebrow{margin-top:16px}#dd-maintenance-screen .dd-maint-message{line-height:1.75;margin-bottom:20px}#dd-maintenance-screen .dd-maint-actions{gap:10px}#dd-maintenance-screen .dd-maint-action{min-width:172px;height:46px;padding:0 20px;font-size:14px}}
  @media(prefers-reduced-motion:reduce){#dd-maintenance-screen .dd-maint-hero video{display:none}#dd-maintenance-screen .dd-maint-hero .dd-maint-still{display:block}}
 `;document.head.appendChild(css);
- let panel=null,visible=false,working=false,lastKnown=null;
+ // Preview is an authenticated Render-admin session, never a URL parameter.
+ const PREVIEW_KEY='duoduo_maintenance_admin_preview_v1';
+ const ADMIN_TOKEN_KEY='duoduo_admin_session';
+ let panel=null,visible=false,working=false,lastKnown=null,previewBar=null;
+ function previewRequested(){
+  try{return sessionStorage.getItem(PREVIEW_KEY)==='1'&&!!sessionStorage.getItem(ADMIN_TOKEN_KEY)}catch(_){return false}
+ }
+ async function verifyPreview(){
+  if(!previewRequested())return false;
+  let token='';try{token=sessionStorage.getItem(ADMIN_TOKEN_KEY)||''}catch(_){}
+  if(!token)return false;
+  const ctrl=new AbortController();const timeout=setTimeout(()=>ctrl.abort(),6000);
+  try{
+   const response=await fetch(api+'/api/admin/me',{cache:'no-store',headers:{Authorization:'Bearer '+token,Accept:'application/json'},signal:ctrl.signal});
+   if(!response.ok)return false;
+   const data=await response.json();return data?.ok===true;
+  }catch(_){return false}finally{clearTimeout(timeout)}
+ }
+ function endPreview(){
+  document.documentElement.removeAttribute('data-dd-maintenance-admin-preview');
+  if(previewBar){previewBar.remove();previewBar=null}
+ }
+ function startPreview(){
+  hide();
+  document.documentElement.setAttribute('data-dd-maintenance-admin-preview','1');
+  if(!canPlayMusic||previewBar)return;
+  previewBar=document.createElement('aside');previewBar.id='dd-maint-admin-preview-bar';
+  previewBar.setAttribute('aria-label','管理員網站預覽工具列');
+  const label=document.createElement('span');label.className='dd-maint-preview-status';label.textContent='🔒 管理員預覽｜官網維護中';
+  const manual=document.createElement('button');manual.type='button';manual.textContent='↻ 重新載入預覽';
+  manual.title='只有按下此按鈕，才重新讀取已部署的網站與最新後台資料';
+  manual.addEventListener('click',()=>location.reload());
+  let returnUrl=null;
+  try{
+   const raw=sessionStorage.getItem('duoduo_maintenance_admin_return_v1');
+   const parsed=raw?new URL(raw):null;
+   if(parsed&&parsed.origin===base.origin&&parsed.pathname.startsWith(base.pathname)&&parsed.pathname.endsWith('.html'))returnUrl=parsed.href;
+  }catch(_){}
+  const admin=returnUrl?document.createElement('a'):null;
+  if(admin){admin.href=returnUrl;admin.textContent='返回管理後台'}
+  const exit=document.createElement('button');exit.type='button';exit.textContent='退出預覽';
+  exit.addEventListener('click',()=>{
+   try{sessionStorage.removeItem(PREVIEW_KEY)}catch(_){}
+   endPreview();location.reload();
+  });
+  previewBar.append(label,manual);if(admin)previewBar.append(admin);previewBar.append(exit);
+  document.documentElement.appendChild(previewBar);
+ }
+
  function make(){
   if(panel)return panel;
   panel=document.createElement('div');panel.id='dd-maintenance-screen';panel.setAttribute('role','main');
@@ -121,9 +174,15 @@
    try{const res=await fetch(api+'/api/maintenance?check='+Date.now(),{cache:'no-store',signal:ctrl.signal});if(!res.ok)throw Error('HTTP '+res.status);
      const result=await res.json();if(result.ok!==true||typeof result.enabled!=='boolean')throw Error('maintenance status unavailable');
      lastKnown=result;
-     if(result.enabled){show(result);if(panel)panel.querySelector('#dd-maint-note').textContent='網站恢復開放後，本頁將自動重新載入。'}
-     else if(visible){location.reload()}
-     else hide();
+     if(result.enabled){
+       if(await verifyPreview())startPreview();
+       else {
+         endPreview();show(result);
+         if(panel)panel.querySelector('#dd-maint-note').textContent='網站恢復開放後，本頁將自動重新載入。';
+       }
+     }
+     else if(visible){endPreview();try{sessionStorage.removeItem(PREVIEW_KEY)}catch(_){}location.reload()}
+     else {endPreview();try{sessionStorage.removeItem(PREVIEW_KEY)}catch(_){}hide()}
    }catch(e){if(visible){if(panel)panel.querySelector('#dd-maint-note').textContent='暫時無法取得伺服器狀態，請稍後再試。';}
      else hide(); /* Fail open if Render is asleep/offline. Static hosting cannot deny requests. */
    }finally{clearTimeout(timer);working=false}

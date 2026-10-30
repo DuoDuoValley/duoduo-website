@@ -5,7 +5,12 @@
  const status=$('ddMaintStatus'),enable=$('ddMaintEnable'),disable=$('ddMaintDisable'),reload=$('ddMaintReload');
  if(!status||!enable||!disable||!reload)return;
  let current=null,busy=false;
- const buttons=[enable,disable,reload];
+ const preview=document.createElement('button');
+ preview.type='button';preview.id='ddMaintPreview';preview.className='ghost';
+ preview.textContent='🔒 開啟管理員預覽';
+ preview.title='僅已登入管理員可進入維護期間的完整官網，預覽中不會自動重新整理';
+ reload.after(preview);
+ const buttons=[enable,disable,reload,preview];
  function setStatus(text,state=''){status.textContent=text;status.className='dd-maint-state'+(state?' dd-'+state:'')}
  function lock(value){busy=value;buttons.forEach(x=>x.disabled=value)}
  function token(){try{return sessionStorage.getItem('duoduo_admin_session')||''}catch{return ''}}
@@ -27,6 +32,28 @@
    }catch(err){setStatus('儲存失敗，狀態尚未確認：'+err.message,'error')}
    finally{lock(false)}
  }
+ preview.addEventListener('click',async()=>{
+   if(busy)return;
+   const adminToken=token();
+   if(!adminToken)return setStatus('請先登入後台，再開啟管理員預覽。','error');
+   // Open synchronously on user gesture so popup blockers do not interfere.
+   // about:blank inherits the exact same origin; the token stays in sessionStorage,
+   // never in a query string, URL fragment, referer or server logs.
+   const child=window.open('about:blank','_blank');
+   if(!child)return setStatus('瀏覽器阻擋了新視窗，請允許本站開啟分頁。','error');
+   preview.disabled=true;
+   try{
+     const result=await fetch(base+'/api/admin/me',{cache:'no-store',headers:{Authorization:'Bearer '+adminToken,Accept:'application/json'}});
+     const identity=await result.json().catch(()=>({}));
+     if(!result.ok||identity?.ok!==true)throw Error('管理員登入已失效，請重新登入後台。');
+     child.sessionStorage.setItem('duoduo_admin_session',adminToken);
+     child.sessionStorage.setItem('duoduo_maintenance_admin_preview_v1','1');
+     child.sessionStorage.setItem('duoduo_maintenance_admin_return_v1',location.href);
+     child.location.replace(new URL('index.html',location.href).href);
+     setStatus('已開啟管理員專屬預覽。預覽期間不會自動重整；請按預覽工具列的「重新載入預覽」檢查修改。',current?'on':'off');
+   }catch(error){try{child.close()}catch(_){}setStatus('無法開啟預覽：'+(error?.message||'驗證失敗'),'error')}
+   finally{preview.disabled=false}
+ });
  enable.addEventListener('click',()=>save(true));disable.addEventListener('click',()=>save(false));reload.addEventListener('click',load);
  // Allow updating copy while maintenance is already on, without changing enabled state.
  enable.addEventListener('mouseenter',()=>{enable.title=current?'維護中：按這裡可更新公告內容':'啟用網站維護'})
