@@ -29,6 +29,24 @@
  const MAINT_MUSIC_URL=new URL('assets/maintenance-bgm.mp3?v=4',base).href;
  // A nested site iframe can also check maintenance; only the top-level page may play audio.
  const canPlayMusic=window.self===window.top;
+ // The public maintenance overlay is visual only; hidden page media can still play.
+ // Guard later/autoplay/resumed media too, not only media present when show() runs.
+ function isPublicMaintenanceAudioGate(){
+  const root=document.documentElement;
+  return root.classList.contains('dd-maintenance-checking')||root.classList.contains('dd-maintenance-on');
+ }
+ function pauseSiteMedia(){
+  document.querySelectorAll('audio,video').forEach(el=>{
+   if(el.closest('#dd-maintenance-screen'))return;
+   try{if(!el.paused)el.pause()}catch(_){}
+  });
+ }
+ document.addEventListener('play',event=>{
+  if(!isPublicMaintenanceAudioGate())return;
+  const el=event.target;
+  if(!(el instanceof HTMLMediaElement)||el.closest('#dd-maintenance-screen'))return;
+  try{el.pause()}catch(_){}
+ },true);
  const MAINT_DEFAULT_TITLE='多多谷官方網站維護中';
  const MAINT_DEFAULT_MESSAGE='親愛的多多谷玩家您好：\n\n為提供更穩定、完善的網站服務，多多谷官方網站目前正在進行系統維護與功能調整，相關頁面將暫時停止開放。\n\n維護完成後，網站將恢復正常使用。造成不便，敬請見諒，感謝您的耐心等候與支持。\n\n最新維護進度及相關消息，請留意多多谷官方 Discord 公告。';
  const css=document.createElement('style');css.id='dd-maintenance-style';css.textContent=`
@@ -208,6 +226,7 @@
   if(musicAttempted&&!fromGesture)return; // 30s status checks must never restart the track.
   musicAttempted=true;
   try{
+   pauseSiteMedia(); // A tap on the maintenance music must never restart the site's player.
    await music.play();
    panel.classList.remove('dd-maint-audio-blocked');
   }catch(_){
@@ -222,14 +241,18 @@
   panel.querySelector('#dd-maint-message').textContent=String(data.message||MAINT_DEFAULT_MESSAGE);
   document.documentElement.classList.remove('dd-maintenance-checking');document.documentElement.classList.add('dd-maintenance-on');visible=true;
   // Keep the provided muted branding video playing while pausing the actual site's BGM/media.
-  try{document.querySelectorAll('audio,video').forEach(el=>{if(!el.closest('#dd-maintenance-screen'))el.pause()})}catch{}
+  try{pauseSiteMedia()}catch{}
   if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){const vid=panel.querySelector('video');vid?.play().catch(()=>panel.classList.add('dd-maint-video-failed'))}
   if(canPlayMusic)void startMusic();
  }
  function hide(){
   if(panel){const music=panel.querySelector('#dd-maint-audio');if(music&&!music.paused)music.pause();panel.classList.remove('dd-maint-audio-blocked')}
   musicAttempted=false;
+  const hadGate=isPublicMaintenanceAudioGate();
   document.documentElement.classList.remove('dd-maintenance-checking','dd-maintenance-on');visible=false;
+  // If the site BGM finished cloud loading while the gate was active, it may
+  // resume only once maintenance is definitively off or admin preview verified.
+  if(hadGate)document.dispatchEvent(new Event('dd-maintenance-audio-unblocked'));
  }
  async function check(manual=false){if(working)return;working=true;
    if(manual&&panel)panel.querySelector('#dd-maint-note').textContent='正在檢查最新狀態…';

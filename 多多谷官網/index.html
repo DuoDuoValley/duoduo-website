@@ -891,8 +891,19 @@ glassToggle.addEventListener('click',()=>{
   glassToggle.setAttribute('aria-expanded',String(open));
   if(!trackOptions.hidden)positionTrackOptions();
 });
+function maintenanceBlocksSiteBgm(){
+  if(isChecklistEmbed)return false; // Preserve the existing official Checklist embed exception.
+  const root=document.documentElement;
+  return root.classList.contains('dd-maintenance-checking')||root.classList.contains('dd-maintenance-on');
+}
 async function tryPlay(){
   if(!audio.src)return;
+  if(maintenanceBlocksSiteBgm()){
+    if(!audio.paused)audio.pause();
+    status.textContent='網站維護中，官網 BGM 已暫停。';
+    refreshPlayback();
+    return;
+  }
   try{await audio.play();status.textContent=`正在播放：${playlist.find(t=>t.id===selectedId)?.title||'多多谷 BGM'}`;}
   catch{status.textContent='瀏覽器阻擋了自動播放，請按播放鍵啟動 BGM。';}
   refreshPlayback();
@@ -1000,7 +1011,16 @@ play.onclick=async()=>{
   if(!audio.paused){save(storage.paused,'1');audio.pause();status.textContent='已暫停 BGM，網站會記住你的選擇。';}
   else{save(storage.paused,'0');if(audio.ended){try{audio.currentTime=0;}catch{}}await tryPlay();}
 };
-audio.addEventListener('play',refreshPlayback);audio.addEventListener('pause',refreshPlayback);
+audio.addEventListener('play',()=>{
+  // A track restored by cloud sync or the browser may start after maintenance
+  // already displayed. Never let the ordinary player sound behind the overlay.
+  if(maintenanceBlocksSiteBgm())audio.pause();
+  refreshPlayback();
+});
+audio.addEventListener('pause',refreshPlayback);
+document.addEventListener('dd-maintenance-audio-unblocked',()=>{
+  if(!maintenanceBlocksSiteBgm()&&audio.src&&read(storage.paused,'0')!=='1'&&audio.paused)void tryPlay();
+});
 audio.addEventListener('ended',()=>{
   try{sessionStorage.removeItem(restoreStorageKey);}catch{}
   if(mode==='repeat-one'){audio.currentTime=0;tryPlay();return;}
