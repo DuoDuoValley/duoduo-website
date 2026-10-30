@@ -4,6 +4,21 @@
     ? 'https://duoduo-website.onrender.com'
     : '';
   const TOKEN_KEY='duoduo_admin_session';
+  // Extend the idle window only when the administrator actually clicks or types.
+  // No background refresh, preview poll or cloud sync may keep the session alive.
+  let lastActivityPing=0;
+  const pingActivity=()=>{
+    const now=Date.now();
+    if(now-lastActivityPing<5*60*1000)return;
+    const token=getToken();
+    if(!token||document.getElementById('duoduo-admin-auth'))return;
+    lastActivityPing=now;
+    fetch(`${API_BASE}/api/admin/me`,{
+      headers:{Authorization:`Bearer ${token}`,'X-Admin-Activity':'1'},cache:'no-store'
+    }).catch(()=>{});
+  };
+  document.addEventListener('pointerdown',pingActivity,{passive:true});
+  document.addEventListener('keydown',pingActivity);
 
   const style=document.createElement('style');
   style.textContent=`
@@ -25,7 +40,7 @@
   overlay.innerHTML=`
     <div class="auth-card">
       <h1>🔐 多多谷管理後台</h1>
-      <p>請輸入管理員帳號與密碼後進入後台。</p>
+      <p>請輸入管理員帳號與密碼後進入後台。<br>閒置 12 小時需重新登入，單次登入最長 24 小時。</p>
       <form id="duoduo-admin-login-form" autocomplete="off">
         <label>管理員帳號</label>
         <input id="duoduo-admin-username" type="text" autocomplete="username" required>

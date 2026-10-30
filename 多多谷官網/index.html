@@ -548,6 +548,7 @@ document.addEventListener('keydown',e=>{if(coverPreview.hidden)return;if(e.key==
 const icons={play:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="m8 5 12 7-12 7z"/></svg>',pause:'<svg viewBox="0 0 24 24" fill="currentColor"><path d="M7 5h4v14H7zm6 0h4v14h-4z"/></svg>'};
 const storage={volume:'duoduo_bgm_volume',muted:'duoduo_bgm_muted',lastVolume:'duoduo_bgm_last_volume',glass:'duoduo_bgm_glass_transparency',collapsed:'duoduo_bgm_collapsed',paused:'duoduo_bgm_paused',track:'duoduo_bgm_track',mode:'duoduo_bgm_player_mode'};
 const restoreStorageKey='duoduo_bgm_tab_resume_v6';
+const maintenanceResumeKey='duoduo_bgm_maintenance_resume_v1';
 const read=(key,fallback)=>{try{return localStorage.getItem(key)??fallback;}catch{return fallback;}};
 const save=(key,value)=>{try{localStorage.setItem(key,String(value));}catch{}};
 let playlist=[],selectedId='',defaultId='',mode='loop',initialLoad=true,cloudLoading=false,playlistSnapshot='';
@@ -578,7 +579,34 @@ byId('modeCycle').addEventListener('click',()=>{
 });
 // Tab-scoped restoration avoids carrying an obsolete position across fresh visits.
 let pendingResume=null,lastResumeSave=0;
+function maintenanceRecord(){
+  try{
+    const record=JSON.parse(sessionStorage.getItem(maintenanceResumeKey)||'null');
+    if(record && typeof record.id==='string' && record.id && Number.isFinite(record.seconds) && record.seconds>=0 &&
+       typeof record.paused==='boolean' && Number.isFinite(record.at))return record;
+  }catch{}
+  return null;
+}
+function captureMaintenancePosition(){
+  // Freeze this tab's actual playback position ONCE, before maintenance pauses it.
+  // Later cloud sync and page reloads must never overwrite this frozen position.
+  if(isChecklistEmbed || maintenanceRecord())return;
+  let id=selectedId || read(storage.track,'');
+  let seconds=Number.isFinite(audio.currentTime)?audio.currentTime:0;
+  try{
+    const previous=JSON.parse(sessionStorage.getItem(restoreStorageKey)||'null');
+    if(seconds<1 && previous && previous.id===id && Number.isFinite(previous.seconds) && previous.seconds>seconds)
+      seconds=previous.seconds;
+  }catch{}
+  if(!id)return;
+  try{sessionStorage.setItem(maintenanceResumeKey,JSON.stringify({
+    id,seconds:Math.max(0,seconds),paused:read(storage.paused,'0')==='1',at:Date.now()
+  }))}catch{}
+}
+document.addEventListener('dd-maintenance-audio-blocked',captureMaintenancePosition);
 function storePlaybackPosition(){
+  // A hidden player at time 0 during maintenance must not erase the previous position.
+  if(maintenanceBlocksSiteBgm())return;
   if(!selectedId||!Number.isFinite(audio.currentTime))return;
   try{
     if(audio.ended){sessionStorage.removeItem(restoreStorageKey);return;}
@@ -586,15 +614,24 @@ function storePlaybackPosition(){
   }catch{}
 }
 function readPlaybackPosition(id){
+  const frozen=maintenanceRecord();
+  if(frozen && frozen.id===id)return {...frozen,maintenance:true};
   try{
     const record=JSON.parse(sessionStorage.getItem(restoreStorageKey)||'null');
     if(record&&record.id===id&&Date.now()-record.at<5*60*1000&&Number.isFinite(record.seconds)&&record.seconds>0)return record;
   }catch{}
   return null;
 }
-window.addEventListener('pagehide',storePlaybackPosition);
-document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')storePlaybackPosition();});
-
+window.addEventListener('pagehide',()=>{
+  if(document.documentElement.classList.contains('dd-maintenance-on'))captureMaintenancePosition();
+  else storePlaybackPosition();
+});
+document.addEventListener('visibilitychange',()=>{
+  if(document.visibilityState==='hidden'){
+    if(document.documentElement.classList.contains('dd-maintenance-on'))captureMaintenancePosition();
+    else storePlaybackPosition();
+  }
+});
 const validUrl=value=>{try{const url=new URL(String(value),location.href);return (url.protocol==='https:'||((url.hostname==='localhost'||url.hostname==='127.0.0.1')&&url.protocol==='http:'))?url.href:'';}catch{return '';}};
 const format=v=>Number.isFinite(v)?`${Math.floor(v/60)}:${String(Math.floor(v%60)).padStart(2,'0')}`:'0:00';
 let activeGlassPalette=null,glassTweenFrame=0,lastGlassAccent=null,glassSheenTimer=0;
@@ -1019,6 +1056,13 @@ audio.addEventListener('play',()=>{
 });
 audio.addEventListener('pause',refreshPlayback);
 document.addEventListener('dd-maintenance-audio-unblocked',()=>{
+  const frozen=maintenanceRecord();
+  if(frozen && frozen.id===selectedId && Number.isFinite(audio.duration) && audio.duration>0){
+    try{audio.currentTime=Math.min(frozen.seconds,Math.max(0,audio.duration-0.25))}catch{}
+    // Commit the frozen progress after the maintenance overlay has actually ended.
+    try{sessionStorage.removeItem(maintenanceResumeKey)}catch{}
+    storePlaybackPosition();
+  }
   if(!maintenanceBlocksSiteBgm()&&audio.src&&read(storage.paused,'0')!=='1'&&audio.paused)void tryPlay();
 });
 audio.addEventListener('ended',()=>{
@@ -1040,6 +1084,10 @@ audio.addEventListener('loadedmetadata',()=>{
     const record=pendingResume;pendingResume=null;
     try{audio.currentTime=Math.min(record.seconds,Math.max(0,audio.duration-0.25));}catch{}
     byId('elapsed').textContent=format(audio.currentTime);
+    if(record.maintenance && !maintenanceBlocksSiteBgm()){
+      try{sessionStorage.removeItem(maintenanceResumeKey)}catch{}
+      storePlaybackPosition();
+    }
     if(record.autoplay)tryPlay();
     else status.textContent='已恢復上次播放位置，按播放即可繼續。';
   }
@@ -1078,7 +1126,7 @@ async function fetchCloud(){
     if(initialLoad){
       const remembered=readPlaybackPosition(preferred);
       if(remembered){
-        pendingResume={...remembered,autoplay:read(storage.paused,'0')!=='1'};
+        pendingResume={...remembered,autoplay:remembered.maintenance?!remembered.paused:read(storage.paused,'0')!=='1'};
         setTrack(preferred,{autoplay:false});
       }else setTrack(preferred,{autoplay:read(storage.paused,'0')!=='1'});
       if(read(storage.paused,'0')==='1'&&!remembered)status.textContent='你上次暫停了 BGM，按播放鍵即可繼續。';

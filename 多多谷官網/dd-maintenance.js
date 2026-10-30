@@ -240,6 +240,9 @@
   panel.querySelector('#dd-maint-title').textContent=String(data.title||MAINT_DEFAULT_TITLE);
   panel.querySelector('#dd-maint-message').textContent=String(data.message||MAINT_DEFAULT_MESSAGE);
   document.documentElement.classList.remove('dd-maintenance-checking');document.documentElement.classList.add('dd-maintenance-on');visible=true;
+  // Let the main BGM shell freeze its exact song/second/pause state before we pause it.
+  // The dedicated maintenance song never participates in that snapshot.
+  if(canPlayMusic)document.dispatchEvent(new Event('dd-maintenance-audio-blocked'));
   // Keep the provided muted branding video playing while pausing the actual site's BGM/media.
   try{pauseSiteMedia()}catch{}
   if(!window.matchMedia('(prefers-reduced-motion: reduce)').matches){const vid=panel.querySelector('video');vid?.play().catch(()=>panel.classList.add('dd-maint-video-failed'))}

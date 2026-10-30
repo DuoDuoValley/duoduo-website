@@ -3,7 +3,9 @@ const http=require('http'),fs=require('fs'),path=require('path'),crypto=require(
 const root=__dirname,port=3000;
 const SUPABASE_BUCKET='event-images';
 const adminSessions=new Map();
-const ADMIN_SESSION_TTL=8*60*60*1000;
+// Idle expiry is extended only by real admin activity; absolute expiry limits stolen tokens.
+const ADMIN_SESSION_IDLE_TTL=12*60*60*1000;
+const ADMIN_SESSION_ABSOLUTE_TTL=24*60*60*1000;
 const LOGIN_MAX_FAILURES=5;
 const LOGIN_LOCK_MS=10*60*1000;
 const loginAttempts=new Map();
@@ -90,7 +92,7 @@ async function ensureSupabaseBucket(supabaseUrl,supabaseSecretKey){
 function cleanupAdminSessions(){
   const now=Date.now();
   for(const [token,session] of adminSessions){
-    if(now-session.createdAt>ADMIN_SESSION_TTL){
+    if(now-session.createdAt>=ADMIN_SESSION_ABSOLUTE_TTL || now-(session.lastActivityAt||session.createdAt)>=ADMIN_SESSION_IDLE_TTL){
       adminSessions.delete(token);
     }
   }
@@ -137,10 +139,14 @@ function getAdminSession(req){
   if(!match)return null;
   const session=adminSessions.get(match[1]);
   if(!session)return null;
-  if(Date.now()-session.createdAt>ADMIN_SESSION_TTL){
+  const now=Date.now();
+  if(now-session.createdAt>=ADMIN_SESSION_ABSOLUTE_TTL || now-(session.lastActivityAt||session.createdAt)>=ADMIN_SESSION_IDLE_TTL){
     adminSessions.delete(match[1]);
     return null;
   }
+  // /api/admin/me is also called by the maintenance preview's automatic checks.
+  // Only explicit UI actions renew inactivity time; background polling does not.
+  if(req.headers['x-admin-activity']==='1')session.lastActivityAt=now;
   return session;
 }
 
@@ -189,7 +195,8 @@ function handleAdminLogin(req,res){
       clearLoginFailure(attemptKey);
       cleanupAdminSessions();
       const token=crypto.randomBytes(32).toString('hex');
-      adminSessions.set(token,{createdAt:Date.now()});
+      const now=Date.now();
+      adminSessions.set(token,{createdAt:now,lastActivityAt:now});
 
       return sendJSON(res,200,{ok:true,token});
     }catch(err){
@@ -204,7 +211,11 @@ function handleAdminMe(req,res){
   if(!session){
     return sendJSON(res,401,{ok:false,error:'未登入'});
   }
-  return sendJSON(res,200,{ok:true});
+  return sendJSON(res,200,{
+    ok:true,
+    idleExpiresAt:(session.lastActivityAt||session.createdAt)+ADMIN_SESSION_IDLE_TTL,
+    absoluteExpiresAt:session.createdAt+ADMIN_SESSION_ABSOLUTE_TTL
+  });
 }
 
 async function handleUpload(req,res){
@@ -784,7 +795,7 @@ const server=http.createServer((req,res)=>{
 
   res.setHeader(
     'Access-Control-Allow-Headers',
-    'Content-Type, X-Admin-Password, Authorization'
+    'Content-Type, X-Admin-Password, X-Admin-Activity, Authorization'
   );
 
   if(req.method==='OPTIONS'){
