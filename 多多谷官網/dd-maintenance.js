@@ -68,19 +68,79 @@
  const PREVIEW_KEY='duoduo_maintenance_admin_preview_v1';
  const ADMIN_TOKEN_KEY='duoduo_admin_session';
  let panel=null,visible=false,working=false,lastKnown=null,previewBar=null;
+ const PREVIEW_HANDSHAKE='duoduo-maint-preview-v2';
+ const PREVIEW_WINDOW_PREFIX='duoduo-preview-v2:';
+ let previewError='';
+ function previewNonce(){
+  try{
+   if(window.name?.startsWith(PREVIEW_WINDOW_PREFIX))return window.name.slice(PREVIEW_WINDOW_PREFIX.length);
+   const value=new URLSearchParams(location.search).get('dd_preview_request')||'';
+   return /^[a-f0-9-]{36}$/i.test(value)?value:'';
+  }catch(_){return ''}
+ }
  function previewRequested(){
-  try{return sessionStorage.getItem(PREVIEW_KEY)==='1'&&!!sessionStorage.getItem(ADMIN_TOKEN_KEY)}catch(_){return false}
+  try{return sessionStorage.getItem(PREVIEW_KEY)==='1'||!!previewNonce()}catch(_){return !!previewNonce()}
+ }
+ function reportPreview(action,reason=''){
+  if(!canPlayMusic)return;
+  const nonce=previewNonce();
+  if(!nonce||!window.opener)return;
+  try{window.opener.postMessage({type:PREVIEW_HANDSHAKE,action,nonce,reason},location.origin)}catch(_){}
+ }
+ async function recoverPreviewSession(){
+  const nonce=previewNonce();
+  if(!nonce||!window.opener)return false;
+  return new Promise(resolve=>{
+   let completed=false;
+   const finish=success=>{
+    if(completed)return;completed=true;window.removeEventListener('message',receive);clearTimeout(timer);resolve(success)
+   };
+   const receive=event=>{
+    if(event.source!==window.opener||event.origin!==location.origin)return;
+    const msg=event.data;
+    if(!msg||msg.type!==PREVIEW_HANDSHAKE||msg.action!=='credentials'||msg.nonce!==nonce)return;
+    if(typeof msg.token!=='string'||!msg.token){finish(false);return}
+    try{
+     sessionStorage.setItem(ADMIN_TOKEN_KEY,msg.token);
+     sessionStorage.setItem(PREVIEW_KEY,'1');
+     if(typeof msg.returnUrl==='string'){
+      const u=new URL(msg.returnUrl);
+      if(u.origin===location.origin && u.pathname.endsWith('.html'))
+       sessionStorage.setItem('duoduo_maintenance_admin_return_v1',u.href)
+     }
+     finish(true)
+    }catch(_){finish(false)}
+   };
+   window.addEventListener('message',receive);
+   const timer=setTimeout(()=>finish(false),5000);
+   try{window.opener.postMessage({type:PREVIEW_HANDSHAKE,action:'request',nonce},location.origin)}catch(_){finish(false)}
+  })
  }
  async function verifyPreview(){
+  previewError='';
   if(!previewRequested())return false;
   let token='';try{token=sessionStorage.getItem(ADMIN_TOKEN_KEY)||''}catch(_){}
-  if(!token)return false;
-  const ctrl=new AbortController();const timeout=setTimeout(()=>ctrl.abort(),6000);
-  try{
-   const response=await fetch(api+'/api/admin/me',{cache:'no-store',headers:{Authorization:'Bearer '+token,Accept:'application/json'},signal:ctrl.signal});
-   if(!response.ok)return false;
-   const data=await response.json();return data?.ok===true;
-  }catch(_){return false}finally{clearTimeout(timeout)}
+  if(!token){
+   const received=await recoverPreviewSession();
+   if(received)try{token=sessionStorage.getItem(ADMIN_TOKEN_KEY)||''}catch(_){}
+  }
+  if(!token){previewError='管理員預覽尚未取得登入資訊；請由後台重新按「開啟管理員預覽」。';reportPreview('failed',previewError);return false}
+  // Render can take several seconds to wake. A transient request failure is not
+  // proof of invalid credentials; retry once, but never bypass authentication.
+  for(let attempt=0;attempt<2;attempt++){
+   const ctrl=new AbortController();const timeout=setTimeout(()=>ctrl.abort(),11000);
+   try{
+    const response=await fetch(api+'/api/admin/me',{cache:'no-store',headers:{Authorization:'Bearer '+token,Accept:'application/json'},signal:ctrl.signal});
+    if(response.status===401||response.status===403){previewError='管理員登入已失效，請返回後台重新登入。';reportPreview('failed',previewError);return false}
+    if(!response.ok){previewError='管理員驗證服務暫時無法使用。';continue}
+    const data=await response.json();
+    if(data?.ok===true)return true;
+    previewError='Render 未確認管理員權限，請重新登入。';reportPreview('failed',previewError);return false;
+   }catch(_){previewError='Render 連線逾時，管理員驗證未完成。'}
+   finally{clearTimeout(timeout)}
+  }
+  reportPreview('failed',previewError);
+  return false;
  }
  function endPreview(){
   document.documentElement.removeAttribute('data-dd-maintenance-admin-preview');
@@ -89,6 +149,9 @@
  function startPreview(){
   hide();
   document.documentElement.setAttribute('data-dd-maintenance-admin-preview','1');
+  reportPreview('verified');
+  // Drop the non-secret intent marker after verification, without navigating.
+  if(canPlayMusic){try{const u=new URL(location.href);if(u.searchParams.has('dd_preview_request')){u.searchParams.delete('dd_preview_request');history.replaceState(history.state,'',u.pathname+u.search+u.hash)}}catch(_){}}
   if(!canPlayMusic||previewBar)return;
   previewBar=document.createElement('aside');previewBar.id='dd-maint-admin-preview-bar';
   previewBar.setAttribute('aria-label','管理員網站預覽工具列');
@@ -178,7 +241,7 @@
        if(await verifyPreview())startPreview();
        else {
          endPreview();show(result);
-         if(panel)panel.querySelector('#dd-maint-note').textContent='網站恢復開放後，本頁將自動重新載入。';
+         if(panel)panel.querySelector('#dd-maint-note').textContent=previewError || '網站恢復開放後，本頁將自動重新載入。';
        }
      }
      else if(visible){endPreview();try{sessionStorage.removeItem(PREVIEW_KEY)}catch(_){}location.reload()}

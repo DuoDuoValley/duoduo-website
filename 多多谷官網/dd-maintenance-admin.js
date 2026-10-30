@@ -36,23 +36,53 @@
    if(busy)return;
    const adminToken=token();
    if(!adminToken)return setStatus('請先登入後台，再開啟管理員預覽。','error');
-   // Open synchronously on user gesture so popup blockers do not interfere.
-   // about:blank inherits the exact same origin; the token stays in sessionStorage,
-   // never in a query string, URL fragment, referer or server logs.
+   // Open synchronously. The tab inherits origin, but some browsers discard
+   // copied sessionStorage during navigation; the same-origin handshake below
+   // is a fallback, never an authentication bypass.
    const child=window.open('about:blank','_blank');
    if(!child)return setStatus('瀏覽器阻擋了新視窗，請允許本站開啟分頁。','error');
+   const nonce=crypto.randomUUID();
+   const HANDSHAKE='duoduo-maint-preview-v2';
+   child.name='duoduo-preview-v2:'+nonce;
+   let acknowledged=false;
+   const onMessage=event=>{
+     if(event.source!==child||event.origin!==location.origin)return;
+     const msg=event.data;
+     if(!msg||msg.type!==HANDSHAKE||msg.nonce!==nonce)return;
+     if(msg.action==='request'){
+       // Send exclusively to the tab opened by this validated administrator.
+       child.postMessage({type:HANDSHAKE,action:'credentials',nonce,token:adminToken,returnUrl:location.href},location.origin);
+     }else if(msg.action==='verified'){
+       acknowledged=true;
+       setStatus('管理員預覽已通過 Render 驗證，現在可以檢查完整前台。',current?'on':'off');
+     }else if(msg.action==='failed'){
+       acknowledged=true;
+       setStatus('預覽未通過驗證：'+String(msg.reason||'請重新登入後台再試。'),'error');
+     }
+   };
+   window.addEventListener('message',onMessage);
+   setTimeout(()=>window.removeEventListener('message',onMessage),120000);
    preview.disabled=true;
    try{
      const result=await fetch(base+'/api/admin/me',{cache:'no-store',headers:{Authorization:'Bearer '+adminToken,Accept:'application/json'}});
      const identity=await result.json().catch(()=>({}));
      if(!result.ok||identity?.ok!==true)throw Error('管理員登入已失效，請重新登入後台。');
-     child.sessionStorage.setItem('duoduo_admin_session',adminToken);
-     child.sessionStorage.setItem('duoduo_maintenance_admin_preview_v1','1');
-     child.sessionStorage.setItem('duoduo_maintenance_admin_return_v1',location.href);
-     child.location.replace(new URL('index.html',location.href).href);
-     setStatus('已開啟管理員專屬預覽。預覽期間不會自動重整；請按預覽工具列的「重新載入預覽」檢查修改。',current?'on':'off');
-   }catch(error){try{child.close()}catch(_){}setStatus('無法開啟預覽：'+(error?.message||'驗證失敗'),'error')}
-   finally{preview.disabled=false}
+     try{
+       child.sessionStorage.setItem('duoduo_admin_session',adminToken);
+       child.sessionStorage.setItem('duoduo_maintenance_admin_preview_v1','1');
+       child.sessionStorage.setItem('duoduo_maintenance_admin_return_v1',location.href);
+     }catch(_){/* The same-origin authenticated handshake recovers this case. */}
+     const previewUrl=new URL('index.html',location.href);
+     // The nonce signals an intended preview, but conveys no access rights.
+     previewUrl.searchParams.set('dd_preview_request',nonce);
+     child.location.replace(previewUrl.href);
+     setStatus('正在開啟預覽並進行前台第二次驗證，請查看新分頁…',current?'on':'off');
+     setTimeout(()=>{if(!acknowledged&&!child.closed)setStatus('預覽尚未收到前台驗證成功回報；請查看新分頁顯示的原因。','error')},18000);
+   }catch(error){
+     window.removeEventListener('message',onMessage);
+     try{child.close()}catch(_){}
+     setStatus('無法開啟預覽：'+(error?.message||'驗證失敗'),'error');
+   }finally{preview.disabled=false}
  });
  enable.addEventListener('click',()=>save(true));disable.addEventListener('click',()=>save(false));reload.addEventListener('click',load);
  // Allow updating copy while maintenance is already on, without changing enabled state.
