@@ -24,7 +24,7 @@
  const debug={active:true,revision:'v4.0',mode:'deployment-run',buildRun:BUILD_RUN,
    status:'initializing',checkedAt:null,lastError:null,remoteRun:null,lastChange:null};
  window.DuoDuoSiteUpdate=debug;
- let seen=[BUILD_RUN], busy=false, refreshing=false, candidate=null;
+ let seen=[BUILD_RUN], busy=false, refreshing=false, candidate=null, confirmationTimer=null;
  try{
    const raw=JSON.parse(sessionStorage.getItem(KEY)||'[]');
    if(Array.isArray(raw))seen=[...new Set([...raw.filter(x=>Number.isInteger(x)&&x>0),BUILD_RUN])].slice(-24);
@@ -47,6 +47,16 @@
    if(!Number.isSafeInteger(run)||run<1||!/^[a-f0-9]{40}$/i.test(sha))throw Error('尚無有效的部署版號');
    return {run,sha};
  }
+ function scheduleConfirmation(){
+   if(confirmationTimer!==null)clearTimeout(confirmationTimer);
+   confirmationTimer=setTimeout(()=>{
+     confirmationTimer=null;
+     if(document.visibilityState!=='hidden')check();
+   },12000);
+ }
+ function cancelConfirmation(){
+   if(confirmationTimer!==null){clearTimeout(confirmationTimer);confirmationTimer=null;}
+ }
  function isNewer(r){return r.run>BUILD_RUN&&r.sha!==BUILD_SHA&&!seen.includes(r.run)}
  async function check(){
    if(busy||refreshing||document.visibilityState==='hidden'||navigator.onLine===false)return;
@@ -58,18 +68,18 @@
      const remote=await readRemote();
      debug.checkedAt=new Date().toISOString();debug.remoteRun=remote.run;debug.lastError=null;
      if(!isNewer(remote)){
-       candidate=null;debug.status='up-to-date';return;
+       candidate=null;cancelConfirmation();debug.status='up-to-date';return;
      }
      // Compare the same *deployment identifier* twice, separated in time.
      if(!candidate||candidate.run!==remote.run||candidate.sha!==remote.sha){
-       candidate={...remote,firstSeen:Date.now()};debug.status='confirming deployment';return;
+       candidate={...remote,firstSeen:Date.now()};scheduleConfirmation();debug.status='confirming deployment';return;
      }
-     if(Date.now()-candidate.firstSeen<10000){debug.status='confirming deployment';return;}
+     if(Date.now()-candidate.firstSeen<10000){scheduleConfirmation();debug.status='confirming deployment';return;}
      // An independent second request is essential during GitHub Pages propagation.
      const confirmed=await readRemote();
-     if(confirmed.run!==remote.run||confirmed.sha!==remote.sha){candidate=null;debug.status='waiting for stable deployment';return;}
+     if(confirmed.run!==remote.run||confirmed.sha!==remote.sha){candidate=null;cancelConfirmation();debug.status='waiting for stable deployment';return;}
      if(!isNewer(confirmed))return;
-     refreshing=true;saveSeen(confirmed.run);
+     refreshing=true;cancelConfirmation();saveSeen(confirmed.run);
      debug.status='refreshing';debug.lastChange='GitHub Pages deployment '+confirmed.run;
      // Make the next navigation use the newly deployed watcher, if available.
      try{await fetch(new URL('dd-site-update.js',root),{cache:'reload',credentials:'same-origin'})}catch(_){}
@@ -83,7 +93,7 @@
      }catch(_){}
      location.replace(url.href);
    }catch(error){
-     candidate=null;debug.status='retrying';debug.lastError=String(error?.message||error);
+     candidate=null;cancelConfirmation();debug.status='retrying';debug.lastError=String(error?.message||error);
    }finally{busy=false;}
  }
  debug.checkNow=check;
@@ -96,6 +106,8 @@
    if(focusTimer!==null)clearTimeout(focusTimer);
    focusTimer=setTimeout(()=>{focusTimer=null;check()},4000);
  }
- document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')scheduleCheck()});
+ document.addEventListener('visibilitychange',()=>{
+   if(document.visibilityState!=='hidden')scheduleCheck();
+ });
  window.addEventListener('online',scheduleCheck);
 })();
