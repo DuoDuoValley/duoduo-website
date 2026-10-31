@@ -16,62 +16,20 @@
   }catch{}
 })();
 
-/* ===== 多多谷雲端網站資料同步 ===== */
+/* ===== 多多谷雲端快取初始資料（實際刷新由 dd-cloud-refresh.js 單獨負責） ===== */
 (function(){
-  const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
-  let inMaintenancePreview=false;
-  try{inMaintenancePreview=sessionStorage.getItem('duoduo_maintenance_admin_preview_v1')==='1'&&!!sessionStorage.getItem('duoduo_admin_session')}catch(_){}
-  const KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_links'];
-  const SESSION_PREFIX='duoduo_cloud_';
-  const FLAG='duoduo_cloud_snapshot_v2';
-  // Cloud JSON object key ordering can vary without any published data changing.
-  function sameCloudJSON(a,b){
-    if(a===b)return true;
-    if(a===null)return false;
-    try{
-      const canonical=v=>Array.isArray(v)?v.map(canonical):v&&typeof v==='object'
-        ?Object.keys(v).sort().reduce((o,k)=>(o[k]=canonical(v[k]),o),{}):v;
-      return JSON.stringify(canonical(JSON.parse(a)))===JSON.stringify(canonical(JSON.parse(b)));
-    }catch(_){return false}
+  // 保留畫面開始渲染時使用的舊快取，讓唯一的更新監測器判斷是否需要同步。
+  // 原本這裡另有一套獨立 fetch + reload，比對歷史 sessionStorage 時可能誤觸刷新。
+  const keys=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero',
+    'duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads',
+    'duoduo_items','duoduo_links'];
+  const initial={};
+  for(const key of keys){
+    try{const raw=sessionStorage.getItem('duoduo_cloud_'+key);if(raw!==null)initial[key]=raw;}catch(_){}
   }
-  (async()=>{
-    try{
-      const res=await fetch(`${API_BASE}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
-      if(!res.ok)return;
-      const payload=await res.json();
-      if(payload?.initialized!==true||!payload.data||typeof payload.data!=='object')return;
-      let changed=false;
-      for(const key of KEYS){
-        if(!Object.prototype.hasOwnProperty.call(payload.data,key))continue;
-        const next=JSON.stringify(payload.data[key]);
-        let current=null;
-        try{current=sessionStorage.getItem(SESSION_PREFIX+key)}catch{}
-        if(!sameCloudJSON(current,next)){
-          try{sessionStorage.setItem(SESSION_PREFIX+key,next)}catch{}
-          if(current!==null)changed=true; // No refresh on a visitor's first cloud snapshot.
-        }
-      }
-      let alreadyReloaded=false;
-      try{alreadyReloaded=sessionStorage.getItem(FLAG)==='1'}catch{}
-      if(changed&&!alreadyReloaded&&!inMaintenancePreview){
-        try{sessionStorage.setItem(FLAG,'1')}catch{}
-        // Keep the currently visible page on screen while the BGM shell
-        // prepares a replacement iframe with the updated cloud snapshot.
-        // Standalone pages and older shells retain the original reload path.
-        let handled=false;
-        try{
-          if(window.parent!==window && typeof window.parent.duoduoRefreshCloudFrame==='function'){
-            handled=window.parent.duoduoRefreshCloudFrame(window)===true;
-          }
-        }catch(_){}
-        if(!handled)location.reload();
-      }else if(!changed){
-        try{sessionStorage.removeItem(FLAG)}catch{}
-      }
-    }catch(error){console.warn('雲端網站資料讀取失敗，使用本機資料。',error)}
-  })();
+  window.DuoDuoCloudInitialSnapshot=initial;
 })();
-/* ===== 多多谷雲端網站資料同步結束 ===== */
+/* ===== 雲端資料由 dd-cloud-refresh.js 負責同步與確認 ===== */
 
 const DEFAULT_LINKS={discord:"https://discord.gg/duoduovalley",topup:"https://fd-pay.com/ARrbXO",guide:"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing",rates:"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing",products:"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing",checklist:"https://duoduovalley.github.io/duoduo-checklist/",launcher:"https://mega.nz/file/d3IVHYZY#iIv2y93Y2tPy2zORnDUUEWY-q4wO6Pkd8TqNZG3cYlM",pack:"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing"};
 function getJSONSafe(key,fallback){try{const cloud=sessionStorage.getItem("duoduo_cloud_"+key);if(cloud!==null)return JSON.parse(cloud);return JSON.parse(localStorage.getItem(key)||"null")??fallback}catch{return fallback}}
