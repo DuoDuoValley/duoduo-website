@@ -5,7 +5,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
 <title>多多谷｜戰地拼圖模擬器</title>
-<link rel="stylesheet" href="./styles.css?v=239">
+<link rel="stylesheet" href="./styles.css?v=240">
 <script src="./presets.js" defer></script>
 <script src="./legion-roster.js" defer></script>
 <script src="./app.js?v=239" defer></script>
@@ -13,7 +13,18 @@
 <body>
 <header class="site-head"><div class="brand"><img src="./assets/duoduo-logo.png" alt="多多谷 LOGO"><div><b>DuoDuo Valley</b><span>戰地拼圖模擬器</span></div></div><div class="head-actions"><button class="btn btn-ghost" id="themeBtn" type="button" aria-label="切換深淺色">☾ 深色模式</button></div></header>
 <main class="shell">
- <section class="hero"><div class="hero-copy"><div class="overline">ADVENTURERS &amp; LEGENDS</div><h1>戰地拼圖模擬器</h1><p class="hero-lead">職業拼圖、目標屬性與自動排版，一次完成戰地規劃。</p><p class="hero-sub">快速選擇 Lv.200／Lv.250 角色卡，支援單格與區塊模式標記，完成後可直接查看佔領效果並下載棋盤配置圖。</p><div class="hero-badges"><span>12 種拼圖形狀</span><span>51 個職業</span><span>單格／區塊模式</span></div></div><div class="hero-side" aria-label="模擬器重點資訊"><div><strong>22 × 20</strong><small>模擬棋盤格線</small></div><div><strong>45 張上限</strong><small>自動驗證連通規則</small></div><div><strong>智慧排法</strong><small>自動嘗試不同方向</small></div></div></section>
+ <section class="hero" aria-labelledby="legionHeroTitle">
+  <div class="hero-copy">
+   <div class="overline">LEGION BOARD PLANNER</div>
+   <h1 id="legionHeroTitle">戰地<span>拼圖模擬器</span></h1>
+   <p class="hero-lead">職業拼圖、目標屬性與自動排版，一次完成戰地規劃。</p>
+   <p class="hero-sub">自由搭配 Lv.200／Lv.250 角色卡，標記想要的屬性區域，讓自動排列幫你找出合適的拼法，還能查看佔領效果。</p>
+   <div class="hero-badges" aria-label="模擬器特色"><span><strong>12</strong> 種拼圖形狀</span><span><strong>51</strong> 個職業</span><span><strong>45</strong> 張上場上限</span></div>
+  </div>
+  <div class="hero-emblems" aria-hidden="true">
+   <img src="./assets/banner/legion-rank-0.png" alt=""><img src="./assets/banner/legion-rank-1.png" alt=""><img src="./assets/banner/legion-rank-2.png" alt=""><img src="./assets/banner/legion-rank-3.png" alt=""><img src="./assets/banner/legion-rank-4.png" alt="">
+  </div>
+ </section>
  <div class="warning"><span class="info-icon">i</span><div><b>模擬器規則</b>：一次最多派出 <b>45 張角色卡（45 塊拼圖）</b>，同職業最多一塊，Lv.250 取代 Lv.200，不會額外增加可上場數量。所有放置拼圖需由中央四格的職業圖示起始，沿上下左右連接成整體；選取的不同目標區域會在求解時嘗試補上橋接格。<b>攻擊隊佔領效果依實際不重複的佔領格計算，重疊格不會重複加成。</b>佔領加成僅供規劃參考，請以遊戲實際顯示為準。</div></div>
  <div class="workspace">
   <aside class="side panel"><div class="panel-head"><div><span class="kicker">STEP 01</span><h2>選擇拼圖數量</h2><p>12 種 Lv.200／Lv.250 形狀，對應 51 個不同職業；每個職業只算一塊。</p></div></div>
