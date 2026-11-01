@@ -546,3 +546,21 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
  -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
 }
 .hero-emblems-caption,.hero-tier{ text-shadow:0 1px 4px rgba(0,0,0,.94),0 0 3px rgba(0,0,0,.65); }
+
+
+/* V2.45 — buttons share the native board's TOP edge, not a separate strip.
+   Reserve the right-hand dark gutter; the 598px native canvas remains unobstructed. */
+.native-board-scroll{position:relative;}
+.board-floating-toolbar{
+ position:absolute;top:0;right:0;z-index:15;min-height:0;
+ padding:9px 11px;margin:0;display:flex;align-items:flex-start;justify-content:flex-end;
+ background:transparent;pointer-events:none;
+}
+.board-floating-toolbar .toolbar{pointer-events:auto;display:flex;flex-wrap:nowrap;gap:8px;}
+.board-floating-toolbar .btn-small{min-height:34px;}
+/* A compact screen cannot place full controls beside the entire board.
+   Preserve the original board scale/layout and stack only for narrow phones. */
+.native-board-scroll.board-toolbar-stacked .board-floating-toolbar{
+ position:relative;top:auto;right:auto;min-height:44px;
+ padding:7px 9px 6px;pointer-events:auto;
+}

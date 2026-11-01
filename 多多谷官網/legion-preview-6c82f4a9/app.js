@@ -2073,9 +2073,23 @@ function renderNativeUI(){
 function resizeNativeStage(){
  const area=$('boardScroll');if(!area)return;
  const available=area.clientWidth;
- const wanted=Math.min(1,Math.max(.60,(available-2)/598));
+ // Keep quick actions level with the board's top edge whenever a usable
+ // side gutter is available. Smaller phones retain an accessible top strip.
+ const beside=available>=572;
+ const controlsWidth=beside?196:0;
+ const wanted=Math.min(1,Math.max(.60,(available-controlsWidth-(beside?16:2))/598));
  stageScale=wanted;
- const holder=$('nativeStageHolder');holder.style.width=(598*wanted)+'px';holder.style.height=(480*wanted)+'px';$('nativeStage').style.setProperty('--stage-scale',String(wanted));
+ const holder=$('nativeStageHolder');
+ const visibleWidth=598*wanted;
+ holder.style.width=visibleWidth+'px';holder.style.height=(480*wanted)+'px';
+ $('nativeStage').style.setProperty('--stage-scale',String(wanted));
+ area.classList.toggle('board-toolbar-stacked',!beside);
+ if(beside){
+  const offset=Math.max(10,Math.min((available-visibleWidth)/2,available-visibleWidth-controlsWidth));
+  holder.style.marginLeft=offset+'px';holder.style.marginRight='0';
+ }else{
+  holder.style.marginLeft='auto';holder.style.marginRight='auto';
+ }
 }
 function bind(){$('clearBoard').addEventListener('click',()=>{saveUndo();target.clear();activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已清空目標格。')});$('undoBtn').addEventListener('click',()=>{if(!undoStack.length){notify('目前沒有可還原的操作');return}target=new Set(undoStack.pop());activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已還原上一次棋盤修改。')});$('solveBtn').addEventListener('click',solve);$('resetSolution').addEventListener('click',()=>clearSolution());$('exportPng').addEventListener('click',exportPng);$('saveBtn').addEventListener('click',save);$('loadBtn').addEventListener('click',()=>{if(restore()){refreshCoreSprites();updateCoreControls();updateBoard();updateStatus();message(inventoryTrimmedOnRestore?'已載入本機配置；超過 45 張的數量已依上限縮減，請重新檢查。':'已載入你之前保存的本機配置。',inventoryTrimmedOnRestore?'error':'')}else notify('尚未找到可載入的本機配置')});$('themeBtn').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';$('themeBtn').textContent=dark?'☀ 淺色模式':'☾ 深色模式';try{localStorage.setItem('duoduo_legion_production_theme_v1',dark?'dark':'light')}catch{}});try{let theme=localStorage.getItem('duoduo_legion_production_theme_v1');if(theme==='dark'){document.documentElement.dataset.theme='dark';$('themeBtn').textContent='☀ 淺色模式'}}catch{}}
 preloadPieceAssets();setupShapes();createBoard();restoreCoreAssignments();renderNativeUI();setupPaintModeButtons();setupSmartRescue();bind();resizeNativeStage();window.addEventListener('resize',resizeNativeStage);if('ResizeObserver' in window)new ResizeObserver(resizeNativeStage).observe($('boardScroll'));restoreInventory(null);updateBoard();updateStatus();message('所有拼圖數量預設為 0，請按實際 Lv.200／Lv.250 人數設定；如需以前儲存的數量，請主動點選「載入本機配置」。');
