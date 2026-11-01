@@ -508,16 +508,41 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
 }
 @media(max-width:360px){.hero-emblems{padding:8px 5px 7px}}
 
-/* Put Undo and Clear directly beside the actual 598px board, not in
-   the distant panel header. Controls keep their existing IDs/handlers. */
-.board-near-toolbar{
-  width:min(100%,598px);margin:0 auto 7px;
-  display:flex;justify-content:flex-end;align-items:center;
+
+
+/* V2.44 — floating controls *within* the dark board backdrop. The
+   45px toolbar strip protects the native 598x480 board from overlap. */
+.native-board-scroll{position:relative;}
+.board-floating-toolbar{
+ position:relative;z-index:15;min-height:49px;
+ display:flex;justify-content:flex-end;align-items:center;
+ padding:8px 12px 7px;
+ background:linear-gradient(180deg,rgba(7,23,36,.16),transparent);
 }
-.board-near-toolbar .toolbar{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
-.board-near-toolbar .btn-small{min-height:35px;padding:6px 12px}
-@media(max-width:690px){
- .board-near-toolbar{margin-bottom:7px}
- .board-near-toolbar .toolbar{width:auto;gap:7px}
- .board-near-toolbar .btn-small{padding:7px 10px;min-height:36px}
+.board-floating-toolbar .toolbar{display:flex;justify-content:flex-end;align-items:center;gap:8px;flex-wrap:nowrap;}
+.board-floating-toolbar .btn-small{
+ min-height:34px;padding:6px 12px;border-radius:9px;
+ background:rgba(31,58,73,.85);color:#edf9ff;
+ border:1px solid rgba(126,184,213,.54);
+ box-shadow:0 2px 8px rgba(0,8,16,.24);
+ white-space:nowrap;
 }
+.board-floating-toolbar .btn-small:hover{
+ background:rgba(46,86,106,.96);border-color:#9be0fa;color:#fff;
+}
+.board-floating-toolbar .btn-small:focus-visible{outline-color:#a9f5ff}
+@media(max-width:420px){
+ .board-floating-toolbar{padding:7px 9px 6px;min-height:45px}
+ .board-floating-toolbar .toolbar{gap:6px}
+ .board-floating-toolbar .btn-small{padding:5px 9px;min-height:32px;font-size:11px}
+}
+
+/* V2.44 — transparent glass instead of an opaque block covering the
+   supplied village panorama. Keep the five rank images and their order. */
+.hero-emblems{
+ background:linear-gradient(115deg,rgba(3,20,32,.52),rgba(8,32,46,.31));
+ border-color:rgba(187,231,244,.37);
+ box-shadow:0 5px 18px rgba(0,12,22,.24),inset 0 1px rgba(242,253,255,.12);
+ -webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px);
+}
+.hero-emblems-caption,.hero-tier{ text-shadow:0 1px 4px rgba(0,0,0,.94),0 0 3px rgba(0,0,0,.65); }
