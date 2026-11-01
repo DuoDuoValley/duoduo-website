@@ -393,20 +393,18 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
 @media(max-width:390px){.hero{min-height:182px}.hero-ranks img{width:22px;height:22px}.hero .overline{font-size:9px;letter-spacing:.1em}}
 
 
-/* V2.40 hero: matches the official character-card banner proportions and hierarchy.
-   Keep the player's original green character artwork and all five rank icons. */
+/* V2.41: match the content panels, reuse the supplied Union ranks, keep the official
+   character-card-inspired hero proportions without a separate width constraint. */
 .hero{
-  width:100%;max-width:1260px;min-height:375px;margin:0 auto 28px;
-  display:flex;align-items:center;justify-content:flex-start;
-  padding:38px 48px;position:relative;isolation:isolate;overflow:hidden;
-  border-radius:22px;border:1px solid rgba(90,167,193,.36);
-  background-image:
-    linear-gradient(90deg,rgba(3,20,34,.97) 0%,rgba(5,25,40,.94) 25%,rgba(5,28,45,.83) 43%,rgba(5,26,43,.40) 68%,rgba(5,22,37,.07) 100%),
-    url('./assets/banner/legion-hero.png');
-  background-size:cover,cover;
-  background-position:center,center 39%;
-  background-repeat:no-repeat;
-  box-shadow:var(--shadow);
+ width:100%;max-width:none;min-height:375px;margin:0 0 28px;
+ display:flex;align-items:center;justify-content:flex-start;
+ padding:38px 48px;position:relative;isolation:isolate;overflow:hidden;
+ border-radius:22px;border:1px solid rgba(90,167,193,.36);
+ background-image:
+   linear-gradient(90deg,rgba(3,20,34,.97) 0%,rgba(5,25,40,.95) 28%,rgba(5,28,45,.83) 43%,rgba(5,26,43,.36) 68%,rgba(5,22,37,.08) 100%),
+   url('./assets/banner/legion-hero.png');
+ background-size:cover,cover;background-position:center,center 39%;
+ background-repeat:no-repeat;box-shadow:var(--shadow);
 }
 .hero:after{display:none}
 .hero-copy{position:relative;z-index:2;max-width:min(620px,58%);display:flex;flex-direction:column;align-items:flex-start;justify-content:center;text-shadow:0 1px 5px rgba(0,0,0,.48)}
@@ -419,25 +417,38 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
 .hero-badges{display:flex;align-items:center;gap:14px;flex-wrap:wrap;position:relative;z-index:2;margin:0}
 .hero-badges>span{display:inline-flex;align-items:baseline;gap:4px;border:1px solid rgba(162,226,238,.33);background:rgba(3,21,34,.64);border-radius:9px;padding:8px 12px;color:#f3fbff;font-size:12px;font-weight:500;min-height:0;white-space:nowrap;box-shadow:none;backdrop-filter:blur(3px)}
 .hero-badges strong{font-size:16px;color:#a5f5ff;font-variant-numeric:tabular-nums}
-.hero-emblems{position:absolute;z-index:2;right:25px;bottom:18px;display:flex;align-items:flex-end;gap:1px;pointer-events:none;filter:drop-shadow(0 3px 5px rgba(0,8,18,.54))}
-.hero-emblems img{width:54px;height:54px;display:block;object-fit:contain;max-width:none}
+/* Ranks: real Maple Union UI assets, presented as one continuous upgrade path. */
+.hero-emblems{position:absolute;z-index:2;right:28px;bottom:20px;pointer-events:none;text-align:center;filter:drop-shadow(0 3px 5px rgba(0,8,18,.38))}
+.hero-emblems-caption{display:flex;align-items:center;justify-content:center;gap:9px;margin:0 0 3px;font-size:12px;font-weight:800;letter-spacing:.09em;color:#eaf8ff;text-shadow:0 1px 7px #02101f}
+.hero-emblems-caption span{font-size:9px;font-weight:700;color:#bad8e7;letter-spacing:.16em}
+.hero-tier-list{display:flex;align-items:end;justify-content:center;gap:12px}
+.hero-tier{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:0;min-width:58px;flex-shrink:0;color:#e2eef7;font-size:11px;font-weight:750;line-height:1.5;letter-spacing:.05em;text-shadow:0 1px 6px #00131a}
+.hero-tier img{display:block;width:58px;height:61px;max-width:none;object-fit:contain;filter:drop-shadow(0 1px 3px #0009)}
+.hero-tier-top{color:#ffdc94;font-weight:850;font-size:12px}
+.hero-tier-top img{width:75px;height:77px;filter:drop-shadow(0 0 9px rgba(255,201,106,.5)) drop-shadow(0 2px 4px #000b)}
 @media(min-width:781px) and (max-width:1090px){
  .hero{padding:36px 32px;background-position:center,56% 40%}
  .hero-copy{max-width:67%}
  .hero h1{font-size:clamp(33px,4vw,44px)}
- .hero-emblems{right:15px;bottom:13px}
- .hero-emblems img{width:44px;height:44px}
+ .hero-emblems{right:13px;bottom:14px}
+ .hero-tier-list{gap:5px}
+ .hero-tier{min-width:45px;font-size:10px}
+ .hero-tier img{width:45px;height:47px}
+ .hero-tier-top img{width:58px;height:61px}
 }
 @media(max-width:780px){
  .hero{min-height:340px;padding:32px 27px;background-image:linear-gradient(90deg,rgba(3,18,32,.96),rgba(4,20,34,.84) 60%,rgba(4,20,34,.52)),url('./assets/banner/legion-hero.png');background-position:center,60% 42%}
- .hero-copy{max-width:100%;padding-bottom:45px}
+ .hero-copy{max-width:100%;padding-bottom:90px}
  .hero h1{font-size:clamp(29px,5.9vw,41px)}
  .hero .overline{font-size:11px;margin-bottom:14px}
  .hero p.hero-sub{max-width:570px}
- .hero-emblems img{width:42px;height:42px}
+ .hero-emblems{bottom:15px;right:20px}
+ .hero-tier-list{gap:9px}
+ .hero-tier img{width:52px;height:53px}
+ .hero-tier-top img{width:64px;height:66px}
 }
 @media(max-width:580px){
- .hero{min-height:0;padding:30px 21px 76px;border-radius:17px;background-image:linear-gradient(90deg,rgba(3,18,32,.95),rgba(3,18,32,.83)),url('./assets/banner/legion-hero.png');background-position:center,57% center;margin-bottom:19px}
+ .hero{min-height:0;padding:30px 21px 24px;border-radius:17px;background-image:linear-gradient(90deg,rgba(3,18,32,.95),rgba(3,18,32,.83)),url('./assets/banner/legion-hero.png');background-position:center,57% center;margin-bottom:19px;display:block}
  .hero-copy{padding-bottom:0}
  .hero .overline{font-size:10px;letter-spacing:.1em;margin-bottom:15px}
  .hero h1{font-size:clamp(28px,7.2vw,37px);letter-spacing:0}
@@ -446,12 +457,20 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
  .hero-badges{gap:7px}
  .hero-badges>span{padding:6px 8px;font-size:10px}
  .hero-badges strong{font-size:13px}
- .hero-emblems{right:15px;bottom:13px;gap:0}
- .hero-emblems img{width:35px;height:35px}
+ .hero-emblems{position:relative;right:auto;bottom:auto;margin:20px 0 0;text-align:center;filter:none}
+ .hero-emblems-caption{margin-bottom:5px;font-size:11px}
+ .hero-tier-list{width:100%;justify-content:space-between;gap:2px}
+ .hero-tier{min-width:0;flex:1;font-size:10px}
+ .hero-tier img{width:clamp(35px,11vw,54px);height:56px}
+ .hero-tier-top{font-size:11px}
+ .hero-tier-top img{width:clamp(43px,13vw,62px);height:66px}
 }
 @media(max-width:360px){
  .hero h1{font-size:28px}
  .hero .overline{font-size:9px}
  .hero-badges>span{padding:5px 7px}
- .hero-emblems img{width:30px;height:30px}
+ .hero-tier-list{gap:0}
+ .hero-tier img{width:38px;height:46px}
+ .hero-tier-top img{width:46px;height:54px}
+ .hero-emblems-caption span{font-size:8px}
 }
