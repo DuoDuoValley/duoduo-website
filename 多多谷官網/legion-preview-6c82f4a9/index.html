@@ -8,13 +8,13 @@
 <meta name="referrer" content="no-referrer">
 <title>多多谷｜戰地拼圖模擬器</title>
 <link rel="stylesheet" href="../styles.css">
-<link rel="stylesheet" href="./styles.css?v=247">
+<link rel="stylesheet" href="./styles.css?v=248">
 <link rel="stylesheet" href="../dd-navigation.css">
 <link rel="stylesheet" href="./legion-site-header.css?v=247">
 <link rel="stylesheet" href="../cursor-ui/cursor.css">
 <script src="./presets.js" defer></script>
 <script src="./legion-roster.js" defer></script>
-<script src="./app.js?v=247" defer></script>
+<script src="./app.js?v=248" defer></script>
 <script src="../dd-nav-data.js"></script>
 <script src="../dd-navigation.js" defer></script>
 <script src="./legion-site-header.js?v=247" defer></script>
@@ -65,7 +65,11 @@
  <div class="workspace">
   <aside class="side panel"><div class="panel-head"><div><span class="kicker">STEP 01</span><h2>選擇拼圖數量</h2><p>12 種 Lv.200／Lv.250 形狀，對應 51 個不同職業；每個職業只算一塊。</p></div></div>
    <div class="summary-card"><div><small>已選拼圖</small><b id="pieceCount">0 / 45</b></div><div><small>可用總格數</small><b id="pieceArea">0</b></div><div><small>目標格數</small><b id="targetCountSidebar">0</b></div></div>
-   <div class="deployment-cap"><div><b>已選角色卡</b><span>最多 45 張</span></div><progress id="deploymentMeter" max="45" value="0" aria-label="已選擇上場拼圖數量"></progress></div><div class="inventory-note">每次開啟所有拼圖均預設 <strong>0 塊</strong>；如有保存配置，可手動載入。每個職業僅能上場一張 SS 或 SSS 角色卡，全部類型合計最多 <strong>45 塊</strong>；達到上限後請先減少其他類型。MAX 也會遵守上限。</div>
+   <div class="deployment-cap" aria-label="角色卡上場進度">
+    <div class="deployment-topline"><div class="deployment-title"><span class="deployment-symbol" aria-hidden="true">✦</span><b>角色卡上場進度</b></div><strong id="deploymentCount">0 <span>/ 45 張</span></strong></div>
+    <progress id="deploymentMeter" max="45" value="0" aria-label="已選擇上場角色卡數量"></progress>
+    <div class="deployment-foot"><span id="deploymentRemaining">還可上場 45 張</span><span>上場上限 45 張</span></div>
+   </div><div class="inventory-note">每次開啟所有拼圖均預設 <strong>0 塊</strong>；如有保存配置，可手動載入。每個職業僅能上場一張 SS 或 SSS 角色卡，全部類型合計最多 <strong>45 塊</strong>；達到上限後請先減少其他類型。MAX 也會遵守上限。</div>
    <div class="shapes" id="shapes" aria-label="51 個職業的 SS／SSS 拼圖庫存"></div>
    <details class="roster-audit"><summary>查看各職業的分類</summary><div id="rosterAudit"></div></details>
    <div class="side-actions"><button class="btn btn-subtle" id="saveBtn" type="button">保存本機配置</button><button class="btn btn-subtle" id="loadBtn" type="button">載入本機配置</button></div><p id="autoSaveStatus" class="auto-save-note" role="status" aria-live="polite">操作會自動保存，更新或重新整理後可繼續</p>
@@ -93,9 +97,9 @@
     </div></div>
   </div>
   <div class="legend"><span><i class="dot empty"></i>未標記</span><span><i class="dot target"></i>目標格</span><span><i class="dot solved"></i>已放置拼圖</span><span><i class="dot piece-outline-dot"></i>職業拼圖外框</span><span class="legend-note">手機可橫向捲動查看棋盤</span></div>
-  <div class="solve-status"><div class="counts"><span>目標 <strong id="targetCount">0</strong> 格</span><span>拼圖 <strong id="totalArea">0</strong> 格</span><span>差額 <strong id="gap">0</strong> 格</span></div><div id="message" class="message" role="status" aria-live="polite">請依角色等級調整職業拼圖，再選擇想填滿的目標格。</div><p id="coverageStatus" class="coverage-status" hidden></p></div>
-
-  <div class="board-actions"><button id="solveBtn" class="btn btn-primary" type="button">✦ 開始自動排版</button><button id="resetSolution" class="btn" type="button">清除計算結果</button><button id="exportPng" class="btn" type="button">下載棋盤配置圖片</button></div>
+  <div class="solve-status"><div class="counts"><span>目標 <strong id="targetCount">0</strong> 格</span><span>拼圖 <strong id="totalArea">0</strong> 格</span><span>差額 <strong id="gap">0</strong> 格</span></div><div id="message" class="message" role="status" aria-live="polite">請依角色等級調整職業拼圖，再選擇想填滿的目標格。</div><p id="coverageStatus" class="coverage-status" hidden></p>
+   <div class="board-actions" role="group" aria-label="拼圖排版操作"><button id="solveBtn" class="btn btn-primary" type="button">✦ 開始自動排版</button><button id="resetSolution" class="btn" type="button">清除計算結果</button><button id="exportPng" class="btn" type="button">下載棋盤配置圖片</button></div>
+  </div>
 
   <section class="smart-rescue" id="smartRescue" hidden aria-label="智慧排法建議">
     <div class="smart-head"><div><span class="kicker">智慧排法</span><h3>✦ 試試其他可行配置</h3><p id="smartExplanation">如果無法一次完成所有目標，可以尋找其他符合連通規則的排法。</p></div><span class="smart-tag">不更動原目標</span></div>

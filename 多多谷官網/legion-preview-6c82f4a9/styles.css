@@ -570,3 +570,72 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
 
 /* Keep the shared site navigation full-width (the board previously reserved a 15px scrollbar gutter). */
 html{scrollbar-gutter:auto}
+
+
+/* V2.48 — refine only the Legion planner controls, without affecting the shared website header. */
+/* The SVG is optically and geometrically centered regardless of browser or system font. */
+.shape-row .counter button[data-delta="1"],
+.shape-row .counter button[data-delta="-1"]{
+ display:inline-flex;align-items:center;justify-content:center;
+ padding:0;line-height:1;vertical-align:middle;flex:0 0 auto;
+}
+.shape-row .counter button[data-delta="1"] .counter-plus-icon{
+ display:block;width:16px;height:16px;flex:none;
+}
+
+/* Gradient deployment meter: occupy the full width of its own status card. */
+.deployment-cap{
+ border:1px solid var(--line);border-radius:13px;
+ background:linear-gradient(118deg,var(--surface-2),var(--surface));
+ padding:13px 14px 12px;margin:0 0 13px;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.07);
+}
+.deployment-topline,.deployment-foot{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+.deployment-topline{margin-bottom:12px;}
+.deployment-title{display:flex;align-items:center;gap:7px;min-width:0;color:var(--ink);}
+.deployment-title b{font-size:13px;font-weight:800;line-height:1.4;}
+.deployment-symbol{color:var(--accent);font-size:17px;line-height:1;}
+.deployment-topline>strong{font-size:19px;line-height:1.2;font-variant-numeric:tabular-nums;color:var(--accent);white-space:nowrap;letter-spacing:.015em;}
+.deployment-topline>strong span{font-size:12px;font-weight:650;color:var(--muted);letter-spacing:0;}
+.deployment-cap progress{
+ appearance:none;-webkit-appearance:none;display:block;
+ height:12px;width:100%;max-width:none;margin:0;padding:0;
+ border:1px solid var(--line);border-radius:999px;
+ background:var(--line);overflow:hidden;
+}
+.deployment-cap progress::-webkit-progress-bar{background:var(--line);border-radius:999px;}
+.deployment-cap progress::-webkit-progress-value{
+ border-radius:999px;background:linear-gradient(90deg,#24c4d8 0%,#1299cb 48%,#5377e6 100%);
+ box-shadow:inset 0 1px 1px rgba(255,255,255,.42);transition:width .2s ease;
+}
+.deployment-cap progress::-moz-progress-bar{
+ border-radius:999px;background:linear-gradient(90deg,#24c4d8 0%,#1299cb 48%,#5377e6 100%);
+}
+.deployment-foot{margin-top:9px;color:var(--muted);font-size:11px;line-height:1.4;}
+.deployment-foot span:first-child{color:var(--accent);font-weight:700;}
+html[data-theme="dark"] .deployment-cap{background:linear-gradient(118deg,#1b3447,var(--surface));}
+html[data-theme="dark"] .deployment-cap progress,
+html[data-theme="dark"] .deployment-cap progress::-webkit-progress-bar{background:#304b60;}
+@media(prefers-reduced-motion:reduce){.deployment-cap progress::-webkit-progress-value{transition:none;}}
+
+/* Keep solution status and its three actions in one cohesive card. */
+.solve-status{padding:14px 15px;border-radius:13px;}
+.solve-status .counts{align-items:center;row-gap:8px;}
+.solve-status .message{line-height:1.65;min-height:1em;}
+.solve-status .board-actions{
+ margin:13px 0 0;padding:13px 0 0;border-top:1px solid var(--line);
+ display:flex;align-items:stretch;justify-content:flex-start;flex-wrap:wrap;gap:9px;
+}
+.solve-status .board-actions .btn{margin:0;min-height:42px;}
+.solve-status .board-actions .btn-primary{flex:0 1 auto;}
+@media(max-width:690px){
+ .solve-status .board-actions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;}
+ .solve-status .board-actions .btn{width:100%;min-width:0;padding:9px 7px;font-size:12px;}
+ .solve-status .board-actions .btn-primary{grid-column:1/-1;}
+}
+@media(max-width:375px){
+ .deployment-cap{padding:11px 10px;}
+ .deployment-title b{font-size:12px;}
+ .deployment-topline>strong{font-size:17px;}
+ .solve-status{padding:12px 10px;}
+}
