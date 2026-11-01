@@ -85,6 +85,7 @@ function restoreInventory(snapshot){
 const VERIFIED_PRESETS=Array.isArray(window.DuoDuoLegionPresets)?window.DuoDuoLegionPresets:[];
 let activePresetId=null,selectedPresetId=VERIFIED_PRESETS[0]?.id||null,inventoryTrimmedOnRestore=false;
 let target=new Set(),solution=null,recommendationPreview=null,smartSuggestions=[],rescueBusy=false,rescueRun=0,strokeAction='add',painting=false,lastPaint=-1,undoStack=[],runToken=0,solving=false,toastTimer=null;
+let paintMode='single'; // single: one tile (drag allowed); region: a whole exact WZ stat region per click
 const cellEls=[];
 const pieceImgCache=new Map();
 function getPieceImg(src){
@@ -193,14 +194,24 @@ function createBoard(){
    cell.addEventListener('pointerdown',e=>{
      if(e.pointerType==='mouse'&&e.button!==0)return;
      e.preventDefault();
-     saveUndo();painting=true;lastPaint=-1;
-     strokeAction=target.has(i)?'erase':'add';
-     paint(i,strokeAction);
+     if(paintMode==='region'){
+       painting=false;lastPaint=-1;
+       toggleRegionAtCell(i);
+     }else{
+       if(priorityBusy||rescueBusy){notify('請等目前的精算完成後再修改目標區域');return}
+       saveUndo();painting=true;lastPaint=-1;
+       strokeAction=target.has(i)?'erase':'add';
+       paint(i,strokeAction);
+     }
    });
-   cell.addEventListener('pointerenter',()=>{if(painting)paint(i,strokeAction)});
+   cell.addEventListener('pointerenter',()=>{if(painting&&paintMode==='single')paint(i,strokeAction)});
    cell.addEventListener('click',e=>{
      // Enter / Space trigger click without a preceding pointerdown.
-     if(e.detail===0){saveUndo();lastPaint=-1;paint(i,target.has(i)?'erase':'add')}
+     if(e.detail===0){
+       if(paintMode==='region')toggleRegionAtCell(i);
+       else if(priorityBusy||rescueBusy)notify('請等目前的精算完成後再修改目標區域');
+       else{saveUndo();lastPaint=-1;paint(i,target.has(i)?'erase':'add')}
+     }
    });
    cellEls.push(cell);f.appendChild(cell);
  }
@@ -249,6 +260,35 @@ function pieceMap(){
  }));
  return cells;
 }
+// Keep each placed job piece separate, even when a neighbouring piece touches it.
+// The same perimeter renderer is used for the live WZ board and PNG export.
+function drawPieceOutlines(ctx,pieces){
+ if(!ctx||!pieces?.length)return;
+ ctx.save();
+ ctx.lineJoin='round';ctx.lineCap='round';
+ for(const piece of pieces){
+   const own=new Set(piece.keys);
+   ctx.beginPath();
+   for(const k of own){
+     const col=k%W,row=Math.floor(k/W),x=58+col*22,y=23+row*22;
+     if(row===0||!own.has(k-W)){ctx.moveTo(x,y);ctx.lineTo(x+22,y)}
+     if(col===W-1||!own.has(k+1)){ctx.moveTo(x+22,y);ctx.lineTo(x+22,y+22)}
+     if(row===H-1||!own.has(k+W)){ctx.moveTo(x+22,y+22);ctx.lineTo(x,y+22)}
+     if(col===0||!own.has(k-1)){ctx.moveTo(x,y+22);ctx.lineTo(x,y)}
+   }
+   // Dark separating edge under a slim gold contour keeps adjacent pieces distinct.
+   ctx.shadowBlur=0;ctx.lineWidth=5;ctx.strokeStyle='rgba(31,23,17,.96)';ctx.stroke();
+   ctx.lineWidth=2.1;ctx.strokeStyle='rgba(255,210,119,.98)';
+   ctx.shadowColor='rgba(255,211,139,.55)';ctx.shadowBlur=2;ctx.stroke();
+ }
+ ctx.restore();
+}
+let pieceOutlineCanvas=null,pieceOutlineContext=null;
+function renderPieceOutlines(){
+ if(!pieceOutlineContext)return;
+ pieceOutlineContext.clearRect(0,0,598,480);
+ drawPieceOutlines(pieceOutlineContext,solution||recommendationPreview);
+}
 function updateCell(i){
  const el=cellEls[i];el.classList.toggle('target',target.has(i));clearPlacedCellVisual(el);
  const stack=pieceMap().get(i);
@@ -262,6 +302,7 @@ function updateBoard(){
    if(stack?.length)decoratePlacedCell(el,stack.at(-1),i,stack.length);
    else clearPlacedCellVisual(el);
  }
+ renderPieceOutlines();
  renderLegionEffects();
  renderSmartCoverage();
 }
@@ -1531,9 +1572,10 @@ async function exportPng(){
      x.fillStyle='#4ce7e755';x.fillRect(col,row,22,22)
    }
  }
+ drawPieceOutlines(x,solution); // The exported plan must show the same per-job contours.
  x.font='bold 12px sans-serif';x.fillStyle='#a4cfde';x.fillText('DuoDuo Valley • V282 正服棋盤 / 模擬配置（非遊戲內數值）',14,503);
  for(const im of document.querySelectorAll('.native-sector .sector-label,.native-stat img')){if(im.complete&&im.naturalWidth){const parent=im.parentElement;const st=$(parent.closest('.native-sector')?'nativeSectors':'nativeCore');const a=im.getBoundingClientRect(),b=st.getBoundingClientRect();const ratio=stageScale||1;const xx=(a.left-b.left)/ratio,yy=(a.top-b.top)/ratio;const ww=a.width/ratio,hh=a.height/ratio;if(xx>=0&&yy>=0)x.drawImage(im,xx,yy,ww,hh)}}
- const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='多多谷_戰地拼圖模擬器_V2.31_棋盤配置.png';document.body.appendChild(a);a.click();a.remove();
+ const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='多多谷_戰地拼圖模擬器_V2.36_棋盤配置.png';document.body.appendChild(a);a.click();a.remove();
 }
 // Every published package carries a precomputed exact-cover proof.
 // Reject bad/incomplete data rather than displaying an inaccurate layout.
@@ -1615,8 +1657,45 @@ function priorityKeyset(ids){
  return cells;
 }
 
-// V2.33: One-click region goal editor. Shares EXACTLY the same WZ geometry
-// and live core-stat swap mapping as the priority solver and board highlighting.
+// V2.36: The two marking modes edit only the blue goal cells, not any solver.
+// Region mode uses the SAME live WZ letter map as hover, smart goals and stats.
+function setPaintMode(mode){
+ if(mode!=='single'&&mode!=='region')return;
+ paintMode=mode;painting=false;lastPaint=-1;
+ for(const button of document.querySelectorAll('[data-paint-mode]')){
+  const selected=button.dataset.paintMode===mode;
+  button.setAttribute('aria-pressed',String(selected));
+ }
+ const label=$('paintModeHelp');
+ if(label)label.textContent=mode==='region'?
+  '區塊模式：點棋盤上任一屬性格，整個屬性區域一次填滿；再次點擊已滿區域即可取消。':
+  '單格模式：點一下填入一格，再點一下擦除；可拖曳連續標記。';
+}
+function editWholeSector(letter,action){
+ if(priorityBusy||rescueBusy){notify('請等目前的精算完成後再修改目標區域');return}
+ if(!letter){notify('無法辨識此格的屬性區域');return}
+ const id=Object.hasOwn(OUTER_REGION_KEYS,letter)?'outer:'+OUTER_REGION_KEYS[letter]:
+  Object.hasOwn(CORE_REGION_KEYS,letter)?'core:'+coreAssignments[CORE_REGION_KEYS[letter]]:null;
+ if(!id)return;
+ const keys=priorityKeyset([id]);
+ if(!keys.size)return;
+ const adding=action==='toggle'?[...keys].some(k=>!target.has(k)):action==='fill';
+ const change=[...keys].filter(k=>target.has(k)!==adding);
+ if(!change.length){updateQuickSectorStatus();return}
+ saveUndo(); // A whole area is ONE undo step, including when it had partial marks.
+ clearSolution(false);
+ for(const k of change){if(adding)target.add(k);else target.delete(k)}
+ priorityPlannerExplicit=false;activePresetId=null;
+ const selector=$('quickSectorSelect');
+ if(selector)selector.value=id;
+ updateBoard();updateStatus();
+ const name=priorityChoices().find(c=>c.id===id)?.label||'屬性區域';
+ message(`${name}：已${adding?'填滿':'取消'}整個區域（${change.length} 格變更）；目前共標記 ${target.size} 格。`);
+}
+function toggleRegionAtCell(i){
+ const letter=REGION_ROWS[Math.floor(i/W)]?.[i%W];
+ editWholeSector(letter,'toggle');
+}
 // This only edits the blue target Set; it never runs or changes any solver.
 function updateQuickSectorStatus(){
  const select=$('quickSectorSelect'),label=$('quickSectorProgress');
@@ -1646,23 +1725,18 @@ function setupQuickSectorPicker(){
  }
  select.append(outer,inner);
  select.addEventListener('change',updateQuickSectorStatus);
- function applyRegionMode(mode){
-  if(priorityBusy||rescueBusy){notify('請等目前的精算完成後再修改目標區域');return}
-  const id=select.value,keys=id?priorityKeyset([id]):new Set();
-  if(!keys.size){notify('請先選擇一個屬性區域');return}
-  const adding=mode==='fill';
-  const change=[...keys].filter(k=>target.has(k)!==adding);
-  if(!change.length){updateQuickSectorStatus();return}
-  saveUndo(); // One complete region = one Undo step.
-  clearSolution(false); // Cancel stale solver/display results before changing goals.
-  for(const k of change){if(adding)target.add(k);else target.delete(k)}
-  priorityPlannerExplicit=false;activePresetId=null;
-  updateBoard();updateStatus();
-  const name=select.options[select.selectedIndex]?.textContent.replace(/（\d+ 格）$/,'')||'屬性';
-  message(`${name}：已${adding?'填滿':'取消'}整個區域（本次${adding?'新增':'移除'} ${change.length} 格）；目前目標合計 ${target.size} 格。`);
- }
- $('quickSectorFill').addEventListener('click',()=>applyRegionMode('fill'));
- $('quickSectorErase').addEventListener('click',()=>applyRegionMode('erase'));
+ $('quickSectorFill').addEventListener('click',()=>{
+  const id=select.value;
+  if(!id){notify('請先選擇一個屬性區域');return}
+  editWholeSector(regionLetterForChoice(id),'fill');
+ });
+ $('quickSectorErase').addEventListener('click',()=>{
+  const id=select.value;
+  if(!id){notify('請先選擇一個屬性區域');return}
+  editWholeSector(regionLetterForChoice(id),'erase');
+ });
+ document.querySelectorAll('[data-paint-mode]').forEach(b=>b.addEventListener('click',()=>setPaintMode(b.dataset.paintMode)));
+ setPaintMode('single');
  updateQuickSectorStatus();
 }
 function setupPriorityPlanner(){
@@ -2026,6 +2100,12 @@ function renderNativeUI(){
  $('nativeStage').appendChild(regionCanvas);
  regionContext=regionCanvas.getContext('2d');
  if(!regionContext)console.warn('此瀏覽器無法使用 Canvas；區域高亮將停用。');
+ pieceOutlineCanvas=document.createElement('canvas');
+ pieceOutlineCanvas.id='pieceOutlineCanvas';pieceOutlineCanvas.className='piece-outline-canvas';
+ pieceOutlineCanvas.width=598;pieceOutlineCanvas.height=480;
+ pieceOutlineCanvas.setAttribute('aria-hidden','true');
+ $('nativeStage').appendChild(pieceOutlineCanvas);
+ pieceOutlineContext=pieceOutlineCanvas.getContext('2d');
  for(const p of OUTER_SECTORS){
    const el=document.createElement('div');el.className='native-sector';el.dataset.sector=p.id;
    Object.assign(el.style,{left:p.gx+'px',top:p.gy+'px',width:p.w+'px',height:p.h+'px'});

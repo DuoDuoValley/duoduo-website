@@ -371,3 +371,16 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
 .shape-group .shape-level-title{font-size:12px;font-weight:800;white-space:nowrap;}
 .shape-group .level-clear-btn{flex:none;min-height:29px;padding:4px 10px;font-size:11px;line-height:1.4;color:var(--accent);background:var(--surface);border-color:var(--line);}
 .shape-group .level-clear-btn:hover{background:var(--accent-soft);border-color:var(--accent);}
+
+/* V2.36: one perimeter per physical job piece; always above sector hover fill. */
+.piece-outline-canvas{position:absolute;inset:0;width:598px;height:480px;z-index:5;pointer-events:none!important;display:block;max-width:none;max-height:none;image-rendering:auto;}
+.native-sectors{z-index:6!important;pointer-events:none!important;}
+.native-core{z-index:7!important;}
+.dot.piece-outline-dot{background:#bd9b6a;border:2px solid #ffe2a1;box-shadow:0 0 0 1px #2c1d11;}
+/* V2.36: target marking modes keep all existing quick-region buttons available. */
+.paint-mode-toolbar{display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.paint-mode-button{border:1px solid var(--line);background:var(--surface);color:var(--muted);border-radius:8px;min-height:34px;padding:6px 12px;font-size:12px;font-weight:750;white-space:nowrap;}
+.paint-mode-button:hover{border-color:var(--accent);color:var(--ink);}
+.paint-mode-button[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);}
+.paint-mode-help{font-size:11px;color:var(--muted);line-height:1.5;flex:1;min-width:170px;}
+@media(max-width:690px){.paint-mode-help{flex-basis:100%;}}
