@@ -6,7 +6,8 @@ const nav=header?.querySelector('nav.dd-main-nav');
 if(!nav||!header)return;
 const inTools=location.pathname.includes('/player-tools/');
 const inJobs=location.pathname.includes('/jobs/');
-const prefix=(inTools||inJobs)?'../':'';
+const inLegion=location.pathname.includes('/legion-preview-6c82f4a9/');
+const prefix=(inTools||inJobs||inLegion)?'../':'';
 const defaultGroups=window.DuoDuoNavDefaults||[];
 // Old published nav data may retain the previous default title. Upgrade only this exact link and label.
 const currentJobsLabel=item=>{
@@ -44,7 +45,7 @@ function applyNavSettings(cfg){
  groups=defaultGroups.map(g=>{
   const section=sections[g.key]||{};
   const storedItems=Array.isArray(section.items)?section.items:g.items.map((x,i)=>({id:g.key+'-'+i,label:x[0],href:x[1],enabled:true}));
-  const items=g.key==='news'&&Array.isArray(section.items)?window.DuoDuoNavEnsureNewsSerial(storedItems,saved.newsSerialAdded):g.key==='guide'&&Array.isArray(section.items)?window.DuoDuoNavEnsureGuideChecklist(storedItems,saved.guideChecklistAdded):storedItems;
+  const items=g.key==='news'&&Array.isArray(section.items)?window.DuoDuoNavEnsureNewsSerial(storedItems,saved.newsSerialAdded):g.key==='guide'&&Array.isArray(section.items)?window.DuoDuoNavEnsureLegion(window.DuoDuoNavEnsureGuideChecklist(storedItems,saved.guideChecklistAdded)):storedItems;
   return {...g,items:items.filter(x=>x&&x.enabled!==false&&cleanHref(x.href))
    .slice(0,20).map(x=>({id:String(x.id||''),label:currentJobsLabel(x).slice(0,50),href:String(x.href)}))};
  }).sort((a,b)=>sorted.indexOf(a.key)-sorted.indexOf(b.key));
@@ -83,7 +84,7 @@ renderColumns();
 header.appendChild(menu);header.classList.add('dd-nav-ready');
 applyNavSettings(readNavSettings());
 // Standalone Jobs and Player Tools also read published settings (not app.js).
-if(inTools||inJobs){
+if(inTools||inJobs||inLegion){
  const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
  let lastPublished='';
  async function loadPublishedNav(){

@@ -1,0 +1,35 @@
+/* 職業圖鑑沿用正式官網 V9 頁首；僅隔離頁首色票，其他職業圖鑑 CSS 不更動。 */
+/* 修正 jobs.css 全域 body 字型覆蓋官網頁首：維持官網原生 Noto Sans TC，職業內容字型不變。 */
+.site-header{font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.7;color:var(--text)}
+.site-header{--bg:#07111f;--bg2:#0b1726;--panel:#0e1c2d;--panel2:#13253a;--text:#f7fbff;--muted:#9cafc2;--muted2:#7f91a5;--accent:#72e6ff;--accent2:#a9f1ff;--gold:#d9a94a;--gold2:#f4d28a;--line:#25384b;--soft:#ffffff08;--header:rgba(7,17,31,.84);--shadow:0 28px 90px rgba(0,0,0,.28)}
+:root[data-theme="light"] .site-header{--bg:#f4f7fa;--bg2:#eaf0f5;--panel:#fff;--panel2:#edf3f7;--text:#172536;--muted:#586b7e;--muted2:#718296;--accent:#079bc0;--accent2:#007fa2;--gold:#e58a18;--gold2:#c96b08;--line:#c9d7e2;--soft:#16324a0d;--header:rgba(244,247,250,.88);--shadow:0 24px 70px rgba(24,46,66,.12)}
+.site-header .brand{gap:10px;font-weight:900;white-space:nowrap;text-decoration:none}
+.site-header .brand img{width:118px;height:62px;max-width:none;object-fit:contain;border-radius:0}
+.site-header .brand span{display:inline;margin-top:0;font-size:12px;font-weight:750;letter-spacing:.06em;color:var(--muted)!important}
+.site-header .header-status{font-size:13px;color:var(--muted)!important;font-weight:750!important}
+.site-header a{text-decoration:none}
+.site-header .theme-toggle{font-family:inherit}
+.site-header.dd-nav-ready nav.dd-main-nav .dd-top-link{box-sizing:border-box}
+@media(max-width:680px){.site-header .brand span{display:none}.site-header .brand img{width:105px;height:48px}}
+/* Legion's independent board CSS must not alter official header geometry. */
+.site-header{width:100%;--text:#f7fbff;--muted:#9cafc2;--muted2:#7f91a5;--accent:#72e6ff;--accent2:#a9f1ff;--gold:#d9a94a;--gold2:#f4d28a;--line:#25384b;--soft:#ffffff08;--header:rgba(7,17,31,.84)}
+:root[data-theme="light"] .site-header{--text:#172536;--muted:#586b7e;--muted2:#718296;--accent:#079bc0;--accent2:#007fa2;--gold:#e58a18;--gold2:#c96b08;--line:#c9d7e2;--soft:#16324a0d;--header:rgba(244,247,250,.88)}
+.site-header .header-actions{display:flex;align-items:center;gap:8px;flex:none}
+.site-header .header-actions .btn{font-family:inherit;line-height:1.7;white-space:nowrap;border-radius:999px;padding:10px 17px;min-height:0;font-size:14px;font-weight:800}
+.site-header .header-actions .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#17120a;border-color:var(--gold2)}
+.site-header .header-actions .btn-discord{background:#5869bf;border-color:#8090dc;color:#fff}
+:root[data-theme="light"] .site-header .header-actions .btn-discord{background:#e9edff;color:#4556a8;border-color:#aeb9ef}
+.site-header .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;line-height:1.7;white-space:nowrap;min-height:0;min-width:0;box-sizing:border-box}
+.site-header .header-status{font-size:13px;line-height:1.7;letter-spacing:.04em}
+@media(max-width:680px){.site-header .header-actions .btn-gold,.site-header .header-actions .btn-discord{display:none}}
+/* Keep light/dark typography metrics absolutely identical at narrow widths.
+   The official stylesheet changes the mobile theme-label font-size by mode;
+   override that ONLY for this page to prevent the reported 8px jump. */
+.site-header.dd-nav-ready .theme-toggle #themeIcon{font-size:16px!important;inline-size:16px!important;flex:0 0 16px!important}
+.site-header.dd-nav-ready .theme-toggle #themeLabel{font-size:13px!important;inline-size:52px!important;min-inline-size:52px!important;flex:0 0 52px!important;line-height:1.7!important}
+.site-header.dd-nav-ready .theme-toggle{width:108px!important;min-width:108px!important;padding:8px 10px!important;justify-content:center!important;gap:7px!important}
+/* Shared website light-theme selectors must not darken text over this image. */
+main.shell .hero .hero-lead,main.shell .hero .hero-sub,main.shell .hero .overline{color:#f1fbff!important;opacity:1!important;text-shadow:0 2px 12px rgba(0,10,20,.7)!important}
+main.shell .hero .hero-lead{font-weight:800!important}
+/* Avoid the official hover-translation being mistaken for a theme-label jump. */
+.site-header.dd-nav-ready .theme-toggle:hover,.site-header.dd-nav-ready .theme-toggle:focus-visible{transform:none!important}
