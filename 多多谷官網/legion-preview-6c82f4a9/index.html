@@ -5,15 +5,15 @@
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
 <title>多多谷｜戰地拼圖模擬器</title>
-<link rel="stylesheet" href="./styles.css?v=237">
+<link rel="stylesheet" href="./styles.css?v=239">
 <script src="./presets.js" defer></script>
 <script src="./legion-roster.js" defer></script>
-<script src="./app.js?v=237" defer></script>
+<script src="./app.js?v=239" defer></script>
 </head>
 <body>
 <header class="site-head"><div class="brand"><img src="./assets/duoduo-logo.png" alt="多多谷 LOGO"><div><b>DuoDuo Valley</b><span>戰地拼圖模擬器</span></div></div><div class="head-actions"><button class="btn btn-ghost" id="themeBtn" type="button" aria-label="切換深淺色">☾ 深色模式</button></div></header>
 <main class="shell">
- <section class="hero"><div class="hero-copy"><div class="overline">DUODUO VALLEY · LEGION PLANNER</div><h1>戰地<span>拼圖</span>模擬器</h1><p>選擇職業拼圖、標記目標屬性，輕鬆規劃你的戰地配置。</p></div><div class="hero-ranks" aria-hidden="true"><img src="./assets/banner/legion-rank-0.png" alt=""><img src="./assets/banner/legion-rank-1.png" alt=""><img src="./assets/banner/legion-rank-2.png" alt=""><img src="./assets/banner/legion-rank-3.png" alt=""><img src="./assets/banner/legion-rank-4.png" alt=""></div></section>
+ <section class="hero"><div class="hero-copy"><div class="overline">ADVENTURERS &amp; LEGENDS</div><h1>戰地拼圖模擬器</h1><p class="hero-lead">職業拼圖、目標屬性與自動排版，一次完成戰地規劃。</p><p class="hero-sub">快速選擇 Lv.200／Lv.250 角色卡，支援單格與區塊模式標記，完成後可直接查看佔領效果並下載棋盤配置圖。</p><div class="hero-badges"><span>12 種拼圖形狀</span><span>51 個職業</span><span>單格／區塊模式</span></div></div><div class="hero-side" aria-label="模擬器重點資訊"><div><strong>22 × 20</strong><small>模擬棋盤格線</small></div><div><strong>45 張上限</strong><small>自動驗證連通規則</small></div><div><strong>智慧排法</strong><small>自動嘗試不同方向</small></div></div></section>
  <div class="warning"><span class="info-icon">i</span><div><b>模擬器規則</b>：一次最多派出 <b>45 張角色卡（45 塊拼圖）</b>，同職業最多一塊，Lv.250 取代 Lv.200，不會額外增加可上場數量。所有放置拼圖需由中央四格的職業圖示起始，沿上下左右連接成整體；選取的不同目標區域會在求解時嘗試補上橋接格。<b>攻擊隊佔領效果依實際不重複的佔領格計算，重疊格不會重複加成。</b>佔領加成僅供規劃參考，請以遊戲實際顯示為準。</div></div>
  <div class="workspace">
   <aside class="side panel"><div class="panel-head"><div><span class="kicker">STEP 01</span><h2>選擇拼圖數量</h2><p>12 種 Lv.200／Lv.250 形狀，對應 51 個不同職業；每個職業只算一塊。</p></div></div>
@@ -25,18 +25,13 @@
   </aside>
   <section class="board-panel panel"><div class="panel-head board-head"><div><span class="kicker">STEP 02</span><h2>戰地拼圖棋盤</h2><p>選擇單格或整區填格，完成排版後每張職業拼圖都會顯示獨立外框；中央八屬性可點擊交換位置。</p></div><div class="toolbar"><button class="btn btn-small" id="undoBtn" type="button">↶ 上一步</button><button class="btn btn-small" id="clearBoard" type="button">清空目標格</button></div></div>
   <div class="sector-quick-fill" role="group" aria-label="一鍵選取完整屬性區域">
-    <div class="sector-quick-heading"><b>✦ 屬性區域填格工具</b><small>切換填格模式，或使用下方按鈕選取指定屬性</small></div>
+    <div class="sector-quick-heading"><b>✦ 屬性區域填格工具</b><small>切換模式，直接點選棋盤標記屬性</small></div>
     <div class="paint-mode-toolbar" role="group" aria-label="選擇棋盤填格模式">
       <button type="button" class="paint-mode-button" data-paint-mode="single" aria-pressed="true">單格模式</button>
       <button type="button" class="paint-mode-button" data-paint-mode="region" aria-pressed="false">區塊模式</button>
       <span id="paintModeHelp" class="paint-mode-help" role="status">單格模式：點一下填入一格，再點一下擦除；可拖曳連續標記。</span>
     </div>
-    <div class="sector-quick-controls">
-      <label for="quickSectorSelect" class="sector-quick-label">選擇屬性 <select id="quickSectorSelect" aria-label="選擇要填滿的屬性區域"><option value="">請選擇屬性區域</option></select></label>
-      <button id="quickSectorFill" class="btn btn-small sector-quick-primary" type="button" disabled>填滿整區</button>
-      <button id="quickSectorErase" class="btn btn-small" type="button" disabled>取消整區</button>
-      <span id="quickSectorProgress" class="sector-quick-progress" role="status" aria-live="polite">外圍每區 40 格／中央每區 15 格</span>
-    </div>
+
   </div>
   <div class="native-note"><span class="native-indicator"></span> 戰地屬性棋盤 <span class="native-note-muted">・選擇單格或整區模式標記想要的屬性</span></div>
   <div class="board-live-effects" id="boardLiveEffects" role="status" aria-live="polite"><b>即時佔領加成</b><span id="boardLiveEffectsValue">完成排版後顯示已佔領的屬性。</span><a href="#legionEffects">查看完整效果</a></div>
@@ -68,7 +63,7 @@
       <div><small>重複佔格</small><strong id="duplicateTiles">0</strong></div>
     </div>
     <div class="occupancy-grid" id="legionOccupationResults" aria-live="polite"><p class="occupancy-empty">尚未排版。請先選擇拼圖與目標格。</p></div>
-    <p class="occupancy-note">每格佔領效果只計算一次；目前「一般傷害」數值待核對，其他數值也以遊戲實際顯示為準。不包含攻擊隊員角色卡效果。</p>
+    <p class="occupancy-note">每格佔領效果只計算一次；「一般傷害」每格 +1%，其餘數值也請以遊戲實際顯示為準。不包含攻擊隊員角色卡效果。</p>
   </section>
   </section>
  </div>

@@ -306,7 +306,7 @@ function updateBoard(){
  renderLegionEffects();
  renderSmartCoverage();
 }
-function updateStatus(){updateQuickSectorStatus();let targetArea=target.size,area=shapeCellCount(),gap=targetArea-area;$('pieceCount').textContent=countPieces()+' / '+MAX_DEPLOYED; const meter=$('deploymentMeter');if(meter)meter.value=countPieces();$('pieceArea').textContent=area;$('targetCountSidebar').textContent=targetArea;$('targetCount').textContent=targetArea;$('totalArea').textContent=area;$('gap').textContent=(gap>0?'+':'')+gap;$('gap').style.color=gap===0?'var(--accent)':'#cf6674';}
+function updateStatus(){let targetArea=target.size,area=shapeCellCount(),gap=targetArea-area;$('pieceCount').textContent=countPieces()+' / '+MAX_DEPLOYED; const meter=$('deploymentMeter');if(meter)meter.value=countPieces();$('pieceArea').textContent=area;$('targetCountSidebar').textContent=targetArea;$('targetCount').textContent=targetArea;$('totalArea').textContent=area;$('gap').textContent=(gap>0?'+':'')+gap;$('gap').style.color=gap===0?'var(--accent)':'#cf6674';}
 function message(text,type=''){const el=$('message');el.textContent=text;el.className='message '+type;}
 function notify(text){const el=$('toast');el.textContent=text;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
 function normalize(cells){let minx=Math.min(...cells.map(a=>a[0])),miny=Math.min(...cells.map(a=>a[1]));return cells.map(([x,y])=>[x-minx,y-miny]).sort((a,b)=>a[1]-b[1]||a[0]-b[0])}
@@ -1616,13 +1616,11 @@ function editWholeSector(letter,action){
  if(!keys.size)return;
  const adding=action==='toggle'?[...keys].some(k=>!target.has(k)):action==='fill';
  const change=[...keys].filter(k=>target.has(k)!==adding);
- if(!change.length){updateQuickSectorStatus();return}
+ if(!change.length)return;
  saveUndo(); // A whole area is ONE undo step, including when it had partial marks.
  clearSolution(false);
  for(const k of change){if(adding)target.add(k);else target.delete(k)}
  priorityPlannerExplicit=false;activePresetId=null;
- const selector=$('quickSectorSelect');
- if(selector)selector.value=id;
  updateBoard();updateStatus();
  const name=priorityChoices().find(c=>c.id===id)?.label||'屬性區域';
  message(`${name}：已${adding?'填滿':'取消'}整個區域（${change.length} 格變更）；目前共標記 ${target.size} 格。`);
@@ -1632,47 +1630,11 @@ function toggleRegionAtCell(i){
  editWholeSector(letter,'toggle');
 }
 // This only edits the blue target Set; it never runs or changes any solver.
-function updateQuickSectorStatus(){
- const select=$('quickSectorSelect'),label=$('quickSectorProgress');
- if(!select||!label)return;
- const value=select.value;
- if(!value){
-  label.textContent='外圍每區 40 格／中央每區 15 格';
-  $('quickSectorFill').disabled=true;$('quickSectorErase').disabled=true;
-  return;
- }
- const keys=priorityKeyset([value]);
- const chosen=[...keys].filter(k=>target.has(k)).length;
- const full=keys.size>0&&chosen===keys.size;
- label.textContent=`已標記 ${chosen} / ${keys.size} 格${full?'・此區已填滿':''}`;
- $('quickSectorFill').disabled=!keys.size||full;
- $('quickSectorErase').disabled=chosen===0;
-}
-function setupQuickSectorPicker(){
- const select=$('quickSectorSelect');
- if(!select)return;
- const outer=document.createElement('optgroup');outer.label='外圍屬性｜每區 40 格';
- const inner=document.createElement('optgroup');inner.label='中央屬性｜每區 15 格';
- for(const item of priorityChoices()){
-  const option=document.createElement('option');
-  option.value=item.id;option.textContent=item.label+(item.id.startsWith('outer:')?'（40 格）':'（15 格）');
-  (item.id.startsWith('outer:')?outer:inner).appendChild(option);
- }
- select.append(outer,inner);
- select.addEventListener('change',updateQuickSectorStatus);
- $('quickSectorFill').addEventListener('click',()=>{
-  const id=select.value;
-  if(!id){notify('請先選擇一個屬性區域');return}
-  editWholeSector(regionLetterForChoice(id),'fill');
+function setupPaintModeButtons(){
+ document.querySelectorAll('[data-paint-mode]').forEach(button=>{
+  button.addEventListener('click',()=>setPaintMode(button.dataset.paintMode));
  });
- $('quickSectorErase').addEventListener('click',()=>{
-  const id=select.value;
-  if(!id){notify('請先選擇一個屬性區域');return}
-  editWholeSector(regionLetterForChoice(id),'erase');
- });
- document.querySelectorAll('[data-paint-mode]').forEach(b=>b.addEventListener('click',()=>setPaintMode(b.dataset.paintMode)));
  setPaintMode('single');
- updateQuickSectorStatus();
 }
 function setupPriorityPlanner(){
  const els=[$('priorityFirst'),$('prioritySecond'),$('priorityThird')];
@@ -1875,7 +1837,6 @@ function swapCoreStat(slot,newName){
    renderLegionEffects();
  }
  updateCoreControls();
-  updateQuickSectorStatus();
 }
 function setupCoreControls(){
  const form=$('coreSelectors');
@@ -1887,7 +1848,7 @@ function setupCoreControls(){
    select.addEventListener('change',()=>swapCoreStat(i,select.value));
    label.append(caption,select);form.appendChild(label);
  });
- $('coreReset').addEventListener('click',()=>{coreAssignments=[...CORE_NAMES];persistCoreAssignments();refreshCoreSprites();updateCoreControls();updateQuickSectorStatus();renderLegionEffects()});
+ $('coreReset').addEventListener('click',()=>{coreAssignments=[...CORE_NAMES];persistCoreAssignments();refreshCoreSprites();updateCoreControls();renderLegionEffects()});
  updateCoreControls();
 }
 // V2.9: The 16 WZ region sprites partition the 22x20 board into 440 unique cells.
@@ -1964,7 +1925,7 @@ function renderLegionEffects(){
   const top=[...totals.entries()].filter(([key,n])=>n>0&&OCCUPATION_REFERENCE[key])
    .sort((a,b)=>b[1]-a[1]).slice(0,3).map(([key,n])=>{
     const ref=OCCUPATION_REFERENCE[key];
-    return ref.label+' '+(key==='一般傷害'?'待核對':formatUnionAmount(n*ref.amount,ref.unit));
+    return ref.label+' '+formatUnionAmount(n*ref.amount,ref.unit);
    });
   live.textContent=top.length?top.join(' · ')+'（共 '+occupied.length+' 格）':'尚無有效佔領格';
  }
@@ -1976,9 +1937,8 @@ function renderLegionEffects(){
   const main=document.createElement('div');main.className='occupancy-item-main';
   const label=document.createElement('span');label.className='occupancy-name';label.textContent=ref.label;
   const count=document.createElement('small');count.textContent=n+' 格';main.append(label,count);
-  const right=document.createElement('strong');right.textContent=name==='一般傷害'?'待核對':formatUnionAmount(n*ref.amount,ref.unit);
-  if(name==='一般傷害')row.title=`本區佔領 ${n} 格；格擋／一般傷害對照尚未核實，暫不顯示數值`;
-  else row.title=`${n} 格 × 每格 ${ref.amount}${ref.unit}`;
+  const right=document.createElement('strong');right.textContent=formatUnionAmount(n*ref.amount,ref.unit);
+  row.title=`${n} 格 × 每格 ${ref.amount}${ref.unit}`;
   row.append(main,right);occupation.appendChild(row);
  }
  if(!occupation.children.length){const p=document.createElement('p');p.className='occupancy-empty';p.textContent='目前沒有可計算的佔領屬性。';occupation.appendChild(p)}
@@ -2118,5 +2078,5 @@ function resizeNativeStage(){
  const holder=$('nativeStageHolder');holder.style.width=(598*wanted)+'px';holder.style.height=(480*wanted)+'px';$('nativeStage').style.setProperty('--stage-scale',String(wanted));
 }
 function bind(){$('clearBoard').addEventListener('click',()=>{saveUndo();target.clear();activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已清空目標格。')});$('undoBtn').addEventListener('click',()=>{if(!undoStack.length){notify('目前沒有可還原的操作');return}target=new Set(undoStack.pop());activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已還原上一次棋盤修改。')});$('solveBtn').addEventListener('click',solve);$('resetSolution').addEventListener('click',()=>clearSolution());$('exportPng').addEventListener('click',exportPng);$('saveBtn').addEventListener('click',save);$('loadBtn').addEventListener('click',()=>{if(restore()){refreshCoreSprites();updateCoreControls();updateBoard();updateStatus();message(inventoryTrimmedOnRestore?'已載入本機配置；超過 45 張的數量已依上限縮減，請重新檢查。':'已載入你之前保存的本機配置。',inventoryTrimmedOnRestore?'error':'')}else notify('尚未找到可載入的本機配置')});$('themeBtn').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';$('themeBtn').textContent=dark?'☀ 淺色模式':'☾ 深色模式';try{localStorage.setItem('duoduo_legion_production_theme_v1',dark?'dark':'light')}catch{}});try{let theme=localStorage.getItem('duoduo_legion_production_theme_v1');if(theme==='dark'){document.documentElement.dataset.theme='dark';$('themeBtn').textContent='☀ 淺色模式'}}catch{}}
-preloadPieceAssets();setupShapes();createBoard();restoreCoreAssignments();renderNativeUI();setupQuickSectorPicker();setupSmartRescue();bind();resizeNativeStage();window.addEventListener('resize',resizeNativeStage);if('ResizeObserver' in window)new ResizeObserver(resizeNativeStage).observe($('boardScroll'));restoreInventory(null);updateBoard();updateStatus();message('所有拼圖數量預設為 0，請按實際 Lv.200／Lv.250 人數設定；如需以前儲存的數量，請主動點選「載入本機配置」。');
+preloadPieceAssets();setupShapes();createBoard();restoreCoreAssignments();renderNativeUI();setupPaintModeButtons();setupSmartRescue();bind();resizeNativeStage();window.addEventListener('resize',resizeNativeStage);if('ResizeObserver' in window)new ResizeObserver(resizeNativeStage).observe($('boardScroll'));restoreInventory(null);updateBoard();updateStatus();message('所有拼圖數量預設為 0，請按實際 Lv.200／Lv.250 人數設定；如需以前儲存的數量，請主動點選「載入本機配置」。');
 })();
