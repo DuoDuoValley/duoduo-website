@@ -1,5 +1,5 @@
 (()=>{'use strict';
-const W=22,H=20,SIZE=W*H,STORE='duoduo_legion_preview_6c82f4a9_inventory',MAX_DEPLOYED=45;
+const W=22,H=20,SIZE=W*H,STORE='duoduo_legion_production_inventory_v1',MAX_DEPLOYED=45;
 const WZ_ROOT='./assets/union/';
 let stageScale=1,selectedStat='',selectedOuter='';
 // V282 shapes, cross-checked against player's SS screenshot. One block per distinct V6.5 job;
@@ -306,17 +306,9 @@ function updateBoard(){
  renderLegionEffects();
  renderSmartCoverage();
 }
-function updateStatus(){updateQuickSectorStatus();let targetArea=target.size,area=shapeCellCount(),gap=targetArea-area;$('pieceCount').textContent=countPieces()+' / '+MAX_DEPLOYED; const meter=$('deploymentMeter');if(meter)meter.value=countPieces();$('pieceArea').textContent=area;$('targetCountSidebar').textContent=targetArea;$('targetCount').textContent=targetArea;$('totalArea').textContent=area;$('gap').textContent=(gap>0?'+':'')+gap;$('gap').style.color=gap===0?'var(--accent)':'#cf6674';updateGame220Assist();}
+function updateStatus(){updateQuickSectorStatus();let targetArea=target.size,area=shapeCellCount(),gap=targetArea-area;$('pieceCount').textContent=countPieces()+' / '+MAX_DEPLOYED; const meter=$('deploymentMeter');if(meter)meter.value=countPieces();$('pieceArea').textContent=area;$('targetCountSidebar').textContent=targetArea;$('targetCount').textContent=targetArea;$('totalArea').textContent=area;$('gap').textContent=(gap>0?'+':'')+gap;$('gap').style.color=gap===0?'var(--accent)':'#cf6674';}
 function message(text,type=''){const el=$('message');el.textContent=text;el.className='message '+type;}
 function notify(text){const el=$('toast');el.textContent=text;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
-function loadSample(){
- // A demonstrative 6×4 target that can be tiled using six existing SS warrior squares.
- // Never invent five Lv.250 characters merely to populate a sample.
- saveUndo();target.clear();
- for(let y=8;y<12;y++)for(let x=8;x<14;x++)target.add(y*W+x);
- clearSolution(false);activePresetId=null;updateBoard();updateStatus();
- message('已建立 6×4、共 24 格教學目標；使用已設定的真實可用拼圖庫存進行求解，不自動增加任何角色。');
-}
 function normalize(cells){let minx=Math.min(...cells.map(a=>a[0])),miny=Math.min(...cells.map(a=>a[1]));return cells.map(([x,y])=>[x-minx,y-miny]).sort((a,b)=>a[1]-b[1]||a[0]-b[0])}
 function orientations(shape){
  const dedup=new Map();
@@ -527,59 +519,6 @@ async function searchConnectedCover(goals,token,budgetMs=6500,allowOverlap=false
   if(cutoff)break;
  }
  return {solution:null,cutoff,required:req.size,nodes,reason:cutoff?'timeout':'none'};
-}
-
-// V2.28: A user-supplied, photographed real-game configuration serves as a
-// reproducible proof fixture. It is NOT a generic solver shortcut: it is only
-// applied to precisely these 220 marked squares and enough *actual* shapes.
-const GAME220_ROWS=["#.....................","##....................","###...................","####..................","#####.................","#####.................","#####.................","#####.................","#####.................","#####.................","######################","######################","######################","######################","######################","###########......#####","###########.......####","###########........###","###########.........##","###########..........#"];
-const GAME220_COUNTS={sss_w:12,sss_a:7,sss_t:7,sss_m:9,sss_p:8,sss_zero:1};
-const GAME220_PIECES=[[1,374,330,352,374,396,418],[0,44,0,22,23,44,45],[3,325,303,324,325,326,347],[3,282,260,281,282,283,304],[3,258,236,257,258,259,280],[1,239,237,238,239,240,241],[2,262,261,262,263,284,306],[1,329,285,307,329,351,373],[3,301,279,300,301,302,323],[4,327,305,327,328,350,372],[0,349,348,349,370,371,393],[0,395,394,395,416,417,439],[2,321,277,299,320,321,322],[3,254,232,253,254,255,276],[2,234,233,234,235,256,278],[3,297,275,296,297,298,319],[4,230,230,231,250,251,252],[4,249,227,228,229,248,249],[1,272,270,271,272,273,274],[3,317,295,316,317,318,339],[1,384,340,362,384,406,428],[3,360,338,359,360,361,382],[2,405,383,403,404,405,427],[1,424,422,423,424,425,426],[2,293,292,293,294,315,337],[1,375,331,353,375,397,419],[4,421,399,400,401,420,421],[2,376,354,376,377,378,398],[3,380,358,379,380,381,402],[0,90,46,67,68,89,90],[4,111,66,88,110,111,133],[0,113,69,91,92,113,114],[0,176,132,154,155,176,177],[0,156,112,134,135,156,157],[4,179,136,158,179,180,201],[0,222,178,199,200,221,222],[4,243,198,220,242,243,265],[0,308,264,286,287,308,309],[5,247,225,226,247,268,269],[0,246,202,223,224,245,246],[0,288,244,266,267,288,289],[2,312,290,310,311,312,334],[0,335,291,313,314,335,336],[4,333,332,333,355,356,357]];
-function isGame220Target(goals){
- if(goals.size!==220)return false;
- for(let y=0;y<H;y++)for(let x=0;x<W;x++){
-  if(goals.has(y*W+x)!==(GAME220_ROWS[y][x]==='#'))return false;
- }
- return true;
-}
-function canUseGame220Pieces(){
- return Object.entries(GAME220_COUNTS).every(([id,count])=>counts[id]>=count);
-}
-function buildGame220Layout(){
- const pieces=GAME220_PIECES.map(([t,iconKey,...keys])=>{
-  const s=SHAPES[t+6];return {t:t+6,id:s.id,keys,iconKey,
-   color:s.color,name:s.name,icon:s.icon,group:s.group};
- });
- if(pieces.length!==44||new Set(pieces.flatMap(p=>p.keys)).size!==220||
-    !validConnectedLayout(pieces,new Set(GAME220_ROWS.flatMap((r,y)=>[...r].flatMap((c,x)=>c==='#'?[y*W+x]:[]))))){
-  console.error('Player example layout failed the built-in validity check');
-  return null;
- }
- return pieces;
-}
-function updateGame220Assist(){
- const button=$('game220Assist');if(!button)return;
- button.hidden=!isGame220Target(target);
- if(!button.hidden){
-  button.textContent=canUseGame220Pieces()
-   ?'✓ 套用已驗證的玩家 220 格排法'
-   :'↗ 對照玩家實例：弓箭手 7／盜賊 7，並套用 220 格排法';
- }
-}
-function applyGame220Example(){
- if(!isGame220Target(target))return;
- const changed=!canUseGame220Pieces();
- if(changed){
-  // An explicit user click authorizes changing quantities; never change them
-  // behind the scenes when pressing the normal auto-layout button.
-  restoreInventory(GAME220_COUNTS);
-  activePresetId=null;
- }
- clearSolution(false);
- const pieces=buildGame220Layout();
- if(!pieces){message('玩家實例資料驗證失敗，原目標保持不變。','error');return;}
- solution=pieces;updateBoard();updateStatus();
- message(`${changed?'已依玩家遊戲圖校正職業形狀數量，並':''}成功套用已驗證的 220 格玩家配置：44 張 Lv.250 角色卡、220/220 格、零重疊、全體相連。此配置由玩家截圖還原，並非一般求解器保證所有目標都能求解。`,'success');
 }
 
 function renderSmartCoverage(){
@@ -1354,8 +1293,8 @@ async function generateSmartSuggestions(){
    $('smartNote').textContent=result.reason==='no-target'
     ?'請先標記想要佔領的藍色目標格。'
     :result.reason==='worker-error'
-    ?`精確求解器啟動失敗（${result.workerError}），這是瀏覽器執行問題，不能當成拼圖無解，也不會用零散排法冒充成功。`
-    :`本次沒有找到品質足夠的智慧建議（限時搜尋，不代表無解）。${result.weak?`最高僅覆蓋 ${result.weak.matched}/${target.size} 格，尚有大片缺口，因此不把它當成推薦方案。`:''}這表示仍有演算法限制，不是已證明無解。`;
+    ?`自動排版暫時無法啟動，請重新整理頁面再試；若持續發生，請聯絡官方。此情況不代表拼圖無解。`
+    :`這次尚未找到合適的替代排法（搜尋有時間上限，不代表無解）。${result.weak?`最高僅覆蓋 ${result.weak.matched}/${target.size} 格，尚有大片缺口，因此不把它當成推薦方案。`:''}可調整目標屬性或拼圖數量後再試。`;
    return;
   }
   renderSmartOptions();
@@ -1488,25 +1427,22 @@ async function solve(){
  const n=target.size;if(!n){message('請先在棋盤標示希望填滿的目標格。','error');return}
  if(!countPieces()){message('請先選擇拼圖數量。','error');return}
  if(countPieces()>MAX_DEPLOYED){message('最多同時上場 45 塊拼圖，請先調整數量。','error');return}
- // Use the independent WASM regional solver before the V2.28 example fallback.
+ // Prefer the independent WASM regional solver for compatible exact-cover layouts.
  // It is exact (no overlap) and never changes the player's chosen inventory.
  const regionalInput=prepareRegionalSolver(target);
  if(regionalInput){
    const token=++runToken;solving=true;$('solveBtn').textContent='停止計算';
-   message('正在由獨立求解器計算合法排列（不使用玩家預存答案）…');
+   message('正在尋找符合規則的完整排列…');
    try{
      const computed=await runRegionalSolver(regionalInput,token);
      if(token!==runToken)return;
      if(computed){
        solution=computed;updateBoard();updateStatus();
-       message(`獨立求解成功：${computed.length} 張角色卡、完整覆蓋 ${target.size}/${target.size} 格；中央起點、連通與零重疊均已驗證。`,'success');return;
+       message(`排版完成：${computed.length} 張角色卡、完整覆蓋 ${target.size}/${target.size} 格；中央起點、連通與零重疊均已驗證。`,'success');return;
      }
    }catch(e){console.warn('Regional exact solver fallback:',e)}
    finally{if(token===runToken){solving=false;$('solveBtn').textContent='✦ 開始自動排版'}}
  }
- // Never silently substitute the saved player demonstration for a failed
- // independent search. The reference layout remains available only by an
- // explicit click on '套用已驗證的玩家 220 格排法'.
  const token=++runToken;solving=true;$('solveBtn').textContent='停止計算';$('solveBtn').disabled=false;
  const capacity=shapeCellCount();
  if(capacity===n&&(!isConnected(target)||!CENTER_KEYS.some(k=>target.has(k)))){
@@ -1543,8 +1479,7 @@ async function solve(){
    message(`未找到合法相連配置（中心起點＋拼圖連接）。${result.reason==='pieces'?`連接後需要覆蓋 ${result.required} 格，現有拼圖格數不足。`:'可試著增加拼圖數量或調整目標。'}`,'error');
   }
   if(token===runToken&&!solution && regionalInput){
-   const detail=regionalLastError?'（技術診斷：'+regionalLastError+'）':'';
-   message('獨立求解器尚未交出完整排法'+detail+'；此不代表無解。請確認已上傳最新版 Worker，並回報這段診斷。','error');
+   message('目前無法完成完整排列，可能已達計算上限；請嘗試調整目標或稍後重試。若持續發生，請聯絡官方協助。','error');
   }
   if(token===runToken&&!solution)showSmartRescue(result.cutoff?'精確求解達到搜尋上限：這不代表無解。你可以讓系統以高覆蓋率為目標，產生可驗證的替代排法。':'未找到完整覆蓋所有目標格的合法排列。系統可以嘗試保留目標、補上中央連接，並推薦可套用的替代排列。');
  }catch(e){console.error(e);message('連通排列計算發生錯誤，請重新嘗試。','error')}
@@ -1573,9 +1508,9 @@ async function exportPng(){
    }
  }
  drawPieceOutlines(x,solution); // The exported plan must show the same per-job contours.
- x.font='bold 12px sans-serif';x.fillStyle='#a4cfde';x.fillText('DuoDuo Valley • V282 正服棋盤 / 模擬配置（非遊戲內數值）',14,503);
+ x.font='bold 12px sans-serif';x.fillStyle='#a4cfde';x.fillText('DuoDuo Valley • 戰地拼圖配置（加成請以遊戲內顯示為準）',14,503);
  for(const im of document.querySelectorAll('.native-sector .sector-label,.native-stat img')){if(im.complete&&im.naturalWidth){const parent=im.parentElement;const st=$(parent.closest('.native-sector')?'nativeSectors':'nativeCore');const a=im.getBoundingClientRect(),b=st.getBoundingClientRect();const ratio=stageScale||1;const xx=(a.left-b.left)/ratio,yy=(a.top-b.top)/ratio;const ww=a.width/ratio,hh=a.height/ratio;if(xx>=0&&yy>=0)x.drawImage(im,xx,yy,ww,hh)}}
- const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='多多谷_戰地拼圖模擬器_V2.36_棋盤配置.png';document.body.appendChild(a);a.click();a.remove();
+ const a=document.createElement('a');a.href=c.toDataURL('image/png');a.download='多多谷_戰地拼圖配置.png';document.body.appendChild(a);a.click();a.remove();
 }
 // Every published package carries a precomputed exact-cover proof.
 // Reject bad/incomplete data rather than displaying an inaccurate layout.
@@ -1823,7 +1758,7 @@ async function searchPriorityExact(wanted,token,budgetMs){
 function setupLegionPresets(){
  const choices=$('presetChoices'),details=$('presetDetails'),button=$('applyLegionPreset');
  if(!choices||!details||!button)return;
- if(!AVAILABLE_PRESETS.length){details.textContent='原有的雙區套餐未通過 V2.22 中央起點與整體連通驗證，暫不提供套用；請使用上方依優先順序自動配置。';button.disabled=true;return}
+ if(!AVAILABLE_PRESETS.length){details.textContent='目前沒有符合中央起點與連通規則的預設套餐；可改用依優先順序的自動配置。';button.disabled=true;return}
  selectedPresetId=AVAILABLE_PRESETS[0].id;
  function showPreset(){
    const preset=AVAILABLE_PRESETS.find(p=>p.id===selectedPresetId);
@@ -1884,7 +1819,7 @@ const CORE_STATS=[
 // Central positions are immutable WZ geometry; these assignments only change which label occupies each position.
 // A change always SWAPS two assignments, never duplicates or loses a stat.
 const CORE_NAMES=CORE_STATS.map(s=>s.name);
-const CORE_STORAGE='duoduo_legion_preview_6c82f4a9_core';
+const CORE_STORAGE='duoduo_legion_production_core_v1';
 const CORE_SLOT_LABELS=['左上','右上','中上左','中上右','中下左','中下右','左下','右下'];
 let coreAssignments=[...CORE_NAMES];
 function isValidAssignment(arr){return Array.isArray(arr)&&arr.length===8&&new Set(arr).size===8&&arr.every(n=>CORE_NAMES.includes(n))}
@@ -2182,6 +2117,6 @@ function resizeNativeStage(){
  stageScale=wanted;
  const holder=$('nativeStageHolder');holder.style.width=(598*wanted)+'px';holder.style.height=(480*wanted)+'px';$('nativeStage').style.setProperty('--stage-scale',String(wanted));
 }
-function bind(){$('clearBoard').addEventListener('click',()=>{saveUndo();target.clear();activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已清空目標格。')});$('undoBtn').addEventListener('click',()=>{if(!undoStack.length){notify('目前沒有可還原的操作');return}target=new Set(undoStack.pop());activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已還原上一次棋盤修改。')});$('solveBtn').addEventListener('click',solve);$('game220Assist').addEventListener('click',applyGame220Example);$('resetSolution').addEventListener('click',()=>clearSolution());$('exportPng').addEventListener('click',exportPng);$('saveBtn').addEventListener('click',save);$('loadBtn').addEventListener('click',()=>{if(restore()){refreshCoreSprites();updateCoreControls();updateBoard();updateStatus();message(inventoryTrimmedOnRestore?'已載入本機配置；超過 45 張的數量已依上限縮減，請重新檢查。':'已載入你之前保存的本機配置。',inventoryTrimmedOnRestore?'error':'')}else notify('尚未找到可載入的本機配置')});$('themeBtn').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';$('themeBtn').textContent=dark?'☀ 淺色模式':'☾ 深色模式';try{localStorage.setItem('duoduo_legion_preview_6c82f4a9_theme',dark?'dark':'light')}catch{}});try{let theme=localStorage.getItem('duoduo_legion_preview_6c82f4a9_theme');if(theme==='dark'){document.documentElement.dataset.theme='dark';$('themeBtn').textContent='☀ 淺色模式'}}catch{}}
+function bind(){$('clearBoard').addEventListener('click',()=>{saveUndo();target.clear();activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已清空目標格。')});$('undoBtn').addEventListener('click',()=>{if(!undoStack.length){notify('目前沒有可還原的操作');return}target=new Set(undoStack.pop());activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已還原上一次棋盤修改。')});$('solveBtn').addEventListener('click',solve);$('resetSolution').addEventListener('click',()=>clearSolution());$('exportPng').addEventListener('click',exportPng);$('saveBtn').addEventListener('click',save);$('loadBtn').addEventListener('click',()=>{if(restore()){refreshCoreSprites();updateCoreControls();updateBoard();updateStatus();message(inventoryTrimmedOnRestore?'已載入本機配置；超過 45 張的數量已依上限縮減，請重新檢查。':'已載入你之前保存的本機配置。',inventoryTrimmedOnRestore?'error':'')}else notify('尚未找到可載入的本機配置')});$('themeBtn').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';$('themeBtn').textContent=dark?'☀ 淺色模式':'☾ 深色模式';try{localStorage.setItem('duoduo_legion_production_theme_v1',dark?'dark':'light')}catch{}});try{let theme=localStorage.getItem('duoduo_legion_production_theme_v1');if(theme==='dark'){document.documentElement.dataset.theme='dark';$('themeBtn').textContent='☀ 淺色模式'}}catch{}}
 preloadPieceAssets();setupShapes();createBoard();restoreCoreAssignments();renderNativeUI();setupQuickSectorPicker();setupSmartRescue();bind();resizeNativeStage();window.addEventListener('resize',resizeNativeStage);if('ResizeObserver' in window)new ResizeObserver(resizeNativeStage).observe($('boardScroll'));restoreInventory(null);updateBoard();updateStatus();message('所有拼圖數量預設為 0，請按實際 Lv.200／Lv.250 人數設定；如需以前儲存的數量，請主動點選「載入本機配置」。');
 })();

@@ -384,3 +384,15 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
 .paint-mode-button[aria-pressed="true"]{background:var(--accent-soft);color:var(--ink);border-color:var(--accent);box-shadow:inset 0 0 0 1px var(--accent);}
 .paint-mode-help{font-size:11px;color:var(--muted);line-height:1.5;flex:1;min-width:170px;}
 @media(max-width:690px){.paint-mode-help{flex-basis:100%;}}
+
+/* Official release banner. Original user-provided MapleStory character image + rank emblems. */
+.hero{min-height:186px;isolation:isolate;background-image:linear-gradient(90deg,rgba(7,27,41,.98) 0%,rgba(10,37,51,.94) 29%,rgba(10,34,49,.57) 55%,rgba(7,29,38,.35) 100%),url('./assets/banner/legion-hero.png');background-position:center,center 49%;background-size:cover,cover;background-repeat:no-repeat;padding:28px clamp(22px,3vw,45px);box-shadow:var(--shadow)}
+.hero:after{display:none}
+.hero-copy{position:relative;z-index:1;max-width:min(590px,69%)}
+.hero h1{line-height:1.25;text-shadow:0 2px 12px rgba(2,15,20,.5)}
+.hero h1 span{color:#62e6d1}
+.hero p{color:#e0f7f7;text-shadow:0 1px 8px rgba(1,15,23,.7);max-width:480px}
+.hero-ranks{position:absolute;z-index:1;bottom:12px;right:20px;display:flex;align-items:center;gap:2px;padding:4px 8px;background:rgba(5,31,42,.44);border:1px solid rgba(190,246,231,.24);border-radius:14px;box-shadow:0 4px 24px rgba(0,10,16,.23);pointer-events:none}
+.hero-ranks img{width:40px;height:39px;object-fit:contain;filter:drop-shadow(0 2px 2px rgba(0,0,0,.3))}
+@media(max-width:690px){.hero{min-height:168px;padding:22px 19px;background-position:center,57% center;background-image:linear-gradient(90deg,rgba(6,29,40,.98) 0%,rgba(7,33,44,.88) 62%,rgba(7,28,38,.58) 100%),url('./assets/banner/legion-hero.png')}.hero-copy{max-width:100%}.hero h1{font-size:clamp(27px,7vw,38px)}.hero p{max-width:260px;font-size:12px}.hero-ranks{right:9px;bottom:8px;gap:0;padding:3px 5px;border-radius:9px}.hero-ranks img{width:25px;height:25px}}
+@media(max-width:390px){.hero{min-height:182px}.hero-ranks img{width:22px;height:22px}.hero .overline{font-size:9px;letter-spacing:.1em}}
