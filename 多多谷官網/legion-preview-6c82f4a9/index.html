@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="color-scheme" content="light dark">
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
+<meta name="googlebot" content="noindex, nofollow, noarchive, noimageindex">
+<meta name="referrer" content="no-referrer">
+<title>多多谷｜戰地拼圖模擬器 V2.34｜玩家限定測試頁</title>
+<link rel="stylesheet" href="./styles.css?v=233">
+<script src="./presets.js" defer></script>
+<script src="./legion-roster.js" defer></script>
+<script src="./app.js?v=234" defer></script>
+</head>
+<body>
+<header class="site-head"><div class="brand"><img src="./assets/duoduo-logo.png" alt="多多谷 LOGO"><div><b>DuoDuo Valley</b><span>戰地拼圖模擬器・V2.34 玩家測試版</span></div></div><div class="head-actions"><span class="test-pill">V2.34｜玩家測試版</span><button class="btn btn-ghost" id="themeBtn" type="button" aria-label="切換深淺色">☾ 深色模式</button></div></header>
+<main class="shell">
+ <section class="hero"><div><div class="overline">LEGION BOARD PLANNER</div><h1>戰地<span>拼圖</span>模擬器</h1><p>緊湊選擇拼圖數量、自由交換中央八屬性位置，並在正服棋盤上計算排列。</p></div><div class="hero-side"><div><strong>22 × 20</strong><small>棋盤格線</small></div><div><strong>旋轉 / 水平垂直翻轉</strong><small>自動嘗試不同方向</small></div></div></section>
+ <div class="warning"><span class="info-icon">i</span><div><b>模擬器規則</b>：一次最多派出 <b>45 張角色卡（45 塊拼圖）</b>，同職業最多一塊，Lv.250 取代 Lv.200，不會額外增加可上場數量。所有放置拼圖需由中央四格的職業圖示起始，沿上下左右連接成整體；選取的不同目標區域會在求解時嘗試補上橋接格。<b>攻擊隊佔領效果依實際不重複的佔領格計算，重疊格不會重複加成。</b>數值為模擬參考，未核實的項目會標明。</div></div>
+ <div class="workspace">
+  <aside class="side panel"><div class="panel-head"><div><span class="kicker">STEP 01</span><h2>選擇拼圖數量</h2><p>12 種 Lv.200／Lv.250 形狀，對應 51 個不同職業；每個職業只算一塊。</p></div><button id="clearPieces" class="btn btn-small" type="button">全部清零</button></div>
+   <div class="summary-card"><div><small>已選拼圖</small><b id="pieceCount">0 / 45</b></div><div><small>可用總格數</small><b id="pieceArea">0</b></div><div><small>目標格數</small><b id="targetCountSidebar">0</b></div></div>
+   <div class="deployment-cap"><div><b>已選角色卡</b><span>最多 45 張</span></div><progress id="deploymentMeter" max="45" value="0" aria-label="已選擇上場拼圖數量"></progress></div><div class="inventory-note">每次開啟所有拼圖均預設 <strong>0 塊</strong>；如有保存配置，可手動載入。每個職業僅能上場一張 SS 或 SSS 角色卡，全部類型合計最多 <strong>45 塊</strong>；達到上限後請先減少其他類型。MAX 也會遵守上限。</div>
+   <div class="shapes" id="shapes" aria-label="51 個職業的 SS／SSS 拼圖庫存"></div>
+   <details class="roster-audit"><summary>查看 51 個職業的分類依據</summary><div id="rosterAudit"></div></details>
+   <div class="side-actions"><button class="btn btn-subtle" id="sampleBtn" type="button">載入 24 格範例目標</button><button class="btn btn-subtle" id="saveBtn" type="button">保存本機配置</button><button class="btn btn-subtle" id="loadBtn" type="button">載入本機配置</button></div>
+  </aside>
+  <section class="board-panel panel"><div class="panel-head board-head"><div><span class="kicker">STEP 02</span><h2>戰地拼圖棋盤</h2><p>標記目標格並自動排列（會自動連接中央與分離目標）；中央八屬性可直接點擊交換位置，也可使用下方設定。階梯形高亮仍依滑鼠位置顯示。</p></div><div class="toolbar"><button class="btn btn-small" id="undoBtn" type="button">↶ 上一步</button><button class="btn btn-small" id="clearBoard" type="button">清除棋盤</button></div></div>
+  <div class="toolbar controls">
+   <span class="brush-help">點格子填入，再點一次擦除；拖曳可連續操作。</span>
+   <div class="control-right"><button id="clearTargetQuick" class="btn btn-small" type="button">清空目標格</button></div>
+  </div>
+  <div class="sector-quick-fill" role="group" aria-label="一鍵選取完整屬性區域">
+    <div class="sector-quick-heading"><b>✦ 一鍵填滿屬性區域</b><small>選擇區域後，一次填滿或取消整區；仍可手動逐格微調</small></div>
+    <div class="sector-quick-controls">
+      <label for="quickSectorSelect" class="sector-quick-label">選擇屬性 <select id="quickSectorSelect" aria-label="選擇要填滿的屬性區域"><option value="">請選擇屬性區域</option></select></label>
+      <button id="quickSectorFill" class="btn btn-small sector-quick-primary" type="button" disabled>填滿整區</button>
+      <button id="quickSectorErase" class="btn btn-small" type="button" disabled>取消整區</button>
+      <span id="quickSectorProgress" class="sector-quick-progress" role="status" aria-live="polite">外圍每區 40 格／中央每區 15 格</span>
+    </div>
+  </div>
+  <details class="legion-presets" id="legionPresets">
+    <summary><span><b>屬性優先配置與精算套餐</b><small>依第一／第二／第三優先自動尋找可行排列</small></span><span class="legion-presets-hint">展開配置 <span aria-hidden="true">⌄</span></span></summary>
+    <div class="legion-presets-content">
+      <div class="priority-planner" id="priorityPlanner">
+        <div class="priority-header"><b>自訂屬性優先順序</b><small>從中央相連地完整覆蓋選中區域；不確定時不宣稱無解</small></div>
+        <div class="priority-grid">
+          <label>第一優先<select id="priorityFirst" aria-label="第一優先屬性"></select></label>
+          <label>第二優先<select id="prioritySecond" aria-label="第二優先屬性"></select></label>
+          <label>第三優先<select id="priorityThird" aria-label="第三優先屬性"></select></label>
+        </div>
+        <div class="priority-actions"><button class="btn btn-primary" id="prioritySolve" type="button">依優先順序自動配置</button><span id="priorityStatus" aria-live="polite">使用目前 Lv.200／Lv.250 庫存，不會自行增加角色</span></div>
+      </div>
+      <div class="preset-divider"><span>或使用既有幾何驗證套餐</span></div>
+      <div class="preset-choice-row" id="presetChoices" role="group" aria-label="選擇戰地配置套餐"></div>
+      <div id="presetDetails" class="preset-details" aria-live="polite"></div>
+      <div class="preset-actions"><button id="applyLegionPreset" class="btn btn-primary" type="button">套用已驗證配置</button><span>僅使用目前可用的 Lv.200／Lv.250 職業庫存；不會自行增加拼圖。</span></div>
+    </div>
+  </details>
+  <div class="native-note"><span class="native-indicator"></span> V282 正服棋盤（已裁切非必要 UI） <span class="native-note-muted">・440 格 Canvas 高亮以同一份座標表精準描繪，佔領加成已依有效格數計算</span></div>
+  <div class="board-live-effects" id="boardLiveEffects" role="status" aria-live="polite"><b>即時佔領加成</b><span id="boardLiveEffectsValue">完成排版後顯示已佔領的屬性。</span><a href="#legionEffects">查看完整效果</a></div>
+  <div class="board-scroll native-board-scroll" id="boardScroll" tabindex="0" aria-label="戰地棋盤，窄螢幕可水平捲動">
+    <div class="native-stage-holder" id="nativeStageHolder"><div class="native-stage" id="nativeStage">
+      <img class="native-background" id="nativeBoardImage" src="./assets/union/attackSetting__boardOnly.png" width="598" height="480" alt="V282 戰地配置棋盤（裁切版）" draggable="false">
+      <div class="native-cells board" id="board" role="grid" aria-label="戰地拼圖規劃棋盤"></div>
+      <div class="native-sectors" id="nativeSectors" aria-label="原始戰地屬性標籤"></div>
+      <div class="native-core" id="nativeCore" aria-label="中央能力區"></div>
+      
+    </div></div>
+  </div>
+  <div class="legend"><span><i class="dot empty"></i>未標記</span><span><i class="dot target"></i>目標格</span><span><i class="dot solved"></i>已放置拼圖</span><span class="legend-note">手機可橫向捲動查看棋盤</span></div>
+  <details class="core-config" id="coreConfig">
+   <summary><span><b>中央八屬性位置調整</b><small id="coreStatus">使用正服預設位置</small></span><span class="core-config-hint">展開設定 <span aria-hidden="true">⌄</span></span></summary>
+   <div class="core-config-content"><p>選擇新屬性時，會與原位置的屬性自動交換。棋盤標籤會即時更新，階梯形高亮範圍維持原本位置。</p>
+    <div class="core-selector-grid" id="coreSelectors"></div>
+    <div class="core-config-bottom"><button class="btn btn-small" id="coreReset" type="button">恢復正服預設</button><span>點擊棋盤中央屬性也能直接交換；位置會儲存在這台裝置</span></div>
+   </div>
+  </details>
+  <div class="solve-status"><div class="counts"><span>目標 <strong id="targetCount">0</strong> 格</span><span>拼圖 <strong id="totalArea">0</strong> 格</span><span>差額 <strong id="gap">0</strong> 格</span></div><div id="message" class="message" role="status" aria-live="polite">請依角色等級調整職業拼圖，再選擇想填滿的目標格。</div><p id="coverageStatus" class="coverage-status" hidden></p></div>
+
+  <div class="board-actions"><button id="solveBtn" class="btn btn-primary" type="button">✦ 開始自動排版</button><button id="game220Assist" class="btn" type="button" hidden>對照玩家實例配置</button><button id="resetSolution" class="btn" type="button">清除計算結果</button><button id="exportPng" class="btn" type="button">下載棋盤配置圖片</button></div>
+
+  <section class="smart-rescue" id="smartRescue" hidden aria-label="智慧排法建議">
+    <div class="smart-head"><div><span class="kicker">SMART LEGION RESCUE</span><h3>✦ 連通精確覆蓋建議</h3><p id="smartExplanation">從中央連接與藍色目標一起回溯搜尋；僅提供完成指定區域、通過驗證的排法。</p></div><span class="smart-tag">不更動原目標</span></div>
+    <div class="smart-options" id="smartOptions"></div>
+    <p class="smart-note" id="smartNote">優先完整覆蓋指定屬性，連接中央同時求解；限時搜尋不代表全域最優或無解證明。</p>
+    <div class="smart-actions"><button class="btn btn-primary" id="smartGenerate" type="button">✦ 產生智慧排法</button><button class="btn" id="smartApply" type="button" disabled>套用預覽排法</button><button class="btn btn-small" id="smartDismiss" type="button">取消建議</button></div>
+  </section>
+  <section class="effects-panel occupancy-panel" id="legionEffects" aria-label="攻擊隊佔領效果">
+    <header class="effects-head"><div><span class="kicker">OCCUPIED TILE BONUSES</span><h2>攻擊隊佔領效果</h2><p id="legionEffectsSummary">完成排列後，自動依有效佔領格計算加成。</p></div><span class="occupancy-head-tag">僅計算已佔領格</span></header>
+    <div class="occupancy-stats">
+      <div><small>已上場拼圖</small><strong id="deployedTiles">0 / 45</strong></div>
+      <div><small>有效佔領格</small><strong id="occupiedTiles">0</strong></div>
+      <div><small>重複佔格</small><strong id="duplicateTiles">0</strong></div>
+    </div>
+    <div class="occupancy-grid" id="legionOccupationResults" aria-live="polite"><p class="occupancy-empty">尚未排版。請先選擇拼圖與目標格。</p></div>
+    <p class="occupancy-note">依實際不重複格數計算，每格只計算一次；屬性數值為模擬參考，「一般傷害」區因資料尚未核實會顯示待核對。不包含攻擊隊員角色卡效果。</p>
+  </section>
+  </section>
+ </div>
+ <section class="info-panel panel"><div><span class="kicker">使用方式</span><h2>戰地拼圖・45 張上場規則</h2></div><div class="help-grid"><div><b>01　選拼圖</b><p>在左側調整各職業群的 Lv.200／Lv.250 數量；同時上場最多 45 張角色卡，達上限時需先減少其他拼圖。</p></div><div><b>02　標目標格</b><p>點擊或拖曳棋盤設定目標區；可一鍵清空目標，若目標斷開，求解時會自動用拼圖接到中央四格。</p></div><div><b>03　自動解答</b><p>自動排版會驗證中央起點、整體連通、使用的角色數不得超過 45；完成後顯示攻擊隊佔領效果並可下載圖片。</p></div></div><p class="footnote">使用者提供 V282 WZ 圖像僅作為 UI 視覺素材；屬性位置與高亮為展示用途，不自動替代遊戲真實解鎖或加成。模擬器僅供拼圖規劃。不涉及角色資料連線，也不會修改遊戲內容。手動自動求解仍採有限次數搜尋，找不到結果不代表絕對無解；智慧精算會把指定整區與中央連接路徑納入同一輪回溯搜尋；有搜尋上限，不是全域最優證明。套餐為特定數量的幾何精確排版，不保證每位玩家的角色清單皆符合。</p></section>
+</main>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+</body></html>
