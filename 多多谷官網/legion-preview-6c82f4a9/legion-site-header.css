@@ -1,35 +1,48 @@
-/* 職業圖鑑沿用正式官網 V9 頁首；僅隔離頁首色票，其他職業圖鑑 CSS 不更動。 */
-/* 修正 jobs.css 全域 body 字型覆蓋官網頁首：維持官網原生 Noto Sans TC，職業內容字型不變。 */
-.site-header{font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.7;color:var(--text)}
-.site-header{--bg:#07111f;--bg2:#0b1726;--panel:#0e1c2d;--panel2:#13253a;--text:#f7fbff;--muted:#9cafc2;--muted2:#7f91a5;--accent:#72e6ff;--accent2:#a9f1ff;--gold:#d9a94a;--gold2:#f4d28a;--line:#25384b;--soft:#ffffff08;--header:rgba(7,17,31,.84);--shadow:0 28px 90px rgba(0,0,0,.28)}
-:root[data-theme="light"] .site-header{--bg:#f4f7fa;--bg2:#eaf0f5;--panel:#fff;--panel2:#edf3f7;--text:#172536;--muted:#586b7e;--muted2:#718296;--accent:#079bc0;--accent2:#007fa2;--gold:#e58a18;--gold2:#c96b08;--line:#c9d7e2;--soft:#16324a0d;--header:rgba(244,247,250,.88);--shadow:0 24px 70px rgba(24,46,66,.12)}
+/* V2.47: use the SAME official website header dimensions and typography.
+   The independent Legion board defines global .btn/.brand colors, so scope
+   only the collision repairs here. All values mirror official ../styles.css. */
+.site-header{font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.7;
+ --text:#f7fbff;--muted:#9cafc2;--muted2:#7f91a5;--accent:#72e6ff;
+ --accent2:#a9f1ff;--gold:#d9a94a;--gold2:#f4d28a;--line:#25384b;
+ --soft:#ffffff08;--header:rgba(7,17,31,.84);color:var(--text);}
+:root[data-theme="light"] .site-header{
+ --text:#172536;--muted:#586b7e;--muted2:#718296;--accent:#079bc0;
+ --accent2:#007fa2;--gold:#f4bd3f;--gold2:#ffd86b;--line:#d7e0e8;
+ --soft:#0b1d2d08;--header:rgba(244,247,250,.88);color:var(--text);}
 .site-header .brand{gap:10px;font-weight:900;white-space:nowrap;text-decoration:none}
 .site-header .brand img{width:118px;height:62px;max-width:none;object-fit:contain;border-radius:0}
-.site-header .brand span{display:inline;margin-top:0;font-size:12px;font-weight:750;letter-spacing:.06em;color:var(--muted)!important}
-.site-header .header-status{font-size:13px;color:var(--muted)!important;font-weight:750!important}
+.site-header .brand span{display:inline;font-size:12px;font-weight:750;letter-spacing:.06em;color:var(--muted)!important}
+.site-header .header-status{font-size:13px;line-height:1.7;letter-spacing:.04em;font-weight:750;color:var(--muted)!important}
 .site-header a{text-decoration:none}
-.site-header .theme-toggle{font-family:inherit}
-.site-header.dd-nav-ready nav.dd-main-nav .dd-top-link{box-sizing:border-box}
-@media(max-width:680px){.site-header .brand span{display:none}.site-header .brand img{width:105px;height:48px}}
-/* Legion's independent board CSS must not alter official header geometry. */
-.site-header{width:100%;--text:#f7fbff;--muted:#9cafc2;--muted2:#7f91a5;--accent:#72e6ff;--accent2:#a9f1ff;--gold:#d9a94a;--gold2:#f4d28a;--line:#25384b;--soft:#ffffff08;--header:rgba(7,17,31,.84)}
-:root[data-theme="light"] .site-header{--text:#172536;--muted:#586b7e;--muted2:#718296;--accent:#079bc0;--accent2:#007fa2;--gold:#e58a18;--gold2:#c96b08;--line:#c9d7e2;--soft:#16324a0d;--header:rgba(244,247,250,.88)}
 .site-header .header-actions{display:flex;align-items:center;gap:8px;flex:none}
-.site-header .header-actions .btn{font-family:inherit;line-height:1.7;white-space:nowrap;border-radius:999px;padding:10px 17px;min-height:0;font-size:14px;font-weight:800}
-.site-header .header-actions .btn-gold{background:linear-gradient(135deg,var(--gold),var(--gold2));color:#17120a;border-color:var(--gold2)}
-.site-header .header-actions .btn-discord{background:#5869bf;border-color:#8090dc;color:#fff}
-:root[data-theme="light"] .site-header .header-actions .btn-discord{background:#e9edff;color:#4556a8;border-color:#aeb9ef}
-.site-header .theme-toggle{display:inline-flex;align-items:center;justify-content:center;gap:7px;font-family:inherit;line-height:1.7;white-space:nowrap;min-height:0;min-width:0;box-sizing:border-box}
-.site-header .header-status{font-size:13px;line-height:1.7;letter-spacing:.04em}
-@media(max-width:680px){.site-header .header-actions .btn-gold,.site-header .header-actions .btn-discord{display:none}}
-/* Keep light/dark typography metrics absolutely identical at narrow widths.
-   The official stylesheet changes the mobile theme-label font-size by mode;
-   override that ONLY for this page to prevent the reported 8px jump. */
-.site-header.dd-nav-ready .theme-toggle #themeIcon{font-size:16px!important;inline-size:16px!important;flex:0 0 16px!important}
-.site-header.dd-nav-ready .theme-toggle #themeLabel{font-size:13px!important;inline-size:52px!important;min-inline-size:52px!important;flex:0 0 52px!important;line-height:1.7!important}
-.site-header.dd-nav-ready .theme-toggle{width:108px!important;min-width:108px!important;padding:8px 10px!important;justify-content:center!important;gap:7px!important}
-/* Shared website light-theme selectors must not darken text over this image. */
-main.shell .hero .hero-lead,main.shell .hero .hero-sub,main.shell .hero .overline{color:#f1fbff!important;opacity:1!important;text-shadow:0 2px 12px rgba(0,10,20,.7)!important}
-main.shell .hero .hero-lead{font-weight:800!important}
-/* Avoid the official hover-translation being mistaken for a theme-label jump. */
-.site-header.dd-nav-ready .theme-toggle:hover,.site-header.dd-nav-ready .theme-toggle:focus-visible{transform:none!important}
+.site-header .header-actions .btn{align-items:center;justify-content:center;
+ font-family:inherit;font-weight:800;font-size:14px;line-height:1.7;white-space:nowrap;
+ min-height:0;padding:10px 17px;border-radius:999px;cursor:pointer;
+ transition:transform .2s,box-shadow .2s,background .2s;}
+/* Fixed brand colors from the approved official-navigation screenshot. */
+.site-header .header-actions .btn-gold,.site-header .header-actions .btn-gold:visited{
+ background:linear-gradient(135deg,#f4bd3f,#ffd86b);border:1px solid #ffd86b;color:#17120a;
+ box-shadow:0 8px 28px rgba(217,169,74,.12)}
+.site-header .header-actions .btn-discord,.site-header .header-actions .btn-discord:visited{
+ background:#5865f2;border:1px solid #5865f2;color:#fff;
+ box-shadow:0 8px 20px rgba(88,101,242,.18)}
+.site-header .theme-toggle{display:inline-flex;align-items:center;justify-content:center;
+ gap:7px;font-family:inherit;font-size:14px;font-weight:800;line-height:1.7;
+ white-space:nowrap;box-sizing:border-box;padding:8px 12px;
+ border:1px solid var(--line);border-radius:999px;background:var(--soft);color:var(--muted)}
+:root[data-theme="light"] .site-header .theme-toggle{background:#ffffffcc;color:#40566a}
+.site-header.dd-nav-ready .theme-toggle #themeIcon{display:inline-flex;align-items:center;justify-content:center;
+ font-size:16px;line-height:1.7;inline-size:16px;flex:0 0 16px}
+.site-header.dd-nav-ready .theme-toggle #themeLabel{display:inline-block;font-size:13px;line-height:1.7;
+ text-align:center;inline-size:52px;min-inline-size:52px;flex:0 0 52px}
+.site-header.dd-nav-ready .theme-toggle{inline-size:101px;min-inline-size:101px;justify-content:center}
+.site-header.dd-nav-ready .theme-toggle:hover,.site-header.dd-nav-ready .theme-toggle:focus-visible{transform:none}
+@media(max-width:680px){.site-header .brand span{display:none}.site-header .brand img{width:105px;height:48px}}
+/* Hero text remains legible in either site theme without changing any site-wide CSS. */
+main.shell .hero .hero-lead,main.shell .hero .hero-sub,main.shell .hero .overline{
+ color:#f1fbff!important;opacity:1!important;text-shadow:0 2px 12px rgba(0,10,20,.7)!important}
+
+/* Match the official site's responsive action sizing and visibility rules. */
+@media(max-width:900px){.site-header .header-actions .btn{font-size:14px;padding:8px 13px}}
+@media(max-width:1180px){.site-header .header-actions .btn-discord{display:none}}
+@media(max-width:680px){.site-header .header-actions .btn-gold,.site-header .header-actions .btn-discord{display:none}.site-header.dd-nav-ready .theme-toggle{inline-size:97px;min-inline-size:97px;padding:8px 10px}}

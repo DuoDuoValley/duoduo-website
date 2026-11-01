@@ -564,3 +564,9 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
  position:relative;top:auto;right:auto;min-height:44px;
  padding:7px 9px 6px;pointer-events:auto;
 }
+
+/* V2.47 unobtrusive recovery status beneath the existing manual-save actions */
+.auto-save-note{margin:7px 1px 0;color:var(--muted);font-size:11px;line-height:1.5;text-align:center}
+
+/* Keep the shared site navigation full-width (the board previously reserved a 15px scrollbar gutter). */
+html{scrollbar-gutter:auto}

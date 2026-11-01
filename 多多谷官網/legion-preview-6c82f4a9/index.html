@@ -8,16 +8,16 @@
 <meta name="referrer" content="no-referrer">
 <title>多多谷｜戰地拼圖模擬器</title>
 <link rel="stylesheet" href="../styles.css">
-<link rel="stylesheet" href="./styles.css?v=246">
+<link rel="stylesheet" href="./styles.css?v=247">
 <link rel="stylesheet" href="../dd-navigation.css">
-<link rel="stylesheet" href="./legion-site-header.css?v=246">
+<link rel="stylesheet" href="./legion-site-header.css?v=247">
 <link rel="stylesheet" href="../cursor-ui/cursor.css">
 <script src="./presets.js" defer></script>
 <script src="./legion-roster.js" defer></script>
-<script src="./app.js?v=246" defer></script>
+<script src="./app.js?v=247" defer></script>
 <script src="../dd-nav-data.js"></script>
 <script src="../dd-navigation.js" defer></script>
-<script src="./legion-site-header.js?v=246" defer></script>
+<script src="./legion-site-header.js?v=247" defer></script>
 <script src="../cursor-ui/cursor.js" defer></script>
 </head>
 <body>
@@ -68,7 +68,7 @@
    <div class="deployment-cap"><div><b>已選角色卡</b><span>最多 45 張</span></div><progress id="deploymentMeter" max="45" value="0" aria-label="已選擇上場拼圖數量"></progress></div><div class="inventory-note">每次開啟所有拼圖均預設 <strong>0 塊</strong>；如有保存配置，可手動載入。每個職業僅能上場一張 SS 或 SSS 角色卡，全部類型合計最多 <strong>45 塊</strong>；達到上限後請先減少其他類型。MAX 也會遵守上限。</div>
    <div class="shapes" id="shapes" aria-label="51 個職業的 SS／SSS 拼圖庫存"></div>
    <details class="roster-audit"><summary>查看各職業的分類</summary><div id="rosterAudit"></div></details>
-   <div class="side-actions"><button class="btn btn-subtle" id="saveBtn" type="button">保存本機配置</button><button class="btn btn-subtle" id="loadBtn" type="button">載入本機配置</button></div>
+   <div class="side-actions"><button class="btn btn-subtle" id="saveBtn" type="button">保存本機配置</button><button class="btn btn-subtle" id="loadBtn" type="button">載入本機配置</button></div><p id="autoSaveStatus" class="auto-save-note" role="status" aria-live="polite">操作會自動保存，更新或重新整理後可繼續</p>
   </aside>
   <section class="board-panel panel"><div class="panel-head board-head"><div><span class="kicker">STEP 02</span><h2>戰地拼圖棋盤</h2><p>選擇單格或整區填格，完成排版後每張職業拼圖都會顯示獨立外框；中央八屬性可點擊交換位置。</p></div></div>
   <div class="sector-quick-fill" role="group" aria-label="一鍵選取完整屬性區域">

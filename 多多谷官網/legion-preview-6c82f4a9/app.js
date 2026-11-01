@@ -181,6 +181,7 @@ function clearSolution(notice=true){
  solving=false;$('solveBtn').disabled=false;$('solveBtn').textContent='✦ 開始自動排版';
  const had=Boolean(solution||recommendationPreview);
  solution=null;recommendationPreview=null;activePresetId=null;
+ scheduleAutoSave();
  hideSmartRescue();
  if(had){updateBoard();if(notice)message('已清除計算結果。')}
 }
@@ -295,6 +296,7 @@ function updateCell(i){
  if(stack?.length)decoratePlacedCell(el,stack.at(-1),i,stack.length);
 }
 function updateBoard(){
+ scheduleAutoSave();
  const cells=pieceMap();
  for(let i=0;i<SIZE;i++){
    const el=cellEls[i];el.classList.toggle('target',target.has(i));
@@ -306,7 +308,7 @@ function updateBoard(){
  renderLegionEffects();
  renderSmartCoverage();
 }
-function updateStatus(){let targetArea=target.size,area=shapeCellCount(),gap=targetArea-area;$('pieceCount').textContent=countPieces()+' / '+MAX_DEPLOYED; const meter=$('deploymentMeter');if(meter)meter.value=countPieces();$('pieceArea').textContent=area;$('targetCountSidebar').textContent=targetArea;$('targetCount').textContent=targetArea;$('totalArea').textContent=area;$('gap').textContent=(gap>0?'+':'')+gap;$('gap').style.color=gap===0?'var(--accent)':'#cf6674';}
+function updateStatus(){scheduleAutoSave();let targetArea=target.size,area=shapeCellCount(),gap=targetArea-area;$('pieceCount').textContent=countPieces()+' / '+MAX_DEPLOYED; const meter=$('deploymentMeter');if(meter)meter.value=countPieces();$('pieceArea').textContent=area;$('targetCountSidebar').textContent=targetArea;$('targetCount').textContent=targetArea;$('totalArea').textContent=area;$('gap').textContent=(gap>0?'+':'')+gap;$('gap').style.color=gap===0?'var(--accent)':'#cf6674';}
 function message(text,type=''){const el=$('message');el.textContent=text;el.className='message '+type;}
 function notify(text){const el=$('toast');el.textContent=text;el.classList.add('show');clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),2100)}
 function normalize(cells){let minx=Math.min(...cells.map(a=>a[0])),miny=Math.min(...cells.map(a=>a[1]));return cells.map(([x,y])=>[x-minx,y-miny]).sort((a,b)=>a[1]-b[1]||a[0]-b[0])}
@@ -1748,6 +1750,73 @@ function setupLegionPresets(){
  });
  showPreset();
 }
+// Official V2.47: resilient, independent auto-save. Manual saves use STORE and are never overwritten.
+const AUTO_STORE='duoduo_legion_production_autosave_v1';
+let autoSaveReady=false,autoSaveTimer=null;
+function snapshotPlacedPieces(pieces){
+ return Array.isArray(pieces)?pieces.map(p=>({id:p.id,keys:Array.isArray(p.keys)?p.keys.slice():[]})):null;
+}
+function autoSaveSnapshot(){
+ return {v:1,ts:Date.now(),counts:{...counts},target:[...target],coreAssignments:[...coreAssignments],
+  paintMode,activePresetId,undo:undoStack.slice(-20).map(s=>[...s]),
+  solution:snapshotPlacedPieces(solution),preview:snapshotPlacedPieces(recommendationPreview)};
+}
+function writeAutoSave(){
+ if(!autoSaveReady)return false;
+ if(autoSaveTimer!==null){clearTimeout(autoSaveTimer);autoSaveTimer=null;}
+ let data;try{data=JSON.stringify(autoSaveSnapshot())}catch(_){return false}
+ try{localStorage.setItem(AUTO_STORE,data)}catch(_){
+  try{sessionStorage.setItem(AUTO_STORE,data)}catch(_){
+   const label=$('autoSaveStatus');if(label)label.textContent='無法自動保存，請檢查瀏覽器的儲存權限';
+   return false;
+  }
+ }
+ const label=$('autoSaveStatus');if(label)label.textContent='已自動保存操作進度';
+ return true;
+}
+function scheduleAutoSave(){
+ if(!autoSaveReady)return;
+ if(autoSaveTimer!==null)clearTimeout(autoSaveTimer);
+ autoSaveTimer=setTimeout(writeAutoSave,250);
+}
+function hydrateAutoPieces(pieces){
+ if(pieces===null)return null;
+ if(!Array.isArray(pieces)||pieces.length>MAX_DEPLOYED)return null;
+ const used={};
+ for(const p of pieces){
+  const shape=SHAPES.find(s=>s.id===p?.id);
+  if(!shape||!Array.isArray(p.keys)||p.keys.length!==shape.cells.length||
+     new Set(p.keys).size!==p.keys.length||!p.keys.every(k=>Number.isInteger(k)&&k>=0&&k<SIZE))return null;
+  used[p.id]=(used[p.id]||0)+1;
+  if(used[p.id]>counts[p.id])return null;
+ }
+ try{return hydrateLegionPreset({pieces})}catch(_){return null}
+}
+function restoreAutoSave(){
+ let data=null;
+ try{data=JSON.parse(localStorage.getItem(AUTO_STORE)||sessionStorage.getItem(AUTO_STORE)||'null')}catch(_){return false}
+ if(!data||data.v!==1||!Array.isArray(data.target)||!data.counts||typeof data.counts!=='object')return false;
+ try{
+  inventoryTrimmedOnRestore=restoreInventory(data.counts);
+  target=new Set(data.target.filter(k=>Number.isInteger(k)&&k>=0&&k<SIZE));
+  if(isValidAssignment(data.coreAssignments))coreAssignments=data.coreAssignments.slice();
+  if(data.paintMode==='region'||data.paintMode==='single')setPaintMode(data.paintMode);
+  undoStack=Array.isArray(data.undo)?data.undo.slice(-20).filter(a=>Array.isArray(a)&&a.length<=SIZE&&a.every(k=>Number.isInteger(k)&&k>=0&&k<SIZE)).map(a=>new Set(a)):[];
+  solution=hydrateAutoPieces(data.solution);
+  recommendationPreview=solution?null:hydrateAutoPieces(data.preview);
+  activePresetId=typeof data.activePresetId==='string'?data.activePresetId:null;
+  refreshCoreSprites();updateCoreControls();
+  updateBoard();updateStatus();
+  return true;
+ }catch(e){console.warn('Auto-save restore skipped',e);return false}
+}
+// The site deployment watcher calls this before any reload; pagehide also covers
+// the BGM shell reloading an embedded page without calling the child's hook.
+window.duoduoPrepareForUpdate=writeAutoSave;
+window.addEventListener('pagehide',writeAutoSave);
+window.addEventListener('beforeunload',writeAutoSave);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')writeAutoSave()});
+
 function save(){const data={v:1,counts,target:[...target],coreAssignments:[...coreAssignments],presetId:activePresetId};try{localStorage.setItem(STORE,JSON.stringify(data));notify('配置已保存至這台裝置')}catch(e){notify('儲存失敗，請檢查瀏覽器是否允許本機儲存')}}
 function restore(){try{let data=JSON.parse(localStorage.getItem(STORE)||'null');if(!data||data.v!==1||!Array.isArray(data.target))return false;clearSolution(false);inventoryTrimmedOnRestore=restoreInventory(data.counts);target=new Set(data.target.filter(n=>Number.isInteger(n)&&n>=0&&n<SIZE));
  if(isValidAssignment(data.coreAssignments))coreAssignments=[...data.coreAssignments];
@@ -1906,6 +1975,7 @@ function statAtCell(idx){
 }
 function formatUnionAmount(n,unit){return (n>=0?'+':'')+Number(n.toFixed(5)).toString()+unit}
 function renderLegionEffects(){
+ scheduleAutoSave();
  const panel=$('legionEffects');if(!panel)return;
  const live=$('boardLiveEffectsValue'),occupation=$('legionOccupationResults');
  const summary=$('legionEffectsSummary'),occupiedNumber=$('occupiedTiles'),deployedNumber=$('deployedTiles'),duplicateNumber=$('duplicateTiles');
@@ -2092,5 +2162,11 @@ function resizeNativeStage(){
  }
 }
 function bind(){$('clearBoard').addEventListener('click',()=>{saveUndo();target.clear();activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已清空目標格。')});$('undoBtn').addEventListener('click',()=>{if(!undoStack.length){notify('目前沒有可還原的操作');return}target=new Set(undoStack.pop());activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已還原上一次棋盤修改。')});$('solveBtn').addEventListener('click',solve);$('resetSolution').addEventListener('click',()=>clearSolution());$('exportPng').addEventListener('click',exportPng);$('saveBtn').addEventListener('click',save);$('loadBtn').addEventListener('click',()=>{if(restore()){refreshCoreSprites();updateCoreControls();updateBoard();updateStatus();message(inventoryTrimmedOnRestore?'已載入本機配置；超過 45 張的數量已依上限縮減，請重新檢查。':'已載入你之前保存的本機配置。',inventoryTrimmedOnRestore?'error':'')}else notify('尚未找到可載入的本機配置')});}
-preloadPieceAssets();setupShapes();createBoard();restoreCoreAssignments();renderNativeUI();setupPaintModeButtons();setupSmartRescue();bind();resizeNativeStage();window.addEventListener('resize',resizeNativeStage);if('ResizeObserver' in window)new ResizeObserver(resizeNativeStage).observe($('boardScroll'));restoreInventory(null);updateBoard();updateStatus();message('所有拼圖數量預設為 0，請按實際 Lv.200／Lv.250 人數設定；如需以前儲存的數量，請主動點選「載入本機配置」。');
+preloadPieceAssets();setupShapes();createBoard();restoreCoreAssignments();renderNativeUI();setupPaintModeButtons();setupSmartRescue();bind();resizeNativeStage();window.addEventListener('resize',resizeNativeStage);if('ResizeObserver' in window)new ResizeObserver(resizeNativeStage).observe($('boardScroll'));restoreInventory(null);
+const hadAutoSave=restoreAutoSave();
+autoSaveReady=true;
+updateBoard();updateStatus();
+message(hadAutoSave?'已自動還原上次操作的拼圖數量、目標區域與排列結果；可以接著編輯。':'所有拼圖數量預設為 0，請按實際 Lv.200／Lv.250 人數設定；如需以前儲存的數量，請主動點選「載入本機配置」。');
+if(hadAutoSave){const label=$('autoSaveStatus');if(label)label.textContent='上次操作進度已恢復';}
+writeAutoSave();
 })();
