@@ -365,3 +365,9 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
 .sector-quick-primary{background:var(--accent-soft);border-color:var(--accent);color:var(--ink)}
 .sector-quick-progress{white-space:nowrap;font-variant-numeric:tabular-nums}
 @media(max-width:690px){.sector-quick-fill{padding:10px}.sector-quick-heading small{width:100%}.sector-quick-label{width:100%}.sector-quick-label select{flex:1;min-width:0;max-width:none}.sector-quick-progress{flex-basis:100%}}
+
+/* V2.35: one independent reset action in each level header (SS / SSS). */
+.shape-group>.shape-label{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 2px;margin:2px 0 2px;min-height:36px;}
+.shape-group .shape-level-title{font-size:12px;font-weight:800;white-space:nowrap;}
+.shape-group .level-clear-btn{flex:none;min-height:29px;padding:4px 10px;font-size:11px;line-height:1.4;color:var(--accent);background:var(--surface);border-color:var(--line);}
+.shape-group .level-clear-btn:hover{background:var(--accent-soft);border-color:var(--accent);}

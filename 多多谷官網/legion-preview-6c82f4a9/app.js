@@ -121,8 +121,12 @@ function setupShapes(){
      group=document.createElement('div');
      group.className='shape-group';
      group.dataset.group=s.group;
-     group.innerHTML='<div class="shape-label"></div>';
-     group.querySelector('.shape-label').textContent=s.group;
+     group.innerHTML='<div class="shape-label"><span class="shape-level-title"></span><button class="btn btn-small level-clear-btn" type="button"></button></div>';
+     group.querySelector('.shape-level-title').textContent=s.group;
+     const clearLevelButton=group.querySelector('.level-clear-btn');
+     clearLevelButton.textContent='全部清零';
+     clearLevelButton.setAttribute('aria-label',`將 ${s.group} 的六種角色卡數量全部清零`);
+     clearLevelButton.addEventListener('click',()=>clearLevelCounts(s.group));
      $('shapes').appendChild(group);
      prev=s.group;
    }else group=$('shapes').lastElementChild;
@@ -157,6 +161,19 @@ function setCount(s,n){
  syncAllCountInputs();
  activePresetId=null;clearSolution(false);updateStatus();
  message(`已設定${GROUP_INFO.find(g=>g[0]===code)?.[1]||code}：Lv.200 ${counts['ss_'+code]} 塊，Lv.250 ${counts['sss_'+code]} 塊｜已選 ${countPieces()}／${MAX_DEPLOYED} 塊。`);
+}
+// V2.35: independent bulk reset for Lv.200 and Lv.250; never clear the opposite level.
+function clearLevelCounts(level){
+ const affected=SHAPES.filter(shape=>shape.group===level);
+ if(!affected.some(shape=>counts[shape.id]>0)){
+  notify(`${level} 的角色卡數量已經全部是 0。`);return;
+ }
+ for(const shape of affected)counts[shape.id]=0;
+ syncAllCountInputs();
+ activePresetId=null;
+ clearSolution(false);
+ updateStatus();
+ message(`已將 ${level} 的角色卡數量全部清為 0；另一等級及目標區域均保持不變。`);
 }
 function clearSolution(notice=true){
  if(solving){runToken++;cancelRegionalSolver()}
@@ -2085,6 +2102,6 @@ function resizeNativeStage(){
  stageScale=wanted;
  const holder=$('nativeStageHolder');holder.style.width=(598*wanted)+'px';holder.style.height=(480*wanted)+'px';$('nativeStage').style.setProperty('--stage-scale',String(wanted));
 }
-function bind(){$('clearPieces').addEventListener('click',()=>{restoreInventory(null);activePresetId=null;clearSolution(false);updateStatus();message('已將全部 SS／SSS 拼圖數量重設為 0，各職業群上限仍保留。')});$('clearBoard').addEventListener('click',()=>{saveUndo();target.clear();activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已清空棋盤。')});$('undoBtn').addEventListener('click',()=>{if(!undoStack.length){notify('目前沒有可還原的操作');return}target=new Set(undoStack.pop());activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已還原上一次棋盤修改。')});$('sampleBtn').addEventListener('click',loadSample);$('solveBtn').addEventListener('click',solve);$('game220Assist').addEventListener('click',applyGame220Example);$('resetSolution').addEventListener('click',()=>clearSolution());$('exportPng').addEventListener('click',exportPng);$('saveBtn').addEventListener('click',save);$('loadBtn').addEventListener('click',()=>{if(restore()){refreshCoreSprites();updateCoreControls();updateBoard();updateStatus();message(inventoryTrimmedOnRestore?'已載入本機配置；超過 45 張的數量已依上限縮減，請重新檢查。':'已載入你之前保存的本機配置。',inventoryTrimmedOnRestore?'error':'')}else notify('尚未找到可載入的本機配置')});$('clearTargetQuick').addEventListener('click',()=>{saveUndo();target.clear();activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已清空目標格。')});$('themeBtn').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';$('themeBtn').textContent=dark?'☀ 淺色模式':'☾ 深色模式';try{localStorage.setItem('duoduo_legion_preview_6c82f4a9_theme',dark?'dark':'light')}catch{}});try{let theme=localStorage.getItem('duoduo_legion_preview_6c82f4a9_theme');if(theme==='dark'){document.documentElement.dataset.theme='dark';$('themeBtn').textContent='☀ 淺色模式'}}catch{}}
-preloadPieceAssets();setupShapes();createBoard();restoreCoreAssignments();renderNativeUI();setupCoreControls();setupQuickSectorPicker();setupLegionPresets();setupPriorityPlanner();setupSmartRescue();bind();resizeNativeStage();window.addEventListener('resize',resizeNativeStage);if('ResizeObserver' in window)new ResizeObserver(resizeNativeStage).observe($('boardScroll'));restoreInventory(null);updateBoard();updateStatus();message('所有拼圖數量預設為 0，請按實際 Lv.200／Lv.250 人數設定；如需以前儲存的數量，請主動點選「載入本機配置」。');
+function bind(){$('clearBoard').addEventListener('click',()=>{saveUndo();target.clear();activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已清空目標格。')});$('undoBtn').addEventListener('click',()=>{if(!undoStack.length){notify('目前沒有可還原的操作');return}target=new Set(undoStack.pop());activePresetId=null;clearSolution(false);updateBoard();updateStatus();message('已還原上一次棋盤修改。')});$('solveBtn').addEventListener('click',solve);$('game220Assist').addEventListener('click',applyGame220Example);$('resetSolution').addEventListener('click',()=>clearSolution());$('exportPng').addEventListener('click',exportPng);$('saveBtn').addEventListener('click',save);$('loadBtn').addEventListener('click',()=>{if(restore()){refreshCoreSprites();updateCoreControls();updateBoard();updateStatus();message(inventoryTrimmedOnRestore?'已載入本機配置；超過 45 張的數量已依上限縮減，請重新檢查。':'已載入你之前保存的本機配置。',inventoryTrimmedOnRestore?'error':'')}else notify('尚未找到可載入的本機配置')});$('themeBtn').addEventListener('click',()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';$('themeBtn').textContent=dark?'☀ 淺色模式':'☾ 深色模式';try{localStorage.setItem('duoduo_legion_preview_6c82f4a9_theme',dark?'dark':'light')}catch{}});try{let theme=localStorage.getItem('duoduo_legion_preview_6c82f4a9_theme');if(theme==='dark'){document.documentElement.dataset.theme='dark';$('themeBtn').textContent='☀ 淺色模式'}}catch{}}
+preloadPieceAssets();setupShapes();createBoard();restoreCoreAssignments();renderNativeUI();setupQuickSectorPicker();setupSmartRescue();bind();resizeNativeStage();window.addEventListener('resize',resizeNativeStage);if('ResizeObserver' in window)new ResizeObserver(resizeNativeStage).observe($('boardScroll'));restoreInventory(null);updateBoard();updateStatus();message('所有拼圖數量預設為 0，請按實際 Lv.200／Lv.250 人數設定；如需以前儲存的數量，請主動點選「載入本機配置」。');
 })();
