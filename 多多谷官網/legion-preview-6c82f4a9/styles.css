@@ -479,3 +479,45 @@ html[data-theme="dark"] .native-board-scroll{border-color:#415568}
 .hero{background-image:linear-gradient(90deg,rgba(4,22,34,.97) 0%,rgba(5,27,39,.95) 25%,rgba(6,27,39,.83) 43%,rgba(9,40,48,.36) 70%,rgba(9,44,51,.1) 100%),url('./assets/banner/legion-hero-v242.png');background-position:center,center 100%;}
 @media(max-width:780px){.hero{background-image:linear-gradient(90deg,rgba(3,20,32,.96),rgba(3,21,32,.82) 61%,rgba(6,28,37,.53)),url('./assets/banner/legion-hero-v242.png');background-position:center,62% 85%;}}
 @media(max-width:580px){.hero{background-image:linear-gradient(90deg,rgba(3,20,31,.95),rgba(3,20,31,.88) 64%,rgba(3,20,31,.64)),url('./assets/banner/legion-hero-v242.png');background-size:cover,auto 125%;background-position:center,60% 100%;}}
+
+
+/* V2.43: clearer rank display over the bright village panorama.
+   Preserve all original five Union rank images, sizes order and prominence. */
+.hero-emblems{
+  padding:11px 15px 10px;bottom:18px;right:23px;
+  border:1px solid rgba(179,226,243,.55);border-radius:16px;
+  background:linear-gradient(135deg,rgba(3,19,33,.95),rgba(8,29,45,.89));
+  box-shadow:0 6px 28px rgba(1,13,25,.48),inset 0 1px rgba(236,251,255,.10);
+  -webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);filter:none;
+}
+.hero-emblems-caption{color:#f7fcff;text-shadow:0 1px 4px #000,0 0 12px rgba(55,181,219,.38);margin:0 0 4px;}
+.hero-emblems-caption span{color:#b6d8e9}
+.hero-tier-list{gap:10px;}
+.hero-tier{color:#f2faff;text-shadow:0 1px 5px #000,0 0 2px #000;letter-spacing:.025em}
+.hero-tier img{filter:drop-shadow(0 0 3px rgba(210,230,245,.48)) drop-shadow(0 3px 4px rgba(0,0,0,.75))}
+.hero-tier-top{color:#ffe7a8;text-shadow:0 1px 6px #000,0 0 6px rgba(255,220,151,.45)}
+.hero-tier-top img{filter:drop-shadow(0 0 8px rgba(255,211,123,.78)) drop-shadow(0 3px 4px rgba(0,0,0,.65))}
+@media(min-width:781px) and (max-width:1090px){
+ .hero-emblems{right:12px;bottom:13px;padding:9px 10px 8px}
+ .hero-tier-list{gap:5px}
+}
+@media(max-width:580px){
+ .hero-emblems{right:auto;bottom:auto;padding:9px 8px 8px;margin:18px 0 0;border-radius:13px;width:100%}
+ .hero-tier-list{gap:2px}
+ .hero-emblems-caption{font-size:10px}
+}
+@media(max-width:360px){.hero-emblems{padding:8px 5px 7px}}
+
+/* Put Undo and Clear directly beside the actual 598px board, not in
+   the distant panel header. Controls keep their existing IDs/handlers. */
+.board-near-toolbar{
+  width:min(100%,598px);margin:0 auto 7px;
+  display:flex;justify-content:flex-end;align-items:center;
+}
+.board-near-toolbar .toolbar{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.board-near-toolbar .btn-small{min-height:35px;padding:6px 12px}
+@media(max-width:690px){
+ .board-near-toolbar{margin-bottom:7px}
+ .board-near-toolbar .toolbar{width:auto;gap:7px}
+ .board-near-toolbar .btn-small{padding:7px 10px;min-height:36px}
+}

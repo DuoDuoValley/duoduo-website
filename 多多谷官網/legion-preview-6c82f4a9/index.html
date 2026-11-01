@@ -5,7 +5,7 @@
 <meta name="color-scheme" content="light dark">
 <meta name="referrer" content="no-referrer">
 <title>多多谷｜戰地拼圖模擬器</title>
-<link rel="stylesheet" href="./styles.css?v=242">
+<link rel="stylesheet" href="./styles.css?v=243">
 <script src="./presets.js" defer></script>
 <script src="./legion-roster.js" defer></script>
 <script src="./app.js?v=239" defer></script>
@@ -41,7 +41,7 @@
    <details class="roster-audit"><summary>查看各職業的分類</summary><div id="rosterAudit"></div></details>
    <div class="side-actions"><button class="btn btn-subtle" id="saveBtn" type="button">保存本機配置</button><button class="btn btn-subtle" id="loadBtn" type="button">載入本機配置</button></div>
   </aside>
-  <section class="board-panel panel"><div class="panel-head board-head"><div><span class="kicker">STEP 02</span><h2>戰地拼圖棋盤</h2><p>選擇單格或整區填格，完成排版後每張職業拼圖都會顯示獨立外框；中央八屬性可點擊交換位置。</p></div><div class="toolbar"><button class="btn btn-small" id="undoBtn" type="button">↶ 上一步</button><button class="btn btn-small" id="clearBoard" type="button">清空目標格</button></div></div>
+  <section class="board-panel panel"><div class="panel-head board-head"><div><span class="kicker">STEP 02</span><h2>戰地拼圖棋盤</h2><p>選擇單格或整區填格，完成排版後每張職業拼圖都會顯示獨立外框；中央八屬性可點擊交換位置。</p></div></div>
   <div class="sector-quick-fill" role="group" aria-label="一鍵選取完整屬性區域">
     <div class="sector-quick-heading"><b>✦ 屬性區域填格工具</b><small>切換模式，直接點選棋盤標記屬性</small></div>
     <div class="paint-mode-toolbar" role="group" aria-label="選擇棋盤填格模式">
@@ -53,6 +53,7 @@
   </div>
   <div class="native-note"><span class="native-indicator"></span> 戰地屬性棋盤 <span class="native-note-muted">・選擇單格或整區模式標記想要的屬性</span></div>
   <div class="board-live-effects" id="boardLiveEffects" role="status" aria-live="polite"><b>即時佔領加成</b><span id="boardLiveEffectsValue">完成排版後顯示已佔領的屬性。</span><a href="#legionEffects">查看完整效果</a></div>
+  <div class="board-near-toolbar" role="group" aria-label="棋盤快速操作"><div class="toolbar"><button class="btn btn-small" id="undoBtn" type="button">↶ 上一步</button><button class="btn btn-small" id="clearBoard" type="button">清空目標格</button></div></div>
   <div class="board-scroll native-board-scroll" id="boardScroll" tabindex="0" aria-label="戰地棋盤，窄螢幕可水平捲動">
     <div class="native-stage-holder" id="nativeStageHolder"><div class="native-stage" id="nativeStage">
       <img class="native-background" id="nativeBoardImage" src="./assets/union/attackSetting__boardOnly.png" width="598" height="480" alt="戰地屬性配置棋盤" draggable="false">
