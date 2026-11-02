@@ -1367,8 +1367,37 @@ window.addEventListener('popstate',()=>{
 });
 // Don't load the old homepage before the requested shareable subpage.
 const firstPage=fromLocation()||safePage('home.html');
-frame.src=firstPage.href;
-showCurrentPage(firstPage);
+// A manual browser refresh must not display yesterday's session cache in a
+// new iframe and then force another refresh when the cloud watcher notices it.
+// Warm only valid, published data and never overwrite a user's manual save.
+async function primePublishedCloudBeforeFirstPage(){
+  try{
+    if(sessionStorage.getItem('duoduo_maintenance_admin_preview_v1')==='1'&&
+       sessionStorage.getItem('duoduo_admin_session'))return;
+  }catch(_){}
+  const endpoint=location.hostname.endsWith('github.io')?
+    'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
+  const controller=new AbortController();
+  const timer=setTimeout(()=>controller.abort(),2200);
+  try{
+    const response=await fetch(endpoint,{
+      cache:'no-store',headers:{Accept:'application/json'},signal:controller.signal
+    });
+    if(!response.ok)return;
+    const payload=await response.json();
+    if(payload?.ok!==true||payload.initialized!==true||
+       !payload.data||typeof payload.data!=='object'||Array.isArray(payload.data))return;
+    for(const [key,value] of Object.entries(payload.data)){
+      if(!/^duoduo_[a-z0-9_]+$/i.test(key))continue;
+      try{sessionStorage.setItem('duoduo_cloud_'+key,JSON.stringify(value));}catch(_){}
+    }
+  }catch(_){/* Offline and slow cloud services retain the existing cache. */}
+  finally{clearTimeout(timer);}
+}
+primePublishedCloudBeforeFirstPage().finally(()=>{
+  frame.src=firstPage.href;
+  showCurrentPage(firstPage);
+});
 
 // Reveal the first real page as soon as its CSS, document and header logo are ready.
 // Do not hold the whole page hostage to below-the-fold hero/media downloads.
@@ -1406,6 +1435,6 @@ window.duoduoPrepareForUpdate=()=>{try{storePlaybackPosition()}catch(_){}};
 
 })();
 </script>
-<script src="dd-site-update.js" defer></script>
+<script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-site-update.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-/* DuoDuo deployment watcher v4.0 — single deployment revision, not asset/CDN ETags.
+/* DuoDuo deployment watcher v4.1 — single deployment revision, not asset/CDN ETags.
  * Deployment workflow substitutes BUILD_RUN/BUILD_SHA in the uploaded artifact.
  * One deployed run => at most one automatic reload in this browser tab.
  * BGM shell is the only watcher when browsing embedded public pages.
@@ -21,8 +21,8 @@
       (window.parent.DuoDuoSiteUpdate?.active || window.parent.document.getElementById('duoduoSite')))return;
  }catch(_){}
  const KEY='duoduo_site_deployment_seen_v4:'+root.pathname;
- const debug={active:true,revision:'v4.0',mode:'deployment-run',buildRun:BUILD_RUN,
-   status:'initializing',checkedAt:null,lastError:null,remoteRun:null,lastChange:null};
+ const debug={active:true,revision:'v4.1',mode:'deployment-run',buildRun:BUILD_RUN,
+   status:'initializing',checkedAt:null,lastError:null,remoteRun:null,lastChange:null,pendingSince:null};
  window.DuoDuoSiteUpdate=debug;
  let seen=[BUILD_RUN], busy=false, refreshing=false, candidate=null, confirmationTimer=null;
  try{
@@ -57,6 +57,19 @@
  function cancelConfirmation(){
    if(confirmationTimer!==null){clearTimeout(confirmationTimer);confirmationTimer=null;}
  }
+ // The release manifest can reach the CDN before the JS artifact. Never
+ // reload just because the manifest changed; require the matching deployed
+ // watcher itself to be reachable with the exact run AND SHA.
+ async function releaseAssetReady(release){
+   const url=new URL('dd-site-update.js',root);
+   url.searchParams.set('_dd_asset_check',String(Date.now()));
+   const response=await fetch(url.href,{cache:'no-store',credentials:'same-origin'});
+   if(!response.ok)throw Error('版本檔案查詢 HTTP '+response.status);
+   const source=await response.text();
+   const run=source.match(/\bconst\s+BUILD_RUN\s*=\s*Number\(\s*['"](\d+)['"]\s*\)/);
+   const sha=source.match(/\bconst\s+BUILD_SHA\s*=\s*['"]([a-f0-9]{40})['"]/i);
+   return !!(run&&sha&&Number(run[1])===release.run&&sha[1].toLowerCase()===release.sha.toLowerCase());
+ }
  function isNewer(r){return r.run>BUILD_RUN&&r.sha!==BUILD_SHA&&!seen.includes(r.run)}
  async function check(){
    if(busy||refreshing||document.visibilityState==='hidden'||navigator.onLine===false)return;
@@ -68,21 +81,26 @@
      const remote=await readRemote();
      debug.checkedAt=new Date().toISOString();debug.remoteRun=remote.run;debug.lastError=null;
      if(!isNewer(remote)){
-       candidate=null;cancelConfirmation();debug.status='up-to-date';return;
+       candidate=null;debug.pendingSince=null;cancelConfirmation();debug.status='up-to-date';return;
      }
      // Compare the same *deployment identifier* twice, separated in time.
      if(!candidate||candidate.run!==remote.run||candidate.sha!==remote.sha){
-       candidate={...remote,firstSeen:Date.now()};scheduleConfirmation();debug.status='confirming deployment';return;
+       candidate={...remote,firstSeen:Date.now()};debug.pendingSince=candidate.firstSeen;scheduleConfirmation();debug.status='confirming deployment';return;
      }
      if(Date.now()-candidate.firstSeen<10000){scheduleConfirmation();debug.status='confirming deployment';return;}
      // An independent second request is essential during GitHub Pages propagation.
      const confirmed=await readRemote();
-     if(confirmed.run!==remote.run||confirmed.sha!==remote.sha){candidate=null;cancelConfirmation();debug.status='waiting for stable deployment';return;}
+     if(confirmed.run!==remote.run||confirmed.sha!==remote.sha){candidate=null;debug.pendingSince=null;cancelConfirmation();debug.status='waiting for stable deployment';return;}
      if(!isNewer(confirmed))return;
+     if(!await releaseAssetReady(confirmed)){
+       // GitHub Pages/CDN propagation is still in progress. Recheck without
+       // consuming this run or navigating away from a working page.
+       debug.status='waiting for deployed assets';
+       scheduleConfirmation();return;
+     }
      refreshing=true;cancelConfirmation();saveSeen(confirmed.run);
      debug.status='refreshing';debug.lastChange='GitHub Pages deployment '+confirmed.run;
-     // Make the next navigation use the newly deployed watcher, if available.
-     try{await fetch(new URL('dd-site-update.js',root),{cache:'reload',credentials:'same-origin'})}catch(_){}
+     // Page bootstrap requests the watcher with a unique URL on every load.
      try{if(typeof window.duoduoPrepareForUpdate==='function')window.duoduoPrepareForUpdate()}catch(_){}
      const url=new URL(location.href);url.searchParams.set('ddv',String(confirmed.run));
      try{
@@ -93,7 +111,7 @@
      }catch(_){}
      location.replace(url.href);
    }catch(error){
-     candidate=null;cancelConfirmation();debug.status='retrying';debug.lastError=String(error?.message||error);
+     candidate=null;debug.pendingSince=null;cancelConfirmation();debug.status='retrying';debug.lastError=String(error?.message||error);
    }finally{busy=false;}
  }
  debug.checkNow=check;

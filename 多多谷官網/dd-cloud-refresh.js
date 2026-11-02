@@ -1,4 +1,4 @@
-/* DuoDuo published cloud data watcher v4.3.
+/* DuoDuo published cloud data watcher v4.4.
  * While foregrounded, news can update in place. Other confirmed changes refresh.
  * When returning from a long background pause, ANY confirmed published change
  * refreshes automatically (never prompts), while unchanged data never reloads.
@@ -20,7 +20,7 @@
  };
  const keys=[...new Set([...(inTools?['duoduo_settings']:['duoduo_settings','duoduo_links']),...(byPage[route]||[])])];
  const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
- const debug={active:true,revision:'v4.3',status:'initializing',lastCheck:null,lastError:null,lastChangedKeys:[]};
+ const debug={active:true,revision:'v4.4',status:'initializing',lastCheck:null,lastError:null,lastChangedKeys:[]};
  window.DuoDuoCloudRefresh=debug;
  let baseline=null, busy=false, refreshPending=false, backgroundSince=null, returnedAfterLongPause=false;
  let candidate=null, confirmationTimer=null;
@@ -94,6 +94,22 @@
    }
    return {hashes,values:next.values};
  }
+ // Embedded pages share the outer shell's single deployment reload authority.
+ // A cloud publication should not swap the iframe while the shell is already
+ // confirming a new GitHub Pages deployment.
+ function deploymentUpdatePending(){
+   try{
+     const host=window.parent!==window&&window.parent.location.origin===location.origin?window.parent:window;
+     const watcher=host.DuoDuoSiteUpdate;
+     if(watcher?.active!==true)return false;
+     if(watcher.status==='refreshing')return true;
+     // A deployment asset that never becomes available must not permanently
+     // block legitimate cloud publications.
+     const elapsed=Date.now()-Number(watcher.pendingSince||0);
+     return elapsed>=0&&elapsed<90000&&
+       (watcher.status==='confirming deployment'||watcher.status==='waiting for deployed assets');
+   }catch(_){return false;}
+ }
  function resetCandidate(){
    candidate=null;
    if(confirmationTimer!==null){clearTimeout(confirmationTimer);confirmationTimer=null;}
@@ -133,6 +149,12 @@
    const confirm=await read();
    if(differences.some(k=>confirm.hashes[k]!==next.hashes[k])){
      resetCandidate();debug.status='waiting for stable cloud data';return;
+   }
+   if(deploymentUpdatePending()){
+     // Keep the confirmed candidate and the page's rendered baseline intact.
+     // A deployment refresh will load the newest cloud snapshot, otherwise
+     // the cloud watcher retries after the other watcher settles.
+     debug.status='waiting for deployment monitor';scheduleConfirmation();return;
    }
    resetCandidate();
    const priorWasBackground=returnedAfterLongPause;
