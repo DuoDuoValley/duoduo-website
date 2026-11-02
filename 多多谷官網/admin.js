@@ -809,7 +809,7 @@ function renderNewsEditor(){
   const custom=document.createElement('input');custom.type='text';custom.maxLength=60;custom.value=item.title;custom.placeholder='輸入自己的標題，例如：伺服器補償安排';
   const titleLabel=makeLabel('自訂段落標題',custom,'event-section-custom-title');
   titleLabel.hidden=item.type!=='custom';
-  const body=document.createElement('textarea');body.rows=5;body.value=item.body;body.placeholder='輸入這個段落的公告內容，可使用換行與清單';
+  const body=document.createElement('textarea');body.rows=5;body.value=item.body;body.placeholder='輸入公告內容，可換行、列清單；貼上 https://網址 會自動變成連結，也可使用 [連結文字](https://網址)';
   makeLabel('段落內容',body,'event-section-full');
   type.addEventListener('change',()=>{
    item.type=type.value;const def=NEWS_SECTION_TYPES.find(t=>t[0]===item.type);
@@ -1060,7 +1060,7 @@ function renderEventSectionEditor(){
     customTitle.placeholder='例如：萬聖節限定兌換商店';
     const titleLabel=makeLabel('自訂段落標題',customTitle,'event-section-custom-title');
     const content=document.createElement('textarea');content.rows=5;
-    content.placeholder='輸入這個段落的活動內容，可直接換行';content.value=item.body;
+    content.placeholder='輸入活動內容，可換行、貼上 https://網址，或使用 [連結文字](https://網址)';content.value=item.body;
     makeLabel('段落內容',content,'event-section-full');
     const updateVisibility=()=>{
       titleLabel.hidden=item.type!=='custom';

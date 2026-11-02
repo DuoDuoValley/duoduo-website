@@ -107,6 +107,9 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
   overflow-wrap: anywhere;
 }
 .event-detail-copy .detail-body .duoduo-detail-section-text:empty { display: none; }
+.event-detail-copy .detail-body a{color:#128bb6;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere;word-break:break-word}
+.event-detail-copy .detail-body a:hover{color:#06b7d8;text-decoration-thickness:2px}
+:root[data-theme="dark"] .event-detail-copy .detail-body a{color:#75d8ff}
 .event-detail-copy .duoduo-exp-inline{display:inline-flex;align-items:center;gap:5px;vertical-align:middle}
 .event-detail-copy .duoduo-exp-inline img{width:24px;height:24px;object-fit:contain;image-rendering:pixelated;flex:none}
 @media (max-width: 600px) {
@@ -173,21 +176,47 @@ function duoduoEventIconSvg(id){
 /* Render admin-defined sections with consistent outline icons, including legacy data. */
 function renderDuoDuoEventSections(event) {
   const labels={intro:['活動介紹','book-open'],method:['活動方式','list-checks'],rules:['活動規則','scroll-text'],rewards:['活動獎勵','gift'],notes:['注意事項','info'],extra:['補充說明','file-text']};
-  // 與最新消息共用相同的三張 1 分鐘經驗道具 PNG，保留舊圖示。
-  const expMinuteNames=['經驗值5倍券(1分)','MVP加倍EXP天氣效果(1分)','YuYu的應援(1分)'];
+  // 所有已確認的公告圖示都能在檔期活動的說明文字內顯示。
+  const expMinuteNames=['經驗值5倍券(1分)','MVP加倍EXP天氣效果(1分)','YuYu的應援(1分)','五星推廣禮交換券','特權點數'];
   const expMinutePattern=new RegExp(expMinuteNames.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
-  const textHtml=text=>{
-    const raw=String(text||'').replace(/\r\n?/g,'\n');
+  const iconInline=raw=>{
+    const text=String(raw??'');
     let out='',last=0;
-    for(const match of raw.matchAll(expMinutePattern)){
-      out+=esc(raw.slice(last,match.index)).replace(/\n/g,'<br>');
+    for(const match of text.matchAll(expMinutePattern)){
+      out+=esc(text.slice(last,match.index));
       const label=match[0];
       const src='player-tools/assets/news-rewards/'+encodeURIComponent(label)+'.png';
       out+=`<span class="duoduo-exp-inline"><img src="${src}" alt="" loading="lazy" decoding="async"><span>${esc(label)}</span></span>`;
       last=match.index+label.length;
     }
-    return out+esc(raw.slice(last)).replace(/\n/g,'<br>');
+    return out+esc(text.slice(last));
   };
+  const linkHtml=(label,raw)=>{
+    let value=String(raw||''),suffix='';
+    while(value&&/[.,!?;:，。！？；：、）)]$/.test(value)){
+      const mark=value.slice(-1);
+      if(mark===')'&&(value.match(/\(/g)||[]).length >= (value.match(/\)/g)||[]).length)break;
+      suffix=mark+suffix;value=value.slice(0,-1);
+    }
+    const absolute=/^www\./i.test(value)?'https://'+value:value;
+    try{
+      const url=new URL(absolute);
+      if(!['http:','https:'].includes(url.protocol))return esc(label||raw);
+      return `<a href="${esc(url.href)}" target="_blank" rel="noopener noreferrer">${label?iconInline(label):esc(value)}</a>`+esc(suffix);
+    }catch(_){return iconInline(label||raw);}
+  };
+  const textInline=raw=>{
+    const input=String(raw??'');
+    const pattern=/\[([^\]\n]{1,120})\]\((https?:\/\/[^\s)<>]+)\)|((?:https?:\/\/|www\.)[^\s<>"'【】\[\]，。！？；：、（）]+)/gi;
+    let html='',start=0,match;
+    while((match=pattern.exec(input))!==null){
+      html+=iconInline(input.slice(start,match.index));
+      html+=match[1]?linkHtml(match[1],match[2]):linkHtml('',match[3]);
+      start=pattern.lastIndex;
+    }
+    return html+iconInline(input.slice(start));
+  };
+  const textHtml=text=>String(text??'').replace(/\r\n?/g,'\n').split('\n').map(textInline).join('<br>');
   let parts=[];
   if(Array.isArray(event?.sectionBlocks)){
     parts=event.sectionBlocks.filter(x=>x&&typeof x==='object').map(item=>({
