@@ -1041,3 +1041,23 @@ html {
   text-align: center !important;
   white-space: nowrap !important;
 }
+
+
+/* V2.58 equipment enhancer parity fixes
+   1) Lucky-stone slider should behave like an interactive control.
+   2) Equipment probability card must visually match Astra's approved card. */
+#enhance .luck-control input[type="range"],
+#enhance .luck-control input[type="range"]::-webkit-slider-thumb,
+#enhance .luck-control input[type="range"]::-moz-range-thumb,
+#systems .luck-control input[type="range"],
+#systems .luck-control input[type="range"]::-webkit-slider-thumb,
+#systems .luck-control input[type="range"]::-moz-range-thumb{
+  cursor:pointer;
+}
+#enhance .probability-box{
+  border:1px solid #dbe5ee;
+}
+:root:not([data-theme="light"]) #enhance .probability-box{
+  background:#0c1929;
+  border-color:#293e54;
+}

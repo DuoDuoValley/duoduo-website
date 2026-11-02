@@ -3,7 +3,7 @@
   'use strict';
   if (!window.matchMedia || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
   const root = document.documentElement;
-  const selector = 'a, button, select, summary, label[for], [role="button"], [role="link"], [role="tab"], [role="menuitem"], [onclick], input[type="button"], input[type="submit"], input[type="reset"], input[type="checkbox"], input[type="radio"], input[type="file"], .btn, .button, [tabindex]:not([tabindex="-1"])';
+  const selector = 'a, button, select, summary, label[for], [role="button"], [role="link"], [role="tab"], [role="menuitem"], [onclick], input[type="button"], input[type="submit"], input[type="reset"], input[type="checkbox"], input[type="radio"], input[type="file"], input[type="range"], .btn, .button, [tabindex]:not([tabindex="-1"])';
   let hovering = false;
   let pressed = false;
   let alternate = false;
