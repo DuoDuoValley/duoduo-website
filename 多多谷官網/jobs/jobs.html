@@ -1,7 +1,16 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head><script src="../dd-maintenance.js"></script>
-  <meta charset="UTF-8">
+<head>
+<meta charset="UTF-8">
+<!-- 套用官網已保存的主題，必須早於 CSS，防止進頁時由深色閃回淺色。 -->
+<script id="duoduo-jobs-early-theme">
+(function () {
+  var theme = 'light';
+  try { if (localStorage.getItem('duoduo_theme') === 'dark') theme = 'dark'; } catch (_) {}
+  document.documentElement.dataset.theme = theme;
+})();
+</script>
+<script src="../dd-maintenance.js"></script>
   <meta name="viewport" content="width=device-width,initial-scale=1.0">
   <meta name="color-scheme" content="dark light">
   <meta name="description" content="多多谷角色卡與傳授技能：依 12 大系列查詢 S／SS／SSS 角色卡效果與傳授連結技能。">
@@ -41,6 +50,17 @@
     <a class="btn btn-discord" href="https://discord.gg/duoduovalley" data-link="discord" target="_blank" rel="noopener noreferrer">加入 Discord</a>
   </div>
 </header>
+<script id="duoduo-jobs-early-theme-label">
+(function () {
+  var light = document.documentElement.dataset.theme !== 'dark';
+  var icon = document.getElementById('themeIcon');
+  var label = document.getElementById('themeLabel');
+  var button = document.getElementById('themeToggle');
+  if (icon) icon.textContent = light ? '☾' : '☼';
+  if (label) label.textContent = light ? '深色模式' : '淺色模式';
+  if (button) button.title = light ? '切換深色模式' : '切換淺色模式';
+})();
+</script>
   <div class="site-wrap">
 
     <main>
