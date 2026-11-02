@@ -1061,3 +1061,10 @@ html {
   background:#0c1929;
   border-color:#293e54;
 }
+
+/* V2.59: mobile equipment form follows Astra card spacing exactly.
+   The probability card already matches Astra in both themes; align its
+   containing panel padding to remove the 12px width discrepancy. */
+@media (max-width:620px){
+  #enhance .controls-card{padding:22px;border-radius:20px}
+}
