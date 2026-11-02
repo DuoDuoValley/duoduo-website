@@ -436,25 +436,33 @@
   }
   function sharedCard(group){
     const skill=skillFor(group.jobs[0]);
+    // 保留共用技能的原群組資訊，但職業清單只顯示符合目前篩選的成員。
+    const total=group.totalMembers??group.jobs.length;
+    const partial=group.jobs.length<total;
+    const countLabel=partial?`${group.jobs.length}／${total} 個職業`:`${total} 個職業`;
     return `<button type="button" class="job-card shared-card" data-groupid="${group.id}" aria-label="查看${escapeHtml(group.jobs.map(j=>j.name).join('、'))}共用的${escapeHtml(skill.name)}與各自角色卡效果">
-      <div class="shared-head"><div><div class="shared-eyebrow">${escapeHtml(group.series)} <span>·</span> 共用傳授連結技能</div><strong class="shared-heading">${escapeHtml(skill.name)}</strong></div><span class="shared-count">${group.jobs.length} 個職業</span></div>
+      <div class="shared-head"><div><div class="shared-eyebrow">${escapeHtml(group.series)} <span>·</span> 共用傳授連結技能</div><strong class="shared-heading">${escapeHtml(skill.name)}</strong></div><span class="shared-count">${countLabel}</span></div>
       <div class="shared-roster">${group.jobs.map(memberTile).join('')}</div>
       <div class="shared-skill"><img class="skill-icon" src="${escapeHtml(skill.image)}" alt="" width="32" height="32" loading="lazy"><div><span>共同傳授連結技能</span><strong>${escapeHtml(skill.name)}</strong><p>${escapeHtml(skill.summary)}</p></div></div>
-      <div class="card-footer"><span>查看全部職業角色卡與完整技能說明</span><span class="arrow" aria-hidden="true">↗</span></div>
+      <div class="card-footer"><span>${partial?'查看符合篩選的職業角色卡與完整技能說明':'查看全部職業角色卡與完整技能說明'}</span><span class="arrow" aria-hidden="true">↗</span></div>
     </button>`;
   }
   function render(){
     renderTabs();const matched=data.jobs.filter(matchJob);
     const matchingIds=new Set(matched.map(j=>j.id));
-    // 符合篩選的任一職業會顯示完整共用技能卡，方便比較同行職業的獨立 SSS 能力。
-    const found=allGroups.filter(group=>group.jobs.some(j=>matchingIds.has(j.id)));
-    const shared=found.filter(group=>group.jobs.length>1);
-    const solo=found.filter(group=>group.jobs.length===1);
+    // 以職業為單位篩選，再按原系列＋技能分組；不可因群組中一人符合就把所有職業顯示出來。
+    const found=allGroups.map(group=>{
+      const jobs=group.jobs.filter(job=>matchingIds.has(job.id));
+      return jobs.length?{...group,jobs,totalMembers:group.jobs.length}:null;
+    }).filter(Boolean);
+    // 是否為共用技能依原本完整群組判定，避免只剩 1 人時錯誤變成獨立技能。
+    const shared=found.filter(group=>group.totalMembers>1);
+    const solo=found.filter(group=>group.totalMembers===1);
     const sharedHtml=shared.length?`<section class="card-collection" aria-label="共用傳授連結技能職業"><div class="collection-head"><h3>共用傳授連結技能</h3><span>${shared.length} 組 · ${shared.reduce((n,g)=>n+g.jobs.length,0)} 個職業</span></div><div class="shared-grid">${shared.map(sharedCard).join('')}</div></section>`:'';
     const soloHtml=solo.length?`<section class="card-collection" aria-label="獨立傳授連結技能職業">${shared.length?`<div class="collection-head"><h3>獨立職業</h3><span>${solo.length} 個職業</span></div>`:''}<div class="individual-grid">${solo.map(group=>jobCard(group.jobs[0],group)).join('')}</div></section>`:'';
     byId('jobsGrid').innerHTML=sharedHtml+soloHtml;
     const subset=matched.length<data.jobs.length;
-    byId('resultCount').innerHTML=`目前顯示 <strong>${found.length}</strong> 張卡片${subset?`，符合 <strong>${matched.length}</strong> 個職業（共用技能卡會顯示同組所有職業）`:`，涵蓋 <strong>${data.jobs.length}</strong> 個職業`}`;
+    byId('resultCount').innerHTML=`目前顯示 <strong>${found.length}</strong> 張卡片${subset?`，符合 <strong>${matched.length}</strong> 個職業（共用技能群組僅顯示符合者）`:`，涵蓋 <strong>${data.jobs.length}</strong> 個職業`}`;
     byId('emptyState').hidden=found.length>0;
     byId('resetFilters').hidden=!(state.series||state.search||state.type||state.trait);
   }
@@ -464,7 +472,7 @@
     if(activeTooltipController){activeTooltipController.abort();activeTooltipController=null;}
     lastFocus=document.activeElement;
     browseScrollY=window.scrollY;
-    const multiple=group.jobs.length>1;
+    const multiple=(group.totalMembers??group.jobs.length)>1;
     // V6.0：先顯示自身最高等級效果；傳授連結技能與各級切換分開，且共用同一張技能圖示。
     // 直接沿用 V5.9 核對過的原始資料，不調整任何技能數值。
     const ownRows=skillDetailRows(skill);
@@ -486,7 +494,7 @@
     const levelHtml=levelOptions.length?`<section class="dialog-section-card dialog-transfer-card"><div class="dialog-section-head"><div><span class="dialog-section-kicker">LINK SKILL</span><h3>等級效果與傳授連結技能</h3></div><span class="dialog-section-badge">Lv.1～Lv.${selfMax}</span></div><p class="dialog-section-help">可比較 Lv.1～Lv.${selfMax} 各級技能效果，或切換查看作為傳授連結技能提供給其他角色時的效果。</p>${levelControls}<div class="skill-level-result" role="status" aria-live="polite"><div class="skill-level-result-heading"><div class="skill-level-result-title" id="skillLevelResultLabel">${escapeHtml(skillLevelLabel(selectedLevel))}</div><button type="button" class="skill-copy-button" id="copySkillEffect" title="複製目前選擇的技能效果" aria-label="複製目前技能名稱、等級和效果">複製效果</button></div><p class="skill-level-effect" id="skillLevelEffect">${escapeHtml(displaySkillEffect(levelOptions[selectedLevel].effect))}</p></div><p class="skill-level-note">${escapeHtml(skill.levelNote||'')}</p></section>`:'';
     const members=group.jobs.map(job=>`<div class="dialog-member"><img src="${escapeHtml(job.image)}" alt="${escapeHtml(job.name)}職業卡片" width="152" height="74"><div><strong>${escapeHtml(job.name)}</strong><span>${escapeHtml(job.type)} · <span data-union-label>${state.rank} 角色卡</span></span><b data-union-job="${escapeHtml(job.id)}">${escapeHtml(unionStat(job))}</b></div></div>`).join('');
     byId('jobDialog').querySelector('.job-skill-tooltip')?.remove();
-    byId('jobDialogContent').innerHTML=`<div class="dialog-head dialog-group-head"><img src="${escapeHtml(group.jobs[0].image)}" alt="" width="152" height="74"><div><div class="dialog-sub">${escapeHtml(group.series)}</div><h2>${multiple?'共用傳授連結技能':escapeHtml(group.jobs[0].name)}</h2><div class="dialog-meta">${multiple?`${group.jobs.length} 個職業 · ${escapeHtml(skill.name)}`:`${escapeHtml(group.jobs[0].type)} · 職業資料`}</div></div><button type="button" class="dialog-close" id="closeJobDialog" aria-label="關閉詳細資料">×</button></div>
+    byId('jobDialogContent').innerHTML=`<div class="dialog-head dialog-group-head"><img src="${escapeHtml(group.jobs[0].image)}" alt="" width="152" height="74"><div><div class="dialog-sub">${escapeHtml(group.series)}</div><h2>${multiple?'共用傳授連結技能':escapeHtml(group.jobs[0].name)}</h2><div class="dialog-meta">${multiple?`${group.jobs.length<(group.totalMembers??group.jobs.length)?`${group.jobs.length}／${group.totalMembers}`:group.jobs.length} 個職業 · ${escapeHtml(skill.name)}`:`${escapeHtml(group.jobs[0].type)} · 職業資料`}</div></div><button type="button" class="dialog-close" id="closeJobDialog" aria-label="關閉詳細資料">×</button></div>
       <div class="dialog-body dialog-body-v60">
         <section class="dialog-info dialog-skill-top"><div class="dialog-skill"><button type="button" id="skillDetailTrigger" class="skill-detail-trigger" aria-expanded="false" aria-label="查看${escapeHtml(skill.name)}的完整技能介紹與等級表" title="查看完整技能介紹與等級表"><img src="${escapeHtml(skill.image)}" alt="" width="40" height="40"></button><div class="dialog-skill-name"><span class="dialog-section-kicker">技能資訊</span><strong>${escapeHtml(skill.name)}</strong><span>自身與傳授連結技能共用相同技能圖示</span></div><button type="button" class="skill-open-table" id="skillOpenTable">完整等級表 <span aria-hidden="true">↗</span></button></div></section>
         <section class="dialog-section-card dialog-self-card" aria-label="角色自身技能效果"><div class="dialog-section-head"><div><span class="dialog-section-kicker">OWN SKILL</span><h3>角色自身效果</h3></div><span class="dialog-section-badge">最高 Lv.${selfMax}</span></div><p class="dialog-self-effect">${escapeHtml(displaySkillEffect(selfEffect))}</p>${ownMetrics}</section>
@@ -591,7 +599,7 @@
   byId('typeSelect').addEventListener('change',e=>{state.type=e.target.value;render();});
   byId('traitSelect').addEventListener('change',e=>{state.trait=e.target.value;render();});
   byId('resetFilters').addEventListener('click',reset);byId('emptyReset').addEventListener('click',reset);
-  byId('jobsGrid').addEventListener('click',e=>{const button=e.target.closest('[data-groupid]');if(!button)return;const group=groupById.get(button.dataset.groupid);if(group)showGroup(group);});
+  byId('jobsGrid').addEventListener('click',e=>{const button=e.target.closest('[data-groupid]');if(!button)return;const group=groupById.get(button.dataset.groupid);if(!group)return;const jobs=group.jobs.filter(matchJob);if(jobs.length)showGroup({...group,jobs,totalMembers:group.jobs.length});});
   byId('jobDialog').addEventListener('click',e=>{if(e.target===byId('jobDialog'))byId('jobDialog').close();});
   byId('jobDialog').addEventListener('close',()=>{
     if(lastFocus&&lastFocus.isConnected)lastFocus.focus({preventScroll:true});
