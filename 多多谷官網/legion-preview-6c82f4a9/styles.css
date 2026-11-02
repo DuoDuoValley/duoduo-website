@@ -790,3 +790,16 @@ html[data-theme="dark"] .deployment-cap progress::-webkit-progress-bar{backgroun
   .board-panel > .occupancy-panel .occupancy-grid{grid-template-columns:minmax(0,1fr);}
   .board-panel > .occupancy-panel .occupancy-head-tag{display:none;}
 }
+
+/* V2.50 — align the two desktop columns on the same lower baseline.
+   Spread the available vertical room among existing sections instead of adding
+   an empty spacer or stretching the board bitmap and controls. */
+@media (min-width:1071px){
+  .workspace{align-items:stretch!important;}
+  .workspace>.side,.workspace>.board-panel{align-self:stretch!important;}
+  .workspace>.board-panel{
+    display:flex;
+    flex-direction:column;
+    justify-content:space-between;
+  }
+}
