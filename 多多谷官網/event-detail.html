@@ -107,6 +107,8 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
   overflow-wrap: anywhere;
 }
 .event-detail-copy .detail-body .duoduo-detail-section-text:empty { display: none; }
+.event-detail-copy .duoduo-exp-inline{display:inline-flex;align-items:center;gap:5px;vertical-align:middle}
+.event-detail-copy .duoduo-exp-inline img{width:24px;height:24px;object-fit:contain;image-rendering:pixelated;flex:none}
 @media (max-width: 600px) {
   .event-detail-copy .detail-body .duoduo-detail-section { padding: 20px 0 23px; }
   .event-detail-copy .detail-body .duoduo-detail-heading { margin-bottom: 12px; font-size: 18px; }
@@ -171,7 +173,21 @@ function duoduoEventIconSvg(id){
 /* Render admin-defined sections with consistent outline icons, including legacy data. */
 function renderDuoDuoEventSections(event) {
   const labels={intro:['活動介紹','book-open'],method:['活動方式','list-checks'],rules:['活動規則','scroll-text'],rewards:['活動獎勵','gift'],notes:['注意事項','info'],extra:['補充說明','file-text']};
-  const textHtml=text=>esc(String(text).replace(/\r\n?/g,'\n')).replace(/\n/g,'<br>');
+  // 與最新消息共用相同的三張 1 分鐘經驗道具 PNG，保留舊圖示。
+  const expMinuteNames=['經驗值5倍券(1分)','MVP加倍EXP天氣效果(1分)','YuYu的應援(1分)'];
+  const expMinutePattern=new RegExp(expMinuteNames.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
+  const textHtml=text=>{
+    const raw=String(text||'').replace(/\r\n?/g,'\n');
+    let out='',last=0;
+    for(const match of raw.matchAll(expMinutePattern)){
+      out+=esc(raw.slice(last,match.index)).replace(/\n/g,'<br>');
+      const label=match[0];
+      const src='player-tools/assets/news-rewards/'+encodeURIComponent(label)+'.png';
+      out+=`<span class="duoduo-exp-inline"><img src="${src}" alt="" loading="lazy" decoding="async"><span>${esc(label)}</span></span>`;
+      last=match.index+label.length;
+    }
+    return out+esc(raw.slice(last)).replace(/\n/g,'<br>');
+  };
   let parts=[];
   if(Array.isArray(event?.sectionBlocks)){
     parts=event.sectionBlocks.filter(x=>x&&typeof x==='object').map(item=>({
