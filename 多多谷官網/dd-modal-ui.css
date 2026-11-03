@@ -1,0 +1,114 @@
+/* 多多谷共用彈窗控制標準 v1 — 公告／道具百科／職業／玩家評論。
+   只管理關閉鍵與內部捲軸，不影響棋盤、清單或一般頁面捲動。 */
+:root{
+  --dd-modal-close-size:40px;
+  --dd-modal-close-top:14px;
+  --dd-modal-scroll-inset:10px;
+  --dd-modal-scroll-width:8px;
+  --dd-modal-close-gap:12px;
+  --dd-modal-close-right:calc(var(--dd-modal-scroll-inset) + var(--dd-modal-scroll-width) + var(--dd-modal-close-gap));
+}
+/* Close glyph is drawn as two centered lines; platform font metrics cannot shift it. */
+:is(.news-detail .news-modal-close,
+    .pedia-modal .pedia-close,
+    .job-dialog .dialog-close,
+    .review-modal .review-modal-close,
+    .review-list-modal .review-list-modal-close){
+  position:absolute;z-index:5;box-sizing:border-box;
+  width:var(--dd-modal-close-size);height:var(--dd-modal-close-size);
+  top:var(--dd-modal-close-top);right:var(--dd-modal-close-right);
+  padding:0;border-radius:50%;display:grid;place-items:center;
+  font-size:0;line-height:0;isolation:isolate;cursor:pointer;
+}
+:is(.news-detail .news-modal-close,
+    .pedia-modal .pedia-close,
+    .job-dialog .dialog-close,
+    .review-modal .review-modal-close,
+    .review-list-modal .review-list-modal-close)::before,
+:is(.news-detail .news-modal-close,
+    .pedia-modal .pedia-close,
+    .job-dialog .dialog-close,
+    .review-modal .review-modal-close,
+    .review-list-modal .review-list-modal-close)::after{
+  content:"";position:absolute;left:50%;top:50%;
+  width:17px;height:1.8px;border-radius:2px;background:currentColor;pointer-events:none;
+}
+:is(.news-detail .news-modal-close,
+    .pedia-modal .pedia-close,
+    .job-dialog .dialog-close,
+    .review-modal .review-modal-close,
+    .review-list-modal .review-list-modal-close)::before{transform:translate(-50%,-50%) rotate(45deg)}
+:is(.news-detail .news-modal-close,
+    .pedia-modal .pedia-close,
+    .job-dialog .dialog-close,
+    .review-modal .review-modal-close,
+    .review-list-modal .review-list-modal-close)::after{transform:translate(-50%,-50%) rotate(-45deg)}
+:is(.news-detail .news-modal-close,
+    .pedia-modal .pedia-close,
+    .job-dialog .dialog-close,
+    .review-modal .review-modal-close,
+    .review-list-modal .review-list-modal-close):focus-visible{
+  outline:2px solid #2ba4ce;outline-offset:3px;
+}
+/* The scroll viewport is 10px from the rounded edge; 8px track + 12px gap before the close key. */
+:is(.news-detail .news-modal-scroll,
+    .pedia-modal .pedia-modal-scroll,
+    .job-dialog #jobDialogContent,
+    .review-modal .dd-review-scroll,
+    .review-list-modal .dd-review-scroll){
+  overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;
+  scrollbar-width:thin;scrollbar-color:#91a6b8 transparent;
+  -webkit-overflow-scrolling:touch;
+  margin:8px var(--dd-modal-scroll-inset) 8px 0;
+}
+:is(.news-detail .news-modal-scroll,
+    .pedia-modal .pedia-modal-scroll,
+    .job-dialog #jobDialogContent,
+    .review-modal .dd-review-scroll,
+    .review-list-modal .dd-review-scroll)::-webkit-scrollbar{width:var(--dd-modal-scroll-width)}
+:is(.news-detail .news-modal-scroll,
+    .pedia-modal .pedia-modal-scroll,
+    .job-dialog #jobDialogContent,
+    .review-modal .dd-review-scroll,
+    .review-list-modal .dd-review-scroll)::-webkit-scrollbar-thumb{
+  background:#91a6b8;border-radius:99px;border:1px solid transparent;background-clip:padding-box;
+}
+:is(.news-detail .news-modal-scroll,
+    .pedia-modal .pedia-modal-scroll,
+    .job-dialog #jobDialogContent,
+    .review-modal .dd-review-scroll,
+    .review-list-modal .dd-review-scroll)::-webkit-scrollbar-track{background:transparent}
+:root[data-theme="dark"] :is(.news-detail .news-modal-scroll,
+    .pedia-modal .pedia-modal-scroll,
+    .job-dialog #jobDialogContent,
+    .review-modal .dd-review-scroll,
+    .review-list-modal .dd-review-scroll){scrollbar-color:#647c91 transparent}
+:root[data-theme="dark"] :is(.news-detail .news-modal-scroll,
+    .pedia-modal .pedia-modal-scroll,
+    .job-dialog #jobDialogContent,
+    .review-modal .dd-review-scroll,
+    .review-list-modal .dd-review-scroll)::-webkit-scrollbar-thumb{background:#647c91}
+/* Jobs scrolls a single inner column; the button is positioned within .dialog-head. */
+.job-dialog #jobDialogContent{min-height:0;max-height:calc(min(90vh,940px) - 16px)}
+.job-dialog .dialog-head .dialog-close{right:calc(var(--dd-modal-close-right) - var(--dd-modal-scroll-inset))}
+/* Reviews used to scroll the box including its close button. Keep shell fixed and content inside. */
+.review-modal .review-modal-box,.review-list-modal .review-list-modal-box{
+  overflow:hidden!important;padding:0!important;display:flex!important;flex-direction:column;
+}
+.review-modal .dd-review-scroll,.review-list-modal .dd-review-scroll{
+  min-height:0;flex:1 1 auto;padding:28px;max-height:100%;
+}
+/* Legacy review JS puts dimensions in inline style; shared measurements take precedence. */
+.review-modal .review-modal-close,.review-list-modal .review-list-modal-close{
+  width:var(--dd-modal-close-size)!important;height:var(--dd-modal-close-size)!important;
+  top:var(--dd-modal-close-top)!important;right:var(--dd-modal-close-right)!important;
+  padding:0!important;border-radius:50%!important;font-size:0!important;line-height:0!important;
+  display:grid!important;place-items:center!important;
+}
+html:has(#reviewModal[open],#reviewListModal[open]),
+body:has(#reviewModal[open],#reviewListModal[open]){overflow:hidden}
+@media(max-width:700px){
+  .review-modal .dd-review-scroll,.review-list-modal .dd-review-scroll{padding:20px}
+  /* same measured controls on desktop and phone, with no special one-off positions */
+  .pedia-modal .pedia-close{right:var(--dd-modal-close-right)}
+}

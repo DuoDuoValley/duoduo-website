@@ -422,6 +422,16 @@ if(reviewGrid){
   if(reviewListClose)Object.assign(reviewListClose.style,{position:"absolute",top:"14px",right:"16px",width:"34px",height:"34px",border:"1px solid var(--line,#294057)",borderRadius:"50%",background:"transparent",color:"var(--text,#fff)",fontSize:"22px",lineHeight:"1",cursor:"pointer"});
   if(!reviewListModal.dataset.ready){reviewListModal.dataset.ready="1";const style=document.createElement("style");style.textContent=`#reviewListModal{overflow:hidden;} #reviewListModal::backdrop{background:rgba(3,10,18,.72);backdrop-filter:blur(5px);-webkit-backdrop-filter:blur(5px);} #reviewListModal .review-list-modal-box{margin:auto;}`;document.head.appendChild(style);}
 
+  // Shared modal standard: keep close controls outside the scrolling content.
+  function setupReviewScroll(box,close){
+    if(!box||box.querySelector(':scope > .dd-review-scroll'))return;
+    const area=document.createElement('div');area.className='dd-review-scroll';
+    for(const child of [...box.children])if(child!==close)area.appendChild(child);
+    box.appendChild(area);
+  }
+  setupReviewScroll(reviewModalBox,reviewClose);
+  setupReviewScroll(reviewListModalBox,reviewListClose);
+
   const renderReviewListModal=()=>{
     const grid=reviewListModal.querySelector(".review-list-modal-grid");
     if(!grid)return;
