@@ -63,9 +63,17 @@
 /* V7.12: honor the native hidden attribute inside the admin CSS grid. */
 #bossAtlasPanel #atBossCustomMaxWrap[hidden]{display:none!important}
 
-/* BOSS Atlas order controls (category-local). */
-#bossAtlasPanel .at-drop-line{grid-template-columns:30px minmax(130px,1fr) 100px 95px 66px 36px}
-#bossAtlasPanel .at-drop-order{display:flex;gap:3px}
-#bossAtlasPanel .at-drop-order button{width:31px;height:36px;background:#17354a;border-color:#395f7c;color:#d9eeff;font-weight:800}
-#bossAtlasPanel .at-drop-order button:hover{background:#25516e}
-@media(max-width:700px){#bossAtlasPanel .at-drop-line{grid-template-columns:26px minmax(80px,1fr) 58px 58px 54px 30px;gap:3px}#bossAtlasPanel .at-drop-order{gap:2px}#bossAtlasPanel .at-drop-order button{width:26px;height:32px}#bossAtlasPanel .at-drop-line select,#bossAtlasPanel .at-drop-line input{padding:5px;font-size:11px}}
+
+/* V7.13: difficulty editor layout + stage boss levels */
+#bossAtlasPanel .at-diff-meta{display:grid;grid-template-columns:minmax(220px,.9fr) minmax(0,1.4fr);gap:12px;margin-bottom:14px;align-items:start}
+#bossAtlasPanel .at-diff-meta .at-diff-meta-full{grid-column:1/-1}
+#bossAtlasPanel .at-diff-meta textarea{min-height:92px;resize:vertical}
+#bossAtlasPanel .at-diff-meta input{min-height:40px}
+#bossAtlasPanel .at-level-stages{margin:9px 0 14px;padding:12px;background:rgba(114,168,220,.07);border:1px solid rgba(145,182,224,.22);border-radius:11px}
+#bossAtlasPanel .at-level-head{font-size:12px;font-weight:750;color:var(--text,#d9eaff);margin:0 0 9px}
+#bossAtlasPanel .at-level-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}
+#bossAtlasPanel .at-level-grid .at-field{min-width:0}
+#bossAtlasPanel .at-level-grid input{width:100%;min-width:0}
+@media(max-width:900px){#bossAtlasPanel .at-diff-meta{grid-template-columns:1fr}}
+@media(max-width:800px){#bossAtlasPanel .at-level-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:440px){#bossAtlasPanel .at-level-grid{grid-template-columns:1fr}}
