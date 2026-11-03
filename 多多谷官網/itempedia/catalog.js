@@ -58,7 +58,7 @@ function renderWzTooltip(raw){const src=String(raw||'').replace(/\r\n/g,'\n').re
     for(let i=0;i<block.length;i++){if(block.startsWith('#c',i)){flush();mode='accent';i++;continue;}if(block[i]==='#'&&mode!=='normal'){flush();mode='normal';continue;}buf+=block[i];}
     flush();body.append(lineBox);}
   return wrap;}
-function drawFilters(){const root=$('pediaFilters');root.replaceChildren();const counts=new Map();for(const i of all())counts.set(i.category,(counts.get(i.category)||0)+1);for(const k of ['全部',...catalog.categories,...[...counts.keys()].filter(x=>!catalog.categories.includes(x))]){const count=k==='全部'?all().length:(counts.get(k)||0);if(k!=='全部'&&!count)continue;const b=el('button');b.type='button';b.setAttribute('aria-pressed',String(category===k));b.append(document.createTextNode(k));b.append(el('b','',count));b.onclick=()=>{category=k;drawFilters();render()};root.append(b);}}
+function drawFilters(){const root=$('pediaFilters');root.replaceChildren();const counts=new Map();for(const i of all())counts.set(i.category,(counts.get(i.category)||0)+1);for(const k of ['全部',...catalog.categories,...[...counts.keys()].filter(x=>!catalog.categories.includes(x))]){const count=k==='全部'?all().length:(counts.get(k)||0);if(k!=='全部'&&!count)continue;const b=el('button');b.type='button';b.setAttribute('aria-pressed',String(category===k));b.append(document.createTextNode(k));b.append(el('b','',count));b.onclick=()=>{category=k;drawFilters();render();const u=new URL(location.href);if(k==='全部')u.searchParams.delete('category');else u.searchParams.set('category',k);const href=u.pathname+u.search+u.hash;if(href!==location.pathname+location.search+location.hash)history.pushState({},'',href);};root.append(b);}}
 function filtered(){return all().filter(i=>(category==='全部'||i.category===category)&&(!query||qnorm([i.name,i.description,...(i.keywords||[])].join(' ')).includes(qnorm(query))));}
 function render(){const out=$('pediaCards');out.replaceChildren();out.classList.toggle('pedia-list',view==='list');const items=filtered();$('pediaCount').textContent=`目前顯示 ${items.length} 項／共 ${all().length} 項道具`;
 if(!items.length){out.append(el('div','pedia-none','沒有符合條件的道具，試試其他關鍵字或分類。'));return;}
@@ -95,5 +95,12 @@ document.querySelectorAll('[data-pedia-view]').forEach(btn=>btn.onclick=()=>{vie
 if($('pediaDemoText'))$('pediaDemoText').addEventListener('input',keywordDemo);
 $('pediaTotal').textContent=all().length;
 if($('pediaCategoryTotal'))$('pediaCategoryTotal').textContent=(catalog.categories||[]).length;
+const routeCategory=params.get('category');
+if(routeCategory&&all().some(item=>item.category===routeCategory))category=routeCategory;
+window.addEventListener('popstate',()=>{
+ const fromUrl=new URLSearchParams(location.search).get('category');
+ category=fromUrl&&all().some(item=>item.category===fromUrl)?fromUrl:'全部';
+ drawFilters();render();
+});
 drawFilters();render();if($('pediaDemoOutput'))keywordDemo();
 })();

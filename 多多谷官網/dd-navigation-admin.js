@@ -25,7 +25,7 @@
  if(saved&&typeof saved==='object')for(const key of Object.keys(groups)){
   if(Array.isArray(saved[key]?.items)){
    const items=saved[key].items.map(x=>upgradeJobsTitle({...x})).slice(0,20);
-   groups[key].items=key==='news'?window.DuoDuoNavEnsureNewsSerial(items,root?.navDropdown?.newsSerialAdded):key==='guide'?window.DuoDuoNavEnsureItempedia(window.DuoDuoNavEnsureLegion(window.DuoDuoNavEnsureGuideChecklist(items,root?.navDropdown?.guideChecklistAdded))):items;
+   groups[key].items=key==='news'?window.DuoDuoNavEnsureNewsPunishment(window.DuoDuoNavEnsureNewsSerial(items,root?.navDropdown?.newsSerialAdded)):key==='guide'?window.DuoDuoNavEnsureItempedia(window.DuoDuoNavEnsureLegion(window.DuoDuoNavEnsureGuideChecklist(items,root?.navDropdown?.guideChecklistAdded))):items;
   }
  }
  const nameMap={'news':'最新消息',events:'檔期活動',boss:'BOSS',guide:'遊玩指南',downloads:'下載專區','player-tools':'玩家工具'};

@@ -90,15 +90,26 @@
   function renderJackpotSummary(results,pool){const box=$('jackpotSummary');if(!box)return;const hits=results.map((item,index)=>({item,index:index+1})).filter(x=>isJackpot(x.item,pool));box.hidden=false;if(!hits.length){box.className='jackpot-summary no-jackpot';box.innerHTML=`<span class="jackpot-summary-icon">🎯</span><div><strong>本次未抽中頭獎</strong><small>${pool.name} · 本次 ${results.length} 抽，可繼續嘗試</small></div>`;return;}const groups=[];hits.forEach(({item,index})=>{let found=groups.find(g=>g.item.name===item.name);if(!found){found={item,count:0,indices:[]};groups.push(found);}found.count++;found.indices.push(index);});box.className='jackpot-summary has-jackpot';box.innerHTML=`<div class="jackpot-summary-head"><span class="jackpot-summary-icon">🏆</span><div><strong>恭喜！本次命中 ${hits.length} 次頭獎</strong><small>以下直接列出中獎品項，可分別查看每一次命中結果</small></div></div><div class="jackpot-summary-items">${groups.map(g=>{const img=gachaItemImage(g.item,pool);return `<div class="jackpot-summary-item">${img?`<img src="${safeAssetUrl(img)}" alt="">`:''}<div><strong>${g.item.name}</strong><small>命中 ${g.count} 次 · 抽數 ${g.indices.join('、')}</small><div class="jackpot-jump-list">${g.indices.map(index=>`<button type="button" class="jackpot-jump" data-jump-draw="${index}">查看第 ${index} 抽</button>`).join('')}</div></div></div>`;}).join('')}</div>`;box.querySelectorAll('[data-jump-draw]').forEach(btn=>btn.addEventListener('click',()=>{const target=$('drawResults').querySelector(`.draw-item[data-draw-index="${Number(btn.dataset.jumpDraw)}"]`);if(target){target.scrollIntoView({behavior:'smooth',block:'center'});target.classList.remove('jackpot-focus');void target.offsetWidth;target.classList.add('jackpot-focus');setTimeout(()=>target.classList.remove('jackpot-focus'),1800);}}));}
   function doDraw(count){const pool=currentPool(),results=[];for(let i=0;i<count;i++){const item=weightedDraw(pool);results.push(item);selectedCounts[item.name]=(selectedCounts[item.name]||0)+1;}totalPulls+=count;lastPullCount=count;$('totalPulls').textContent=fmt(totalPulls);$('lastPullCount').textContent=fmt(lastPullCount);$('uniqueItems').textContent=fmt(Object.keys(selectedCounts).length);const jackpotHits=results.filter(it=>isJackpot(it,pool));$('drawPoolLabel').textContent=`${pool.name} · 本次 ${count} 抽${jackpotHits.length?` · 🎉 命中頭獎 ${jackpotHits.length} 次`:' · 本次未中頭獎'}`;$('drawPoolLabel').title=jackpotHits.length?`恭喜抽中：${[...new Set(jackpotHits.map(it=>it.name))].join('、')}`:'';renderJackpotSummary(results,pool);$('drawResults').innerHTML=results.map((it,i)=>{const img=gachaItemImage(it,pool),jackpot=isJackpot(it,pool);return `<div class="draw-item ${jackpot?'jackpot-hit':''}" data-draw-index="${i+1}"><span class="draw-number">${i+1}</span>${img?`<img class="gacha-draw-icon" src="${safeAssetUrl(img)}" alt="">`:''}<div>${jackpot?'<span class="jackpot-badge">🎉 頭獎命中</span>':''}<strong>${it.name}</strong><small>表列機率 ${(it.prob*100).toFixed(3).replace(/0+$/,'').replace(/\.$/,'')}%</small></div></div>`;}).join('');}
   document.querySelectorAll('[data-pulls]').forEach(btn=>btn.addEventListener('click',()=>doDraw(Number(btn.dataset.pulls))));$('itemSearch').addEventListener('input',renderProbability);$('resetGacha').addEventListener('click',()=>{totalPulls=0;lastPullCount=0;selectedCounts={};$('totalPulls').textContent='0';$('lastPullCount').textContent='0';$('uniqueItems').textContent='0';$('drawPoolLabel').textContent='尚未抽獎';$('drawPoolLabel').title='';$('jackpotSummary').hidden=true;$('jackpotSummary').innerHTML='';$('drawResults').innerHTML='<div class="empty-state">選擇獎池後，點擊單抽或連抽。</div>'; });
-  document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>{
-    const tab=btn.dataset.tab;
-    document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b===btn));
+  const TOOL_TABS=new Set(['enhance','astra','totem','liner','tower','gacha']);
+  let displayedTool='enhance';
+  function selectTool(tab,updateUrl=false){
+    if(!TOOL_TABS.has(tab))tab='enhance';
+    const old=displayedTool;displayedTool=tab;
+    document.querySelectorAll('.tab').forEach(b=>{b.classList.toggle('active',b.dataset.tab===tab);b.setAttribute('aria-selected',String(b.dataset.tab===tab));});
     document.querySelectorAll('.tool-panel').forEach(panel=>panel.classList.toggle('active',panel.id===(['astra','totem','liner'].includes(tab)?'systems':tab)));
-    if(['astra','totem','liner'].includes(tab)){
-      if (typeof window.setDuoduoSystemKind === 'function') window.setDuoduoSystemKind(tab);
-      // Keep the current viewport; switching category should not force-scroll the page.
+    if(['astra','totem','liner'].includes(tab)&&old!==tab){
+      if(typeof window.setDuoduoSystemKind==='function')window.setDuoduoSystemKind(tab);
     }
-  }));
+    if(updateUrl){
+      const u=new URL(location.href);u.searchParams.set('ddnav',tab);
+      const href=u.pathname+u.search+u.hash;
+      if(href!==location.pathname+location.search+location.hash)history.pushState({},'',href);
+    }
+  }
+  document.querySelectorAll('.tab').forEach(btn=>btn.addEventListener('click',()=>selectTool(btn.dataset.tab,true)));
+  window.addEventListener('popstate',()=>selectTool(new URLSearchParams(location.search).get('ddnav'),false));
+  // Initial deep link is applied before the navigation script runs; no extra history entry.
+  selectTool(new URLSearchParams(location.search).get('ddnav'),false);
 
   async function loadSharedWebsiteSettings(){
     const apiBase=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';

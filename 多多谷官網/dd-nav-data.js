@@ -1,6 +1,6 @@
 /* Shared canonical six-category menu defaults for frontend and backend. */
 window.DuoDuoNavDefaults=[
- {key:'news',name:'最新消息',href:'news.html',items:[['全部','news.html?ddnav=全部'],['重要','news.html?ddnav=重要消息'],['維護','news.html?ddnav=維護通知'],['更新','news.html?ddnav=更新說明'],['活動','news.html?ddnav=活動資訊'],['序號','news.html?ddnav=序號發放']]},
+ {key:'news',name:'最新消息',href:'news.html',items:[['全部','news.html?ddnav=全部'],['重要','news.html?ddnav=重要消息'],['維護','news.html?ddnav=維護通知'],['更新','news.html?ddnav=更新說明'],['活動','news.html?ddnav=活動資訊'],['序號','news.html?ddnav=序號發放'],['處分','news.html?ddnav=處分名單']]},
  {key:'events',name:'檔期活動',href:'events.html',items:[['全部','events.html?ddnav=all'],['進行中','events.html?ddnav=active'],['已結束','events.html?ddnav=ended']]},
  {key:'boss',name:'BOSS',href:'boss.html',items:[['挑戰指南','boss.html#ddBossChallenge'],['血量倍率計算機','boss.html#bc-calc-title'],['個人傷害反推','boss.html#bc-inverse-title'],['BOSS 資訊','boss.html#ddBossAtlas']]},
  {key:'guide',name:'遊玩指南',href:'guide.html',items:[['角色卡與傳授技能','jobs/jobs.html'],['戰地拼圖模擬器','legion-preview-6c82f4a9/index.html'],['玩法與系統介紹','guide.html#dd-resource-guide'],['每日 Checklist','guide.html#dd-resource-checklist'],['機率型道具說明','guide.html#dd-resource-rates'],['上架商品','guide.html#dd-resource-products'],['道具百科','item-encyclopedia.html']]},
@@ -104,4 +104,25 @@ window.DuoDuoNavEnsureItempedia=function(items){
  const idx=result.findIndex(item=>String(item.label||'').trim()==='上架商品'||String(item.href||'').includes('dd-resource-products'));
  result.splice(idx<0?result.length:idx+1,0,entry);
  return result;
+};
+
+// V3.8: add the punishment category after 序號 on previously saved cloud menus.
+// Preserve all unrelated admin-defined entries, labels and URLs.
+window.DuoDuoNavEnsureNewsPunishment=function(items){
+ if(!Array.isArray(items))return items;
+ const next=items.map(item=>({...item}));
+ const isPunishment=item=>{
+  if(!item)return false;
+  if(item.id==='news-punishment'||String(item.label||'').trim()==='處分')return true;
+  try{return new URL(String(item.href||''),document.baseURI).searchParams.get('ddnav')==='處分名單'}catch(_){return false}
+ };
+ const index=next.findIndex(isPunishment);
+ if(index>=0)next.splice(index,1);
+ else if(next.length>=20)return next;
+ const serial=next.findIndex(item=>{
+  if(String(item.label||'').trim()==='序號'||item.id==='news-serial')return true;
+  try{return new URL(String(item.href||''),document.baseURI).searchParams.get('ddnav')==='序號發放'}catch(_){return false}
+ });
+ next.splice(serial>=0?serial+1:next.length,0,{id:'news-punishment',label:'處分',href:'news.html?ddnav=處分名單',enabled:true});
+ return next;
 };
