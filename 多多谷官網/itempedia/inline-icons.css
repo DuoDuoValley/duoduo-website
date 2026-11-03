@@ -1,0 +1,3 @@
+/* Shared exact-name Itempedia icons in news and event copy; never touches links. */
+.pia-inline{display:inline-flex;align-items:center;gap:4px;vertical-align:middle;line-height:1.3}
+.pia-inline img{width:24px;height:24px;object-fit:contain;image-rendering:pixelated;flex:none}

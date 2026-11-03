@@ -1,0 +1,19 @@
+
+/* BUFF area follows the item encyclopedia visual hierarchy; no global overrides. */
+.pedia-section-tabs{display:flex;align-items:stretch;flex-wrap:wrap;gap:10px;margin:24px 0 4px}
+.pedia-section-tab{min-width:195px;text-align:left;border:1px solid var(--line,#d9e5ed);border-radius:14px;background:var(--surface,#fff);color:var(--ink,#18334a);padding:13px 18px;font:inherit;font-size:14px;font-weight:800;cursor:pointer}
+.pedia-section-tab small{display:block;font-size:11px;color:var(--muted,#6c8295);margin-top:3px;font-weight:500}
+.pedia-section-tab[aria-pressed=true]{background:color-mix(in srgb,#1a9abe 10%,var(--surface,#fff));border-color:#2fa9c9;box-shadow:inset 0 0 0 1px rgba(27,159,195,.12)}
+.pedia-page #pediaItemsSection[hidden],.pedia-page #pediaBuffsSection[hidden]{display:none!important}
+.pedia-buff-intro{margin:22px 0 13px;display:flex;justify-content:space-between;align-items:center;gap:16px;padding:17px 20px;border:1px solid var(--line,#d9e5ed);background:var(--surface,#fff);border-radius:15px}
+.pedia-buff-intro strong{font-size:17px}.pedia-buff-intro p{font-size:12px;line-height:1.8;color:var(--muted,#678093);margin:5px 0 0}.pedia-buff-intro>span{font-size:12px;white-space:nowrap;color:#128fb0;font-weight:800}
+.pedia-buff-search{margin-bottom:16px}.pedia-buff-card{min-height:98px}.buff-versions-count{margin-left:auto;white-space:nowrap;align-self:flex-start;color:var(--muted,#688095);font-size:11px;border:1px solid var(--line,#d4e5ee);border-radius:20px;padding:5px 7px}
+.pedia-buff-modal-intro{font-size:12px!important;line-height:1.8!important;margin-top:0!important;padding:10px 12px;border-radius:10px;background:var(--paper,#eff6fa)}
+.pedia-buff-tier-title{font-size:15px!important;margin:20px 0 10px!important;color:var(--ink,#223f54);padding-bottom:8px;border-bottom:1px solid var(--line,#d4e3ed)}
+.pedia-buff-detail{padding:14px 15px;margin:9px 0;border:1px solid var(--line,#d3e4ed);border-radius:12px;background:var(--paper,#f3f8fb)}
+.pedia-buff-detail-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding-bottom:9px;margin-bottom:9px;border-bottom:1px solid var(--line,#d9e6ed)}
+.pedia-buff-detail-head strong{font-size:12px;color:var(--ink,#273e55)}.pedia-buff-detail-head span{color:var(--muted,#698091);font-size:10px}
+.pedia-buff-wz{font-size:13px;color:var(--ink,#273e55);white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.85}.pedia-buff-wz .buff-accent{color:#078bb9;font-weight:650}
+:root[data-theme=dark] .pedia-buff-wz .buff-accent{color:#72dfff}
+.pedia-buff-detail:focus-within{outline:2px solid #46a9c5}
+@media(max-width:680px){.pedia-section-tabs{gap:8px}.pedia-section-tab{flex:1;min-width:135px;padding:11px 12px;font-size:12px}.pedia-buff-intro{display:block;padding:14px 16px}.pedia-buff-intro>span{display:block;margin-top:9px}.buff-versions-count{font-size:10px}.pedia-buff-detail{padding:12px}}

@@ -1,0 +1,29 @@
+/* Itempedia administration is deliberately isolated from the legacy item prototype. */
+#itempediaPanel .pia-toolbar{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin:15px 0}
+#itempediaPanel .pia-toolbar button,#itempediaPanel .pia-file,#itempediaPanel .pia-preview{border:1px solid #425b75;border-radius:10px;padding:10px 14px;color:#dbeaf7;background:#132438;font:inherit;font-size:13px;cursor:pointer;text-decoration:none}
+#itempediaPanel .pia-toolbar .pia-primary{background:#0c849e;border-color:#18b4ce;color:#fff;font-weight:700}
+#itempediaPanel .pia-toolbar button[aria-pressed=true]{border-color:#72c8e1;color:#b6efff}
+#itempediaPanel .pia-toolbar button:disabled{opacity:.45;cursor:wait}
+#itempediaPanel #piaSearch{flex:1;min-width:170px;max-width:440px;border:1px solid #405b75;border-radius:10px;background:#0e1c2b;color:#eef7ff;padding:11px}
+#itempediaPanel .pia-status{background:#10293a;border:1px solid #31566b;border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.65}
+#itempediaPanel .pia-count{color:#b3cadb;font-size:12px;margin:12px 0}
+#itempediaPanel .pia-rows{display:grid;gap:8px}
+#itempediaPanel .pia-row{border:1px solid #31495e;background:#0e1d2d;border-radius:12px;display:flex;align-items:center;gap:12px;padding:10px 12px;min-width:0}
+#itempediaPanel .pia-row>img{height:42px;width:42px;flex:none;object-fit:contain;image-rendering:pixelated;background:#1e3548;border-radius:8px}
+#itempediaPanel .pia-row-main{flex:1;min-width:0;display:grid;gap:5px}
+#itempediaPanel .pia-row-main strong{color:#edf6ff;font-size:13px}
+#itempediaPanel .pia-row-main small{color:#9fb7c9;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+#itempediaPanel .pia-actions{display:flex;gap:5px;flex-wrap:wrap}
+#itempediaPanel .pia-actions button{padding:7px 10px;border:1px solid #4b6781;border-radius:8px;background:#1a3349;color:#e4f0fb;cursor:pointer}
+#itempediaPanel .pia-editor[hidden]{display:none}
+#itempediaPanel .pia-editor{margin-top:18px;padding:18px;border:1px solid #42617b;background:#102235;border-radius:14px}
+#itempediaPanel .pia-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:13px}
+#itempediaPanel .pia-fields label{display:grid;gap:7px;color:#c3d6e6;font-size:13px;min-width:0}
+#itempediaPanel .pia-fields input[type=text],#itempediaPanel .pia-fields select,#itempediaPanel .pia-fields textarea{box-sizing:border-box;width:100%;border:1px solid #49637c;background:#091a29;color:#f0f7ff;border-radius:9px;padding:10px 12px;font:inherit;font-size:13px}
+#itempediaPanel .pia-fields textarea{resize:vertical;min-height:85px;white-space:pre-wrap}
+#itempediaPanel .pia-fields .pia-full{grid-column:1/-1}
+#itempediaPanel .pia-options{display:flex;align-items:center;gap:24px;flex-wrap:wrap}
+#itempediaPanel .pia-image-input{display:flex;align-items:center;gap:16px}
+#itempediaPanel .pia-image-input img{width:60px;height:60px;object-fit:contain;image-rendering:pixelated}
+#itempediaPanel .pia-image-input img[hidden]{display:none}
+@media(max-width:760px){#itempediaPanel .pia-fields{grid-template-columns:1fr}#itempediaPanel .pia-row{flex-wrap:wrap}#itempediaPanel .pia-actions{width:100%;justify-content:flex-end}}
