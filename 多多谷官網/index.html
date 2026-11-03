@@ -1248,6 +1248,41 @@ function safePage(raw,base=siteBase){
     return new URL(relative+result.search+result.hash,siteBase);
   }catch{return null;}
 }
+// V3.9: canonical, readable share links. The embedded pages retain their own
+// existing query conventions; only the address exposed by the persistent shell
+// is translated. Legacy ?page=filename.html%3F... links still work.
+const SHORT_PAGES={
+  'home.html':'home','news.html':'news','events.html':'events',
+  'event-detail.html':'event','boss.html':'boss','guide.html':'guide',
+  'downloads.html':'downloads','privacy.html':'privacy','terms.html':'terms',
+  'player-tools/index.html':'tools','jobs/jobs.html':'jobs',
+  'legion-preview-6c82f4a9/index.html':'legion',
+  'item-encyclopedia.html':'itempedia'
+};
+const LONG_PAGES=Object.fromEntries(Object.entries(SHORT_PAGES).map(([path,slug])=>[slug,path]));
+const NEWS_SLUGS={
+  '全部':'all','重要消息':'important','維護通知':'maintenance',
+  '更新說明':'updates','活動資訊':'activities','序號發放':'codes','處分名單':'punishment'
+};
+const ITEM_SLUGS={
+  '日常功能':'daily','成長與升級':'growth','特殊貨幣':'currency',
+  '輪迴轉生':'rebirth','裝備強化':'equipment','進階繼承':'inheritance',
+  '圖騰強化':'totem','回收碎片':'recycling','推廣與兌換':'rewards',
+  '經驗加倍':'experience','經驗裝備':'exp-gear','VIP 與特權':'vip'
+};
+const TIER_SLUGS={'永恆祝福':'eternal','VIP':'vip','VVIP':'vvip','SSVIP':'ssvip'};
+const BOSS_SECTIONS={
+  'ddBossChallenge':'challenge','bc-calc-title':'multiplier',
+  'bc-inverse-title':'inverse','ddBossAtlas':'atlas'
+};
+const GUIDE_SECTIONS={
+  'dd-resource-guide':'guide','dd-resource-checklist':'checklist',
+  'dd-resource-rates':'rates','dd-resource-products':'products'
+};
+const reverseMap=obj=>Object.fromEntries(Object.entries(obj).map(([a,b])=>[b,a]));
+const NEWS_LABELS=reverseMap(NEWS_SLUGS),ITEM_LABELS=reverseMap(ITEM_SLUGS);
+const TIER_LABELS=reverseMap(TIER_SLUGS),BOSS_ANCHORS=reverseMap(BOSS_SECTIONS);
+const GUIDE_ANCHORS=reverseMap(GUIDE_SECTIONS);
 function routeKey(url){
   const p=url.pathname.slice(siteRoot.length);
   if(p==='home.html'&&!url.search&&!url.hash)return '';
@@ -1255,13 +1290,54 @@ function routeKey(url){
 }
 function outwardUrl(inner){
   const address=new URL('./',siteBase);
-  const key=routeKey(inner);
-  if(key)address.searchParams.set('page',key);
+  const path=inner.pathname.slice(siteRoot.length);
+  if(path==='home.html'&&!inner.search&&!inner.hash)return address;
+  address.searchParams.set('page',SHORT_PAGES[path]||path);
+  const rest=new URLSearchParams(inner.search);
+  for(const [key,value] of rest){
+    if(key==='page')continue;
+    if(key==='ddnav'&&path==='news.html')address.searchParams.append('category',NEWS_SLUGS[value]||value);
+    else if(key==='ddnav'&&path==='events.html')address.searchParams.append('status',value);
+    else if(key==='ddnav'&&path==='player-tools/index.html')address.searchParams.append('tool',value);
+    else if(key==='ddnav'&&path==='downloads.html')address.searchParams.append('item',value);
+    else if(key==='category'&&path==='item-encyclopedia.html')address.searchParams.append('category',ITEM_SLUGS[value]||value);
+    else if(key==='tier'&&path==='item-encyclopedia.html')address.searchParams.append('tier',TIER_SLUGS[value]||value);
+    else address.searchParams.append(key,value);
+  }
+  const anchor=inner.hash.slice(1);
+  if(anchor){
+    const aliases=path==='boss.html'?BOSS_SECTIONS:path==='guide.html'?GUIDE_SECTIONS:null;
+    if(aliases&&aliases[anchor])address.searchParams.set('section',aliases[anchor]);
+    else address.searchParams.set('anchor',anchor);
+  }
   return address;
 }
 function fromLocation(){
-  const page=new URLSearchParams(location.search).get('page');
-  return safePage(page||'home.html');
+  const outer=new URLSearchParams(location.search);
+  const page=outer.get('page');
+  if(!page)return safePage('home.html');
+  if(!Object.prototype.hasOwnProperty.call(LONG_PAGES,page)){
+    // Old-format bookmarks, including percent-encoded Chinese category labels.
+    return safePage(page);
+  }
+  const path=LONG_PAGES[page];
+  const target=new URL(path,siteBase);
+  const query=new URLSearchParams();
+  for(const [key,value] of outer){
+    if(key==='page')continue;
+    if(key==='category'&&path==='news.html')query.append('ddnav',NEWS_LABELS[value]||value);
+    else if(key==='status'&&path==='events.html')query.append('ddnav',value);
+    else if(key==='tool'&&path==='player-tools/index.html')query.append('ddnav',value);
+    else if(key==='item'&&path==='downloads.html')query.append('ddnav',value);
+    else if(key==='category'&&path==='item-encyclopedia.html')query.append('category',ITEM_LABELS[value]||value);
+    else if(key==='tier'&&path==='item-encyclopedia.html')query.append('tier',TIER_LABELS[value]||value);
+    else if(key==='section'&&path==='boss.html')target.hash=BOSS_ANCHORS[value]||value;
+    else if(key==='section'&&path==='guide.html')target.hash=GUIDE_ANCHORS[value]||value;
+    else if(key==='anchor')target.hash=value;
+    else query.append(key,value);
+  }
+  target.search=query.toString();
+  return safePage(target.href);
 }
 function currentInner(){
   try{return safePage(frame.contentWindow.location.href);}catch{return null;}
