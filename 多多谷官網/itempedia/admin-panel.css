@@ -34,3 +34,20 @@
 #itempediaPanel .ip-danger{color:#ffb6ba}
 #itempediaPanel .ip-copy-toolbar{margin:8px 0 16px;display:flex;flex-wrap:wrap;gap:8px}
 @media(max-width:850px){#itempediaPanel .ip-fields{grid-template-columns:1fr}#itempediaPanel .ip-rows .ip-row{align-items:flex-start}#itempediaPanel .ip-actions{justify-content:flex-end}#itempediaPanel .ip-row{flex-wrap:wrap}#itempediaPanel .ip-info{min-width:calc(100% - 74px)}#itempediaPanel .ip-actions{width:100%}}
+
+/* V3.5 — admin-managed category order; public list follows this array as published. */
+#itempediaPanel .ip-category-manager[hidden]{display:none!important}
+#itempediaPanel .ip-category-manager{margin:15px 0 18px;padding:14px;border-radius:13px;border:1px solid #3a5671;background:#102235}
+#itempediaPanel .ip-category-manager summary{color:#d7edff;font-size:14px;font-weight:750;cursor:pointer;outline-offset:4px}
+#itempediaPanel .ip-category-manager summary span{float:right;color:#94bdd7;font-size:12px;font-weight:550}
+#itempediaPanel .ip-category-manager>p{margin:10px 0 12px}
+#itempediaPanel .ip-category-rows{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+#itempediaPanel .ip-category-row{display:flex;align-items:center;gap:9px;min-width:0;padding:9px 10px;border-radius:10px;border:1px solid #36536c;background:#102d42}
+#itempediaPanel .ip-category-index{color:#7fbdd6;font-size:11px;font-variant-numeric:tabular-nums}
+#itempediaPanel .ip-category-name{flex:1;min-width:0;font-size:13px;color:#e7f6ff;overflow-wrap:anywhere}
+#itempediaPanel .ip-category-count{color:#99bcd0;white-space:nowrap;font-size:11px}
+#itempediaPanel .ip-category-actions{display:flex;gap:5px;flex:none}
+#itempediaPanel .ip-category-actions button{border:1px solid #53738a;background:#183a54;color:#e9f6ff;border-radius:8px;padding:6px 8px;font-size:11px;font-weight:700;cursor:pointer}
+#itempediaPanel .ip-category-actions button:disabled{opacity:.3;cursor:not-allowed}
+@media(max-width:1000px){#itempediaPanel .ip-category-rows{grid-template-columns:1fr}}
+@media(max-width:420px){#itempediaPanel .ip-category-row{flex-wrap:wrap}#itempediaPanel .ip-category-actions{width:100%;justify-content:flex-end}}

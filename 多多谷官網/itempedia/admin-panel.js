@@ -17,6 +17,15 @@
   return !/^(?:\/|\\|data:|blob:|javascript:|http:)/i.test(src)&&!src.includes('..')&&!/[<>"']/.test(src);
  };
  const parseWords=s=>[...new Set(String(s||'').split(/[、，,\n]/).map(x=>x.trim()).filter(Boolean))];
+ // Compare JSON data by content, not the property insertion order returned by a JSONB backend.
+ // Array order stays significant: category order, individual item order and BUFF entries must match.
+ const semanticJSON=value=>JSON.stringify(value,(key,v)=>{
+  if(v&&typeof v==='object'&&!Array.isArray(v)){
+   const result={};for(const field of Object.keys(v).sort())result[field]=v[field];return result;
+  }
+  return v;
+ });
+ const snapshot=db=>semanticJSON(db??null);
  function status(text,bad=false){const el=$('ipStatus');el.textContent=text;el.classList.toggle('ip-error',bad)}
  function token(){try{return sessionStorage.getItem('duoduo_admin_session')||''}catch(_){return ''}}
  function validate(db){if(!db||typeof db!=='object'||!Array.isArray(db.items)||!Array.isArray(db.buffs)||!Array.isArray(db.categories)||!Array.isArray(db.tiers))throw Error('道具百科 JSON 缺少必要欄位');
@@ -41,8 +50,34 @@
   const tiers=$('ipTiers');tiers.replaceChildren();for(const t of state.tiers){const o=document.createElement('option');o.value=t;tiers.append(o)}
   const filter=$('ipFilter');const old=filter.value;filter.replaceChildren();for(const c of ['全部',...(mode==='buffs'?state.tiers:state.categories)]){const o=document.createElement('option');o.value=c;o.textContent=c;filter.append(o)}filter.value=[...filter.options].some(o=>o.value===old)?old:'全部';
  }
- function setMode(value){mode=value;editing=null;$('ipEditor').hidden=true;$('ipMode').value=value;refreshSelects();render()}
- function collection(){return [...rows()].sort((a,b)=>(Number(a.sort)||0)-(Number(b.sort)||0));}
+ function setMode(value){mode=value;editing=null;$('ipEditor').hidden=true;$('ipMode').value=value;$('ipCategoryManager').hidden=value!=='items';refreshSelects();renderCategories();render()}
+ function collection(){const list=[...rows()];if(mode==='buffs')return list.sort((a,b)=>(Number(a.sort)||0)-(Number(b.sort)||0));
+  const indexes=new Map(state.categories.map((name,i)=>[name,i]));
+  return list.sort((a,b)=>(indexes.get(a.category)??9999)-(indexes.get(b.category)??9999)|| (Number(a.sort)||0)-(Number(b.sort)||0));
+ }
+ function renderCategories(){const container=$('ipCategoryRows');if(!container)return;container.replaceChildren();
+  const counts=new Map();for(const item of state.items)counts.set(item.category,(counts.get(item.category)||0)+1);
+  $('ipCategoryCount').textContent=`${state.categories.length} 個分類`;
+  state.categories.forEach((name,index)=>{
+   const row=newElement('div','ip-category-row');
+   row.append(newElement('span','ip-category-index',String(index+1).padStart(2,'0')));
+   row.append(newElement('strong','ip-category-name',name));
+   row.append(newElement('small','ip-category-count',`${counts.get(name)||0} 項`));
+   const actions=newElement('div','ip-category-actions');
+   for(const [delta,label] of [[-1,'↑ 上移'],[1,'↓ 下移']]){
+    const button=newElement('button','',label);button.type='button';button.disabled=index+delta<0||index+delta>=state.categories.length;
+    button.setAttribute('aria-label',`${name} ${label}`);
+    button.onclick=()=>{const currentIndex=state.categories.indexOf(name),to=currentIndex+delta;
+      if(currentIndex<0||to<0||to>=state.categories.length)return;
+      [state.categories[currentIndex],state.categories[to]]=[state.categories[to],state.categories[currentIndex]];
+      persist();renderCategories();refreshSelects();render();
+      const selected=[...container.querySelectorAll('button')].find(b=>b.getAttribute('aria-label')===`${name} ${label}`);selected?.focus();
+    };actions.append(button);
+   }
+   row.append(actions);container.append(row);
+  });
+ }
+
  function filtered(){const q=search.toLowerCase().normalize('NFKC');const type=$('ipFilter').value;return collection().filter(x=>(type==='全部'||x[fieldGroup()]===type)&&(!q||[x.name,x.category,x.tier,x.description].join(' ').toLowerCase().normalize('NFKC').includes(q)));}
  function newElement(tag,cls,text){const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=text;return e;}
  function render(){const list=$('ipRows');list.replaceChildren();const visible=filtered();const kind=mode==='buffs'?'筆效果':'項道具';
@@ -90,7 +125,7 @@
   else Object.assign(next,{tier:cat});
   if(!target)rows().push(next);
   const group=mode==='items'?state.categories:state.tiers;if(!group.includes(cat))group.push(cat);
-  validate(state);persist();refreshSelects();$('ipEditor').hidden=true;editing=null;render();
+  validate(state);persist();refreshSelects();renderCategories();$('ipEditor').hidden=true;editing=null;render();
  }
  async function uploadImage(){const file=$('ipImageFile').files?.[0];if(!file)return alert('請先選擇圖片');
   if(!['image/png','image/jpeg','image/webp'].includes(file.type)||file.size>4*1024*1024)return alert('請選擇 4 MB 以下 PNG／JPG／WebP 圖片');
@@ -109,7 +144,7 @@
  async function reloadPublished(){status('正在載入目前發布的雲端道具資料…');
   try{const res=await fetch(api+'/api/site-data',{cache:'no-store',headers:{Accept:'application/json'}});if(!res.ok)throw Error('HTTP '+res.status);
    const json=await res.json();if(json.ok!==true||json.initialized!==true)throw Error('雲端尚未初始化');
-   const cloud=json.data?.duoduo_itempedia;sourceVersion=JSON.stringify(cloud??null);
+   const cloud=json.data?.duoduo_itempedia;sourceVersion=snapshot(cloud);
    if(cloud){validate(cloud);state=clone(cloud);status('已載入正式網站目前發布的道具百科資料；修改前建議匯出備份。');}
    else{state=defaults();status('雲端尚無道具百科，已載入本次 Excel 匯入初始資料；可先檢查並發布。');}
    loaded=true;setMode('items');
@@ -123,27 +158,44 @@
   try{
    const check=await fetch(api+'/api/site-data',{cache:'no-store'});if(!check.ok)throw Error('無法再次取得雲端資料');
    const remote=await check.json();if(remote?.ok!==true||remote?.initialized!==true)throw Error('雲端資料未初始化');
-   const current=JSON.stringify(remote.data?.duoduo_itempedia??null);
+   const current=snapshot(remote.data?.duoduo_itempedia);
    if(current!==sourceVersion)throw Error('其他管理員或分頁已更新正式資料。請先匯出本機草稿、重新載入雲端版本再合併，避免覆蓋別人的更新。');
-   const payload={...state,version:3,updatedAt:new Date().toISOString()};
+   const payload=JSON.parse(JSON.stringify({...state,version:3,updatedAt:new Date().toISOString()}));
    const res=await fetch(api+'/api/site-data',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({values:{duoduo_itempedia:payload}})});
    const reply=await res.json().catch(()=>({}));if(!res.ok||reply.ok!==true)throw Error(reply.error||('HTTP '+res.status));
-   // The server may reply OK while an older backend silently drops unknown keys.
-   // Read back the published encyclopedia before telling the administrator it is live.
    posted=true;
-   const confirmRes=await fetch(api+'/api/site-data',{cache:'no-store',headers:{Accept:'application/json'}});
-   if(!confirmRes.ok)throw Error('已送出儲存請求，但無法再次讀取雲端資料以核對');
-   const verified=await confirmRes.json();
-   const actual=verified?.data?.duoduo_itempedia;
-   if(verified?.initialized!==true||!actual||['version','updatedAt','categories','items','tiers','buffs'].some(key=>JSON.stringify(actual[key])!==JSON.stringify(payload[key])))
-     throw Error('雲端讀回的道具百科與本次發布內容不一致，請確認伺服器已支援新版資料欄位');
-   state=clone(actual);sourceVersion=JSON.stringify(actual);persist();status(`已完成雲端讀回核對：${state.items.length} 項道具、${state.buffs.length} 筆 BUFF 發布成功。`);
+   // JSONB may change object key order; text-based JSON.stringify equality falsely reports failure.
+   // Verify the exact published content, keeping ordered arrays significant. Retry briefly when
+   // a distributed read temporarily lags the write, but never report success without verification.
+   const verifyKeys=['version','updatedAt','categories','items','tiers','buffs'];
+   let actual=null,why='';
+   for(let attempt=0;attempt<3;attempt++){
+    if(attempt)await new Promise(resolve=>setTimeout(resolve,attempt===1?350:800));
+    try{
+     const verifyUrl=api+'/api/site-data?ip_verify='+encodeURIComponent(payload.updatedAt)+'&attempt='+attempt;
+     const confirmRes=await fetch(verifyUrl,{cache:'no-store',headers:{Accept:'application/json'}});
+     if(!confirmRes.ok){why='讀回 HTTP '+confirmRes.status;continue;}
+     const verified=await confirmRes.json();
+     const candidate=verified?.data?.duoduo_itempedia;
+     if(verified?.ok!==true||verified?.initialized!==true||!candidate){why='讀回資料尚未包含道具百科';continue;}
+     const changed=verifyKeys.filter(key=>semanticJSON(candidate[key])!==semanticJSON(payload[key]));
+     if(changed.length){why='欄位不一致：'+changed.join('、');continue;}
+     actual=candidate;break;
+    }catch(error){why='讀回連線異常：'+(error?.message||error);}
+   }
+   if(!actual)throw Error(`雲端讀回核對未完成（${why||'未知原因'}）`);
+   state=clone(actual);sourceVersion=snapshot(actual);persist();status(`已完成雲端讀回核對：${state.items.length} 項道具、${state.buffs.length} 筆 BUFF 發布成功。`);
   }catch(e){status((posted?'儲存請求已送出，但尚未確認發布成功：':'發布失敗：')+(e.message||e)+(posted?'。請先重新讀取雲端確認，不要立即重複發布。':'。已保留本機草稿，不會刪除原有正式資料。'),true)}
   finally{btn.disabled=false}
  }
  mount.innerHTML=`
   <div class="ip-control-bar"><select id="ipMode" aria-label="管理類型"><option value="items">專屬道具</option><option value="buffs">BUFF 與增益</option></select><select id="ipFilter" aria-label="分類篩選"></select><input id="ipSearch" type="search" placeholder="搜尋名稱、分類、效果…"><button type="button" id="ipAdd" class="ip-primary">＋ 新增</button></div>
   <div class="ip-control-bar"><button type="button" id="ipSaveDraft">保存本機草稿</button><button type="button" id="ipLoadDraft">載入先前草稿</button><button type="button" id="ipReloadCloud">重新讀取雲端</button><button type="button" id="ipExport">匯出 JSON 備份</button><label class="ip-note">匯入 JSON<input type="file" id="ipImport" accept=".json,application/json"></label><button type="button" id="ipPublish" class="ip-primary">☁️ 儲存並發布雲端</button><a target="_blank" rel="noopener" href="item-encyclopedia.html">開啟前台 ↗</a></div>
+  <details id="ipCategoryManager" class="ip-category-manager">
+   <summary>⇅ 分類順序管理 <span id="ipCategoryCount"></span></summary>
+   <p class="ip-note">前台「全部」的分類排列與上方分類按鈕，都依照這裡的順序。調整後先保存本機草稿，再按「儲存並發布雲端」才會生效。</p>
+   <div id="ipCategoryRows" class="ip-category-rows"></div>
+  </details>
   <p class="ip-summary" id="ipCount"></p>
   <section id="ipEditor" class="ip-editor" hidden><h2 id="ipEditorTitle">編輯</h2><div class="ip-fields">
     <label>名稱<input id="ipName" maxlength="150"></label><label><span id="ipCategoryLabel">分類</span><input id="ipCategory" list="ipCategories" maxlength="80"><datalist id="ipCategories"></datalist><datalist id="ipTiers"></datalist></label>

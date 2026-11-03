@@ -118,3 +118,17 @@ body.pedia-modal-open{position:fixed;inset-inline:0;top:var(--pedia-lock-y,0px);
 }
 .pedia-modal .pedia-close::before{transform:translate(-50%,-50%) rotate(45deg)}
 .pedia-modal .pedia-close::after{transform:translate(-50%,-50%) rotate(-45deg)}
+
+/* V3.6 — The backdrop is outside .pedia-page, so it needs its own
+   dark palette tokens. Light-mode styles remain completely unchanged. */
+:root[data-theme="dark"] .pedia-backdrop{
+  --surface:#132336;
+  --paper:#0b1b2b;
+  --line:#2c455b;
+  --ink:#f2f8fe;
+  --muted:#b1c4d4;
+  color-scheme:dark;
+}
+:root[data-theme="dark"] .pedia-backdrop .pedia-modal :is(h2,h3){color:var(--ink)}
+:root[data-theme="dark"] .pedia-backdrop .pedia-modal small,
+:root[data-theme="dark"] .pedia-backdrop .pedia-modal .pedia-wz-emphasis{color:#80dcef}
