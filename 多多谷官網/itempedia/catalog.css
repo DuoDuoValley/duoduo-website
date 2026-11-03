@@ -105,3 +105,16 @@ body.pedia-modal-open{position:fixed;inset-inline:0;top:var(--pedia-lock-y,0px);
 :root[data-theme=dark] .pedia-modal-scroll{scrollbar-color:#647b93 transparent}
 :root[data-theme=dark] .pedia-modal-scroll::-webkit-scrollbar-thumb{background:#647b93}
 @media(max-width:690px){.pedia-modal-scroll{padding:19px 19px 19px 19px;margin:7px 7px 7px 0}.pedia-modal .pedia-close{top:12px;right:15px}}
+
+/* V3.1 — Keep the encyclopedia modal close mark geometrically centered.
+   Both item and BUFF dialogs share .pedia-close. The button's aria-label remains intact. */
+.pedia-modal .pedia-close{
+ box-sizing:border-box;display:grid;place-items:center;padding:0;
+ font-size:0;line-height:0;isolation:isolate;
+}
+.pedia-modal .pedia-close::before,.pedia-modal .pedia-close::after{
+ content:"";position:absolute;left:50%;top:50%;width:17px;height:1.8px;
+ border-radius:2px;background:currentColor;pointer-events:none;
+}
+.pedia-modal .pedia-close::before{transform:translate(-50%,-50%) rotate(45deg)}
+.pedia-modal .pedia-close::after{transform:translate(-50%,-50%) rotate(-45deg)}
