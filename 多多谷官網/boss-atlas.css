@@ -194,23 +194,14 @@
 #ddBossAtlas .dd-hp-step{font-size:11px;white-space:nowrap;font-weight:800}
 #ddBossAtlas .dd-hp-phase strong{font-size:12px;line-height:1.45;overflow-wrap:anywhere;font-weight:850}
 #ddBossAtlas .dd-stat.hp > strong{font-size:12px;line-height:1.5}
-#ddBossAtlas .dd-stat-level,#ddBossAtlas .dd-stat-rune,#ddBossAtlas .dd-stat-defense{
-  display:grid;grid-template-columns:70px minmax(0,1fr);gap:8px;align-items:start;
-  border-bottom:1px solid var(--line);padding:5px 1px 7px
+#ddBossAtlas .dd-stat-rune,#ddBossAtlas .dd-stat-defense{
+  display:grid;grid-template-columns:27px minmax(0,1fr);gap:6px;align-items:start;
+  border-bottom:1px solid var(--line);padding:4px 1px 6px
 }
 #ddBossAtlas .dd-stat-defense{border-bottom:0}
-#ddBossAtlas .dd-stat-level > b,#ddBossAtlas .dd-stat-rune > b,#ddBossAtlas .dd-stat-defense > b{
+#ddBossAtlas .dd-stat-rune > b,#ddBossAtlas .dd-stat-defense > b{
   display:block;min-width:0;font-size:12.5px;line-height:1.45;overflow-wrap:anywhere
 }
-
-#ddBossAtlas .dd-stat-level{align-items:center}
-#ddBossAtlas .dd-stat-level .dd-stat-label{color:#ffbf47;font-weight:900;letter-spacing:.01em}
-#ddBossAtlas .dd-level-pill{display:inline-flex;align-items:center;justify-content:center;min-height:28px;padding:4px 10px;border-radius:999px;border:1px solid #d98c13;background:linear-gradient(180deg,#fff2bf 0%,#ffd978 100%);color:#7a4800;font-size:12.5px;font-weight:950;line-height:1;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),0 1px 2px rgba(0,0,0,.08);white-space:nowrap}
-#ddBossAtlas .dd-level-phases{display:flex;flex-wrap:wrap;gap:4px 8px;align-items:baseline;min-width:0}
-#ddBossAtlas .dd-level-phase{display:inline-flex;align-items:baseline;gap:4px;white-space:nowrap}
-#ddBossAtlas .dd-level-phase em{font-size:10.5px;font-style:normal;font-weight:800;color:#f0a800}
-#ddBossAtlas .dd-level-phase strong{font-size:12.5px;font-weight:900;color:#ffcf55}
-#ddBossAtlas .dd-level-phases small{font-size:10.5px;color:var(--muted);white-space:nowrap}
 #ddBossAtlas .dd-stat-rune .dd-rune-single{display:flex;align-items:center;gap:4px;min-width:0;flex-wrap:wrap}
 #ddBossAtlas .dd-stat-rune .dd-rune-single img,
 #ddBossAtlas .dd-stat-rune .dd-rune-wrap > img{
@@ -300,11 +291,267 @@
 }
 
 
-@media(max-width:390px){#ddBossAtlas .dd-stat-level,#ddBossAtlas .dd-stat-rune,#ddBossAtlas .dd-stat-defense{grid-template-columns:64px minmax(0,1fr);gap:7px}}
+/* V7.13: boss level display, including optional per-phase values. */
+#ddBossAtlas .dd-stat-level,#ddBossAtlas .dd-stat-rune,#ddBossAtlas .dd-stat-defense{
+  display:grid;grid-template-columns:27px minmax(0,1fr);gap:6px;align-items:start;
+  border-bottom:1px solid var(--line);padding:4px 1px 6px
+}
+#ddBossAtlas .dd-stat-defense{border-bottom:0}
+#ddBossAtlas .dd-stat-level > b,#ddBossAtlas .dd-stat-rune > b,#ddBossAtlas .dd-stat-defense > b{
+  display:block;min-width:0;font-size:12.5px;line-height:1.45;overflow-wrap:anywhere
+}
+#ddBossAtlas .dd-level-phases{display:flex;flex-wrap:wrap;gap:3px 8px;align-items:baseline;min-width:0}
+#ddBossAtlas .dd-level-phase{display:inline-flex;align-items:baseline;gap:3px;white-space:nowrap}
+#ddBossAtlas .dd-level-phase em{font-size:10.5px;font-style:normal;font-weight:800;color:var(--accent)}
+#ddBossAtlas .dd-level-phase strong{font-size:12px;font-weight:850}
+#ddBossAtlas .dd-level-phases small{font-size:10.5px;color:var(--muted);white-space:nowrap}
 
 
-/* V7.16: make fallback '其餘 Lv.xxx' for boss levels as visible as defense's extra line. */
-#ddBossAtlas .dd-level-phases{align-items:flex-start}
-#ddBossAtlas .dd-level-other{display:inline-flex;align-items:baseline;gap:5px;white-space:nowrap}
-#ddBossAtlas .dd-level-other em{font-size:11px;font-style:normal;font-weight:900;color:var(--accent)}
-#ddBossAtlas .dd-level-other strong{font-size:12.5px;font-weight:900;color:var(--text)}
+/* BOSS front-end layout: the level stays in the upper statistics area;
+   the difficulty selector owns its own single row. Scoped to the atlas. */
+#ddBossAtlas .dd-boss-top{
+  min-height:225px;
+}
+#ddBossAtlas .dd-diff-toolbar{
+  display:grid;
+  grid-template-columns:max-content minmax(0,1fr);
+  gap:8px;
+  align-items:center;
+  flex-wrap:nowrap;
+  width:100%;
+  min-width:0;
+  padding:2px 0 5px;
+}
+#ddBossAtlas .dd-diff-toolbar .dd-diff-list{
+  display:flex;
+  flex-wrap:nowrap;
+  align-items:center;
+  gap:5px;
+  min-width:0;
+  width:100%;
+}
+#ddBossAtlas .dd-diff-toolbar .dd-diff-list .dd-diff{
+  flex:0 1 auto;
+  min-width:0;
+  max-width:100%;
+  padding:4px 5px;
+}
+#ddBossAtlas .dd-diff-toolbar .dd-diff-list .dd-diff img{
+  width:60px;
+  max-width:100%;
+  object-fit:contain;
+}
+#ddBossAtlas .dd-stat-level{min-width:0}
+#ddBossAtlas .dd-stat-level .dd-stat-label{white-space:nowrap}
+@media(max-width:669px){
+  #ddBossAtlas .dd-boss-top{min-height:0}
+}
+@media(max-width:390px){
+  #ddBossAtlas .dd-diff-toolbar{gap:5px}
+  #ddBossAtlas .dd-diff-toolbar .dd-diff-list{gap:3px}
+  #ddBossAtlas .dd-diff-toolbar .dd-diff-list .dd-diff{padding:4px 3px}
+  #ddBossAtlas .dd-diff-toolbar .dd-diff-list .dd-diff img{width:53px}
+}
+
+
+/* BOSS V7.14 — level label above a high-contrast gold badge.
+   Avoid 27px/70px stat-grid text collisions at all viewport widths. */
+#ddBossAtlas .dd-stat.dd-stat-level{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:flex-start;
+  gap:5px;
+  min-width:0;
+  padding:7px 1px 9px;
+  border-bottom:1px solid var(--line);
+}
+#ddBossAtlas .dd-stat.dd-stat-level .dd-stat-label{
+  display:block;
+  width:auto;
+  max-width:100%;
+  flex:none;
+  color:#ad741a;
+  font-size:11px;
+  font-weight:900;
+  white-space:normal;
+  letter-spacing:.025em;
+  line-height:1.4;
+}
+#ddBossAtlas .dd-stat.dd-stat-level > b{
+  display:block;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  flex:none;
+  font-size:12px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+#ddBossAtlas .dd-level-pill{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  box-sizing:border-box;
+  min-height:25px;
+  max-width:100%;
+  padding:4px 9px;
+  border:1px solid #e2ac36;
+  border-radius:7px;
+  background:linear-gradient(180deg,#fff1bd,#ffda7c);
+  color:#754800;
+  font-size:12px;
+  font-weight:900;
+  line-height:1.2;
+  white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7);
+}
+#ddBossAtlas .dd-stat-level .dd-level-phases{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:5px 7px;
+  width:100%;
+  min-width:0;
+}
+#ddBossAtlas .dd-stat-level .dd-level-phase{
+  display:inline-flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:4px;
+  white-space:normal;
+  min-width:0;
+}
+#ddBossAtlas .dd-stat-level .dd-level-phase em{
+  color:#a36b18;
+  font-size:10px;
+  font-style:normal;
+  font-weight:850;
+}
+#ddBossAtlas .dd-stat-level .dd-level-phase strong.dd-level-pill{
+  color:#754800;
+  font-weight:900;
+  font-size:11px;
+}
+#ddBossAtlas .dd-stat-level .dd-level-phases small{
+  display:inline-block;
+  max-width:100%;
+  white-space:normal;
+  color:var(--muted);
+  font-size:10px;
+}
+
+
+/* BOSS Atlas v7.15: boss level immediately beneath the name, without
+   adding a separate stats row. Uses only atlas-scoped selectors. */
+#ddBossAtlas .dd-boss-level-inline{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+  margin:-3px 0 7px;
+}
+#ddBossAtlas .dd-boss-level-title{
+  flex:0 0 auto;
+  white-space:nowrap;
+  color:#a36b18;
+  font-size:10.5px;
+  line-height:1.4;
+  font-weight:900;
+  letter-spacing:.01em;
+}
+#ddBossAtlas .dd-boss-level-content{
+  display:flex;
+  align-items:center;
+  min-width:0;
+}
+#ddBossAtlas .dd-boss-level-content > .dd-level-pill{
+  flex:0 0 auto;
+  min-height:23px;
+  padding:3px 8px;
+  font-size:11px;
+}
+/* Multiple stages: preserve reading order 1–2 / 3–4, with each cell
+   placing its phase label above the gold level value. */
+#ddBossAtlas .dd-boss-level-inline.has-stages{
+  display:grid;
+  grid-template-columns:minmax(0,1fr);
+  align-items:start;
+  gap:4px;
+  margin-top:-1px;
+  margin-bottom:8px;
+}
+#ddBossAtlas .dd-boss-level-inline.has-stages .dd-boss-level-content{
+  display:block;
+  width:100%;
+}
+#ddBossAtlas .dd-boss-level-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:5px 7px;
+  align-items:start;
+  width:100%;
+  min-width:0;
+}
+#ddBossAtlas .dd-boss-level-stage{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  justify-content:start;
+  gap:3px;
+  min-width:0;
+}
+#ddBossAtlas .dd-boss-level-stage-name{
+  display:block;
+  max-width:100%;
+  font-size:10px;
+  line-height:1.3;
+  font-weight:800;
+  color:#a36b18;
+  white-space:nowrap;
+}
+#ddBossAtlas .dd-boss-level-stage > .dd-level-pill{
+  min-height:23px;
+  max-width:100%;
+  padding:3px 6px;
+  font-size:10.5px;
+  line-height:1.2;
+  white-space:nowrap;
+}
+#ddBossAtlas .dd-boss-level-fallback{
+  display:block;
+  margin-top:5px;
+  color:var(--muted);
+  font-size:10px;
+  line-height:1.35;
+  overflow-wrap:anywhere;
+}
+
+/* BOSS level fallback: match the prominence of the other-phase defense row. */
+#ddBossAtlas .dd-boss-level-fallback{
+  display:flex;
+  flex-wrap:wrap;
+  align-items:center;
+  gap:5px 7px;
+  margin-top:7px;
+  font-size:11px;
+  line-height:1.4;
+  font-weight:850;
+  color:var(--text);
+}
+#ddBossAtlas .dd-boss-level-fallback-label{
+  font-size:11px;
+  font-weight:900;
+  color:#a36b18;
+  white-space:nowrap;
+}
+#ddBossAtlas .dd-boss-level-fallback > .dd-level-pill{
+  display:inline-flex;
+  font-size:10.5px;
+  line-height:1.2;
+  min-height:23px;
+  padding:3px 7px;
+  white-space:nowrap;
+  font-weight:900;
+  color:#754800;
+}

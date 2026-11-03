@@ -175,7 +175,6 @@ function formatHp(value){
  const names=['','一階段','二階段','三階段','四階段'];
  return `<div class="dd-hp-phases">${parts.map(match=>`<div class="dd-hp-phase"><span class="dd-hp-step">${names[+match[1]]}</span><strong>${escapeHTML(match[2].trim()||'—')}</strong></div>`).join('')}</div>`;
 }
-
 function formatBossLevel(value){
  const raw=String(value??'').trim();
  if(!raw)return '';
@@ -212,21 +211,29 @@ function card(b,map){
  const runeContent=runeStageKeys.length
   ?`<span class="dd-rune-wrap">${runeIcon}<span class="dd-rune-content">${runeLabel}<span class="dd-rune-phases">${runeStageKeys.map(stage=>`<span class="dd-rune-phase"><em>${runeStageNames[+stage]}</em><strong>${escapeHTML(String(runeStages[stage]))}</strong></span>`).join('')}${runeValue?`<small title="未指定的階段沿用此數值">其餘 ${escapeHTML(runeValue)}</small>`:''}</span></span></span>`
   :runeValue?`<span class="dd-rune-single">${runeIcon}${runeLabel}<strong>${escapeHTML(runeValue)}</strong></span>`:'<strong class="dd-requirement-empty">—</strong>';
- const byStage=(d?.defenseByPhase && typeof d.defenseByPhase==='object')?d.defenseByPhase:{};
+ const levelByStage=(d?.levelByPhase && typeof d.levelByPhase==='object' && !Array.isArray(d.levelByPhase))?d.levelByPhase:{};
  const stageNames=['','一階段','二階段','三階段','四階段'];
+ const levelValue=formatBossLevel(String(d?.bossLevel??'').trim()!==''?d.bossLevel:d?.level);
+ const levelStageKeys=Object.keys(levelByStage).filter(k=>/^[1-4]$/.test(k)&&String(levelByStage[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));
+ // Keep the level immediately below the boss name. A single level fits on
+ // one line; different stage levels form a predictable 2 × 2 grid.
+ const hasBossLevel=Boolean(levelValue||levelStageKeys.length);
+ const levelContent=levelStageKeys.length
+  ?`<div class="dd-boss-level-grid">${levelStageKeys.map(stage=>`<div class="dd-boss-level-stage"><span class="dd-boss-level-stage-name">${stageNames[+stage]}</span><strong class="dd-level-pill">${escapeHTML(formatBossLevel(levelByStage[stage]))}</strong></div>`).join('')}</div>${levelValue?`<span class="dd-boss-level-fallback" title="未指定的階段沿用共通等級"><span class="dd-boss-level-fallback-label">其餘</span><strong class="dd-level-pill">${escapeHTML(levelValue)}</strong></span>`:''}`
+  :`<strong class="dd-level-pill">${escapeHTML(levelValue)}</strong>`;
+ const byStage=(d?.defenseByPhase && typeof d.defenseByPhase==='object')?d.defenseByPhase:{};
  const stageKeys=Object.keys(byStage).filter(k=>/^[1-4]$/.test(k)&&String(byStage[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));
  const defenseContent=stageKeys.length?`<div class="dd-defense-phases">${stageKeys.map(stage=>`<span class="dd-defense-phase"><em>${stageNames[+stage]}</em><strong>${escapeHTML(String(byStage[stage]).replace(/%/g,''))}%</strong></span>`).join('')}${defenseValue?`<small title="未指定的階段沿用此數值">其餘 ${escapeHTML(defenseValue)}%</small>`:''}</div>`:defenseValue?`<strong>${escapeHTML(defenseValue)}%</strong>`:'<strong class="dd-requirement-empty">—</strong>';
  const hp=String(d?.hp||'尚未提供');
- const level=Number(d?.level);const levelText=Number.isInteger(level)&&level>=1&&level<=9999?'Lv.'+level:'';
  return `<article class="dd-boss" data-boss-id="${escapeAttr(b.id)}">
    <div class="dd-boss-top">
     ${img?`<img class="dd-boss-pic" src="${escapeAttr(img)}" alt="${escapeAttr(b.name)}" loading="lazy">`:''}
     <div class="dd-boss-summary">
      <div class="dd-boss-name-row${[...String(b.name)].length>=7?' dd-boss-name-long':''}"><span class="dd-group-label">${escapeHTML(b.group)}</span><h3 title="${escapeAttr(b.name)}">${escapeHTML(b.name)}</h3></div>
+     ${hasBossLevel?`<div class="dd-boss-level-inline${levelStageKeys.length?' has-stages':''}"><span class="dd-boss-level-title">BOSS 等級</span><div class="dd-boss-level-content">${levelContent}</div></div>`:''}
      ${b.note?`<div class="dd-boss-meta">${escapeHTML(b.note)}</div>`:''}
      <div class="dd-summary-stats">
       <div class="dd-stat hp" title="${escapeAttr(hp)}"><span class="dd-stat-label">BOSS 血量</span>${formatHp(hp)}</div>
-      <div class="dd-stat dd-stat-level"><span class="dd-stat-label">BOSS 等級</span><b>${levelContent}</b></div>
       <div class="dd-stat dd-stat-rune"><span class="dd-stat-label">符文</span><b>${runeContent}</b></div>
       <div class="dd-stat dd-stat-defense"><span class="dd-stat-label">防禦</span><b>${defenseContent}</b></div>
      </div>
