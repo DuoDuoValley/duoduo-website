@@ -210,6 +210,7 @@ function card(b,map){
  const stageKeys=Object.keys(byStage).filter(k=>/^[1-4]$/.test(k)&&String(byStage[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));
  const defenseContent=stageKeys.length?`<div class="dd-defense-phases">${stageKeys.map(stage=>`<span class="dd-defense-phase"><em>${stageNames[+stage]}</em><strong>${escapeHTML(String(byStage[stage]).replace(/%/g,''))}%</strong></span>`).join('')}${defenseValue?`<small title="未指定的階段沿用此數值">其餘 ${escapeHTML(defenseValue)}%</small>`:''}</div>`:defenseValue?`<strong>${escapeHTML(defenseValue)}%</strong>`:'<strong class="dd-requirement-empty">—</strong>';
  const hp=String(d?.hp||'尚未提供');
+ const level=Number(d?.level);const levelText=Number.isInteger(level)&&level>=1&&level<=9999?'Lv.'+level:'';
  return `<article class="dd-boss" data-boss-id="${escapeAttr(b.id)}">
    <div class="dd-boss-top">
     ${img?`<img class="dd-boss-pic" src="${escapeAttr(img)}" alt="${escapeAttr(b.name)}" loading="lazy">`:''}
@@ -224,7 +225,7 @@ function card(b,map){
     </div>
    </div>
    <div class="dd-boss-info">
-    <div class="dd-diff-toolbar"><span class="dd-diff-caption">難度</span><div class="dd-diff-list" aria-label="${escapeAttr(b.name)}難度">${ds.map(x=>`<button class="dd-diff ${d===x?'active':''}" data-boss="${escapeAttr(b.id)}" data-diff="${escapeAttr(x.name)}" type="button" aria-label="${escapeAttr(x.name)}" aria-pressed="${d===x?'true':'false'}">${['簡單','普通','困難','混沌','終極'].includes(x.name)?`<img src="assets/boss-atlas/difficulties/${escapeAttr(x.name)}.png" alt="${escapeAttr(x.name)}" loading="lazy">`:escapeHTML(x.name)}</button>`).join('')}</div></div>
+    <div class="dd-diff-toolbar"><span class="dd-diff-caption">難度</span><div class="dd-diff-list" aria-label="${escapeAttr(b.name)}難度">${ds.map(x=>`<button class="dd-diff ${d===x?'active':''}" data-boss="${escapeAttr(b.id)}" data-diff="${escapeAttr(x.name)}" type="button" aria-label="${escapeAttr(x.name)}" aria-pressed="${d===x?'true':'false'}">${['簡單','普通','困難','混沌','終極'].includes(x.name)?`<img src="assets/boss-atlas/difficulties/${escapeAttr(x.name)}.png" alt="${escapeAttr(x.name)}" loading="lazy">`:escapeHTML(x.name)}</button>`).join('')}</div>${levelText?`<span class="dd-boss-level" title="目前難度的 BOSS 等級">${escapeHTML(levelText)}</span>`:''}</div>
     <div class="dd-drops">
      <div class="dd-drop-head">掉落物 <small>${d?.drops?.length||0} 種</small></div>
      <div class="dd-drop-list" id="dd-drops-${escapeAttr(b.id)}">${d?.drops?.length?dropCards:'<span class="dd-no-drop">掉落資訊整理中</span>'}</div>

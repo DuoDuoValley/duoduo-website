@@ -289,3 +289,6 @@
   text-overflow:clip;
   overflow-wrap:anywhere;
 }
+
+/* Difficulty-specific BOSS level alongside difficulty switcher. */
+#ddBossAtlas .dd-boss-level{display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;padding:4px 9px;border:1px solid var(--line, #3c5265);border-radius:7px;color:var(--text, #e7f3ff);font-size:12px;font-weight:800;white-space:nowrap;background:rgba(117,151,178,.1)}
