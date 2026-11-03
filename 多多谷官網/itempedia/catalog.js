@@ -16,7 +16,17 @@ if(useDraft){try{const d=JSON.parse(localStorage.getItem(key));if(Array.isArray(
   catalog=d;
 }}catch{}}
 let category='全部',query='',view='grid';
-const all=()=>catalog.items.filter(x=>x.enabled!==false).sort((a,b)=>(a.sort??0)-(b.sort??0));
+// Keep the "全部" list in the same category order as the filter buttons.
+// A category's own sort values are still controlled by the existing admin editor.
+const all=()=>{
+  const ranked=new Map((catalog.categories||[]).map((name,index)=>[name,index]));
+  // Newly added categories not yet in categories[] follow the listed ones, each as one group.
+  for(const item of catalog.items){if(!ranked.has(item.category))ranked.set(item.category,ranked.size);}
+  return catalog.items.filter(x=>x.enabled!==false).sort((a,b)=>
+    (ranked.get(a.category)-ranked.get(b.category)) ||
+    ((Number(a.sort)||0)-(Number(b.sort)||0))
+  );
+};
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
 function img(path,name){const node=el('img');node.src=path||'';node.alt=name||'';node.loading='lazy';node.onerror=()=>{node.hidden=true;};return node;}
 function qnorm(s){return String(s||'').toLowerCase().normalize('NFKC').replace(/\s/g,'');}
