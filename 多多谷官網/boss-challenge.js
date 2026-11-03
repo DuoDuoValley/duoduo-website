@@ -10,6 +10,11 @@ const label=['','一階段','二階段','三階段','四階段'];
 const baseUrl='assets/boss-atlas/calculator-ui/';
 const nameImage=name=>assetNames.has(name)?baseUrl+encodeURIComponent(name)+'.png':'';
 const inversePortraitUrl=name=>assetNames.has(name)?'assets/boss-atlas/inverse-ui/'+encodeURIComponent(name)+'.png':'';
+const atlasImage=b=>{const src=String(b?.image||'').trim();return /^assets\/boss-atlas\/bosses\/[\w.%()\/-]+$/i.test(src)||/^https:\/\//i.test(src)?src:''};
+const calculatorImage=b=>nameImage(b.name)||atlasImage(b);
+const inverseBossImage=b=>inversePortraitUrl(b.name)||atlasImage(b);
+// Existing records without tool flags retain previous visibility on rollout.
+const inTool=(b,key)=>typeof b[key]==='boolean'?b[key]:(b.published!==false&&b.name!=='尤比太');
 const diffImage=name=>diffNames.has(name)?'assets/boss-atlas/difficulties/'+encodeURIComponent(name)+'.png':'';
 const units=[['京',10000000000000000n],['兆',1000000000000n],['億',100000000n],['萬',10000n]];
 const unitMap=new Map([...units,['',1n]]);
@@ -131,7 +136,7 @@ inversePanel.innerHTML=`
  <p class="bc-note">計算範圍包含 1 倍、10 倍、20 倍……所選上限，並以後台公布的各 BOSS 開放最高倍率為準；1 倍採原有比例，10 倍（含）以上採同一組多人比例。多路線 BOSS 在「全部」模式會以血量較高的路線保守估算。</p>
 `;
 root.appendChild(inversePanel);
-let bosses=[],bossId='',diffName='',variantChoices={},baselineBosses=[];
+let bosses=[],inverseBosses=[],bossId='',diffName='',variantChoices={},baselineBosses=[];
 let inverseCategory='全部',inverseBossId='all';
 // A limit belongs to each BOSS, not individual difficulties. Older cloud records
 // lacking this new field use the verified default until the admin publishes it.
@@ -188,8 +193,8 @@ function currentBoss(){return bosses.find(b=>b.id===bossId);}
 function currentDiff(){return currentBoss()?.difficulties?.find(d=>d.name===diffName);}
 function renderSelection(){
  const b=currentBoss();if(!b)return;
- $('bc-picked').innerHTML=nameImage(b.name)?`<img src="${nameImage(b.name)}" alt="${escapeHTML(b.name)}">`:`<span class="bc-picker-fallback">${escapeHTML(b.name)}</span>`;
- $('bc-picker-grid').innerHTML=bosses.map(x=>`<button type="button" role="option" class="bc-boss-choice" data-id="${escapeHTML(x.id)}" aria-selected="${x.id===bossId}" title="${escapeHTML(x.name)}">${nameImage(x.name)?`<img src="${nameImage(x.name)}" alt="${escapeHTML(x.name)}" loading="lazy">`:`<span>${escapeHTML(x.name)}</span>`}</button>`).join('');
+ $('bc-picked').innerHTML=calculatorImage(b)?`<img src="${calculatorImage(b)}" alt="${escapeHTML(b.name)}">`:`<span class="bc-picker-fallback">${escapeHTML(b.name)}</span>`;
+ $('bc-picker-grid').innerHTML=bosses.map(x=>`<button type="button" role="option" class="bc-boss-choice" data-id="${escapeHTML(x.id)}" aria-selected="${x.id===bossId}" title="${escapeHTML(x.name)}">${calculatorImage(x)?`<img src="${calculatorImage(x)}" alt="${escapeHTML(x.name)}" loading="lazy">`:`<span>${escapeHTML(x.name)}</span>`}</button>`).join('');
  syncForwardMultiplierOptions();
  $('bc-difficulties').innerHTML=(b.difficulties||[]).map(d=>`<button type="button" class="bc-diff" data-diff="${escapeHTML(d.name)}" aria-pressed="${d.name===diffName}">${diffImage(d.name)?`<img src="${diffImage(d.name)}" alt="${escapeHTML(d.name)}">`:escapeHTML(d.name)}</button>`).join('');
  renderResult();
@@ -223,17 +228,17 @@ function renderResult(){
 function inverseEntries(){
  // The reverse calculator has its own category / image picker and never
  // changes the forward calculator's selected BOSS or difficulty.
- return bosses.filter(b=>(inverseCategory==='全部'||b.group===inverseCategory)
+ return inverseBosses.filter(b=>(inverseCategory==='全部'||b.group===inverseCategory)
   &&(inverseBossId==='all'||b.id===inverseBossId))
   .flatMap(b=>(b.difficulties||[]).map(d=>({boss:b,difficulty:d,selected:false})));
 }
 function inversePortrait(b){
- const src=inversePortraitUrl(b.name);
+ const src=inverseBossImage(b);
  return src?`<img class="bc-inverse-portrait" src="${src}" alt="" loading="lazy" decoding="async">`
   :`<span class="bc-inverse-portrait bc-inverse-portrait--fallback" aria-hidden="true">◇</span>`;
 }
 function inverseBanner(b){
- const src=nameImage(b.name);
+ const src=calculatorImage(b);
  return src?`<img src="${src}" alt="${escapeHTML(b.name)}" loading="lazy" decoding="async">`
   :`<span class="bc-inverse-image-fallback">${escapeHTML(b.name)}</span>`;
 }
@@ -241,9 +246,9 @@ function renderInverseFilters(){
  const categories=$('bc-inverse-categories');
  const current=categories.querySelector('[aria-pressed="true"]');
  categories.innerHTML=['全部',...publicGroups].map(g=>`<button type="button" class="bc-inverse-category" data-category="${g}" aria-pressed="${g===inverseCategory}">${g==='全部'?'全部 BOSS':g+' BOSS'}</button>`).join('');
- const filtered=bosses.filter(b=>inverseCategory==='全部'||b.group===inverseCategory);
+ const filtered=inverseBosses.filter(b=>inverseCategory==='全部'||b.group===inverseCategory);
  if(inverseBossId!=='all'&&!filtered.some(b=>b.id===inverseBossId))inverseBossId='all';
- $('bc-inverse-filter-count').textContent=`${filtered.length} 隻已公開 BOSS`;
+ $('bc-inverse-filter-count').textContent=`${filtered.length} 隻可反推 BOSS`;
  $('bc-inverse-bosses').innerHTML=`<button type="button" class="bc-inverse-boss-choice bc-inverse-all-choice" data-inverse-boss="all" aria-pressed="${inverseBossId==='all'}"><span class="bc-inverse-all-symbol" aria-hidden="true">▦</span><span>全部 BOSS</span></button>`
  +filtered.map(b=>`<button type="button" class="bc-inverse-boss-choice" data-inverse-boss="${escapeHTML(b.id)}" aria-pressed="${inverseBossId===b.id}" title="${escapeHTML(b.name)}">${inversePortrait(b)}<span class="bc-inverse-choice-name">${escapeHTML(b.name)}</span></button>`).join('');
 }
@@ -303,7 +308,7 @@ function renderInverse(){
   const summary=maxEligible===null?'未達標':`最高 ${maxEligible} 倍`;
   rows.push({id:entry.boss.id,name:entry.boss.name,boss:entry.boss,html:`<div class="bc-inverse-diff"><span class="bc-inverse-diff-icon">${icon}</span><strong class="${maxEligible===null?'bc-inverse-fail':'bc-inverse-pass'}">${summary}</strong></div><div class="bc-inverse-multiples">${valid.length?valid.map(n=>`<span class="bc-inverse-multiple">${n} 倍</span>`).join(''):'目前傷害尚不足以達到所選倍率的個人領獎門檻'}</div>`});
  }
- // Keep original BOSS group order from atlas; no unpublished records appear.
+ // Keep the same group order as the atlas for the independently enabled scope.
  const groups=[];
  for(const row of rows){
   let found=groups.find(group=>group.id===row.id);
@@ -387,17 +392,25 @@ function bossDisplayOrder(records){
 }
 function accept(data){
  if(!data||!Array.isArray(data.bosses))return;
- // The public reader does not show records flagged as unpublished.
- const items=data.bosses.filter(b=>b&&b.published!==false&&!['尤比太'].includes(b.name)&&Array.isArray(b.difficulties));
- bosses=bossDisplayOrder(items.filter(b=>b.difficulties.length).sort((a,b)=>{
-  const d=publicGroups.indexOf(a.group)-publicGroups.indexOf(b.group);return d||0;
- }));
- if(!bosses.length){$('bc-picked').textContent='目前沒有可選擇的 BOSS';return;}
- if(!bosses.some(b=>b.id===bossId))bossId=bosses.find(b=>b.name==='黑魔法師')?.id||bosses[0].id;
- const b=currentBoss();
- if(!b.difficulties.some(d=>d.name===diffName))diffName=b.difficulties[0].name;
- renderSelection();
+ // Same published JSON, but these tools have different opt-in filters.
+ const items=data.bosses.filter(b=>b&&Array.isArray(b.difficulties)&&b.difficulties.length);
+ const order=list=>bossDisplayOrder(list.sort((a,b)=>publicGroups.indexOf(a.group)-publicGroups.indexOf(b.group)));
+ bosses=order(items.filter(b=>inTool(b,'showInHpCalculator')));
+ inverseBosses=order(items.filter(b=>inTool(b,'showInDamageInverse')));
+ if(bosses.length){
+  if(!bosses.some(b=>b.id===bossId))bossId=bosses.find(b=>b.name==='黑魔法師')?.id||bosses[0].id;
+  const b=currentBoss();
+  if(!b.difficulties.some(d=>d.name===diffName))diffName=b.difficulties[0].name;
+  renderSelection();
+ }else{
+  bossId='';diffName='';variantChoices={};
+  $('bc-picked').textContent='目前沒有可選擇的 BOSS';
+  $('bc-picker-grid').replaceChildren();
+  $('bc-difficulties').replaceChildren();
+  $('bc-result').innerHTML='<p class="bc-error">目前尚無開放此計算機的 BOSS。</p>';
+ }
  renderInverseFilters();
+ renderInverse();
 }
 (async()=>{
  try{

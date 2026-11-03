@@ -83,11 +83,12 @@ function bossDisplayOrder(records){
  return result;
 }
 const publicBosses=()=>Array.isArray(data?.bosses)?bossDisplayOrder(data.bosses.filter(b=>b&&b.published!==false)):[];
-// Share the exact public atlas snapshot currently rendered on this page.
-// The calculator must not depend on a second cloud request to see admin HP.
+// The three publication destinations are independent. Share the complete
+// BOSS snapshot with the calculators, which apply their OWN visibility flags.
+// The atlas itself still renders only published BOSS cards.
 function sharePublicAtlasData(){
  const snapshot={schema:1,dataRevision:data?.dataRevision??1,
-  bosses:publicBosses().filter(b=>b.name!=='尤比太').map(b=>structuredClone(b))};
+  bosses:Array.isArray(data?.bosses)?structuredClone(data.bosses):[]};
  window.__ddBossPublicAtlasSnapshot=snapshot;
  window.dispatchEvent(new CustomEvent('duoduo:boss-atlas-snapshot',{detail:snapshot}));
 }
@@ -219,7 +220,7 @@ function card(b,map){
  // one line; different stage levels form a predictable 2 × 2 grid.
  const hasBossLevel=Boolean(levelValue||levelStageKeys.length);
  const levelContent=levelStageKeys.length
-  ?`<div class="dd-boss-level-grid">${levelStageKeys.map(stage=>`<div class="dd-boss-level-stage"><span class="dd-boss-level-stage-name">${stageNames[+stage]}</span><strong class="dd-level-pill">${escapeHTML(formatBossLevel(levelByStage[stage]))}</strong></div>`).join('')}</div>${levelValue?`<span class="dd-boss-level-fallback" title="未指定的階段沿用共通等級"><span class="dd-boss-level-fallback-label">其餘</span><strong class="dd-level-pill">${escapeHTML(levelValue)}</strong></span>`:''}`
+  ?`<div class="dd-boss-level-grid">${levelStageKeys.map(stage=>`<div class="dd-boss-level-stage"><span class="dd-boss-level-stage-name">${stageNames[+stage]}</span><strong class="dd-level-pill">${escapeHTML(formatBossLevel(levelByStage[stage]))}</strong></div>`).join('')}${levelValue&&levelStageKeys.length<4?`<div class="dd-boss-level-fallback" title="未指定的階段沿用共通等級"><span class="dd-boss-level-fallback-label">其餘</span><strong class="dd-level-pill">${escapeHTML(levelValue)}</strong></div>`:''}</div>`
   :`<strong class="dd-level-pill">${escapeHTML(levelValue)}</strong>`;
  const byStage=(d?.defenseByPhase && typeof d.defenseByPhase==='object')?d.defenseByPhase:{};
  const stageKeys=Object.keys(byStage).filter(k=>/^[1-4]$/.test(k)&&String(byStage[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));

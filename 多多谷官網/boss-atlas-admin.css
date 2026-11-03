@@ -77,3 +77,25 @@
 @media(max-width:900px){#bossAtlasPanel .at-diff-meta{grid-template-columns:1fr}}
 @media(max-width:800px){#bossAtlasPanel .at-level-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media(max-width:440px){#bossAtlasPanel .at-level-grid{grid-template-columns:1fr}}
+
+
+/* BOSS publication destinations: independent, accessible toggles. */
+#bossAtlasPanel .at-visibility-group{margin:2px 0 17px;padding:12px;border:1px solid #35566d;border-radius:11px;background:#102338}
+#bossAtlasPanel .at-visibility-title{font-size:13px;font-weight:800;color:#e5f3ff;margin-bottom:10px}
+#bossAtlasPanel .at-visibility-title span{display:block;font-weight:450;font-size:11px;color:#9fbacf;margin-top:3px}
+#bossAtlasPanel .at-visibility-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:9px}
+#bossAtlasPanel .at-visibility-option{display:flex;align-items:flex-start;gap:9px;border:1px solid #36516b;border-radius:9px;padding:10px;background:#0a1a2b;color:#e8f3fd;cursor:pointer;min-width:0}
+#bossAtlasPanel .at-visibility-option:has(input:checked){border-color:#298eb5;background:#113149}
+#bossAtlasPanel .at-visibility-option input{width:17px;height:17px;flex:none;margin:2px 0 0;accent-color:#19a6d0;cursor:pointer}
+#bossAtlasPanel .at-visibility-option span{display:grid;gap:3px;min-width:0}
+#bossAtlasPanel .at-visibility-option strong{font-size:12px;font-weight:750;line-height:1.5}
+#bossAtlasPanel .at-visibility-option small{font-size:11px;color:#9fbad1;line-height:1.45}
+@media(max-width:950px){#bossAtlasPanel .at-visibility-grid{grid-template-columns:1fr}}
+
+
+/* BOSS Atlas order controls (category-local). */
+#bossAtlasPanel .at-drop-line{grid-template-columns:30px minmax(130px,1fr) 100px 95px 66px 36px}
+#bossAtlasPanel .at-drop-order{display:flex;gap:3px}
+#bossAtlasPanel .at-drop-order button{width:31px;height:36px;background:#17354a;border-color:#395f7c;color:#d9eeff;font-weight:800}
+#bossAtlasPanel .at-drop-order button:hover{background:#25516e}
+@media(max-width:700px){#bossAtlasPanel .at-drop-line{grid-template-columns:26px minmax(80px,1fr) 58px 58px 54px 30px;gap:3px}#bossAtlasPanel .at-drop-order{gap:2px}#bossAtlasPanel .at-drop-order button{width:26px;height:32px}#bossAtlasPanel .at-drop-line select,#bossAtlasPanel .at-drop-line input{padding:5px;font-size:11px}}
