@@ -17,6 +17,6 @@
  }catch(err){console.warn('[道具百科] 正式資料讀取失敗，暫用隨網站發布的資料。',err?.message||err)}
  finally{clearTimeout(deadline)}
  function loadScript(path){return new Promise((resolve,reject)=>{const s=document.createElement('script');s.src=path;s.onload=resolve;s.onerror=reject;document.body.append(s)})}
- try{await loadScript('itempedia/catalog.js?v=20261103-v28');await loadScript('itempedia/buffs.js?v=20261103-v28')}
+ try{await loadScript('itempedia/catalog.js?v=20261103-v28');await loadScript('itempedia/buffs.js?v=20261103-v37')}
  catch(err){console.error('[道具百科] 頁面初始化失敗。',err)}
 })();

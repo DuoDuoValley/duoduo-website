@@ -67,3 +67,20 @@
 
 /* Dropdown only: reduce page-content bleed-through without changing the header or its geometry. */
 :root[data-theme="light"] .site-header.dd-nav-ready .dd-nav-menu{background:rgba(244,247,250,.98)}
+
+/* V3.7: Mobile scroller must never paint nav links over the pinned menu button.
+   This is the shared rule for Home, Jobs, Legion and Itempedia. */
+@media(max-width:700px){
+ .site-header.dd-nav-ready nav.dd-main-nav .dd-mobile-toggle{
+   position:sticky;left:0;z-index:40;flex-shrink:0;isolation:isolate;
+   background:#f4f8fb;
+   box-shadow:5px 0 12px -7px rgba(8,29,47,.42);
+ }
+ .site-header.dd-nav-ready nav.dd-main-nav .dd-top-link{z-index:0}
+}
+
+/* Fully opaque backing prevents scrolling menu labels showing through the toggle. */
+@media(max-width:700px){
+ :root[data-theme="dark"] .site-header.dd-nav-ready nav.dd-main-nav .dd-mobile-toggle{background:#07111f}
+ :root[data-theme="light"] .site-header.dd-nav-ready nav.dd-main-nav .dd-mobile-toggle{background:#f4f8fb}
+}

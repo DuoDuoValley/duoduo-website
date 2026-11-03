@@ -4,9 +4,9 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="多多谷道具百科：快速查找特殊道具、經驗加倍、強化材料、輪迴資源及會員福利的用途與限制。">
 <title>多多谷｜道具百科</title><link rel="icon" href="favicon-64.png">
-<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="dd-navigation.css">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="dd-navigation.css?v=20261103-v37">
 <link rel="stylesheet" href="cursor-ui/cursor.css"><script defer src="cursor-ui/cursor.js"></script>
-<link rel="stylesheet" href="itempedia/catalog.css?v=20261103-v36"><link rel="stylesheet" href="itempedia/buffs.css"><link rel="stylesheet" href="dd-modal-ui.css?v=20261103-1">
+<link rel="stylesheet" href="itempedia/catalog.css?v=20261103-v36"><link rel="stylesheet" href="itempedia/buffs.css?v=20261103-v37"><link rel="stylesheet" href="dd-modal-ui.css?v=20261103-1">
 </head><body class="pedia-body">
 <header class="site-header">
   <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
@@ -54,7 +54,7 @@
  </section>
  <section id="pediaBuffsSection" aria-label="BUFF 效果列表" hidden>
   <div class="pedia-buff-intro"><div><strong>BUFF 與增益效果</strong><p>同名、相同圖示的增益效果合併成一張查詢卡，但不同數值完整保留。依會員等級查看每一筆原始說明。</p></div><span>35 種名稱 · 64 筆記錄</span></div>
-  <label class="pedia-search pedia-buff-search"><span aria-hidden="true">⌕</span><input id="buffSearch" type="search" autocomplete="off" placeholder="搜尋 BUFF 名稱、效果或數值…" aria-label="搜尋 BUFF"></label>
+  <div class="pedia-tools pedia-buff-tools"><label class="pedia-search pedia-buff-search"><span aria-hidden="true">⌕</span><input id="buffSearch" type="search" autocomplete="off" placeholder="搜尋 BUFF 名稱、效果或數值…" aria-label="搜尋 BUFF"></label><div class="pedia-views" aria-label="BUFF 顯示方式"><button type="button" data-buff-view="grid" aria-pressed="true">▦ 卡片</button><button type="button" data-buff-view="list" aria-pressed="false">☷ 列表</button></div></div>
   <nav class="pedia-filters" id="buffFilters" aria-label="BUFF 類別篩選"></nav>
   <div class="pedia-summary"><span id="buffCount">正在載入 BUFF…</span><span>點擊可查看各等級與不同效果版本</span></div>
   <div id="buffCards" class="pedia-items pedia-buff-items" aria-live="polite"></div>
@@ -85,6 +85,6 @@
 </footer>
 <script src="app.js"></script><script src="dd-cloud-refresh.js" defer></script>
 <script src="dd-nav-data.js"></script><script src="dd-navigation.js"></script>
-<script src="itempedia/items-data.js"></script><script src="itempedia/buffs-data.js"></script><script src="itempedia/modal-scroll.js?v=20261103-v28"></script><script src="itempedia/public-bootstrap.js?v=20261103-v28"></script>
+<script src="itempedia/items-data.js"></script><script src="itempedia/buffs-data.js"></script><script src="itempedia/modal-scroll.js?v=20261103-v28"></script><script src="itempedia/public-bootstrap.js?v=20261103-v37"></script>
 <script src="dd-site-update.js" defer></script>
 </body></html>

@@ -17,3 +17,7 @@
 :root[data-theme=dark] .pedia-buff-wz .buff-accent{color:#72dfff}
 .pedia-buff-detail:focus-within{outline:2px solid #46a9c5}
 @media(max-width:680px){.pedia-section-tabs{gap:8px}.pedia-section-tab{flex:1;min-width:135px;padding:11px 12px;font-size:12px}.pedia-buff-intro{display:block;padding:14px 16px}.pedia-buff-intro>span{display:block;margin-top:9px}.buff-versions-count{font-size:10px}.pedia-buff-detail{padding:12px}}
+
+/* V3.7: BUFF uses the same card/list search toolbar as items. */
+.pedia-buff-tools{margin-top:18px;margin-bottom:16px}
+.pedia-buff-tools .pedia-buff-search{margin:0}

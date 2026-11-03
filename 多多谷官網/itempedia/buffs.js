@@ -8,7 +8,7 @@ let db=defaults;
 if(false){
  try {const parsed=JSON.parse(localStorage.getItem(draftKey));if(Array.isArray(parsed?.buffs)&&Array.isArray(parsed?.tiers))db=parsed;}catch(_){ /* use defaults */ }
 }
-let selected='全部',keyword='';
+let selected='全部',keyword='',buffView='grid';
 const norm=s=>String(s||'').toLowerCase().normalize('NFKC').replace(/\s/g,'');
 const txt=(tag,cls,text)=>{const e=document.createElement(tag);if(cls)e.className=cls;if(text!==undefined)e.textContent=String(text);return e;};
 const visible=()=>db.buffs.filter(x=>x.enabled!==false);
@@ -26,7 +26,7 @@ function renderWzText(raw){const s=String(raw||'').replace(/\\r\\n/g,'\n').repla
  flush();return outer;}
 function paintFilters(){const root=$('buffFilters');root.replaceChildren();for(const tier of ['全部',...db.tiers]){const names=new Set(visible().filter(x=>tier==='全部'||x.tier===tier).map(x=>x.name));const b=txt('button','',tier);b.type='button';b.setAttribute('aria-pressed',String(tier===selected));b.append(txt('b','',names.size));b.onclick=()=>{selected=tier;paintFilters();paintCards();};root.append(b);}}
 function allTiers(rows){return db.tiers.filter(t=>rows.some(x=>x.tier===t));}
-function paintCards(){const items=groups(activeRows());const node=$('buffCards');node.replaceChildren();$('buffCount').textContent=`顯示 ${items.length} 種 BUFF／${activeRows().length} 筆效果（完整資料 ${groups(visible()).length} 種／${visible().length} 筆）`;
+function paintCards(){const items=groups(activeRows());const node=$('buffCards');node.replaceChildren();node.classList.toggle('pedia-list',buffView==='list');$('buffCount').textContent=`顯示 ${items.length} 種 BUFF／${activeRows().length} 筆效果（完整資料 ${groups(visible()).length} 種／${visible().length} 筆）`;
  if(!items.length){node.append(txt('div','pedia-none','找不到符合條件的 BUFF，請嘗試更換關鍵字或會員類別。'));return;}
  for(const versions of items){const first=versions[0];const card=txt('button','pedia-card pedia-buff-card');card.type='button';const thumb=txt('span','pedia-thumb');thumb.append(pic(first.image,first.name));const content=txt('span','pedia-card-content');const label=allTiers(versions).join(' · ');content.append(txt('span','pedia-chip',label),txt('span','pedia-name',first.name),txt('span','pedia-short',plain(first.description)));const info=txt('span','buff-versions-count',`${versions.length} 筆效果`);card.append(thumb,content,info);card.onclick=()=>openBuff(first.name);node.append(card);
  }
@@ -37,6 +37,12 @@ function openBuff(name){const rows=visible().filter(x=>x.name===name&& (selected
  for(const tier of db.tiers){const subset=rows.filter(x=>x.tier===tier).sort((a,b)=>(a.sort??0)-(b.sort??0));if(!subset.length)continue;modal.append(txt('h3','pedia-buff-tier-title',tier));for(const [i,r] of subset.entries()){const section=txt('section','pedia-buff-detail');const h=txt('div','pedia-buff-detail-head');h.append(txt('strong','',subset.length>1?`效果 ${i+1} / ${subset.length}`:'完整效果'));h.append(txt('span','',`原始 Excel 第 ${r.sourceRow||'—'} 列`));section.append(h,renderWzText(r.description));modal.append(section);}}
  window.DuoDuoPediaModal.show();}
 $('buffSearch').addEventListener('input',e=>{keyword=e.target.value||'';paintCards();});
+// The two content sections keep independent view choices while switching tabs.
+document.querySelectorAll('[data-buff-view]').forEach(btn=>btn.addEventListener('click',()=>{
+ buffView=btn.dataset.buffView;
+ document.querySelectorAll('[data-buff-view]').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.buffView===buffView)));
+ paintCards();
+}));
 const tabs=[...document.querySelectorAll('[data-pedia-section]')];
 function switchSection(section){for(const b of tabs)b.setAttribute('aria-pressed',String(b.dataset.pediaSection===section));$('pediaItemsSection').hidden=section!=='items';$('pediaBuffsSection').hidden=section!=='buffs';$('pediaTotal').textContent=section==='buffs'?groups(visible()).length:(window.DuoDuoItemCatalogDefault?.items?.length||72);$('pediaMetricLabel').textContent=section==='buffs'?'種 BUFF 名稱':'項專屬道具';$('pediaHeroDesc').innerHTML=section==='buffs'?'依永恆祝福、VIP、VVIP、SSVIP 查看原始 BUFF 效果，<br>同名同圖示的不同數值，也可逐一查詢。':'從進階繼承、強化工坊到經驗加倍與會員福利，<br>快速找到每件道具的用途、增益效果與使用限制。';}
 for(const b of tabs)b.addEventListener('click',()=>switchSection(b.dataset.pediaSection));
