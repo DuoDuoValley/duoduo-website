@@ -88,16 +88,20 @@ window.DuoDuoNavEnsureLegion=function(items){
  return result;
 };
 
-// Preserve the official Itempedia entry even when legacy published cloud nav data
-// predates the page. Keep all administrator-customized unrelated entries intact.
+// V2.7: retain the canonical encyclopedia entry after 上架商品 even on already saved nav settings.
 window.DuoDuoNavEnsureItempedia=function(items){
  if(!Array.isArray(items))return items;
- const output=items.map(x=>({...x})),href='item-encyclopedia.html';
- const existing=output.findIndex(x=>x.id==='guide-itempedia'||String(x.label||'').trim()==='道具百科'||/(?:^|\/)item-encyclopedia\.html(?:[?#]|$)/.test(String(x.href||'')));
- const entry=existing>=0?{...output.splice(existing,1)[0],id:'guide-itempedia',label:'道具百科',href,enabled:true}:
-     {id:'guide-itempedia',label:'道具百科',href,enabled:true};
- if(existing<0&&output.length>=20)return output;
- const anchor=output.findIndex(x=>String(x.label||'').trim()==='上架商品'||String(x.href||'').includes('dd-resource-products'));
- output.splice(anchor>=0?anchor+1:output.length,0,entry);
- return output;
+ const result=items.map(item=>({...item})), title='道具百科',href='item-encyclopedia.html';
+ const matches=item=>{
+  if(!item)return false;
+  if(item.id==='guide-itempedia'||String(item.label||'').trim()===title)return true;
+  try{return new URL(String(item.href||''),document.baseURI).pathname.endsWith('/item-encyclopedia.html')}catch(_){return false}
+ };
+ const present=result.findIndex(matches);
+ let entry=present<0?null:result.splice(present,1)[0];
+ if(!entry&&result.length>=20)return result; // preserve administrator customizations at the limit
+ entry={...(entry||{}),id:'guide-itempedia',label:title,href,enabled:true};
+ const idx=result.findIndex(item=>String(item.label||'').trim()==='上架商品'||String(item.href||'').includes('dd-resource-products'));
+ result.splice(idx<0?result.length:idx+1,0,entry);
+ return result;
 };

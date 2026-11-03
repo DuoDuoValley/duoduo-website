@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="../dd-navigation.css">
   <link rel="stylesheet" href="jobs-header.css?v=20261030-navfont1">
   <link rel="stylesheet" href="../cursor-ui/cursor.css">
+  <link rel="stylesheet" href="../dd-page-footer.css">
   <script src="jobs-data.js" defer></script>
   <script src="jobs.js" defer></script>
   <script src="jobs-filter-glove.js?v=20261031-1" defer></script>
@@ -28,6 +29,7 @@
   <script src="../dd-nav-data.js"></script>
 <script src="../dd-navigation.js" defer></script>
   <script src="../cursor-ui/cursor.js" defer></script>
+  <script src="../dd-page-footer.js" defer></script>
 </head>
 <body>
   <header class="site-header">
@@ -106,8 +108,30 @@
 
       <aside class="preview-note"><div class="note-symbol">i</div><div><strong>資料說明</strong><p>職業、角色卡與傳授連結技能資訊以多多谷伺服器實際遊戲內容及官方公告為準。</p></div></aside>
     </main>
-    <footer class="site-footer"><span>多多谷 · 角色卡與傳授技能</span><span>多多谷官方網站 · 資料持續更新</span></footer>
+    
   </div>
+<footer class="site-footer dd-unified-footer">
+  <div class="footer-brand">
+    <b>DuoDuo Valley｜多多谷</b>
+    <p data-footer="description">一個正在慢慢變熱鬧的小小世界。遊戲資訊、檔期活動與最新公告，都在這裡整理。</p>
+  </div>
+  <div class="footer-column">
+    <strong data-footer="navTitle">網站導覽</strong>
+    <div class="footer-links">
+      <a href="../index.html">首頁</a><a href="../index.html#why">為什麼選多多谷</a><a href="../index.html#features">特色系統</a><a href="../events.html" data-nav="events">檔期活動</a><a href="../boss.html">BOSS</a><a href="../news.html">最新消息</a><a href="../guide.html">遊玩指南</a>
+    </div>
+  </div>
+  <div class="footer-column">
+    <strong data-footer="resourceTitle">玩家資源</strong>
+    <div class="footer-links">
+      <a href="https://fd-pay.com/ARrbXO" data-link="topup" target="_blank" rel="noopener noreferrer">儲值入口</a><a href="https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing" data-link="guide" target="_blank" rel="noopener noreferrer">完整遊玩指南</a><a href="https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing" data-link="rates" target="_blank" rel="noopener noreferrer">機率型道具說明</a><a href="https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing" data-link="products" target="_blank" rel="noopener noreferrer">上架商品</a><a href="https://duoduovalley.github.io/duoduo-checklist/" data-link="checklist" target="_blank" rel="noopener noreferrer">每日 Checklist</a><a href="https://discord.gg/duoduovalley" data-link="discord" target="_blank" rel="noopener noreferrer">加入 Discord</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span data-footer="copyright">© 2026 DuoDuo Valley · 多多谷</span>
+    <span class="footer-legal"><a href="../privacy.html">隱私權政策</a><a href="../terms.html">使用條款</a></span>
+  </div>
+</footer>
   <dialog id="jobDialog" class="job-dialog" aria-label="職業詳細資料"><div id="jobDialogContent"></div></dialog>
 <script>(function(){const s=document.createElement("script");s.async=false;s.src="../dd-site-update.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
 </body>

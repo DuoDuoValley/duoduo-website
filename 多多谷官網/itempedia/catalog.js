@@ -1,9 +1,20 @@
-/* Official DuoDuo Itempedia. All source text is safely rendered as text nodes. */
+/* DuoDuo Itempedia — preview only. All source text is rendered as text nodes. */
 (()=>{'use strict';
+const key='duoduo_itempedia_preview_draft_v1';
 const defaults=window.DuoDuoItemCatalogDefault||{items:[],categories:[]};
 const $=id=>document.getElementById(id);
 const params=new URLSearchParams(location.search);
+const useDraft=false;
 let catalog=defaults;
+if(useDraft){try{const d=JSON.parse(localStorage.getItem(key));if(Array.isArray(d?.items)){
+  if(Number(d.version||0)<2.5){
+    const existing=new Set(d.items.map(x=>x.id));
+    for(const item of defaults.items.filter(x=>/^catalog-progression-/.test(x.id)))if(!existing.has(item.id))d.items.push(structuredClone(item));
+    d.categories=[...new Set([...(d.categories||[]),...defaults.categories])];
+    d.version=2.5;try{localStorage.setItem(key,JSON.stringify(d));}catch{}
+  }
+  catalog=d;
+}}catch{}}
 let category='全部',query='',view='grid';
 const all=()=>catalog.items.filter(x=>x.enabled!==false).sort((a,b)=>(a.sort??0)-(b.sort??0));
 function el(tag,cls,txt){const n=document.createElement(tag);if(cls)n.className=cls;if(txt!==undefined)n.textContent=txt;return n;}
@@ -45,7 +56,7 @@ for(const item of items){const b=el('button','pedia-card');b.type='button';const
 function openDetail(item){
   const back=$('pediaBackdrop'),dialog=$('pediaModal'),detail=getDetail(item);
   dialog.replaceChildren();
-  const close=el('button','pedia-close','×');close.type='button';close.setAttribute('aria-label','關閉');close.onclick=()=>back.hidden=true;
+  const close=el('button','pedia-close','×');close.type='button';close.setAttribute('aria-label','關閉');close.onclick=()=>window.DuoDuoPediaModal.close();
   const head=el('div','pedia-modal-head');head.append(img(item.image,item.name));
   const text=el('div');text.append(el('small','',item.category),el('h2','',item.name));head.append(text);
   dialog.append(close,head,el('h3','', '道具介紹'),formattedDescription(item.description));
@@ -58,22 +69,21 @@ function openDetail(item){
   }
   const meta=el('div','pedia-modal-meta');meta.append(el('span','',item.tradeable===true?'可交易':item.tradeable===false?'無法交易':'交易限制未標註'));
   if(item.timed===true)meta.append(el('span','','具時效性'));
-  dialog.append(meta);back.hidden=false;close.focus();
+  dialog.append(meta);window.DuoDuoPediaModal.show();
 }
-function keywordDemo(){const node=$('pediaDemoOutput');if(!node)return;node.replaceChildren();const text=$('pediaDemoText').value;const names=[];
+function keywordDemo(){const node=$('pediaDemoOutput');node.replaceChildren();const text=$('pediaDemoText').value;const names=[];
 for(const item of all())for(const word of [item.name,...(item.keywords||[])])if(word?.trim())names.push({word:String(word).trim(),item});
 names.sort((a,b)=>b.word.length-a.word.length);
 let offset=0;
 while(offset<text.length){let found=null;for(const x of names){if(text.startsWith(x.word,offset)){found=x;break;}}if(!found){const t=el('span','',text[offset]);node.append(t);offset++;continue;}
 const wrap=el('span','pedia-inline-item');wrap.append(img(found.item.image,found.item.name),document.createTextNode(found.word));node.append(wrap);offset+=found.word.length;}
 }
-const back=$('pediaBackdrop');back.addEventListener('click',e=>{if(e.target===back)back.hidden=true});document.addEventListener('keydown',e=>{if(e.key==='Escape')back.hidden=true;});
+
 $('pediaSearch').addEventListener('input',e=>{query=e.target.value;render()});
 $('pediaSearch').value=params.get('q')||'';query=$('pediaSearch').value;
 document.querySelectorAll('[data-pedia-view]').forEach(btn=>btn.onclick=()=>{view=btn.dataset.pediaView;document.querySelectorAll('[data-pedia-view]').forEach(b=>b.setAttribute('aria-pressed',String(b===btn)));render()});
-$('pediaDemoText')?.addEventListener('input',keywordDemo);
+if($('pediaDemoText'))$('pediaDemoText').addEventListener('input',keywordDemo);
 $('pediaTotal').textContent=all().length;
 if($('pediaCategoryTotal'))$('pediaCategoryTotal').textContent=(catalog.categories||[]).length;
-drawFilters();render();keywordDemo();
-window.addEventListener('duoduo-itempedia-data',ev=>{const next=ev.detail?.items;if(!Array.isArray(next?.items)||!Array.isArray(next?.categories))return;catalog=next;if(category!=='全部'&&!catalog.categories.includes(category))category='全部';$('pediaTotal').textContent=all().length;const catTotal=$('pediaCategoryTotal');if(catTotal)catTotal.textContent=catalog.categories.length;drawFilters();render();keywordDemo();});
+drawFilters();render();if($('pediaDemoOutput'))keywordDemo();
 })();

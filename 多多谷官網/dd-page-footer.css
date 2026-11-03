@@ -1,0 +1,12 @@
+/* Identical official site footer on nested feature pages; no navigation changes. */
+.site-footer.dd-unified-footer{
+ display:grid;grid-template-columns:1.4fr .9fr 1fr;gap:45px;
+ padding:52px 5vw 22px;margin:0;width:100%;
+ border-top:1px solid var(--line);color:var(--muted2,#7f91a5);
+ background:linear-gradient(180deg,var(--bg2,#eaf0f5),var(--bg,#f4f7fa));font-size:inherit;
+}
+.site-footer.dd-unified-footer .footer-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px 18px}
+.site-footer.dd-unified-footer a{text-decoration:none}
+:root[data-theme="light"] .site-footer.dd-unified-footer{background:linear-gradient(180deg,#f4f8fb,#edf3f7)}
+@media(max-width:800px){.site-footer.dd-unified-footer{grid-template-columns:1fr 1fr;gap:28px}.site-footer.dd-unified-footer .footer-brand,.site-footer.dd-unified-footer .footer-bottom{grid-column:1/-1}.site-footer.dd-unified-footer .footer-bottom{align-items:flex-start;flex-direction:column}}
+@media(max-width:520px){.site-footer.dd-unified-footer{grid-template-columns:1fr}.site-footer.dd-unified-footer .footer-brand,.site-footer.dd-unified-footer .footer-bottom{grid-column:auto}.site-footer.dd-unified-footer .footer-bottom{gap:12px}}

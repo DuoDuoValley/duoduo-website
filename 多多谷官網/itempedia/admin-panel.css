@@ -1,0 +1,36 @@
+/* Official dedicated encyclopedia administrator — scoped to this panel only. */
+#itempediaPanel .ip-control-bar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:16px 0}
+#itempediaPanel .ip-control-bar button,#itempediaPanel .ip-editor button,#itempediaPanel .ip-row button{border:1px solid #4b6b88;background:#1a3048;color:#e6f3ff;border-radius:9px;padding:9px 12px;font:inherit;font-size:12px;font-weight:700;cursor:pointer}
+#itempediaPanel button.ip-primary{background:#087da8;border-color:#21a4d0;color:white}
+#itempediaPanel button.ip-warn{color:#ffb9a6;border-color:#785052}
+#itempediaPanel button:disabled{opacity:.5;cursor:not-allowed}
+#itempediaPanel .ip-control-bar select,#itempediaPanel .ip-control-bar input,#itempediaPanel .ip-editor input,#itempediaPanel .ip-editor select,#itempediaPanel .ip-editor textarea{box-sizing:border-box;min-width:0;background:#0e1a29;color:#e8f4ff;border:1px solid #486079;border-radius:8px;padding:9px 11px;font:inherit;font-size:13px}
+#itempediaPanel .ip-control-bar input{flex:1;min-width:190px}
+#itempediaPanel .ip-control-bar select{min-width:125px}
+#itempediaPanel .ip-summary{font-size:13px;color:#9eb9d0;margin:10px 0 16px;line-height:1.75}
+#itempediaPanel .ip-rows{display:grid;gap:8px}
+#itempediaPanel .ip-row{display:flex;align-items:center;gap:11px;min-width:0;background:#0e1d2d;border:1px solid #304b65;border-radius:12px;padding:10px}
+#itempediaPanel .ip-row img{width:44px;height:44px;object-fit:contain;image-rendering:pixelated;background:#20364b;border:1px solid #4d6a80;border-radius:9px;padding:5px;flex:none}
+#itempediaPanel .ip-info{flex:1;min-width:0;display:grid;gap:4px}
+#itempediaPanel .ip-info strong{font-size:13px;overflow-wrap:anywhere;color:#e6f4fd}
+#itempediaPanel .ip-info small{font-size:11px;color:#9bb4c7;overflow-wrap:anywhere;line-height:1.5}
+#itempediaPanel .ip-actions{display:flex;gap:5px;align-items:center;flex-wrap:wrap}
+#itempediaPanel .ip-actions button{padding:7px 9px}
+#itempediaPanel .ip-editor[hidden],#itempediaPanel .ip-upload-status[hidden]{display:none!important}
+#itempediaPanel .ip-editor{margin:15px 0 19px;padding:17px;background:#112338;border:1px solid #4d728c;border-radius:14px}
+#itempediaPanel .ip-editor h2{font-size:16px;margin:0 0 15px}
+#itempediaPanel .ip-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 14px}
+#itempediaPanel .ip-fields label{display:grid;gap:6px;color:#c4d9e9;font-size:12px;min-width:0}
+#itempediaPanel .ip-fields .ip-full{grid-column:1/-1}
+#itempediaPanel .ip-fields textarea{width:100%;min-height:74px;resize:vertical;line-height:1.6}
+#itempediaPanel .ip-fields input:not([type=checkbox]),#itempediaPanel .ip-fields select{width:100%}
+#itempediaPanel .ip-fields .ip-inline-check{display:flex;gap:9px;align-items:center}
+#itempediaPanel .ip-image-tools{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#itempediaPanel #ipImagePreview{width:54px;height:54px;object-fit:contain;border-radius:8px;border:1px solid #4c6e86;background:#14273a}
+#itempediaPanel .ip-editor-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:16px}
+#itempediaPanel .ip-note{font-size:11px;line-height:1.75;color:#a9c1d0}
+#itempediaPanel .ip-status{margin-top:12px;padding:10px 13px;border:1px solid #395d71;border-radius:10px;background:#10283c;font-size:12px;line-height:1.65;color:#b5e8ff;white-space:pre-wrap}
+#itempediaPanel .ip-status.ip-error{border-color:#8e4b50;color:#ffb9b9}
+#itempediaPanel .ip-danger{color:#ffb6ba}
+#itempediaPanel .ip-copy-toolbar{margin:8px 0 16px;display:flex;flex-wrap:wrap;gap:8px}
+@media(max-width:850px){#itempediaPanel .ip-fields{grid-template-columns:1fr}#itempediaPanel .ip-rows .ip-row{align-items:flex-start}#itempediaPanel .ip-actions{justify-content:flex-end}#itempediaPanel .ip-row{flex-wrap:wrap}#itempediaPanel .ip-info{min-width:calc(100% - 74px)}#itempediaPanel .ip-actions{width:100%}}

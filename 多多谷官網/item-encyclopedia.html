@@ -4,9 +4,9 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="多多谷道具百科：快速查找特殊道具、經驗加倍、強化材料、輪迴資源及會員福利的用途與限制。">
 <title>多多谷｜道具百科</title><link rel="icon" href="favicon-64.png">
-<link rel="stylesheet" href="styles.css"><link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high"><link rel="stylesheet" href="dd-navigation.css">
+<link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="dd-navigation.css">
 <link rel="stylesheet" href="cursor-ui/cursor.css"><script defer src="cursor-ui/cursor.js"></script>
-<link rel="stylesheet" href="itempedia/catalog.css"><link rel="stylesheet" href="itempedia/buffs.css">
+<link rel="stylesheet" href="itempedia/catalog.css?v=20261103-v28"><link rel="stylesheet" href="itempedia/buffs.css">
 </head><body class="pedia-body">
 <header class="site-header">
   <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
@@ -31,7 +31,7 @@
 <main class="pedia-page" id="pediaApp">
  <section class="pedia-hero" aria-label="道具百科介紹">
  <div class="pedia-hero-copy">
-  <small>DUODUO VALLEY · ITEM ENCYCLOPEDIA</small>
+  <small>ITEM ENCYCLOPEDIA</small>
   <h1>道具百科</h1>
   <p class="pedia-hero-subtitle">專屬道具、效果資訊與用途說明，一次查詢</p>
   <p id="pediaHeroDesc">從進階繼承、強化工坊到經驗加倍與會員福利，<br>快速找到每件道具的用途、增益效果與使用限制。</p>
@@ -50,6 +50,7 @@
  <nav class="pedia-filters" id="pediaFilters" aria-label="道具分類"></nav>
  <div class="pedia-summary"><span id="pediaCount">正在載入道具…</span><span>點擊道具查看完整資訊</span></div>
  <div id="pediaCards" class="pedia-items" aria-live="polite"></div>
+ 
  </section>
  <section id="pediaBuffsSection" aria-label="BUFF 效果列表" hidden>
   <div class="pedia-buff-intro"><div><strong>BUFF 與增益效果</strong><p>同名、相同圖示的增益效果合併成一張查詢卡，但不同數值完整保留。依會員等級查看每一筆原始說明。</p></div><span>35 種名稱 · 64 筆記錄</span></div>
@@ -82,8 +83,8 @@
     <span class="footer-legal"><a href="privacy.html">隱私權政策</a><a href="terms.html">使用條款</a></span>
   </div>
 </footer>
-<script src="app.js"></script><script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-cloud-refresh.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
+<script src="app.js"></script><script src="dd-cloud-refresh.js" defer></script>
 <script src="dd-nav-data.js"></script><script src="dd-navigation.js"></script>
-<script src="itempedia/items-data.js"></script><script src="itempedia/buffs-data.js"></script><script src="itempedia/cloud.js"></script><script src="itempedia/catalog.js"></script><script src="itempedia/buffs.js"></script>
-<script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-site-update.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
+<script src="itempedia/items-data.js"></script><script src="itempedia/buffs-data.js"></script><script src="itempedia/modal-scroll.js?v=20261103-v28"></script><script src="itempedia/public-bootstrap.js?v=20261103-v28"></script>
+<script src="dd-site-update.js" defer></script>
 </body></html>

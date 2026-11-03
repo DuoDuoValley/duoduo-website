@@ -7,6 +7,7 @@ if(!nav||!header)return;
 const inTools=location.pathname.includes('/player-tools/');
 const inJobs=location.pathname.includes('/jobs/');
 const inLegion=location.pathname.includes('/legion-preview-6c82f4a9/');
+const inItempedia=location.pathname.endsWith('/item-encyclopedia.html');
 const prefix=(inTools||inJobs||inLegion)?'../':'';
 const defaultGroups=window.DuoDuoNavDefaults||[];
 // Old published nav data may retain the previous default title. Upgrade only this exact link and label.
@@ -84,7 +85,7 @@ renderColumns();
 header.appendChild(menu);header.classList.add('dd-nav-ready');
 applyNavSettings(readNavSettings());
 // Standalone Jobs and Player Tools also read published settings (not app.js).
-if(inTools||inJobs||inLegion){
+if(inTools||inJobs||inLegion||inItempedia){
  const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
  let lastPublished='';
  async function loadPublishedNav(){

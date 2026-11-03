@@ -91,3 +91,17 @@ body.pedia-body{background:var(--bg,#f4f7fa)}
  .pedia-page .pedia-hero-metric span{font-size:10px}
 }
 @media(max-width:360px){.pedia-page .pedia-hero{padding:24px 18px}.pedia-page .pedia-hero-metric{padding:6px 8px}}
+
+/* Item encyclopedia modal scroll containment; only encyclopedia modals. */
+body.pedia-modal-open{position:fixed;inset-inline:0;top:var(--pedia-lock-y,0px);width:100%;overflow:hidden}
+.pedia-backdrop{overscroll-behavior:contain;touch-action:none}
+.pedia-modal{display:flex;flex-direction:column;overflow:hidden;padding:0;max-height:min(88vh,calc(100dvh - 28px));}
+.pedia-modal-scroll{min-height:0;overflow-y:auto;overflow-x:hidden;max-height:calc(min(88vh,100dvh - 28px) - 16px);padding:26px 26px 26px 26px;margin:8px 8px 8px 0;
+ overscroll-behavior:contain;touch-action:pan-y;scrollbar-width:thin;scrollbar-color:#91a9b9 transparent}
+.pedia-modal-scroll::-webkit-scrollbar{width:7px}
+.pedia-modal-scroll::-webkit-scrollbar-thumb{background:#91a9b9;border-radius:10px}
+.pedia-modal-scroll::-webkit-scrollbar-track{background:transparent}
+.pedia-modal .pedia-close{position:absolute;top:14px;right:18px;z-index:3;background:var(--surface,#fff)}
+:root[data-theme=dark] .pedia-modal-scroll{scrollbar-color:#647b93 transparent}
+:root[data-theme=dark] .pedia-modal-scroll::-webkit-scrollbar-thumb{background:#647b93}
+@media(max-width:690px){.pedia-modal-scroll{padding:19px 19px 19px 19px;margin:7px 7px 7px 0}.pedia-modal .pedia-close{top:12px;right:15px}}
