@@ -213,9 +213,9 @@ function card(b,map){
   :runeValue?`<span class="dd-rune-single">${runeIcon}${runeLabel}<strong>${escapeHTML(runeValue)}</strong></span>`:'<strong class="dd-requirement-empty">—</strong>';
  const levelByStage=(d?.levelByPhase && typeof d.levelByPhase==='object' && !Array.isArray(d.levelByPhase))?d.levelByPhase:{};
  const stageNames=['','一階段','二階段','三階段','四階段'];
- const levelValue=formatBossLevel(d?.bossLevel);
+ const levelValue=formatBossLevel(String(d?.bossLevel??'').trim()!==''?d.bossLevel:d?.level);
  const levelStageKeys=Object.keys(levelByStage).filter(k=>/^[1-4]$/.test(k)&&String(levelByStage[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));
- const levelContent=levelStageKeys.length?`<div class="dd-level-phases">${levelStageKeys.map(stage=>`<span class="dd-level-phase"><em>${stageNames[+stage]}</em><strong>${escapeHTML(formatBossLevel(levelByStage[stage])||'—')}</strong></span>`).join('')}${levelValue?`<small title="未指定的階段沿用此數值">其餘 ${escapeHTML(levelValue)}</small>`:''}</div>`:levelValue?`<strong>${escapeHTML(levelValue)}</strong>`:'<strong class="dd-requirement-empty">—</strong>';
+ const levelContent=levelStageKeys.length?`<div class="dd-level-phases">${levelStageKeys.map(stage=>`<span class="dd-level-phase"><em>${stageNames[+stage]}</em><strong class="dd-level-pill">${escapeHTML(formatBossLevel(levelByStage[stage])||'—')}</strong></span>`).join('')}${levelValue?`<small title="未指定的階段沿用此數值">其餘 ${escapeHTML(levelValue)}</small>`:''}</div>`:levelValue?`<span class="dd-level-pill">${escapeHTML(levelValue)}</span>`:'<strong class="dd-requirement-empty">—</strong>';
  const byStage=(d?.defenseByPhase && typeof d.defenseByPhase==='object')?d.defenseByPhase:{};
  const stageKeys=Object.keys(byStage).filter(k=>/^[1-4]$/.test(k)&&String(byStage[k]??'').trim()!=='').sort((a,b)=>Number(a)-Number(b));
  const defenseContent=stageKeys.length?`<div class="dd-defense-phases">${stageKeys.map(stage=>`<span class="dd-defense-phase"><em>${stageNames[+stage]}</em><strong>${escapeHTML(String(byStage[stage]).replace(/%/g,''))}%</strong></span>`).join('')}${defenseValue?`<small title="未指定的階段沿用此數值">其餘 ${escapeHTML(defenseValue)}%</small>`:''}</div>`:defenseValue?`<strong>${escapeHTML(defenseValue)}%</strong>`:'<strong class="dd-requirement-empty">—</strong>';
