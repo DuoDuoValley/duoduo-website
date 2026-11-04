@@ -133,3 +133,53 @@
   .site-footer.dd-footer-v2 .dd-footer-rating-notes li{font-size:11px;line-height:1.6;gap:5px}
   .site-footer.dd-footer-v2 .dd-footer-rating-notes{gap:4px}
 }
+
+
+/* v3: clear but quiet markers for external destinations, plus supplied Discord icon. */
+.site-footer.dd-footer-v2 .footer-links a[data-link]{
+  display:inline-flex;align-items:center;gap:5px;
+  max-width:100%;vertical-align:middle;
+}
+.site-footer.dd-footer-v2 .footer-links a[data-link]::after{
+  content:"↗";display:inline-block;flex:0 0 auto;
+  margin-left:1px;font-size:11px;line-height:1;
+  font-weight:750;opacity:.72;
+}
+.site-footer.dd-footer-v2 .dd-footer-discord-icon{
+  display:block;width:18px;height:18px;object-fit:contain;flex:none;
+}
+/* Page-wide button is intentionally on the left; site's music/player stays right. */
+.dd-footer-backtop{
+  box-sizing:border-box;position:fixed;
+  left:max(15px,env(safe-area-inset-left));
+  bottom:max(18px,env(safe-area-inset-bottom));
+  z-index:400;display:inline-flex;align-items:center;justify-content:center;
+  gap:6px;border:1px solid var(--line,#bfcfdb);border-radius:999px;
+  background:var(--bg2,#eff6fa);color:var(--text,#21394e);
+  padding:9px 13px;font:700 12px/1.35 'Noto Sans TC',system-ui,sans-serif;
+  box-shadow:0 5px 18px rgba(11,34,54,.16);
+  cursor:pointer;transition:background .18s,color .18s,border-color .18s;
+}
+.dd-footer-backtop[hidden]{display:none!important}
+.dd-footer-backtop svg{display:block;flex:none}
+.dd-footer-backtop:hover{background:var(--accent,#069cc5);border-color:var(--accent,#069cc5);color:#fff}
+.dd-footer-backtop:focus-visible{outline:2px solid var(--accent,#069cc5);outline-offset:3px}
+:root[data-theme="dark"] .dd-footer-backtop{
+  background:#172c42;color:#e8f5ff;border-color:#45627c;
+  box-shadow:0 6px 22px rgba(0,0,0,.38);
+}
+:root[data-theme="dark"] .dd-footer-backtop:hover{background:#13688a;color:white;border-color:#4e9dbc}
+@media(max-width:520px){
+  .dd-footer-backtop{left:max(11px,env(safe-area-inset-left));bottom:max(14px,env(safe-area-inset-bottom));padding:10px;border-radius:12px}
+  .dd-footer-backtop span{display:none}
+  .dd-footer-backtop svg{width:19px;height:19px}
+}
+@media(prefers-reduced-motion:reduce){.dd-footer-backtop{transition:none}}
+
+/* Footer bottom provides the same action when floating control is out of the way. */
+.site-footer.dd-footer-v2 .dd-footer-inline-top{
+  border:0;background:transparent;padding:0;color:var(--dd-footer-muted);
+  font:inherit;font-weight:700;cursor:pointer;white-space:nowrap;
+}
+.site-footer.dd-footer-v2 .dd-footer-inline-top:hover{color:var(--accent2,#007fa2)}
+.site-footer.dd-footer-v2 .dd-footer-inline-top:focus-visible{outline:2px solid var(--accent,#079bc0);outline-offset:4px;border-radius:3px}

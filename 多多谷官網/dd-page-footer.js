@@ -4,7 +4,7 @@
  if(!source)return;
  const rootBase=new URL('./',source);
  const asset=(path)=>new URL(path,rootBase).href;
- const styleHref=asset('dd-page-footer.css?v=20261105-footer-v1');
+ const styleHref=asset('dd-page-footer.css?v=20261105-footer-v2');
  if(![...document.querySelectorAll('link[rel="stylesheet"]')].some(el=>{try{return new URL(el.href).pathname===new URL(styleHref).pathname}catch(_){return false}})){
   const style=document.createElement('link');style.rel='stylesheet';style.href=styleHref;style.dataset.ddFooterStyle='true';document.head.appendChild(style);
  }
@@ -39,10 +39,25 @@
   try{const parsed=new URL(url);return parsed.protocol==='https:'?parsed.href:defaults[key]}catch(_){return defaults[key]}
  };
  const make=(label,path,options={})=>{
-  const a=document.createElement('a');a.textContent=label;
+  const a=document.createElement('a');
   a.href=options.external?external(path):internal(path);
-  if(options.external){a.dataset.link=path;a.target='_blank';a.rel='noopener noreferrer'}
+  if(options.external){
+   a.dataset.link=path;a.target='_blank';a.rel='noopener noreferrer';
+   a.setAttribute('aria-label',label+'（在新分頁開啟）');
+   a.title=label+'（在新分頁開啟）';
+  }
+  if(path==='discord'&&options.external){
+   const icon=document.createElement('img');
+   icon.className='dd-footer-discord-icon';icon.src=asset('assets/discordico.PNG');
+   icon.alt='';icon.width=18;icon.height=18;icon.decoding='async';
+   a.append(icon);
+  }
+  a.append(document.createTextNode(label));
   return a;
+ };
+ const goToTop=()=>{
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  window.scrollTo({top:0,behavior:reduce?'instant':'smooth'});
  };
  const addColumn=(footer,title,entries,footerKey,className='')=>{
   const column=document.createElement('div');column.className='footer-column'+(className?' '+className:'');
@@ -95,7 +110,34 @@
   const copy=document.createElement('span');copy.dataset.footer='copyright';copy.textContent=copyright;
   const legal=document.createElement('span');legal.className='footer-legal';
   legal.append(make('隱私權政策','privacy.html'),make('使用條款','terms.html'));
+  const inlineTop=document.createElement('button');inlineTop.type='button';
+  inlineTop.className='dd-footer-inline-top';inlineTop.textContent='↑ 回到頂部';
+  inlineTop.setAttribute('aria-label','回到頁面頂部');
+  inlineTop.addEventListener('click',goToTop);
+  legal.append(inlineTop);
   bottom.append(copy,legal);root.append(bottom);
+  // One unobtrusive back-to-top control for long pages; keep it away from
+  // the site's right-hand music controls and respect reduced-motion settings.
+  if(!document.querySelector('[data-dd-back-to-top]')){
+   const up=document.createElement('button');up.type='button';
+   up.className='dd-footer-backtop';up.dataset.ddBackToTop='true';
+   up.setAttribute('aria-label','回到頁面頂部');up.title='回到頁面頂部';
+   up.hidden=true;
+   up.innerHTML='<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 14 6-6 6 6"/></svg><span>回到頂部</span>';
+   document.body.appendChild(up);
+   const update=()=>{
+    const scroller=document.scrollingElement||document.documentElement;
+    up.hidden=scroller.scrollTop<500||root.getBoundingClientRect().top<window.innerHeight-45;
+   };
+   let queued=false;
+   const onScroll=()=>{
+    if(queued)return;queued=true;
+    requestAnimationFrame(()=>{queued=false;update()});
+   };
+   window.addEventListener('scroll',onScroll,{passive:true});
+   up.addEventListener('click',goToTop);
+   update();
+  }
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
 })();
