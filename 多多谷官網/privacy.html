@@ -5,19 +5,29 @@
 try { document.documentElement.dataset.theme = localStorage.getItem('duoduo_theme') === 'dark' ? 'dark' : 'light'; }
 catch (_) { document.documentElement.dataset.theme = 'light'; }
 </script>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>隱私權政策｜DuoDuo Valley</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="cursor-ui/cursor.css">
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>隱私權政策｜DuoDuo Valley</title><link rel="stylesheet" href="styles.css"><link rel="stylesheet" href="dd-navigation.css"><link rel="stylesheet" href="cursor-ui/cursor.css">
 <script defer src="cursor-ui/cursor.js"></script>
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
-</head><body><header class="site-header"><a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="DuoDuo Valley"><span>DuoDuo Valley</span></a><nav class="main-nav">
-    <a class="nav-pill" data-nav="home" href="index.html">首頁</a>
-    <a class="nav-pill" data-nav="why" href="index.html#why">為什麼選多多谷</a>
-    <a class="nav-pill" data-nav="features" href="index.html#features">特色系統</a>
-    <a class="nav-pill" data-nav="news" href="news.html">最新消息</a>
-    <a class="nav-pill" data-nav="events" href="events.html">檔期活動</a>
-    <a class="nav-pill" data-nav="boss" href="boss.html">BOSS</a>
-    <a class="nav-pill" data-nav="guide" href="guide.html">遊玩指南</a>
-    <a class="nav-pill" data-nav="downloads" href="downloads.html">下載專區</a>
-  </nav><div class="header-actions"><a class="btn btn-gold" data-link="topup" target="_blank">儲值入口</a><button class="theme-toggle" id="themeToggle"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button></div></header><section class="page-hero"><span class="eyebrow">PRIVACY</span><h1>隱私權政策</h1><p>多多谷重視玩家的資訊與使用體驗。</p></section><main class="content-wrap"><article class="article-card"><h2>我們如何使用資訊</h2><p>官網主要提供遊戲資訊、活動、公告與玩家資源。若未來導入帳號、會員或其他需要個人資料的功能，我們會在正式啟用前另行說明資料用途與保存方式。</p><h2>第三方服務</h2><p>部分玩家資源會連結至 Discord、Google、MEGA 或其他第三方服務。實際資料處理方式仍以各服務提供者的政策為準。</p><h2>政策更新</h2><p>網站功能調整時，本頁內容也可能同步更新。</p></article></main><footer class="site-footer">
+</head><body><header class="site-header">
+  <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
+  <nav class="main-nav dd-main-nav" aria-label="官網主導覽">
+    <button class="dd-mobile-toggle" type="button" aria-expanded="false" aria-controls="dd-nav-menu" aria-label="展開全部分類選單">▾</button>
+    <a class="nav-pill dd-top-link" data-dd-nav="home" href="index.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span class="dd-nav-label">首頁</span></a>
+    <a class="nav-pill dd-top-link" data-dd-nav="news" href="news.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h10M14 12h3"/></svg><span class="dd-nav-label">最新消息</span></a>
+    <a class="nav-pill dd-top-link" data-dd-nav="events" href="events.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h2M14 14h2M8 18h2"/></svg><span class="dd-nav-label">檔期活動</span></a>
+    <a class="nav-pill dd-top-link" data-dd-nav="boss" href="boss.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14 4 6 6M4 14l6 6M7 17l10-10M3 21l4-4M17 7l4-4M10 4 4 10M20 14l-6 6"/><path d="m4 3 3 1 3 3M20 21l-3-1-3-3"/></svg><span class="dd-nav-label">BOSS</span></a>
+    <a class="nav-pill dd-top-link" data-dd-nav="guide" href="guide.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 7v14M3 5.5C6 4.5 9 4.6 12 7c3-2.4 6-2.5 9-1.5v14c-3-1-6-.7-9 1.5-3-2.2-6-2.5-9-1.5z"/></svg><span class="dd-nav-label">遊玩指南</span></a>
+    <a class="nav-pill dd-top-link" data-dd-nav="downloads" href="downloads.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12M7 10l5 5 5-5M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span class="dd-nav-label">下載專區</span></a>
+    <a class="nav-pill dd-top-link" data-dd-nav="player-tools" href="player-tools/index.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.7 6.3a5.3 5.3 0 0 0-6.9 6.9l-5.2 5.2a2 2 0 0 0 2.8 2.8l5.2-5.2a5.3 5.3 0 0 0 6.9-6.9l-3.9 3.9-3.3-.9-.9-3.3z"/></svg><span class="dd-nav-label">玩家工具</span></a>
+    
+  </nav>
+  <div class="header-status"><span class="status-dot"></span><span>V282 持續更新</span></div>
+  <div class="header-actions">
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="切換深色模式與淺色模式"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button>
+    <a class="btn btn-gold" data-link="topup" target="_blank">儲值</a>
+    <a class="btn btn-discord" data-link="discord" target="_blank">加入 Discord</a>
+  </div>
+</header><section class="page-hero"><span class="eyebrow">PRIVACY</span><h1>隱私權政策</h1><p>多多谷重視玩家的資訊與使用體驗。</p></section><main class="content-wrap"><article class="article-card"><h2>我們如何使用資訊</h2><p>官網主要提供遊戲資訊、活動、公告與玩家資源。若未來導入帳號、會員或其他需要個人資料的功能，我們會在正式啟用前另行說明資料用途與保存方式。</p><h2>第三方服務</h2><p>部分玩家資源會連結至 Discord、Google、MEGA 或其他第三方服務。實際資料處理方式仍以各服務提供者的政策為準。</p><h2>政策更新</h2><p>網站功能調整時，本頁內容也可能同步更新。</p></article></main><footer class="site-footer">
   <div class="footer-brand">
     <b>DuoDuo Valley｜多多谷</b>
     <p data-footer="description">一個正在慢慢變熱鬧的小小世界。遊戲資訊、檔期活動與最新公告，都在這裡整理。</p>
@@ -41,6 +51,8 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 </footer><script src="app.js"></script>
 <!-- DuoDuo public pages: refresh after published cloud content changes -->
 <script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-cloud-refresh.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
+<script src="dd-nav-data.js?v=20261104-v38"></script>
+<script src="dd-navigation.js?v=20261104-v38"></script>
 <!-- Shared site update monitor: dd-site-update.js -->
 <script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-site-update.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
 </body></html>

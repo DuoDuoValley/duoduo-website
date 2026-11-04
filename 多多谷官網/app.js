@@ -492,3 +492,14 @@ if(siteContent.about?.image){const el=document.getElementById("aboutImage");if(e
 
 const featureGrid=document.getElementById("feature-grid");if(featureGrid)featureGrid.style.gridTemplateColumns=`repeat(${Math.max(2,Math.min(4,Number(siteLayout.featureColumns)||3))},minmax(0,1fr))`;
 initHeroCarousel();
+
+
+/* Footer v2: shared component also used by nested feature pages. */
+(()=>{
+  if(!document.querySelector('footer.site-footer'))return;
+  const existing=document.querySelector('script[data-dd-footer-loader]');if(existing)return;
+  const script=document.createElement('script');
+  script.src='dd-page-footer.js?v=20261105-footer-v1';
+  script.dataset.ddFooterLoader='true';
+  document.head.appendChild(script);
+})();
