@@ -84,3 +84,32 @@
  :root[data-theme="dark"] .site-header.dd-nav-ready nav.dd-main-nav .dd-mobile-toggle{background:#07111f}
  :root[data-theme="light"] .site-header.dd-nav-ready nav.dd-main-nav .dd-mobile-toggle{background:#f4f8fb}
 }
+
+
+/* 2026-11-05: canonical Discord header button artwork (all official pages). */
+.site-header .header-actions a.btn-discord{
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  white-space:nowrap;
+  background:#5865F2;
+  border-color:#5865F2;
+  color:#fff;
+}
+.site-header .header-actions a.btn-discord::before{
+  content:"";
+  display:block;
+  flex:0 0 18px;
+  inline-size:18px;
+  block-size:18px;
+  background:url("assets/discordico.PNG") center / contain no-repeat;
+}
+.site-header .header-actions a.btn-discord:hover{
+  background:#4752C4;
+  border-color:#4752C4;
+  color:#fff;
+}
+.site-header .header-actions a.btn-discord:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+}
