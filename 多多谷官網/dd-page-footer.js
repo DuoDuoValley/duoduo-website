@@ -73,6 +73,24 @@
    ['下載專區','downloads.html'],['儲值入口','topup',{external:true}],
    ['機率型道具說明','rates',{external:true}],['上架商品','products',{external:true}],['Discord 社群','discord',{external:true}]
   ],'resourceTitle','dd-footer-service');
+  // Public game-rating and safety information, shared across all footer instances.
+  // Use the original one-frame age-rating asset supplied by the site owner.
+  const rating=document.createElement('section');rating.className='dd-footer-rating';
+  rating.setAttribute('aria-label','遊戲分級與注意事項');
+  const badge=document.createElement('img');badge.className='dd-footer-rating-badge';
+  badge.src=asset('assets/class_12.gif');badge.alt='輔12級：輔導十二歲級';
+  badge.width=64;badge.height=64;badge.decoding='async';
+  const ratingBody=document.createElement('div');ratingBody.className='dd-footer-rating-body';
+  const ratingTitle=document.createElement('strong');ratingTitle.className='dd-footer-rating-title';
+  ratingTitle.textContent='遊戲分級與注意事項';
+  const ratingNotes=document.createElement('ul');ratingNotes.className='dd-footer-rating-notes';
+  for(const note of [
+   '本遊戲部分內容涉及暴力情節。',
+   '請避免沉迷遊戲。',
+   '本遊戲部分內容需另行支付費用。',
+   '未成年或無行為能力人，需由法定代理人同意後方得使用本遊戲服務。'
+  ]){const line=document.createElement('li');line.textContent=note;ratingNotes.append(line)}
+  ratingBody.append(ratingTitle,ratingNotes);rating.append(badge,ratingBody);root.append(rating);
   const bottom=document.createElement('div');bottom.className='footer-bottom';
   const copy=document.createElement('span');copy.dataset.footer='copyright';copy.textContent=copyright;
   const legal=document.createElement('span');legal.className='footer-legal';
