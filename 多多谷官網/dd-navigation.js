@@ -37,27 +37,43 @@ function readNavSettings(){
 let groups=defaultGroups.map(g=>({...g,items:g.items.map((item,i)=>({id:g.key+'-'+i,label:item[0],href:item[1],enabled:true}))}));
 let siteNavConfig={};
 // Keep both animated faces synchronized with labels supplied by published settings.
-// The second face is visual only; link and first face retain their accessible text.
-function setMainNavLabel(label, value){
- if(!label)return;
- const track=label.querySelector('.dd-nav-roll-stack');
- if(!track){label.textContent=value;return}
- const faces=track.querySelectorAll('.dd-nav-roll-face');
- faces.forEach(face=>{face.textContent=value});
+// The second face is visual only; the first face retains the accessible text.
+function setMainNavLabel(linkOrLabel, value){
+ const host=linkOrLabel?.matches?.('a[data-dd-nav]') ? linkOrLabel : linkOrLabel?.closest?.('a[data-dd-nav]');
+ if(host){
+  const labels=host.querySelectorAll('.dd-nav-roll-label,.dd-nav-label');
+  if(labels.length){labels.forEach(node=>{node.textContent=value});return;}
+ }
+ if(linkOrLabel)linkOrLabel.textContent=value;
+}
+function buildRollItem(icon, value, hidden){
+ const item=document.createElement('span');item.className='dd-nav-roll-item';
+ if(hidden)item.setAttribute('aria-hidden','true');
+ if(icon){
+  const iconClone=icon.cloneNode(true);
+  iconClone.classList.add('dd-nav-roll-icon');
+  if(hidden)iconClone.setAttribute('aria-hidden','true');
+  item.appendChild(iconClone);
+ }
+ const label=document.createElement('span');label.className='dd-nav-label dd-nav-roll-label';
+ label.textContent=value;
+ if(hidden)label.setAttribute('aria-hidden','true');
+ item.appendChild(label);
+ return item;
 }
 function prepareMainNavRoll(){
- // JS may arrive before its matching CSS due to browser cache; never expose two faces then.
  if(getComputedStyle(nav).getPropertyValue('--dd-nav-roll-enabled').trim()!=='1')return;
- for(const label of nav.querySelectorAll('a[data-dd-nav] .dd-nav-label')){
-  if(label.querySelector('.dd-nav-roll-stack'))continue;
-  const value=label.textContent.trim();
+ for(const link of nav.querySelectorAll('a[data-dd-nav]')){
+  if(link.querySelector('.dd-nav-roll-viewport'))continue;
+  const icon=link.querySelector('.dd-nav-icon');
+  const label=link.querySelector('.dd-nav-label');
+  const value=label?.textContent.trim()||link.textContent.trim();
   if(!value)continue;
-  const track=document.createElement('span');track.className='dd-nav-roll-stack';
-  const first=document.createElement('span');first.className='dd-nav-roll-face';first.textContent=value;
-  const copy=document.createElement('span');copy.className='dd-nav-roll-face dd-nav-roll-face-copy';
-  copy.textContent=value;copy.setAttribute('aria-hidden','true');
-  track.append(first,copy);label.replaceChildren(track);
-  label.classList.add('dd-nav-roll-enabled');
+  const viewport=document.createElement('span');viewport.className='dd-nav-roll-viewport';
+  const track=document.createElement('span');track.className='dd-nav-roll-track';
+  track.append(buildRollItem(icon,value,false),buildRollItem(icon,value,true));
+  viewport.appendChild(track);
+  link.replaceChildren(viewport);
  }
 }
 function applyNavSettings(cfg){
@@ -79,7 +95,7 @@ function applyNavSettings(cfg){
   const key=a.dataset.ddNav;
   const lookup=key==='player-tools'?'playerTools':key;
   const label=navLabels[lookup];
-  if(typeof label==='string'&&label.trim())setMainNavLabel(a.querySelector('.dd-nav-label'),label.trim().slice(0,22));
+  if(typeof label==='string'&&label.trim())setMainNavLabel(a,label.trim().slice(0,22));
  }
  const navLinks=[...nav.querySelectorAll('a[data-dd-nav]')];
  const sortedNav=['home',...groups.map(g=>g.key)];
@@ -107,8 +123,8 @@ const rail=document.createElement('div');rail.className='dd-nav-rail';menu.appen
 const base=document.createElement('span');base.setAttribute('aria-hidden','true');base.className='dd-nav-placeholder';rail.appendChild(base);
 renderColumns();
 header.appendChild(menu);header.classList.add('dd-nav-ready');
-applyNavSettings(readNavSettings());
 prepareMainNavRoll();
+applyNavSettings(readNavSettings());
 // Standalone Jobs and Player Tools also read published settings (not app.js).
 if(inTools||inJobs||inLegion||inItempedia){
  const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
@@ -156,8 +172,6 @@ window.addEventListener('scroll',()=>{if(!menu.hidden&&innerWidth>700)align()},{
 if(typeof ResizeObserver==='function'){new ResizeObserver(()=>{if(!menu.hidden)align()}).observe(nav)}
 function scrollTarget(target){if(!target)return false;target.style.scrollMarginTop='110px';target.scrollIntoView({behavior:'instant',block:'start'});return true}
 function findNamed(target){
- // Wait until the published download snapshot replaces any stale V282 defaults.
- if(!document.documentElement.classList.contains('dd-game-version-ready'))return null;
  const id=document.getElementById('dd-download-'+target);if(id)return id;
  if(target==='manager')return Array.from(document.querySelectorAll('.download-card')).find(c=>/遊戲橘子|主程式|遊戲本體/.test(c.querySelector('h3')?.textContent||''))||null;
  const cards=Array.from(document.querySelectorAll('.download-card'));
@@ -167,7 +181,7 @@ function findNamed(target){
 function onceVisibleTarget(get,missMsg){let tick=0;let done=false;const timer=setInterval(()=>{
   if(done)return;
   const el=get();if(el){done=true;clearInterval(timer);requestAnimationFrame(()=>scrollTarget(el))}
-  else if(++tick>=160){clearInterval(timer);if(missMsg){const toast=document.createElement('div');toast.className='dd-nav-toast';toast.textContent=missMsg;document.body.appendChild(toast);setTimeout(()=>toast.remove(),4800)}}
+  else if(++tick>=40){clearInterval(timer);if(missMsg){const toast=document.createElement('div');toast.className='dd-nav-toast';toast.textContent=missMsg;document.body.appendChild(toast);setTimeout(()=>toast.remove(),4800)}}
  },150)}
 const hash=decodeURIComponent(location.hash.slice(1));
 if(hash&&['boss.html','guide.html'].some(p=>location.pathname.endsWith('/'+p))){

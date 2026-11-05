@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head><script src="dd-game-version.js?v=20261105-gameversion-v2"></script><script src="dd-maintenance.js"></script>
+<head><script src="dd-maintenance.js"></script>
 <script id="duoduo-early-theme">
 /* Set the existing theme before CSS can paint. app.js keeps managing switching as before. */
 try { document.documentElement.dataset.theme = localStorage.getItem('duoduo_theme') === 'dark' ? 'dark' : 'light'; }
@@ -536,37 +536,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 <link rel="stylesheet" href="cursor-ui/cursor.css">
 <script defer src="cursor-ui/cursor.js"></script>
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
-<link rel="stylesheet" href="dd-navigation.css">
-<style id="dd-home-scroll-cue-v1">
-#v9-story .v9-story-intro{position:relative}
-#v9-story .v9-scroll-cue{
- position:absolute;left:50%;bottom:clamp(18px,4vh,38px);
- transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;
- appearance:none;border:0;background:transparent;padding:8px 14px;
- border-radius:12px;color:#6b7480;white-space:nowrap;
- opacity:.86;transition:opacity .2s,color .2s;
-}
-#v9-story .v9-scroll-cue:hover{color:#2d657b;opacity:1}
-#v9-story .v9-scroll-cue:focus-visible{outline:2px solid #168eac;outline-offset:3px}
-#v9-story .v9-scroll-cue .v9-scroll-cue-label{
- font-size:12px;letter-spacing:.06em;font-weight:700;line-height:1.3;color:inherit
-}
-#v9-story .v9-scroll-cue-chevron{
- width:14px;height:14px;border:solid currentColor;border-width:0 2px 2px 0;
- transform:rotate(45deg);animation:dd-scroll-cue-gentle 1.9s ease-in-out infinite;
-}
-@keyframes dd-scroll-cue-gentle{
- 0%,100%{translate:0 0;opacity:.58}50%{translate:0 4px;opacity:1}
-}
-@media(max-width:760px){
- #v9-story .v9-scroll-cue{bottom:12px;gap:3px}
- #v9-story .v9-scroll-cue .v9-scroll-cue-label{font-size:11px}
- #v9-story .v9-scroll-cue-chevron{width:12px;height:12px}
-}
-@media(prefers-reduced-motion:reduce){
- #v9-story .v9-scroll-cue-chevron{animation:none}
-}
-</style>
+<link rel="stylesheet" href="dd-navigation.css?v=20261105-nav-v39b">
 </head>
 <body>
 <header class="site-header">
@@ -582,7 +552,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
     <a class="nav-pill dd-top-link" data-dd-nav="player-tools" href="player-tools/index.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.7 6.3a5.3 5.3 0 0 0-6.9 6.9l-5.2 5.2a2 2 0 0 0 2.8 2.8l5.2-5.2a5.3 5.3 0 0 0 6.9-6.9l-3.9 3.9-3.3-.9-.9-3.3z"/></svg><span class="dd-nav-label">玩家工具</span></a>
     
   </nav>
-  <div class="header-status"><span class="status-dot"></span><span data-dd-game-version="status">版本載入中…</span></div>
+  <div class="header-status"><span class="status-dot"></span><span>V282 持續更新</span></div>
   <div class="header-actions">
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="切換深色模式與淺色模式"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button>
     <a class="btn btn-gold" data-link="topup" target="_blank">儲值</a>
@@ -595,7 +565,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
   <div class="hero-bg"></div>
   <div class="hero-inner">
     <div class="hero-copy">
-      <span class="eyebrow" id="hero-eyebrow" data-dd-game-version="hero">DUODUO VALLEY · OFFICIAL</span>
+      <span class="eyebrow" id="hero-eyebrow">DUODUO VALLEY · V282</span>
       <h1 id="hero-title">同樣都是楓之谷<br><em>為什麼是多多谷？</em></h1>
       <p id="hero-subtitle">不是只換一個版本、調一組倍率。<br>我們更在意：你上線之後，有沒有東西玩、有人一起玩，也有沒有值得留下來的理由。</p>
       <div class="hero-buttons"><a class="btn btn-gold btn-large" href="#start">開始探索多多谷</a><a class="btn btn-outline btn-large" href="#features">看看有什麼好玩</a></div>
@@ -610,7 +580,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
         <span class="hero-carousel-count" id="heroCount">01 / 01</span>
         <button class="hero-carousel-pause" id="heroPause" type="button" aria-label="暫停輪播">Ⅱ</button>
       </div>
-      <div class="hero-card-caption"><b>現在的多多谷</b><strong data-dd-game-version="caption">版本資訊載入中</strong><span>輪迴・強化・天賦・BOSS・活動・長期養成</span></div>
+      <div class="hero-card-caption"><b>現在的多多谷</b><strong>V282 · 版本持續更新中</strong><span>輪迴・強化・天賦・BOSS・活動・長期養成</span></div>
     </div>
   </div>
   <div class="hero-scroll">SCROLL TO EXPLORE <span>↓</span></div>
@@ -624,10 +594,6 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
     <span>DUODUO SYSTEMS · SCROLL EXPERIENCE</span>
     <h2>真正有趣的地方，<br><em>從這裡開始。</em></h2>
     <p>每一個系統，都有自己的節奏。繼續往下滑，看看多多谷怎麼讓它們動起來。</p>
-    <button type="button" class="v9-scroll-cue" aria-label="向下探索更多玩法">
-      <span class="v9-scroll-cue-label">向下探索更多玩法</span>
-      <span class="v9-scroll-cue-chevron" aria-hidden="true"></span>
-    </button>
   </div>
 
   <section class="v9-rebirth">
@@ -795,7 +761,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 <section id="versions" class="section versions-section">
   <div class="section-head row-head"><div><span class="eyebrow">VERSION LOG</span><h2 id="versionsTitle">多多谷一直在往前走</h2><p id="versionsDesc">版本不是結束，而是下一段內容的開始。</p></div><a class="text-link" href="news.html">查看更新公告 →</a></div>
   <div class="timeline">
-    <article class="timeline-item current"><span class="timeline-dot"></span><div><small data-dd-game-version="timeline-label">目前版本</small><h3 data-dd-game-version="timeline">—</h3><p>目前版本持續營運中，遊戲內容與活動資訊以官方公告為準。</p></div></article>
+    <article class="timeline-item current"><span class="timeline-dot"></span><div><small>目前版本</small><h3>V282</h3><p>目前版本持續營運中，遊戲內容與活動資訊以官方公告為準。</p></div></article>
     <article class="timeline-item"><span class="timeline-dot"></span><div><small>持續更新</small><h3>系統與玩法</h3><p>輪迴、天賦、強化、活動與各式特色玩法持續整理與擴充。</p></div></article>
     <article class="timeline-item"><span class="timeline-dot"></span><div><small>持續更新</small><h3>活動與社群</h3><p>定期推出活動、福利與玩家企劃，讓每個版本都有新的事情可以期待。</p></div></article>
   </div>
@@ -1613,18 +1579,55 @@ let ticking=false;function scrollFX(){ticking=false;const about=document.querySe
 <script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-cloud-refresh.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
 <!-- Shared site update monitor: dd-site-update.js -->
 <script src="dd-nav-data.js?v=20261104-v38"></script>
-<script src="dd-navigation.js?v=20261104-v38"></script>
+<script src="dd-navigation.js?v=20261105-nav-v39b"></script>
 <script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-site-update.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
-<script id="dd-home-scroll-cue-handler">
+
+<script id="dd-home-strong-inertia">
 (()=>{
-  const cue=document.querySelector('#v9-story .v9-scroll-cue');
-  const next=document.querySelector('#v9-story .v9-rebirth');
-  if (!cue || !next) return;
-  cue.addEventListener('click',()=>{
-    const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const top=window.scrollY+next.getBoundingClientRect().top-64;
-    window.scrollTo({top:Math.max(0,top),behavior:reduce?'auto':'smooth'});
-  });
+ const desktop=matchMedia('(min-width:901px)').matches;
+ const finePointer=matchMedia('(hover:hover) and (pointer:fine)').matches;
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ if(!desktop||!finePointer||reduced)return;
+ const scroller=document.scrollingElement||document.documentElement;
+ let current=window.scrollY;
+ let target=window.scrollY;
+ let raf=0;
+ const maxScroll=()=>Math.max(0,scroller.scrollHeight-window.innerHeight);
+ const clamp=value=>Math.max(0,Math.min(maxScroll(),value));
+ const hasNestedScroller=start=>{
+  for(let node=start;node&&node!==document.body&&node!==document.documentElement;node=node.parentElement){
+   const style=getComputedStyle(node);
+   const oy=style.overflowY;
+   if((oy==='auto'||oy==='scroll'||oy==='overlay')&&node.scrollHeight>node.clientHeight+2)return true;
+  }
+  return false;
+ };
+ const step=()=>{
+  const diff=target-current;
+  current+=diff*0.082;
+  if(Math.abs(diff)<0.35)current=target;
+  window.scrollTo(0,current);
+  if(current!==target)raf=requestAnimationFrame(step);
+  else raf=0;
+ };
+ const start=()=>{
+  if(raf)return;
+  current=window.scrollY;
+  raf=requestAnimationFrame(step);
+ };
+ addEventListener('wheel',event=>{
+  if(event.defaultPrevented||event.ctrlKey||event.metaKey)return;
+  if(hasNestedScroller(event.target))return;
+  event.preventDefault();
+  const boost=1.34;
+  const minStep=46;
+  const delta=Math.sign(event.deltaY||0)*Math.max(Math.abs(event.deltaY||0)*boost,minStep);
+  target=clamp(target+delta);
+  start();
+ },{passive:false});
+ addEventListener('scroll',()=>{if(!raf){current=window.scrollY;target=window.scrollY;}},{passive:true});
+ addEventListener('resize',()=>{target=clamp(target);current=clamp(window.scrollY);},{passive:true});
+ requestAnimationFrame(()=>{current=window.scrollY;target=window.scrollY;});
 })();
 </script>
 </body></html>
