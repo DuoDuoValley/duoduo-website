@@ -36,6 +36,30 @@ function readNavSettings(){
 }
 let groups=defaultGroups.map(g=>({...g,items:g.items.map((item,i)=>({id:g.key+'-'+i,label:item[0],href:item[1],enabled:true}))}));
 let siteNavConfig={};
+// Keep both animated faces synchronized with labels supplied by published settings.
+// The second face is visual only; link and first face retain their accessible text.
+function setMainNavLabel(label, value){
+ if(!label)return;
+ const track=label.querySelector('.dd-nav-roll-stack');
+ if(!track){label.textContent=value;return}
+ const faces=track.querySelectorAll('.dd-nav-roll-face');
+ faces.forEach(face=>{face.textContent=value});
+}
+function prepareMainNavRoll(){
+ // JS may arrive before its matching CSS due to browser cache; never expose two faces then.
+ if(getComputedStyle(nav).getPropertyValue('--dd-nav-roll-enabled').trim()!=='1')return;
+ for(const label of nav.querySelectorAll('a[data-dd-nav] .dd-nav-label')){
+  if(label.querySelector('.dd-nav-roll-stack'))continue;
+  const value=label.textContent.trim();
+  if(!value)continue;
+  const track=document.createElement('span');track.className='dd-nav-roll-stack';
+  const first=document.createElement('span');first.className='dd-nav-roll-face';first.textContent=value;
+  const copy=document.createElement('span');copy.className='dd-nav-roll-face dd-nav-roll-face-copy';
+  copy.textContent=value;copy.setAttribute('aria-hidden','true');
+  track.append(first,copy);label.replaceChildren(track);
+  label.classList.add('dd-nav-roll-enabled');
+ }
+}
 function applyNavSettings(cfg){
  siteNavConfig=cfg&&typeof cfg==='object'?cfg:{};
  const saved=siteNavConfig.navDropdown||{};
@@ -55,7 +79,7 @@ function applyNavSettings(cfg){
   const key=a.dataset.ddNav;
   const lookup=key==='player-tools'?'playerTools':key;
   const label=navLabels[lookup];
-  if(typeof label==='string'&&label.trim())a.querySelector('.dd-nav-label').textContent=label.trim().slice(0,22);
+  if(typeof label==='string'&&label.trim())setMainNavLabel(a.querySelector('.dd-nav-label'),label.trim().slice(0,22));
  }
  const navLinks=[...nav.querySelectorAll('a[data-dd-nav]')];
  const sortedNav=['home',...groups.map(g=>g.key)];
@@ -84,6 +108,7 @@ const base=document.createElement('span');base.setAttribute('aria-hidden','true'
 renderColumns();
 header.appendChild(menu);header.classList.add('dd-nav-ready');
 applyNavSettings(readNavSettings());
+prepareMainNavRoll();
 // Standalone Jobs and Player Tools also read published settings (not app.js).
 if(inTools||inJobs||inLegion||inItempedia){
  const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
