@@ -1583,51 +1583,81 @@ let ticking=false;function scrollFX(){ticking=false;const about=document.querySe
 <script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-site-update.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
 
 <script id="dd-home-strong-inertia">
+/* Controlled HOME-only inertia. Immediate wheel response + bounded trailing motion.
+   Does not lock scroll, trap nested containers or affect touch/native scrollbars. */
 (()=>{
- const desktop=matchMedia('(min-width:901px)').matches;
- const finePointer=matchMedia('(hover:hover) and (pointer:fine)').matches;
- const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
- if(!desktop||!finePointer||reduced)return;
+ const supported=matchMedia('(min-width:901px) and (hover:hover) and (pointer:fine)').matches;
+ if(!supported||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
  const scroller=document.scrollingElement||document.documentElement;
- let current=window.scrollY;
- let target=window.scrollY;
- let raf=0;
- const maxScroll=()=>Math.max(0,scroller.scrollHeight-window.innerHeight);
- const clamp=value=>Math.max(0,Math.min(maxScroll(),value));
- const hasNestedScroller=start=>{
-  for(let node=start;node&&node!==document.body&&node!==document.documentElement;node=node.parentElement){
-   const style=getComputedStyle(node);
-   const oy=style.overflowY;
-   if((oy==='auto'||oy==='scroll'||oy==='overlay')&&node.scrollHeight>node.clientHeight+2)return true;
+ let destination=window.scrollY, frame=0, lastFrame=0, lastWheel=0, lastDirection=0, lastWrittenY=window.scrollY;
+ const maximum=()=>Math.max(0,scroller.scrollHeight-window.innerHeight);
+ const clamp=(v,min,max)=>Math.max(min,Math.min(max,v));
+ function stop(){
+  if(frame){cancelAnimationFrame(frame);frame=0;}
+  destination=window.scrollY;lastWrittenY=window.scrollY;lastFrame=0;lastDirection=0;
+ }
+ function isNestedScrollable(target){
+  if(target?.closest?.('input,textarea,select,[contenteditable="true"],[role="slider"]'))return true;
+  for(let n=target;n&&n!==document.documentElement&&n!==document.body;n=n.parentElement){
+   if(!(n instanceof Element))continue;
+   const style=getComputedStyle(n);
+   if(/^(auto|scroll|overlay)$/.test(style.overflowY)&&n.scrollHeight>n.clientHeight+2)return true;
   }
   return false;
- };
- const step=()=>{
-  const diff=target-current;
-  current+=diff*0.082;
-  if(Math.abs(diff)<0.35)current=target;
-  window.scrollTo(0,current);
-  if(current!==target)raf=requestAnimationFrame(step);
-  else raf=0;
- };
- const start=()=>{
-  if(raf)return;
-  current=window.scrollY;
-  raf=requestAnimationFrame(step);
- };
+ }
+ function animate(time){
+  frame=0;
+  if(document.hidden){stop();return;}
+  const elapsed=lastFrame?time-lastFrame:16.7;
+  lastFrame=time;
+  // If the main thread was stalled, discard stale momentum rather than jump ahead.
+  if(elapsed>95){stop();return;}
+  const now=window.scrollY;
+  destination=clamp(destination,0,maximum());
+  const remaining=destination-now;
+  if(Math.abs(remaining)<=0.75){stop();return;}
+  const progress=1-Math.exp(-clamp(elapsed,1,33)/125);
+  const motion=clamp(remaining*progress,-28,28);
+  window.scrollTo({top:clamp(now+motion,0,maximum()),behavior:'instant'});
+  lastWrittenY=window.scrollY;
+  if(Math.abs(destination-window.scrollY)>0.75)frame=requestAnimationFrame(animate);
+  else stop();
+ }
  addEventListener('wheel',event=>{
-  if(event.defaultPrevented||event.ctrlKey||event.metaKey)return;
-  if(hasNestedScroller(event.target))return;
+  if(event.defaultPrevented||!event.cancelable||event.ctrlKey||event.metaKey||event.altKey)return;
+  if(isNestedScrollable(event.target))return;
+  const multiplier=event.deltaMode===1?16:event.deltaMode===2?innerHeight:1;
+  const raw=event.deltaY*multiplier;
+  if(!Number.isFinite(raw)||Math.abs(raw)<8||Math.abs(event.deltaX)>Math.abs(event.deltaY))return;
+  const start=window.scrollY, max=maximum();
+  // At either boundary give browser control of overscroll.
+  if((raw<0&&start<=0)||(raw>0&&start>=max)){stop();return;}
   event.preventDefault();
-  const boost=1.34;
-  const minStep=46;
-  const delta=Math.sign(event.deltaY||0)*Math.max(Math.abs(event.deltaY||0)*boost,minStep);
-  target=clamp(target+delta);
-  start();
+  const direction=Math.sign(raw),time=performance.now();
+  if(time-lastWheel>170||lastDirection!==direction)destination=start;
+  lastWheel=time;lastDirection=direction;
+  // Scroll immediately on wheel input. Large mouse events are capped to prevent jumps.
+  const amount=clamp(raw,-210,210);
+  window.scrollTo({top:clamp(start+amount*.72,0,max),behavior:'instant'});
+  const after=window.scrollY;
+  lastWrittenY=after;
+  // Add a small, bounded inertia tail; never build a multi-screen backlog.
+  const pending=clamp(destination-start,-170,170);
+  destination=clamp(after+clamp(pending+amount*.42,-170,170),0,max);
+  if(!frame){lastFrame=0;frame=requestAnimationFrame(animate);}
  },{passive:false});
- addEventListener('scroll',()=>{if(!raf){current=window.scrollY;target=window.scrollY;}},{passive:true});
- addEventListener('resize',()=>{target=clamp(target);current=clamp(window.scrollY);},{passive:true});
- requestAnimationFrame(()=>{current=window.scrollY;target=window.scrollY;});
+ // Cancel queued inertia if another script or native control moves the document.
+ addEventListener('scroll',()=>{
+  if(frame&&Math.abs(window.scrollY-lastWrittenY)>4)stop();
+ },{passive:true});
+ // All direct navigation/scrolling takes priority over the inertia tail.
+ addEventListener('pointerdown',stop,{passive:true,capture:true});
+ addEventListener('keydown',event=>{
+  if(['ArrowUp','ArrowDown','PageUp','PageDown','Home','End',' '].includes(event.key))stop();
+ },{capture:true});
+ addEventListener('hashchange',stop);
+ addEventListener('resize',stop,{passive:true});
+ document.addEventListener('visibilitychange',()=>{if(document.hidden)stop();});
 })();
 </script>
 </body></html>
