@@ -131,6 +131,8 @@ window.addEventListener('scroll',()=>{if(!menu.hidden&&innerWidth>700)align()},{
 if(typeof ResizeObserver==='function'){new ResizeObserver(()=>{if(!menu.hidden)align()}).observe(nav)}
 function scrollTarget(target){if(!target)return false;target.style.scrollMarginTop='110px';target.scrollIntoView({behavior:'instant',block:'start'});return true}
 function findNamed(target){
+ // Wait until the published download snapshot replaces any stale V282 defaults.
+ if(!document.documentElement.classList.contains('dd-game-version-ready'))return null;
  const id=document.getElementById('dd-download-'+target);if(id)return id;
  if(target==='manager')return Array.from(document.querySelectorAll('.download-card')).find(c=>/遊戲橘子|主程式|遊戲本體/.test(c.querySelector('h3')?.textContent||''))||null;
  const cards=Array.from(document.querySelectorAll('.download-card'));
@@ -140,7 +142,7 @@ function findNamed(target){
 function onceVisibleTarget(get,missMsg){let tick=0;let done=false;const timer=setInterval(()=>{
   if(done)return;
   const el=get();if(el){done=true;clearInterval(timer);requestAnimationFrame(()=>scrollTarget(el))}
-  else if(++tick>=40){clearInterval(timer);if(missMsg){const toast=document.createElement('div');toast.className='dd-nav-toast';toast.textContent=missMsg;document.body.appendChild(toast);setTimeout(()=>toast.remove(),4800)}}
+  else if(++tick>=160){clearInterval(timer);if(missMsg){const toast=document.createElement('div');toast.className='dd-nav-toast';toast.textContent=missMsg;document.body.appendChild(toast);setTimeout(()=>toast.remove(),4800)}}
  },150)}
 const hash=decodeURIComponent(location.hash.slice(1));
 if(hash&&['boss.html','guide.html'].some(p=>location.pathname.endsWith('/'+p))){

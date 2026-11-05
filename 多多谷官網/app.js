@@ -160,11 +160,14 @@ if(guideResources){
 
 
 const downloadGrid=document.getElementById("download-grid");
-if(downloadGrid){
-  downloadGrid.innerHTML=DOWNLOADS.filter(d=>d.enabled!==false).map(d=>{
+function renderDownloadCards(list){
+ if(!downloadGrid)return;
+  downloadGrid.innerHTML=list.filter(d=>d.enabled!==false).map(d=>{
     const steps=String(d.instructions||"").split(/\n+/).filter(Boolean);
     return `<article class="download-card" id="dd-download-${esc(String(d.id||'').replace(/[^a-zA-Z0-9_-]/g,''))}"><div class="download-card-top"><div><span class="tag">${esc(d.type||"下載")}</span><h3>${esc(d.title)}</h3><p>${esc(d.desc||"")}</p></div><a class="btn btn-gold" href="${esc(d.url)}" target="_blank" rel="noopener">立即下載 ↗</a></div>${d.image?`<div class="download-guide-image"><img src="${esc(d.image)}" alt="${esc(d.title)} 使用說明"></div>`:""}<div class="download-instructions"><h4>使用說明</h4><ol>${steps.map(step=>`<li>${esc(step.replace(/^\d+[.、]\s*/,""))}</li>`).join("")}</ol></div></article>`;}).join("")||`<div class="empty">目前沒有公開下載項目。</div>`;
 }
+window.DuoDuoApplyDownloads=list=>{if(!Array.isArray(list))return false;renderDownloadCards(list);return true};
+renderDownloadCards(DOWNLOADS);
 
 // Theme: shared by every page.
 const savedTheme=localStorage.getItem("duoduo_theme");
@@ -459,13 +462,13 @@ if(reviewGrid){
   if(!reviewListModal.dataset.escapeReady){reviewListModal.dataset.escapeReady="1";reviewListModal.addEventListener("cancel",e=>{e.preventDefault();closeReviewList();});}
 }
 
-const DEFAULT_LAYOUT={sections:[{id:"hero",visible:true},{id:"new-player",visible:true},{id:"why",visible:true},{id:"about",visible:true},{id:"quick-intro",visible:true},{id:"features",visible:true},{id:"events",visible:true},{id:"boss",visible:true},{id:"community",visible:true},{id:"stay",visible:true},{id:"news",visible:true},{id:"versions",visible:true},{id:"start",visible:true},{id:"quick-links",visible:true}],featureColumns:3,heroEyebrow:"DUODUO VALLEY · V282",heroTitle:"同樣都是楓之谷，為什麼是多多谷？",heroSubtitle:"不是只換一個版本、調一組倍率。\n我們更在意：你上線之後，有沒有東西玩、有人一起玩，也有沒有值得留下來的理由。",aboutTitle:"一個正在慢慢變熱鬧的小小世界"};
+const DEFAULT_LAYOUT={sections:[{id:"hero",visible:true},{id:"new-player",visible:true},{id:"why",visible:true},{id:"about",visible:true},{id:"quick-intro",visible:true},{id:"features",visible:true},{id:"events",visible:true},{id:"boss",visible:true},{id:"community",visible:true},{id:"stay",visible:true},{id:"news",visible:true},{id:"versions",visible:true},{id:"start",visible:true},{id:"quick-links",visible:true}],featureColumns:3,heroEyebrow:"DUODUO VALLEY · {GAME_VERSION}",heroTitle:"同樣都是楓之谷，為什麼是多多谷？",heroSubtitle:"不是只換一個版本、調一組倍率。\n我們更在意：你上線之後，有沒有東西玩、有人一起玩，也有沒有值得留下來的理由。",aboutTitle:"一個正在慢慢變熱鬧的小小世界"};
 const siteLayout=getJSONSafe("duoduo_layout",DEFAULT_LAYOUT),main=document.querySelector("main");
 // Keep older saved layouts compatible when new homepage sections are added.
 if(siteLayout.sections){const existing=new Set(siteLayout.sections.map(x=>x.id));DEFAULT_LAYOUT.sections.forEach(x=>{if(!existing.has(x.id))siteLayout.sections.push({...x})})}
 if(main){const map=new Map([...main.querySelectorAll(":scope > section")].map(el=>[el.id,el]));(siteLayout.sections||DEFAULT_LAYOUT.sections).forEach(item=>{const el=map.get(item.id);if(!el)return;el.style.display=item.visible===false?"none":"";main.appendChild(el)})}
 const DEFAULT_CONTENT={
-  hero:{eyebrow:"DUODUO VALLEY · V282",title:"同樣都是楓之谷，為什麼是多多谷？",subtitle:"不是只換一個版本、調一組倍率。\n我們更在意：你上線之後，有沒有東西玩、有人一起玩，也有沒有值得留下來的理由。"},
+  hero:{eyebrow:"DUODUO VALLEY · {GAME_VERSION}",title:"同樣都是楓之谷，為什麼是多多谷？",subtitle:"不是只換一個版本、調一組倍率。\n我們更在意：你上線之後，有沒有東西玩、有人一起玩，也有沒有值得留下來的理由。"},
   newPlayer:{eyebrow:"FOR NEW PLAYERS",title:"第一次來多多谷？",desc:"不用先研究一大堆名詞，只要 3 個步驟，就能開始你的冒險。",steps:[{title:"了解多多谷",desc:"先看看特色系統、玩法與世界觀。"},{title:"下載登入器",desc:"依照遊玩指南完成下載與設定。"},{title:"開始你的冒險",desc:"進入遊戲，和大家一起玩。"}]},
   why:{title:"你真正想知道的，這裡直接告訴你。",desc:"第一次看到多多谷，不需要先研究一堆名詞。先看看它能不能成為你想長期玩的那個服。",cards:[{title:"有內容",desc:"輪迴、陣營、強化、掛機、學院、BOSS、副本與各式特色活動，讓角色養成不只有一條路。"},{title:"夠方便",desc:"資源找回、掃蕩、裝備繼承、掛機等便利機制，減少重複操作，把時間留給真正想玩的內容。"},{title:"有人一起玩",desc:"打王、聊天、活動與競爭都不只是單機體驗，讓你有機會找到一起玩的玩家。"},{title:"找得到人",desc:"遊戲問題、BUG、活動疑問都有明確的官方處理入口，遇到問題不是只能自己摸索。"},{title:"福利持續有",desc:"特權、活動、限定福利與各式玩家企劃會持續推出，不只一次性活動。"},{title:"現在加入剛剛好",desc:"不用等下一個新服。版本持續更新，現在就能開始自己的進度。"}]},
   about:{title:"一個正在慢慢變熱鬧的小小世界",desc:"多多谷不只是一個伺服器，更是一個讓大家相聚、冒險與成長的家。",overlayTitle:"找到屬於自己的玩法",overlayDesc:"豐富且持續更新的遊戲內容、溫暖友善的社群環境、定期舉辦的活動與福利，以及用心傾聽玩家建議與回饋的世界。",image:"assets/logo3.jpg"},
@@ -478,7 +481,14 @@ const DEFAULT_CONTENT={
 };
 const siteContent=getJSONSafe("duoduo_content",DEFAULT_CONTENT);
 const heroEyebrow=document.getElementById("hero-eyebrow"),heroTitle=document.getElementById("hero-title"),heroSubtitle=document.getElementById("hero-subtitle"),aboutTitle=document.getElementById("about-title");
-if(heroEyebrow)heroEyebrow.textContent=siteContent.hero?.eyebrow||siteLayout.heroEyebrow||DEFAULT_LAYOUT.heroEyebrow;
+if(heroEyebrow){
+  const chosen=siteContent.hero?.eyebrow||siteLayout.heroEyebrow||DEFAULT_LAYOUT.heroEyebrow;
+  // Keep the newest custom Hero wording, but never leave a stale cached V282
+  // visible after the cloud has already verified a different game version.
+  heroEyebrow.dataset.ddVersionHeroOriginal=chosen;
+  heroEyebrow.textContent=chosen;
+  window.DuoDuoGameVersionRender?.();
+}
 if(heroTitle){const t=siteContent.hero?.title||siteLayout.heroTitle||DEFAULT_LAYOUT.heroTitle;const p=t.split("，");heroTitle.innerHTML=p.length>1?`${esc(p[0])}，<br><em>${esc(p.slice(1).join("，"))}</em>`:esc(t)}
 if(heroSubtitle)heroSubtitle.innerHTML=esc(siteContent.hero?.subtitle||siteLayout.heroSubtitle||DEFAULT_LAYOUT.heroSubtitle).replace(/\n/g,"<br>");
 if(aboutTitle)aboutTitle.textContent=siteLayout.aboutTitle||DEFAULT_LAYOUT.aboutTitle;

@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head><script src="dd-maintenance.js"></script>
+<head><script src="dd-game-version.js?v=20261105-gameversion-v1"></script><script src="dd-maintenance.js"></script>
 <script id="duoduo-early-theme">
 /* Set the existing theme before CSS can paint. app.js keeps managing switching as before. */
 try { document.documentElement.dataset.theme = localStorage.getItem('duoduo_theme') === 'dark' ? 'dark' : 'light'; }
@@ -552,7 +552,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
     <a class="nav-pill dd-top-link" data-dd-nav="player-tools" href="player-tools/index.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.7 6.3a5.3 5.3 0 0 0-6.9 6.9l-5.2 5.2a2 2 0 0 0 2.8 2.8l5.2-5.2a5.3 5.3 0 0 0 6.9-6.9l-3.9 3.9-3.3-.9-.9-3.3z"/></svg><span class="dd-nav-label">玩家工具</span></a>
     
   </nav>
-  <div class="header-status"><span class="status-dot"></span><span>V282 持續更新</span></div>
+  <div class="header-status"><span class="status-dot"></span><span data-dd-game-version="status">版本載入中…</span></div>
   <div class="header-actions">
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="切換深色模式與淺色模式"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button>
     <a class="btn btn-gold" data-link="topup" target="_blank">儲值</a>
@@ -565,7 +565,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
   <div class="hero-bg"></div>
   <div class="hero-inner">
     <div class="hero-copy">
-      <span class="eyebrow" id="hero-eyebrow">DUODUO VALLEY · V282</span>
+      <span class="eyebrow" id="hero-eyebrow" data-dd-game-version="hero">DUODUO VALLEY · OFFICIAL</span>
       <h1 id="hero-title">同樣都是楓之谷<br><em>為什麼是多多谷？</em></h1>
       <p id="hero-subtitle">不是只換一個版本、調一組倍率。<br>我們更在意：你上線之後，有沒有東西玩、有人一起玩，也有沒有值得留下來的理由。</p>
       <div class="hero-buttons"><a class="btn btn-gold btn-large" href="#start">開始探索多多谷</a><a class="btn btn-outline btn-large" href="#features">看看有什麼好玩</a></div>
@@ -580,7 +580,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
         <span class="hero-carousel-count" id="heroCount">01 / 01</span>
         <button class="hero-carousel-pause" id="heroPause" type="button" aria-label="暫停輪播">Ⅱ</button>
       </div>
-      <div class="hero-card-caption"><b>現在的多多谷</b><strong>V282 · 版本持續更新中</strong><span>輪迴・強化・天賦・BOSS・活動・長期養成</span></div>
+      <div class="hero-card-caption"><b>現在的多多谷</b><strong data-dd-game-version="caption">版本資訊載入中</strong><span>輪迴・強化・天賦・BOSS・活動・長期養成</span></div>
     </div>
   </div>
   <div class="hero-scroll">SCROLL TO EXPLORE <span>↓</span></div>
@@ -761,7 +761,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 <section id="versions" class="section versions-section">
   <div class="section-head row-head"><div><span class="eyebrow">VERSION LOG</span><h2 id="versionsTitle">多多谷一直在往前走</h2><p id="versionsDesc">版本不是結束，而是下一段內容的開始。</p></div><a class="text-link" href="news.html">查看更新公告 →</a></div>
   <div class="timeline">
-    <article class="timeline-item current"><span class="timeline-dot"></span><div><small>目前版本</small><h3>V282</h3><p>目前版本持續營運中，遊戲內容與活動資訊以官方公告為準。</p></div></article>
+    <article class="timeline-item current"><span class="timeline-dot"></span><div><small data-dd-game-version="timeline-label">目前版本</small><h3 data-dd-game-version="timeline">—</h3><p>目前版本持續營運中，遊戲內容與活動資訊以官方公告為準。</p></div></article>
     <article class="timeline-item"><span class="timeline-dot"></span><div><small>持續更新</small><h3>系統與玩法</h3><p>輪迴、天賦、強化、活動與各式特色玩法持續整理與擴充。</p></div></article>
     <article class="timeline-item"><span class="timeline-dot"></span><div><small>持續更新</small><h3>活動與社群</h3><p>定期推出活動、福利與玩家企劃，讓每個版本都有新的事情可以期待。</p></div></article>
   </div>

@@ -1,4 +1,4 @@
-<!doctype html><html lang="zh-Hant"><head><script src="dd-maintenance.js"></script>
+<!doctype html><html lang="zh-Hant"><head><script src="dd-game-version.js?v=20261105-gameversion-v1"></script><script src="dd-maintenance.js"></script>
 <script id="duoduo-early-theme">
 /* Set the existing theme before CSS can paint. app.js keeps managing switching as before. */
 try { document.documentElement.dataset.theme = localStorage.getItem('duoduo_theme') === 'dark' ? 'dark' : 'light'; }
@@ -57,7 +57,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
     <a class="nav-pill dd-top-link" data-dd-nav="player-tools" href="player-tools/index.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.7 6.3a5.3 5.3 0 0 0-6.9 6.9l-5.2 5.2a2 2 0 0 0 2.8 2.8l5.2-5.2a5.3 5.3 0 0 0 6.9-6.9l-3.9 3.9-3.3-.9-.9-3.3z"/></svg><span class="dd-nav-label">玩家工具</span></a>
     
   </nav>
-  <div class="header-status"><span class="status-dot"></span><span>V282 持續更新</span></div>
+  <div class="header-status"><span class="status-dot"></span><span data-dd-game-version="status">版本載入中…</span></div>
   <div class="header-actions">
     <button class="theme-toggle" id="themeToggle" type="button" aria-label="切換深色模式與淺色模式"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button>
     <a class="btn btn-gold" data-link="topup" target="_blank">儲值</a>
