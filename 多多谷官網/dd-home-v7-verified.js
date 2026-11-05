@@ -191,3 +191,79 @@ try{const raw=localStorage.getItem('duoduo_layout');if(raw){const layout=JSON.pa
   visualProgress=targetProgress=scrollProgress(root,stage.clientHeight);
   request();
 })();
+
+
+/* HOME v11: home-page announcement detail. Same source records as app.js; never navigate away. */
+(()=>{'use strict';
+ const list=document.getElementById('news-list');if(!list)return;
+ const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const tags={'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'};
+ const tagClass={'重要消息':'category-important','維護通知':'category-maintenance','更新說明':'category-update','活動資訊':'category-event','序號發放':'category-code','處分名單':'category-punishment'};
+ // Keep the body readable even if an older announcement uses only plain lines.
+ const inline=source=>{
+  let s=esc(source);
+  // Discord custom emoji (animated or static) are displayed using Discord CDN images.
+  s=s.replace(/&lt;(a?):([A-Za-z0-9_]+):(\d{16,22})&gt;/g,(_,animated,name,id)=>`<img class="dd-news-emoji" src="https://cdn.discordapp.com/emojis/${id}.${animated?'gif':'png'}" alt=":${esc(name)}:" loading="lazy">`);
+  s=s.replace(/\*\*([^*\n]+)\*\*/g,'<strong>$1</strong>');
+  s=s.replace(/\[([^\]\n]+)\]\((https?:\/\/[^\s)]+)\)/g,(_,label,url)=>`<a href="${url.replace(/&amp;/g,'&amp;')}" target="_blank" rel="noopener noreferrer">${label}</a>`);
+  return s;
+ };
+ const formatBody=raw=>{
+   const lines=String(raw??'').replace(/\r\n?/g,'\n').split('\n');let html='',items=[],kind='',para=[];
+   const flushP=()=>{if(para.length){html+=`<p>${para.map(inline).join('<br>')}</p>`;para=[]}};
+   const flushL=()=>{if(items.length){html+=`<${kind} class="dd-news-list">${items.map(x=>`<li>${inline(x)}</li>`).join('')}</${kind}>`;items=[];kind=''}};
+   for(const line of lines){const t=line.trim();if(!t){flushP();flushL();continue}
+     const title=t.match(/^#{1,4}\s+(.+)$/);
+     const m=t.match(/^(?:[-*•·・]\s+)(.+)$/),n=t.match(/^\d+[.、．)]\s*(.+)$/);
+     if(title){flushP();flushL();html+=`<h3>${inline(title[1])}</h3>`;continue}
+     if(m||n){flushP();const next=n?'ol':'ul';if(items.length&&kind!==next)flushL();kind=next;items.push((m||n)[1]);continue}
+     flushL();para.push(t);
+   }flushP();flushL();return html;
+ };
+ function bodyHTML(n){
+   const blocks=Array.isArray(n.newsSections)?n.newsSections.filter(x=>x&&typeof x==='object'):[];
+   const lead=String(n.newsLead||'').trim();const serial=n.newsSerial||null;
+   if(!blocks.length&&!lead&&!serial)return formatBody(n.body);
+   let html=lead?`<div class="dd-news-intro">${formatBody(lead)}</div>`:'';
+   for(const block of blocks){if(!String(block.title||block.body||'').trim())continue;
+     html+=`<section class="dd-news-detail-block"><h3>${inline(block.title||'公告內容')}</h3>${formatBody(block.body)}</section>`;
+   }
+   if(serial&&typeof serial==='object'){
+    if(serial.rewards)html+=`<section class="dd-news-detail-block"><h3>序號獎勵</h3>${formatBody(serial.rewards)}</section>`;
+    if(serial.code)html+=`<section class="dd-news-detail-block"><h3>活動序號</h3><div class="dd-news-copy-row"><code>${esc(serial.code)}</code><button type="button" class="dd-news-copy" data-code="${esc(serial.code)}">複製序號</button></div></section>`;
+    if(serial.period)html+=`<section class="dd-news-detail-block"><h3>使用期限</h3>${formatBody(serial.period)}</section>`;
+    if(serial.notes)html+=`<section class="dd-news-detail-block"><h3>注意事項</h3>${formatBody(serial.notes)}</section>`;
+   }
+   return html||formatBody(n.body);
+ }
+ function open(index){
+  const data=window.DuoDuoHomepageNews;
+  const n=Array.isArray(data)?data[index]:null;
+  if(!n){location.href=`news.html#n-${index}`;return}
+  document.getElementById('dd-home-news-modal')?.remove();
+  const d=document.createElement('dialog');d.id='dd-home-news-modal';
+  const className=tagClass[n.tag]||'category-default';
+  d.innerHTML=`<div class="dd-news-modal-dialog" role="document">
+  <button type="button" class="dd-news-close" aria-label="關閉公告">×</button>
+  <div class="dd-news-modal-scroll" tabindex="0"><article class="dd-news-detail-card">
+  <div class="dd-news-meta"><span class="tag ${className}">${esc(tags[n.tag]||n.tag||'公告')}</span><time>${esc(n.date)}</time></div>
+  <h2 id="dd-news-modal-title">${esc(n.title)}</h2><div class="dd-news-body">${bodyHTML(n)}</div>
+  </article></div></div>`;
+  d.setAttribute('aria-labelledby','dd-news-modal-title');document.body.append(d);d.showModal();
+  const close=()=>{if(d.open)d.close();d.remove()};
+  d.querySelector('.dd-news-close').addEventListener('click',close);
+  d.addEventListener('click',e=>{if(e.target===d)close()});
+  d.addEventListener('cancel',e=>{e.preventDefault();close()});
+  d.querySelectorAll('[data-code]').forEach(b=>b.addEventListener('click',()=>{
+    const text=b.dataset.code||'';
+    if(navigator.clipboard?.writeText)navigator.clipboard.writeText(text).then(()=>b.textContent='已複製',()=>prompt('請複製序號：',text));
+    else prompt('請複製序號：',text);
+  }));
+  d.querySelector('.dd-news-modal-scroll').focus({preventScroll:true});
+ }
+ list.addEventListener('click',e=>{
+  const row=e.target.closest('.news-item');if(!row||!list.contains(row))return;
+  e.preventDefault();e.stopPropagation();
+  const index=[...list.querySelectorAll('.news-item')].indexOf(row);if(index>=0)open(index);
+ });
+})();

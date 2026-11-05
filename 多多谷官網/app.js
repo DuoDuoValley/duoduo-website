@@ -214,6 +214,8 @@ function formatEventDate(value){
 }
 function formatEventDateRange(e){const a=formatEventDate(e?.start),b=formatEventDate(e?.end);return a&&b?`${a} ～ ${b}`:(a||b||"");}
 const news=sortNewsByDate(getJSONSafe("duoduo_news",defaultNews)),reviews=getJSONSafe("duoduo_reviews",defaultReviews);
+// HOME only: share the exact sorted source records with the announcement dialog.
+if(document.getElementById("news-list"))window.DuoDuoHomepageNews=news;
 let BOSS_CONFIG=getJSONSafe("duoduo_boss_config",defaultBossConfig);
 BOSS_CONFIG={interval:Math.max(2000,Number(BOSS_CONFIG.interval)||5000),slides:Array.isArray(BOSS_CONFIG.slides)&&BOSS_CONFIG.slides.length?BOSS_CONFIG.slides:defaultBossConfig.slides};
 let events=[];
