@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="zh-Hant">
-<head><script src="dd-game-version.js?v=20261105-gameversion-v1"></script><script src="dd-maintenance.js"></script>
+<head><script src="dd-game-version.js?v=20261105-gameversion-v2"></script><script src="dd-maintenance.js"></script>
 <script id="duoduo-early-theme">
 /* Set the existing theme before CSS can paint. app.js keeps managing switching as before. */
 try { document.documentElement.dataset.theme = localStorage.getItem('duoduo_theme') === 'dark' ? 'dark' : 'light'; }
@@ -537,6 +537,36 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 <script defer src="cursor-ui/cursor.js"></script>
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
 <link rel="stylesheet" href="dd-navigation.css">
+<style id="dd-home-scroll-cue-v1">
+#v9-story .v9-story-intro{position:relative}
+#v9-story .v9-scroll-cue{
+ position:absolute;left:50%;bottom:clamp(18px,4vh,38px);
+ transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:5px;
+ appearance:none;border:0;background:transparent;padding:8px 14px;
+ border-radius:12px;color:#6b7480;white-space:nowrap;
+ opacity:.86;transition:opacity .2s,color .2s;
+}
+#v9-story .v9-scroll-cue:hover{color:#2d657b;opacity:1}
+#v9-story .v9-scroll-cue:focus-visible{outline:2px solid #168eac;outline-offset:3px}
+#v9-story .v9-scroll-cue .v9-scroll-cue-label{
+ font-size:12px;letter-spacing:.06em;font-weight:700;line-height:1.3;color:inherit
+}
+#v9-story .v9-scroll-cue-chevron{
+ width:14px;height:14px;border:solid currentColor;border-width:0 2px 2px 0;
+ transform:rotate(45deg);animation:dd-scroll-cue-gentle 1.9s ease-in-out infinite;
+}
+@keyframes dd-scroll-cue-gentle{
+ 0%,100%{translate:0 0;opacity:.58}50%{translate:0 4px;opacity:1}
+}
+@media(max-width:760px){
+ #v9-story .v9-scroll-cue{bottom:12px;gap:3px}
+ #v9-story .v9-scroll-cue .v9-scroll-cue-label{font-size:11px}
+ #v9-story .v9-scroll-cue-chevron{width:12px;height:12px}
+}
+@media(prefers-reduced-motion:reduce){
+ #v9-story .v9-scroll-cue-chevron{animation:none}
+}
+</style>
 </head>
 <body>
 <header class="site-header">
@@ -594,6 +624,10 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
     <span>DUODUO SYSTEMS · SCROLL EXPERIENCE</span>
     <h2>真正有趣的地方，<br><em>從這裡開始。</em></h2>
     <p>每一個系統，都有自己的節奏。繼續往下滑，看看多多谷怎麼讓它們動起來。</p>
+    <button type="button" class="v9-scroll-cue" aria-label="向下探索更多玩法">
+      <span class="v9-scroll-cue-label">向下探索更多玩法</span>
+      <span class="v9-scroll-cue-chevron" aria-hidden="true"></span>
+    </button>
   </div>
 
   <section class="v9-rebirth">
@@ -1581,4 +1615,16 @@ let ticking=false;function scrollFX(){ticking=false;const about=document.querySe
 <script src="dd-nav-data.js?v=20261104-v38"></script>
 <script src="dd-navigation.js?v=20261104-v38"></script>
 <script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-site-update.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
+<script id="dd-home-scroll-cue-handler">
+(()=>{
+  const cue=document.querySelector('#v9-story .v9-scroll-cue');
+  const next=document.querySelector('#v9-story .v9-rebirth');
+  if (!cue || !next) return;
+  cue.addEventListener('click',()=>{
+    const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const top=window.scrollY+next.getBoundingClientRect().top-64;
+    window.scrollTo({top:Math.max(0,top),behavior:reduce?'auto':'smooth'});
+  });
+})();
+</script>
 </body></html>
