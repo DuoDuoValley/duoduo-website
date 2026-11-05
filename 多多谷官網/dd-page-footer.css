@@ -183,3 +183,42 @@
 }
 .site-footer.dd-footer-v2 .dd-footer-inline-top:hover{color:var(--accent2,#007fa2)}
 .site-footer.dd-footer-v2 .dd-footer-inline-top:focus-visible{outline:2px solid var(--accent,#079bc0);outline-offset:4px;border-radius:3px}
+
+
+/* Brand emblem: reuse the official circular DuoDuo logo without enlarging the footer. */
+.site-footer.dd-footer-v2 .footer-brand{
+  display:grid;
+  grid-template-columns:clamp(64px,6.6vw,84px) minmax(0,1fr);
+  grid-template-rows:auto auto 1fr;
+  align-content:start;
+  column-gap:clamp(12px,1.35vw,18px);
+  row-gap:0;
+}
+.site-footer.dd-footer-v2 .footer-brand::before{
+  content:"";
+  display:block;
+  grid-column:1;
+  grid-row:1 / 4;
+  width:100%;
+  aspect-ratio:1;
+  align-self:start;
+  background:url("assets/duoduo-footer-round.webp") center / contain no-repeat;
+}
+.site-footer.dd-footer-v2 .footer-brand > .dd-footer-eyebrow,
+.site-footer.dd-footer-v2 .footer-brand > b,
+.site-footer.dd-footer-v2 .footer-brand > p{
+  grid-column:2;
+  min-width:0;
+}
+@media(max-width:520px){
+  .site-footer.dd-footer-v2 .footer-brand{
+    grid-template-columns:66px minmax(0,1fr);
+    column-gap:12px;
+  }
+}
+@media(max-width:340px){
+  .site-footer.dd-footer-v2 .footer-brand{
+    grid-template-columns:58px minmax(0,1fr);
+    column-gap:10px;
+  }
+}
