@@ -38,33 +38,3 @@
   root.classList.add('duoduo-cursor-ready');
   paint();
 })();
-
-/* HOME v8: lazy-load isolated production presentation without changing the website's cloud logic. */
-(()=>{
- const p=(location.pathname||'').toLowerCase();
- if(!/(^|\/)home\.html$/.test(p))return;
- const style=document.createElement('link');style.rel='stylesheet';style.href='home-v8-official.css?v=20261106-1';
- document.head.append(style);
- const script=document.createElement('script');script.src='home-v8-official.js?v=20261106-1';
- document.head.append(script);
-})();
-
-/* HOME v8: lazy-load isolated production presentation without changing the website's cloud logic. */
-(()=>{
- const p=(location.pathname||'').toLowerCase();
- if(!/(^|\/)home\.html$/.test(p))return;
- const style=document.createElement('link');style.rel='stylesheet';style.href='home-v8-official.css?v=20261106-1';
- document.head.append(style);
- const script=document.createElement('script');script.src='home-v8-official.js?v=20261106-1';
- document.head.append(script);
-})();
-
-/* HOME v8: lazy-load isolated production presentation without changing the website's cloud logic. */
-(()=>{
- const p=(location.pathname||'').toLowerCase();
- if(!/(^|\/)home\.html$/.test(p))return;
- const style=document.createElement('link');style.rel='stylesheet';style.href='home-v8-official.css?v=20261106-1';
- document.head.append(style);
- const script=document.createElement('script');script.src='home-v8-official.js?v=20261106-1';
- document.head.append(script);
-})();
