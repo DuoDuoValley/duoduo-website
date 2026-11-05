@@ -537,6 +537,28 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 <script defer src="cursor-ui/cursor.js"></script>
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
 <link rel="stylesheet" href="dd-navigation.css?v=20261105-nav-v39b">
+<style id="dd-hero-preferred-type-v8">
+/* The four-line hero typography approved by the site owner.
+   Keep #hero-eyebrow (its cloud/version renderer) completely untouched. */
+#hero .hero-copy #hero-title{
+  width:min(100%,6.35em);
+  max-width:6.35em;
+  font-size:clamp(48px,5.8vw,86px);
+  line-height:1.065;
+  font-weight:950;
+  letter-spacing:-.055em;
+  overflow-wrap:anywhere;
+  text-wrap:wrap;
+}
+#hero #hero-title br{display:none}
+#hero #hero-title em{display:block;font-style:normal}
+@media(max-width:900px){
+  #hero .hero-copy #hero-title{font-size:clamp(43px,8.8vw,72px);max-width:6.35em}
+}
+@media(max-width:480px){
+  #hero .hero-copy #hero-title{font-size:clamp(43px,10vw,54px);max-width:6.35em;line-height:1.09}
+}
+</style>
 </head>
 <body>
 <header class="site-header">
