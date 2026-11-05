@@ -13,6 +13,20 @@
   let scrollHover = false;
   let scrollingByWheel = false;
   let wheelQuietTimer = 0;
+  // Do not keep a scroll glove on screen after a wheel gesture has stopped.
+  // scrollend gives an event-based signal; the short idle fallback also handles
+  // a scroll at a boundary (where browsers may not dispatch scrollend).
+  const WHEEL_IDLE_MS = 120;
+  const MIN_SCROLL_FRAME_MS = 80; // prevent immediate scrollend from hiding the glove in the same frame
+  let lastWheelAt = 0;
+  function endWheelFeedback() {
+    clearTimeout(wheelQuietTimer);
+    wheelQuietTimer = 0;
+    if (!scrollingByWheel) return;
+    scrollingByWheel = false;
+    alternate = false;
+    paint();
+  }
   function canScrollVertically(el) {
     return el && el.scrollHeight > el.clientHeight + 3;
   }
@@ -54,7 +68,7 @@
   document.addEventListener('pointermove', e => { if (e.pointerType === 'mouse') { updateHover(e.target); updateScrollHover(e); } }, {passive:true, capture:true});
   document.addEventListener('pointerdown', e => { if (e.pointerType === 'mouse' && e.button === 0) { pressed = true; paint(); } }, true);
   document.addEventListener('pointerup', e => { if (e.pointerType === 'mouse' && e.button === 0) { pressed = false; updateHover(e.target); paint(); } }, true);
-  window.addEventListener('blur', () => { pressed = false; hovering = false; scrollHover = false; scrollingByWheel = false; clearTimeout(wheelQuietTimer); paint(); });
+  window.addEventListener('blur', () => { pressed = false; hovering = false; scrollHover = false; endWheelFeedback(); paint(); });
   document.addEventListener('pointerout', e => { if (e.pointerType === 'mouse' && !e.relatedTarget) { hovering = false; scrollHover = false; pressed = false; paint(); } }, true);
   document.addEventListener('selectionchange', () => {
     const selection = window.getSelection();
@@ -77,9 +91,28 @@
     const pageScroller = document.scrollingElement || document.documentElement;
     if (!canScrollVertically(pageScroller)) return;
     if (!scrollingByWheel) { scrollingByWheel = true; alternate = false; paint(); }
+    lastWheelAt = performance.now();
     clearTimeout(wheelQuietTimer);
-    wheelQuietTimer = setTimeout(() => { scrollingByWheel = false; paint(); }, 900);
+    wheelQuietTimer = setTimeout(endWheelFeedback, WHEEL_IDLE_MS);
   }, {passive:true, capture:true});
+  // Prefer the browser's real end-of-scroll event, rather than an arbitrary
+  // long visual tail. Capture phase also covers nested overflow panels.
+  document.addEventListener('scrollend', () => {
+    if (!scrollingByWheel) return;
+    const elapsed = performance.now() - lastWheelAt;
+    if (elapsed >= MIN_SCROLL_FRAME_MS) {
+      endWheelFeedback();
+    } else {
+      // Chrome may fire scrollend virtually alongside a single wheel tick.
+      // Preserve one visible frame, but never retain the old 900ms tail.
+      clearTimeout(wheelQuietTimer);
+      wheelQuietTimer = setTimeout(endWheelFeedback, MIN_SCROLL_FRAME_MS - elapsed);
+    }
+  }, {capture:true, passive:true});
+  // A tab that was hidden must not retain a scrolling cursor on return.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) endWheelFeedback();
+  });
   root.classList.add('duoduo-cursor-ready');
   paint();
 })();
