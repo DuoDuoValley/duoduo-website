@@ -26,28 +26,4 @@
   html.duoduo-cursor-ready input[type=range],
   html.duoduo-cursor-ready input[type=range]::-webkit-slider-thumb,
   html.duoduo-cursor-ready input[type=range]::-moz-range-thumb { cursor: pointer !important; }
-  /* New animated scroll gloves. No scrollbar dimensions or pointer events are changed. */
-  html.duoduo-cursor-ready.duoduo-cursor-scroll,
-  html.duoduo-cursor-ready.duoduo-cursor-scroll * {
-    cursor: url('cursor-scroll-1.png') 20 8, ns-resize !important;
-  }
-  html.duoduo-cursor-ready.duoduo-cursor-scroll-alt,
-  html.duoduo-cursor-ready.duoduo-cursor-scroll-alt * {
-    cursor: url('cursor-scroll-2.png') 20 8, ns-resize !important;
-  }
-  /* A best-effort hint over native scrollbar thumbs (browsers may ignore cursor). */
-  html.duoduo-cursor-ready::-webkit-scrollbar-thumb {
-    cursor: url('cursor-scroll-1.png') 20 8, ns-resize;
-  }
-  html.duoduo-cursor-ready.duoduo-cursor-scroll-alt::-webkit-scrollbar-thumb {
-    cursor: url('cursor-scroll-2.png') 20 8, ns-resize;
-  }
-  /* Keep native text caret for editable controls even while a page is scrolling. */
-  html.duoduo-cursor-ready.duoduo-cursor-scroll input:not([type=button]):not([type=submit]):not([type=reset]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]),
-  html.duoduo-cursor-ready.duoduo-cursor-scroll-alt input:not([type=button]):not([type=submit]):not([type=reset]):not([type=checkbox]):not([type=radio]):not([type=file]):not([type=range]),
-  html.duoduo-cursor-ready.duoduo-cursor-scroll textarea,
-  html.duoduo-cursor-ready.duoduo-cursor-scroll-alt textarea,
-  html.duoduo-cursor-ready.duoduo-cursor-scroll [contenteditable],
-  html.duoduo-cursor-ready.duoduo-cursor-scroll-alt [contenteditable] { cursor: text !important; }
-
 }
