@@ -22,7 +22,7 @@
   // 原本這裡另有一套獨立 fetch + reload，比對歷史 sessionStorage 時可能誤觸刷新。
   const keys=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero',
     'duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads',
-    'duoduo_items','duoduo_links'];
+    'duoduo_links'];
   const initial={};
   for(const key of keys){
     try{const raw=sessionStorage.getItem('duoduo_cloud_'+key);if(raw!==null)initial[key]=raw;}catch(_){}

@@ -10,12 +10,12 @@
  const inTools=location.pathname.includes('/player-tools/');
  const route=inTools?'player-tools':(location.pathname.split('/').pop()||'index.html').toLowerCase();
  const byPage={
-  'index.html':['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_events','duoduo_boss_config'],
-  'home.html':['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_resources','duoduo_downloads','duoduo_items','duoduo_events','duoduo_boss_config'],
+  'index.html':['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_resources','duoduo_downloads','duoduo_events','duoduo_boss_config'],
+  'home.html':['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_resources','duoduo_downloads','duoduo_events','duoduo_boss_config'],
   'news.html':['duoduo_news'],'events.html':['duoduo_events'],'event-detail.html':['duoduo_events'],
   'boss.html':['duoduo_boss_config','duoduo_boss_atlas'],
-  'downloads.html':['duoduo_downloads','duoduo_resources','duoduo_items'],
-  'guide.html':['duoduo_resources','duoduo_content','duoduo_items'],
+  'downloads.html':['duoduo_downloads','duoduo_resources'],
+  'guide.html':['duoduo_resources','duoduo_content'],
   'item-encyclopedia.html':['duoduo_itempedia'],
   'player-tools':['duoduo_pools','duoduo_weekly_prizes']
  };
