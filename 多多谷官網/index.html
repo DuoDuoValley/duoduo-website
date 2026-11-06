@@ -48,6 +48,10 @@ body { background:#07111f; }
 :root[data-site-theme="light"] #duoduoSite { background:#f4f7fa; }
 #duoduoSite { width:100%; height:100%; height:100dvh; border:0; display:block; background:#07111f; visibility:hidden; }
 html.duoduo-site-ready #duoduoSite { visibility:visible; }
+/* The BGM shell keeps the Maple cursor during an iframe document switch. */
+#duoduoRouteCursorGuard { position:fixed; inset:0; z-index:2; background:transparent;
+  cursor:url('cursor-ui/cursor-default.png') 2 2, auto !important; }
+#duoduoRouteCursorGuard[hidden] { display:none !important; }
 #player { position:fixed; bottom:max(18px,env(safe-area-inset-bottom)); right:max(18px,env(safe-area-inset-right)); z-index:2147483000; width:min(355px,calc(100vw - 36px)); color:var(--text); background:linear-gradient(145deg,rgba(23,39,61,.98),rgba(11,23,39,.98)); border:1px solid var(--line); box-shadow:0 12px 45px rgba(0,0,0,.48); border-radius:19px; padding:15px; backdrop-filter:blur(16px); }
 /* 2.1.3: adjustable frosted glass. The dark glass itself stays opaque enough
    that page text behind it cannot compete with BGM labels. */
@@ -443,6 +447,7 @@ html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #modeRow{gap:8px!important;}
 </head>
 <body>
 <iframe id="duoduoSite" title="多多谷官網" src="about:blank" allow="fullscreen; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
+<div id="duoduoRouteCursorGuard" hidden aria-hidden="true"></div>
 <div id="player" role="region" aria-label="多多谷常駐背景音樂播放器">
   <div id="bgmGlassLayers" aria-hidden="true"><div id="bgmGlassBase"></div><div id="bgmGlassIncoming"></div></div>
   <div id="topline">
@@ -1157,6 +1162,42 @@ const siteRoot=siteBase.pathname;
 const ROUTE_PAGES=new Set(['home.html','news.html','events.html','event-detail.html','boss.html','guide.html','downloads.html','privacy.html','terms.html','player-tools/index.html','jobs/jobs.html','legion-preview-6c82f4a9/index.html','item-encyclopedia.html']);
 const ROUTE_KEY='duoduo_v5_route';
 let activeFrameDocument=null;
+// Navigation guard is scoped to real iframe page changes. It never touches
+// the BGM audio element, existing route handling, or mobile touch inputs.
+const routeCursorGuard=byId('duoduoRouteCursorGuard');
+let routeCursorPoll=null, routeCursorLimit=null, routeCursorToken=0;
+function clearRouteCursorGuard(){
+  ++routeCursorToken;
+  if(routeCursorPoll!==null){clearInterval(routeCursorPoll);routeCursorPoll=null;}
+  if(routeCursorLimit!==null){clearTimeout(routeCursorLimit);routeCursorLimit=null;}
+  routeCursorGuard.hidden=true;
+}
+function holdRouteCursorUntilReady(destination){
+  if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches)return;
+  clearRouteCursorGuard();
+  const token=routeCursorToken;
+  routeCursorGuard.hidden=false;
+  let releaseScheduled=false;
+  function releaseWhenStyled(){
+    if(token!==routeCursorToken||releaseScheduled)return;
+    try{
+      const doc=frame.contentDocument;
+      if(!doc||doc.readyState==='loading'||doc.URL!==destination.href)return;
+      if(!doc.documentElement.classList.contains('duoduo-cursor-ready'))return;
+      // A ready class alone is not enough if the linked cursor stylesheet failed.
+      const cursor=frame.contentWindow.getComputedStyle(doc.documentElement).cursor;
+      if(!cursor.includes('cursor-'))return;
+      releaseScheduled=true;
+      requestAnimationFrame(()=>{if(token===routeCursorToken)clearRouteCursorGuard();});
+    }catch(_){/* Keep the glove until the page is ready or the safety limit. */}
+  }
+  routeCursorPoll=setInterval(releaseWhenStyled,35);
+  routeCursorLimit=setTimeout(()=>{
+    if(token===routeCursorToken)clearRouteCursorGuard();
+  },8000);
+  releaseWhenStyled();
+}
+
 
 // Cloud data can arrive after the first page has already painted. Do not
 // reload the *visible* document: prepare its replacement offscreen, then
@@ -1377,6 +1418,7 @@ function changeInner(to,method='push'){
       return true;
     }catch{}
   }
+  holdRouteCursorUntilReady(target);
   try{frame.contentWindow.location.replace(target.href);}catch{frame.src=target.href;}
   showCurrentPage(target);
   return true;
