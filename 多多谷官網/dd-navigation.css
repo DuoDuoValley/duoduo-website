@@ -280,3 +280,30 @@ html:not(.dd-game-version-ready) .site-header .header-status::after{
   flex:0 0 auto;
   white-space:nowrap;
 }
+
+
+/* V409: The published version pill reserves the SAME width before and after
+   site-data resolves. No JS, placeholder or backend status text is hardcoded. */
+.site-header .header-status{
+  box-sizing:border-box;
+  flex:0 0 156px;
+  inline-size:156px;
+  width:156px;
+  min-inline-size:156px;
+  max-inline-size:156px;
+  justify-content:center;
+  white-space:nowrap;
+}
+.site-header .header-status > span:not(.status-dot){
+  min-inline-size:0;
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+html:not(.dd-game-version-ready) .site-header .header-status::after{
+  flex:none;
+  white-space:nowrap;
+}
+/* The shared version manager's [hidden] state still wins when the admin
+   disables the badge; do not reserve space for a deliberately hidden badge. */
+.site-header .header-status[hidden]{display:none!important}

@@ -2065,3 +2065,41 @@ html.dd20-motion-on #versions #versionsTitle.dd20-done .dd20-versions-text::afte
 @media(prefers-reduced-motion:reduce){
   /* These are static surfaces; leave all legacy reduced-motion handling intact. */
 }
+
+
+/* V409: richer dark-mode colour rhythm for the eight final quick links.
+   Match the cyan/mint/blue/amber identity of the approved light cards without
+   changing layout, navigation, reveal animations or the light-mode palette. */
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a{
+  color:#f4faff;
+  box-shadow:0 9px 19px rgba(0,14,34,.17),inset 0 1px 0 rgba(235,250,255,.12);
+}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+1){
+  background:linear-gradient(141deg,rgba(49,100,124,.99) 0%,rgba(30,63,85,.99) 100%);
+  border-color:#508ea9;
+}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+2){
+  background:linear-gradient(141deg,rgba(42,97,90,.99) 0%,rgba(27,66,66,.99) 100%);
+  border-color:#4c9b8e;
+}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+3){
+  background:linear-gradient(141deg,rgba(51,79,119,.99) 0%,rgba(32,56,88,.99) 100%);
+  border-color:#638bb6;
+}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n){
+  background:linear-gradient(141deg,rgba(94,79,67,.99) 0%,rgba(58,59,70,.99) 100%);
+  border-color:#ad956e;
+}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+1) .v3-link-icon,
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+1) b{color:#95e9f5}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+2) .v3-link-icon,
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+2) b{color:#a3eed3}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+3) .v3-link-icon,
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+3) b{color:#b6d5ff}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n) .v3-link-icon,
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n) b{color:#ffda98}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:hover,
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:focus-visible{
+  filter:brightness(1.13);
+  box-shadow:0 12px 25px rgba(0,18,38,.30),inset 0 1px 0 rgba(255,255,255,.16);
+}
