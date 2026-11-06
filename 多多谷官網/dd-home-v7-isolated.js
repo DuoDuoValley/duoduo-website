@@ -283,7 +283,7 @@
     raf=0;
     if(document.hidden){stop();return;}
     const dt=clamp(now-last,1,40); last=now;
-    const ease=1-Math.exp(-dt/115); // quick easing, no long wheel queue
+    const ease=1-Math.exp(-dt/135); // quick easing, no long wheel queue
     current+=(target-current)*ease;
     if(Math.abs(target-current)<.6){current=target;apply(current);controlled=false;return;}
     apply(current);
@@ -297,13 +297,13 @@
     if(!Number.isFinite(dy)||Math.abs(dy)<75||Math.abs(dy)>1800||Math.abs(e.deltaX)>Math.abs(e.deltaY)*.45)return;
     const base=window.scrollY;
     const start=controlled?target:base;
-    const next=clamp(start+clamp(dy,-Math.min(280,innerHeight*.38),Math.min(280,innerHeight*.38)),0,maxScroll());
+    const next=clamp(start+clamp(dy,-Math.min(310,innerHeight*.4),Math.min(310,innerHeight*.4)),0,maxScroll());
     if(Math.abs(next-base)<.5&&Math.abs(next-start)<.5)return;
     e.preventDefault();
     // On reverse direction, respond immediately rather than finishing the old scroll.
     if(controlled&&Math.sign(dy)!==Math.sign(target-base))target=base;
     else target=start;
-    target=clamp(target+clamp(dy,-Math.min(280,innerHeight*.38),Math.min(280,innerHeight*.38)),0,maxScroll());
+    target=clamp(target+clamp(dy,-Math.min(310,innerHeight*.4),Math.min(310,innerHeight*.4)),0,maxScroll());
     current=base;
     controlled=true;
     if(!raf){last=performance.now();raf=requestAnimationFrame(tick)}
@@ -314,4 +314,36 @@
   window.addEventListener('pointerdown',stop,{passive:true});
   window.addEventListener('resize',stop,{passive:true});
   document.addEventListener('visibilitychange',stop,{passive:true});
+})();
+
+
+/* V11: community-story headline uses horizontal character flips; keep the
+   CMS-managed review title intact and let CSS animate it independently. */
+(()=>{
+  'use strict';
+  const heading=document.querySelector('#community-story .v2-community-header h2');
+  if(!heading || heading.dataset.ddFlipReady==='1')return;
+  heading.dataset.ddFlipReady='1';
+  const original=heading.textContent.replace(/\s+/g,' ').trim();
+  heading.setAttribute('aria-label',original);
+  const lines=[...heading.querySelectorAll('.v6-line')];
+  let index=0;
+  for(const line of lines){
+    // Keep the approved <em> emphasis. Only replace text nodes inside it.
+    const walker=document.createTreeWalker(line,NodeFilter.SHOW_TEXT);
+    const nodes=[];
+    while(walker.nextNode())nodes.push(walker.currentNode);
+    for(const node of nodes){
+      const fragment=document.createDocumentFragment();
+      for(const char of [...(node.nodeValue||'')]){
+        const span=document.createElement('span');
+        span.className='dd-flip-char';
+        span.setAttribute('aria-hidden','true');
+        span.style.setProperty('--dd-char-order',String(index++));
+        span.textContent=char;
+        fragment.appendChild(span);
+      }
+      node.replaceWith(fragment);
+    }
+  }
 })();
