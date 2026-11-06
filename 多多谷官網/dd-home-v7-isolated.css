@@ -1321,3 +1321,99 @@ html.dd-motion-ready #events #event-grid>.empty{opacity:1!important;clip-path:no
  .dd-preview-island .scene-night .night-copy h2 br{display:none}
  .dd-preview-island .scene-night .night-copy h2 em{display:block;white-space:nowrap;margin-top:5px}
 }
+
+
+/* ===========================================================
+   HOME V14 · DuoDuo brand globe, collision-safe orbital system
+   Only the opening/story scenes are styled here; all old official
+   CMS sections, BOSS video, navigation and footer remain untouched.
+   =========================================================== */
+#dd-story .scene-opening{box-sizing:border-box;padding:clamp(24px,4vh,52px) clamp(22px,5vw,100px) clamp(84px,12vh,110px);text-align:left}
+#dd-story .scene-opening .opening-halo{left:70%;top:49%;width:42vw;height:42vw;min-width:360px;min-height:360px;opacity:.6}
+#dd-story .dd14-opening-layout{
+  position:relative;z-index:2;width:min(1260px,100%);max-width:100%;margin:0 auto;
+  display:grid;grid-template-columns:minmax(0,1.04fr) minmax(0,.96fr);
+  align-items:center;gap:clamp(24px,5vw,85px);min-height:0;
+}
+#dd-story .dd14-opening-copy{position:relative;z-index:3;min-width:0}
+#dd-story .dd14-opening-copy .overline{font-size:clamp(10px,1.05vw,12px);color:#118caa;letter-spacing:.2em}
+#dd-story .dd14-opening-copy h2{font-size:clamp(40px,3.6vw,61px);line-height:1.16;letter-spacing:-.072em;margin:0;max-width:9.8em}
+#dd-story .dd14-opening-copy h2 .dd14-headline-main,#dd-story .dd14-opening-copy h2 em{display:block;white-space:nowrap}
+#dd-story .dd14-opening-copy h2 em{color:#168eae;font-style:normal}
+#dd-story .dd14-opening-copy .opening-desc{font-size:clamp(13px,1.2vw,16px);line-height:1.85;max-width:560px;color:#59798b;margin-top:24px}
+#dd-story .dd14-opening-underline{display:block;width:min(150px,32vw);height:3px;margin-top:23px;background:linear-gradient(90deg,#16b0d2,#5bcb97,transparent);border-radius:4px;transform-origin:left;animation:dd14-underline 2.4s .2s both}
+@keyframes dd14-underline{from{opacity:0;transform:scaleX(.03)}to{opacity:1;transform:scaleX(1)}}
+#dd-story .dd14-world{--dd14-world-size:clamp(240px,31vw,465px);width:var(--dd14-world-size);height:var(--dd14-world-size);position:relative;justify-self:center;align-self:center;isolation:isolate;flex:none;transform-style:preserve-3d;filter:drop-shadow(0 34px 45px rgba(24,97,130,.24))}
+#dd-story .dd14-world-aura{position:absolute;inset:-25%;z-index:-1;pointer-events:none;border-radius:50%;background:radial-gradient(circle,rgba(88,218,226,.22) 0%,rgba(132,217,235,.16) 36%,transparent 70%);animation:dd14-aura 6s ease-in-out infinite}
+#dd-story .dd14-world-ring{position:absolute;border:1px solid rgba(60,172,193,.32);border-radius:50%;inset:-13%;transform:rotate(-18deg) scaleY(.68);pointer-events:none}
+#dd-story .dd14-world-ring-b{inset:-23%;border-style:dashed;border-color:rgba(76,191,209,.15);transform:rotate(31deg) scaleY(.78)}
+#dd-story .dd14-world-globe{position:absolute;inset:4%;border-radius:50%;isolation:isolate;overflow:hidden;transform-style:preserve-3d;animation:dd14-globe-tilt 8.6s ease-in-out infinite;box-shadow:0 29px 55px rgba(21,89,120,.36),inset 0 -12px 26px rgba(19,95,120,.3),inset 12px 12px 26px rgba(255,255,255,.38);background:radial-gradient(circle at 30% 23%,#e6ffff 2%,#a4e0f1 52%,#1a759f 100%)}
+#dd-story .dd14-world-texture{position:absolute;inset:0;border-radius:50%;overflow:hidden;animation:dd14-texture-drift 8.6s ease-in-out infinite}
+#dd-story .dd14-world-texture img{display:block;width:100%;height:100%;object-fit:contain;user-select:none;filter:saturate(1.13) contrast(1.04);transform:scale(.94)}
+#dd-story .dd14-world-light{position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:50%;background:radial-gradient(ellipse at 23% 18%,rgba(255,255,255,.88) 0%,rgba(255,255,255,.24) 17%,transparent 48%),linear-gradient(113deg,rgba(255,255,255,.13) 12%,transparent 38%,rgba(8,64,100,.34) 92%);mix-blend-mode:screen;animation:dd14-light-drift 8.6s ease-in-out infinite}
+#dd-story .dd14-world-rim{position:absolute;inset:0;pointer-events:none;border-radius:50%;box-shadow:inset 19px 9px 21px rgba(255,255,255,.38),inset -24px -17px 35px rgba(12,59,92,.36),inset 0 0 0 3px rgba(255,255,255,.28);z-index:4}
+#dd-story .dd14-world-spark{position:absolute;z-index:5;pointer-events:none;font-size:clamp(17px,2.5vw,36px);line-height:1;color:#f8bc49;text-shadow:0 0 16px rgba(255,228,117,.65);animation:dd14-spark 3.8s ease-in-out infinite}
+#dd-story .dd14-world-spark-a{top:9%;left:-12%;animation-delay:-1s}
+#dd-story .dd14-world-spark-b{right:-13%;top:29%;color:#6acbe6;animation-delay:-2.3s}
+#dd-story .dd14-world-spark-c{bottom:2%;left:7%;font-size:clamp(23px,3vw,39px);animation-delay:-.6s}
+#dd-story .dd14-world-caption{position:absolute;left:50%;bottom:-16%;white-space:nowrap;transform:translateX(-50%);color:#408eac;font-size:10px;font-weight:900;letter-spacing:.18em;text-shadow:0 1px 1px white}
+@keyframes dd14-globe-tilt{0%,100%{transform:perspective(900px) rotateY(-10deg) rotateX(5deg) rotateZ(-3deg)}50%{transform:perspective(900px) rotateY(10deg) rotateX(-5deg) rotateZ(3deg)}}
+@keyframes dd14-texture-drift{0%,100%{transform:translateX(-2%) scale(1.025)}50%{transform:translateX(2%) scale(1.025)}}
+@keyframes dd14-light-drift{0%,100%{opacity:.85;transform:translateX(-9%)}50%{opacity:.65;transform:translateX(10%)}}
+@keyframes dd14-aura{0%,100%{opacity:.72;scale:.96}50%{opacity:1;scale:1.07}}
+@keyframes dd14-spark{0%,100%{opacity:.5;transform:translateY(0) scale(.82)}50%{opacity:1;transform:translateY(-8px) scale(1.14)}}
+/* Prevent any overlap for the full animation cycle by setting concentric
+   orbits far enough apart for the maximum satellite diameters. */
+#dd-story .scene-night .night-art{--dd14-mini:clamp(27px,2.65vw,41px);isolation:isolate}
+#dd-story .scene-night .night-art .orbit-circle{display:none}
+#dd-story .scene-night .night-art .night-center{position:relative;z-index:4;width:27%;height:27%;max-width:none}
+#dd-story .scene-night .night-art .dd-orbit-track{position:absolute;left:50%;top:50%;transform-origin:50% 50%;border-radius:50%;pointer-events:none;animation:dd14-track-rotation var(--dd14-period) linear infinite;will-change:transform}
+#dd-story .scene-night .night-art .dd-orbit-track::before{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid rgba(128,213,244,.24);pointer-events:none}
+#dd-story .scene-night .night-art .dd-orbit-one{right:auto;bottom:auto;width:40%;height:40%;margin-left:-20%;margin-top:-20%;--dd14-start:20deg;--dd14-turn:360deg;--dd14-unstart:-20deg;--dd14-return:-360deg;--dd14-period:12.5s}
+#dd-story .scene-night .night-art .dd-orbit-two{right:auto;bottom:auto;width:62%;height:62%;margin-left:-31%;margin-top:-31%;--dd14-start:165deg;--dd14-turn:-360deg;--dd14-unstart:-165deg;--dd14-return:360deg;--dd14-period:19.5s}
+#dd-story .scene-night .night-art .dd-orbit-three{right:auto;bottom:auto;width:86%;height:86%;margin-left:-43%;margin-top:-43%;--dd14-start:270deg;--dd14-turn:360deg;--dd14-unstart:-270deg;--dd14-return:-360deg;--dd14-period:27s}
+#dd-story .scene-night .night-art .dd-orbit-track .night-mini{position:absolute;left:50%;top:0;right:auto;bottom:auto;width:var(--dd14-mini);height:var(--dd14-mini);max-width:none;object-fit:contain;filter:drop-shadow(0 6px 10px rgba(0,0,0,.35));transform-origin:center;animation:dd14-track-counter var(--dd14-period) linear infinite;will-change:transform}
+@keyframes dd14-track-rotation{from{transform:rotate(var(--dd14-start))}to{transform:rotate(calc(var(--dd14-start) + var(--dd14-turn)))}}
+@keyframes dd14-track-counter{from{transform:translate(-50%,-50%) rotate(var(--dd14-unstart))}to{transform:translate(-50%,-50%) rotate(calc(var(--dd14-unstart) + var(--dd14-return)))}}
+/* Long enough visual start at tablet sizes; cut light effects for small viewports. */
+@media(max-width:850px){
+ #dd-story .scene-opening{padding:20px 20px 74px;text-align:center}
+ #dd-story .scene-opening .opening-halo{left:50%;top:60%;width:65vw;height:65vw;min-width:260px;min-height:260px}
+ #dd-story .dd14-opening-layout{width:100%;grid-template-columns:1fr;gap:16px;justify-items:center;align-content:center}
+ #dd-story .dd14-opening-copy{max-width:620px;text-align:center}
+ #dd-story .dd14-opening-copy .overline{margin:0 0 12px}
+ #dd-story .dd14-opening-copy h2{font-size:clamp(32px,6vw,52px);line-height:1.12}
+ #dd-story .dd14-opening-copy .opening-desc{font-size:clamp(12px,1.7vw,14px);line-height:1.6;margin:12px auto 0}
+ #dd-story .dd14-opening-underline{height:2px;margin:13px auto 0;transform-origin:center}
+ #dd-story .dd14-world{--dd14-world-size:clamp(190px,31vh,295px)}
+ #dd-story .dd14-world-caption{bottom:-12%;font-size:8px}
+ #dd-story .scene-night .night-art{--dd14-mini:clamp(20px,3.1vw,30px)}
+}
+@media(max-width:540px){
+ #dd-story .scene-opening{padding:17px 14px 80px}
+ #dd-story .dd14-opening-layout{gap:18px}
+ #dd-story .dd14-opening-copy .overline{font-size:9px}
+ #dd-story .dd14-opening-copy h2{font-size:clamp(30px,8.2vw,42px)}
+ #dd-story .dd14-opening-copy .opening-desc{font-size:11px;line-height:1.55}
+ #dd-story .dd14-world{--dd14-world-size:clamp(158px,27vh,220px)}
+ #dd-story .dd14-world-ring{inset:-11%}
+ #dd-story .dd14-world-ring-b{inset:-18%}
+ #dd-story .dd14-world-spark{font-size:18px}
+ #dd-story .dd14-world-caption{letter-spacing:.1em}
+ #dd-story .scene-night .night-art{--dd14-mini:clamp(18px,5.3vw,23px);width:min(62vw,230px);height:min(62vw,230px)}
+}
+@media(max-height:680px){
+ #dd-story .scene-opening{padding-top:14px;padding-bottom:65px}
+ #dd-story .dd14-opening-copy h2{font-size:clamp(30px,5.2vw,67px)}
+ #dd-story .dd14-world{--dd14-world-size:clamp(145px,32vh,330px)}
+ #dd-story .dd14-opening-copy .opening-desc{line-height:1.48;margin-top:10px}
+ #dd-story .dd14-world-caption{bottom:-10%}
+}
+@media(prefers-reduced-motion:reduce){
+ #dd-story .dd14-world *{animation:none!important;transition:none!important}
+ #dd-story .dd14-opening-underline{animation:none!important}
+ #dd-story .scene-night .night-art .dd-orbit-track,
+ #dd-story .scene-night .night-art .dd-orbit-track .night-mini{animation:none!important}
+ #dd-story .scene-night .night-art .dd-orbit-track{transform:rotate(var(--dd14-start))!important}
+ #dd-story .scene-night .night-art .dd-orbit-track .night-mini{transform:translate(-50%,-50%) rotate(var(--dd14-unstart))!important}
+}

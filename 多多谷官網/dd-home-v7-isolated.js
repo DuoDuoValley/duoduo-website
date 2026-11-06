@@ -116,7 +116,7 @@
   if('IntersectionObserver' in window){
     const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
       if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}
-    }),{threshold:.17,rootMargin:'0px 0px -24% 0px'});
+    }),{threshold:.03,rootMargin:'0px 0px 6% 0px'});
     document.querySelectorAll('.reveal').forEach(node=>observer.observe(node));
   }else document.querySelectorAll('.reveal').forEach(node=>node.classList.add('is-visible'));
   const playVideo=()=>{if(!cinemaVideo)return;const pending=cinemaVideo.play();if(pending&&pending.catch)pending.catch(()=>{})};
@@ -258,14 +258,14 @@
         section.classList.add('dd-motion-in');
         io.unobserve(target);
       });
-    },{threshold:0.15,rootMargin:'0px 0px -35% 0px'});
+    },{threshold:0,rootMargin:'0px 0px 9% 0px'});
     document.documentElement.classList.add('dd-motion-ready');
     all.forEach(({name,node})=>{
       const anchor=activationAnchor(name,node);
       anchors.set(anchor,node);
       io.observe(anchor);
       const rect=anchor.getBoundingClientRect();
-      if(rect.top<innerHeight*.65 && rect.bottom>Math.min(innerHeight*.16,110)){
+      if(rect.top<innerHeight*1.09 && rect.bottom>0){
         node.classList.add('dd-motion-in');
         io.unobserve(anchor);
       }
@@ -413,7 +413,7 @@
    // Section text must reach a readable area. If user lands past it,
    // leave it visible and consider its animation completed.
    if(r.bottom<=0){done.add(node);continue;}
-   if(r.top<h*.66 && r.bottom>Math.min(90,h*.12))run(node,kind);
+   if(r.top<h*1.06 && r.bottom>0)run(node,kind);
   }
  }
  function request(){if(!scrollFrame)scrollFrame=requestAnimationFrame(check)}
