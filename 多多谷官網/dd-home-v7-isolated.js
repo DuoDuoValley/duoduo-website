@@ -404,7 +404,6 @@
  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
  const stages=[
   ['#hero #hero-title','hero'],
-  ['#community #communityTitle','reviews'],
   ['#events #eventsTitle','events'],
   ['#versions #versionsTitle','timeline'],
   ['#start #startTitle','finale']
@@ -532,46 +531,76 @@
  items.forEach(({node})=>io.observe(node));
 })();
 
-/* HOME V17: News is only animated once and starts BEFORE entering the viewport.
-   If content is already visible (deep link/back navigation) we do not hide/replay.
-   No style is pre-hidden: if JS fails, the CMS title remains readable. */
+
+
+/* HOME V18 – navigation logo feedback and one owner for news title motion. */
 (()=>{
- 'use strict';
- const node=document.querySelector('#news #newsTitle');
- if(!node)return;
- const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
- if(reduce || !Element.prototype.animate)return;
- let triggered=false,observer;
- const alreadyVisible=()=>{const r=node.getBoundingClientRect();return r.top<innerHeight-18 && r.bottom>0;};
- function launch(skip=false){
-   if(triggered)return; triggered=true;observer?.disconnect();
-   if(skip){node.classList.add('dd17-news-finished');return;}
-   try{
-     node.classList.add('dd17-news-started');
-     const effect=node.animate([
-       {clipPath:'inset(47% 0 47% 0)',opacity:.12,filter:'blur(5px)',letterSpacing:'.15em',transform:'scaleX(.91)',offset:0},
-       {clipPath:'inset(19% 0 19% 0)',opacity:.74,filter:'blur(2px)',letterSpacing:'.06em',transform:'scaleX(.97)',offset:.46},
-       {clipPath:'inset(0 0 0 0)',opacity:1,filter:'blur(0)',letterSpacing:'0',transform:'none',offset:1}
-     ],{duration:1430,easing:'cubic-bezier(.18,.8,.23,1)',fill:'both'});
-     effect.finished.then(()=>{node.classList.add('dd17-news-finished');effect.cancel();}).catch(()=>{node.classList.add('dd17-news-finished');});
-   }catch(_){node.classList.add('dd17-news-finished');}
- }
- // A restored scroll position or direct hash navigation should show the finished
- // title, never flash the full text and then suddenly restart it.
- if(alreadyVisible()){launch(true);return;}
- function check(){
-   if(triggered)return;
-   const r=node.getBoundingClientRect();
-   if(r.bottom<=0){launch(true);return;}
-   // Start 105px *outside* the bottom edge, before the reader encounters text.
-   if(r.top<=innerHeight+105){launch(r.top<innerHeight-38);}
- }
- if('IntersectionObserver' in window){
-   observer=new IntersectionObserver(check,{threshold:0,rootMargin:'0px 0px 115px 0px'});
-   observer.observe(node);
- }
- addEventListener('scroll',check,{passive:true});
- addEventListener('resize',check,{passive:true});
- addEventListener('pageshow',check,{passive:true});
- check();
+  'use strict';
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const brand=document.querySelector('.site-header > a.brand');
+  if(brand){
+    brand.classList.add('dd18-brand');
+    // On the current home page, a logo click becomes a responsive return-to-top.
+    // Modified and middle clicks keep the normal link behavior.
+    brand.addEventListener('click',e=>{
+      if(e.button!==0||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey)return;
+      brand.classList.remove('dd18-brand-click');
+      void brand.offsetWidth;
+      brand.classList.add('dd18-brand-click');
+      if(document.querySelector('main#top')){
+        e.preventDefault();
+        window.scrollTo({top:0,behavior:reduce?'instant':'smooth'});
+        setTimeout(()=>brand.classList.remove('dd18-brand-click'),650);
+      }
+    });
+  }
+  if(!reduce && Element.prototype.animate){
+    const community=document.getElementById('communityTitle');
+    if(community){
+      let played=false;
+      let observer;
+      const reveal=()=>{
+        if(played)return;
+        played=true;observer?.disconnect();
+        try{const a=community.animate([
+          {opacity:.35,transform:'perspective(1100px) rotateY(-19deg) scaleX(1.065)',filter:'blur(5px)',letterSpacing:'.09em'},
+          {opacity:.86,transform:'perspective(1100px) rotateY(4deg) scaleX(.99)',filter:'blur(.8px)',letterSpacing:'.02em',offset:.63},
+          {opacity:1,transform:'none',filter:'none',letterSpacing:'normal'}
+        ],{duration:1790,easing:'cubic-bezier(.16,.82,.22,1)',fill:'none'});a.finished.catch(()=>{});}catch(_){}
+      };
+      if('IntersectionObserver' in window){
+        observer=new IntersectionObserver(entries=>{
+          if(entries.some(e=>e.isIntersecting))reveal();
+        },{threshold:0,rootMargin:'0px 0px -18% 0px'});
+        observer.observe(community);
+      }else reveal();
+    }
+  }
+  // Read-only scroll progress: the text begins appearing at the bottom edge
+  // and finishes while entering the reading area. No timers or delayed replays.
+  const heading=document.getElementById('newsTitle');
+  if(!heading)return;
+  if(reduce){heading.style.removeProperty('clip-path');return;}
+  let raf=0;
+  let previous=-1;
+  let completed=false;
+  const clamp=x=>Math.min(1,Math.max(0,x));
+  function paint(){
+    raf=0;
+    if(completed)return;
+    const r=heading.getBoundingClientRect();
+    const vh=window.innerHeight||720;
+    const progress=clamp((vh*1.02-r.top)/(vh*.38));
+    if(Math.abs(progress-previous)<.002)return;
+    previous=progress;
+    heading.style.clipPath=`inset(0 ${(100*(1-progress)).toFixed(2)}% 0 0)`;
+    heading.style.setProperty('--dd18-news-progress',progress.toFixed(3));
+    if(progress>=.999){completed=true;heading.classList.add('dd18-news-done');}
+  }
+  function queue(){if(!raf)raf=requestAnimationFrame(paint)}
+  addEventListener('scroll',queue,{passive:true});
+  addEventListener('resize',queue,{passive:true});
+  addEventListener('pageshow',queue,{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)queue()});
+  paint();
 })();

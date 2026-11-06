@@ -1591,3 +1591,57 @@ html.dd-motion-ready .dd-preview-island .hybrid-info-chapter #versions.dd-motion
  #dd-story .dd17-route-trace i{transform:none!important}
  #news #newsTitle,#news #newsTitle::after{animation:none!important;clip-path:none!important;letter-spacing:normal!important}
 }
+
+
+/* ===============================================================
+   HOME V18 — scoped polish of the 7 explicitly requested details.
+   =============================================================== */
+/* 1. Preserve the approved understated SCROLL cue, upgrade only its arrow. */
+#dd-story .story-run .scroll-hint .hint-arrow{display:inline-flex;align-items:center;justify-content:center;width:27px;height:29px;font-size:initial;line-height:1;animation:none!important;color:#13a5c2;filter:drop-shadow(0 1px 4px rgba(41,170,200,.18))}
+#dd-story .story-run .scroll-hint .hint-arrow svg{display:block;width:24px;height:28px;stroke:none;animation:dd18-arrow-drift 2.35s cubic-bezier(.5,.03,.35,1) infinite}
+#dd-story .story-run .scroll-hint:hover .hint-arrow svg{animation-duration:1.3s}
+@keyframes dd18-arrow-drift{0%,100%{transform:translateY(-2px);opacity:.72}45%{transform:translateY(4px);opacity:1}65%{transform:translateY(1px);opacity:.92}}
+/* 4. Logo shine is clipped to the image dimensions, never across the navbar. */
+.site-header .brand.dd18-brand{position:relative;isolation:isolate;overflow:visible}
+.site-header .brand.dd18-brand img{transition:transform .36s cubic-bezier(.2,1.4,.23,1),filter .3s ease;transform-origin:50% 54%}
+.site-header .brand.dd18-brand::before{content:"";position:absolute;z-index:2;pointer-events:none;left:0;top:50%;width:118px;height:62px;transform:translateY(-50%);border-radius:8px;background:linear-gradient(112deg,transparent 29%,rgba(255,255,255,.02) 41%,rgba(255,250,204,.71) 49%,rgba(255,255,255,.2) 55%,transparent 70%);background-size:300% 100%;background-position:100% 0;mix-blend-mode:screen;clip-path:inset(0 round 8px);animation:dd18-brand-shine 7.8s ease-in-out infinite}
+.site-header .brand.dd18-brand::after{content:"";position:absolute;z-index:0;pointer-events:none;left:59px;top:50%;width:120px;height:57px;border:1px solid rgba(253,220,127,.6);border-radius:50%;opacity:0;transform:translate(-50%,-50%) scale(.65)}
+.site-header .brand.dd18-brand:hover img{filter:drop-shadow(0 0 10px rgba(252,217,113,.35));transform:scale(1.035)}
+.site-header .brand.dd18-brand.dd18-brand-click img{animation:dd18-brand-pop .58s cubic-bezier(.18,1.3,.22,1) both}
+.site-header .brand.dd18-brand.dd18-brand-click::after{animation:dd18-brand-ring .55s ease-out both}
+.site-header .brand.dd18-brand:focus-visible{outline:2px solid #f6d084;outline-offset:3px;border-radius:7px}
+@keyframes dd18-brand-shine{0%,52%,100%{background-position:100% 0;opacity:0}58%{opacity:.9}73%{background-position:0 0;opacity:0}}
+@keyframes dd18-brand-pop{0%,100%{transform:scale(1)}30%{transform:scale(.89) rotate(-3deg)}65%{transform:scale(1.09) rotate(2deg)}}
+@keyframes dd18-brand-ring{0%{opacity:.8;transform:translate(-50%,-50%) scale(.64)}100%{opacity:0;transform:translate(-50%,-50%) scale(1.75)}}
+@media(max-width:680px){.site-header .brand.dd18-brand::before{width:105px;height:48px}.site-header .brand.dd18-brand::after{left:52px;width:105px;height:48px}}
+/* 5. Editorial three-card arrangement: optical stagger, gentle angles,
+   different corners. The JS scroll-driven transform remains the only motion owner. */
+@media(min-width:901px){
+ #dd-story .scene-final .feature-cards{gap:22px;align-items:start;padding-inline:9px}
+ #dd-story .scene-final .feature-card.f1{rotate:-2.1deg;translate:0 17px;border-radius:30px 22px 32px 20px}
+ #dd-story .scene-final .feature-card.f2{rotate:1.5deg;translate:0 -10px;border-radius:20px 34px 22px 31px}
+ #dd-story .scene-final .feature-card.f3{rotate:-1.35deg;translate:0 28px;border-radius:32px 21px 29px 20px}
+ #dd-story .scene-final .feature-card.f2 .feature-art{height:clamp(138px,22vh,240px)}
+ #dd-story .scene-final .feature-card.f3 .feature-art{height:clamp(130px,20vh,222px)}
+}
+@media(min-width:651px) and (max-width:900px){#dd-story .scene-final .feature-card.f1{translate:0 8px;rotate:-.9deg}#dd-story .scene-final .feature-card.f3{translate:0 12px;rotate:.7deg}}
+/* 6. The reviews heading uses perspective focus, while Events keeps its diagonal
+   wipe. One WAAPI controller owns reviews, never a second heading replay. */
+html.dd-motion-ready #community #communityTitle,
+html.dd-motion-ready #community.dd-motion-in #communityTitle{transition:none!important;transform:none;clip-path:none;filter:none;opacity:1;letter-spacing:normal}
+/* 7. A scroll-linked headline aperture, not a one-shot late timer. */
+html.dd-motion-ready #news #newsTitle,html.dd-motion-ready #news.dd-motion-in #newsTitle{
+ opacity:1!important;letter-spacing:normal!important;filter:none!important;transform:none!important;transition:none!important;
+}
+#news #newsTitle::after,#news #newsTitle.dd17-news-started::after{
+ content:"";display:block;position:absolute;left:0;bottom:-10px;width:min(200px,54%);height:3px;border-radius:5px;
+ background:linear-gradient(90deg,#18d6e9 0%,#b5f3ff 45%,transparent 100%);
+ box-shadow:0 0 13px rgba(37,202,238,.2);opacity:1;
+ transform:scaleX(var(--dd18-news-progress,0));transform-origin:left center;
+ animation:none!important;transition:none!important;pointer-events:none;
+}
+@media(prefers-reduced-motion:reduce){
+ #dd-story .story-run .scroll-hint .hint-arrow svg,.site-header .brand.dd18-brand::before,.site-header .brand.dd18-brand.dd18-brand-click img,.site-header .brand.dd18-brand.dd18-brand-click::after{animation:none!important}
+ #news #newsTitle{clip-path:none!important}
+ #news #newsTitle::after{transform:scaleX(1)!important}
+}
