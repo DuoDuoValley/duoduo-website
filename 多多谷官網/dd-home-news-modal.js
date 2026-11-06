@@ -363,6 +363,15 @@ const identity=item=>[String(item.title||'').trim(),String(item.date||'').trim()
 async function resolveAnnouncement(link){
  const index=Number(link.hash.replace(/^#n-/,''));
  const target={title:link.querySelector('h3')?.textContent||'',date:link.querySelector('time')?.textContent||''};
+ // app.js already rendered the visible rows from its sorted `news` binding.
+ // Use that identical dataset first, rather than re-fetching and risking a cache/order mismatch.
+ const displayed=typeof news!=='undefined'&&Array.isArray(news)?news:null;
+ if(displayed){
+   const sameRow=displayed[index];
+   if(sameRow&&sameRow.title===target.title&&sameRow.date===target.date)return sameRow;
+   const sameArticle=displayed.find(x=>x.title===target.title&&x.date===target.date);
+   if(sameArticle)return sameArticle;
+ }
  let matches=ordered(readStorage('duoduo_news')||[]);
  if(!matches.length){matches=ordered(await pageLoadNews());}
  const choice=matches[index];
@@ -400,19 +409,23 @@ function showModal(n,source){
  modal.querySelectorAll('.news-item-thumb img').forEach(img=>img.addEventListener('error',()=>img.closest('.news-item-thumb')?.remove()));
  modal.querySelector('.news-modal-close')?.focus({preventScroll:true});
 }
-// Event delegation works even when app.js rebuilds the list after cloud updates.
-list.addEventListener('click',async e=>{
- const a=e.target.closest('a.news-item[href*="news.html#n-"]');
+// The outer BGM shell intercepts all internal links at document capture phase.
+// Listen at the iframe WINDOW capture phase (before document) for only homepage news rows.
+// Stop that routing event before the shell can navigate to news.html.
+window.addEventListener('click',async e=>{
+ const element=e.target?.nodeType===1?e.target:e.target?.parentElement;
+ const a=element?.closest?.('a.news-item[href*="news.html#n-"]');
  if(!a||!list.contains(a)||e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
  e.preventDefault();
+ e.stopPropagation();
  if(a.dataset.newsModalPending)return;
  a.dataset.newsModalPending='1';
  try{
   const article=await resolveAnnouncement(a);
   if(article)showModal(article,a);
-  else window.location.assign(a.href); // No fabricated/mismatched article details.
+  else window.location.assign(a.href); // Keep the original announcement URL as fallback.
  }catch(error){console.warn('首頁公告視窗載入失敗，改用公告頁面：',error);window.location.assign(a.href);}
  finally{delete a.dataset.newsModalPending;}
-});
+},true);
 document.addEventListener('keydown',e=>{if(active&&e.key==='Escape'){e.preventDefault();e.stopPropagation();closeModal();}});
 })();
