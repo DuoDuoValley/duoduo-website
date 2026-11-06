@@ -114,19 +114,47 @@
     document.querySelectorAll('.reveal').forEach(node=>observer.observe(node));
   }else document.querySelectorAll('.reveal').forEach(node=>node.classList.add('is-visible'));
   const playVideo=()=>{if(!cinemaVideo)return;const pending=cinemaVideo.play();if(pending&&pending.catch)pending.catch(()=>{})};
+  let cinemaInView=false;
+  let cinemaFrame=0;
+  const cinemaLooksVisible=()=>{
+    if(!cinema) return false;
+    const rect=cinema.getBoundingClientRect();
+    return rect.top < innerHeight*0.92 && rect.bottom > innerHeight*0.14;
+  };
+  const syncCinemaPlayback=()=>{
+    if(!cinemaVideo) return;
+    if(reduced){cinemaVideo.pause();cinemaVideo.removeAttribute('autoplay');return;}
+    const shouldPlay=!document.hidden && (cinemaInView || cinemaLooksVisible());
+    if(shouldPlay){
+      cinemaVideo.muted=true; cinemaVideo.playsInline=true; cinemaVideo.loop=true; cinemaVideo.autoplay=true;
+      playVideo();
+    }else if(!cinemaVideo.paused){
+      cinemaVideo.pause();
+    }
+  };
+  const queueCinemaSync=()=>{
+    if(cinemaFrame) return;
+    cinemaFrame=requestAnimationFrame(()=>{cinemaFrame=0;syncCinemaPlayback();});
+  };
   if(cinemaVideo){
     cinemaVideo.muted=true;cinemaVideo.playsInline=true;cinemaVideo.loop=true;
+    cinemaVideo.setAttribute('preload','auto');
     if(reduced){cinemaVideo.pause();cinemaVideo.removeAttribute('autoplay')}
     else if('IntersectionObserver' in window){
       const movieObserver=new IntersectionObserver(entries=>entries.forEach(e=>{
-        if(e.isIntersecting&&!document.hidden)playVideo();else cinemaVideo.pause();
-      }),{rootMargin:'400px 0px'});
+        cinemaInView=!!e.isIntersecting;
+        syncCinemaPlayback();
+      }),{rootMargin:'250px 0px'});
       movieObserver.observe(cinema);
     }else playVideo();
+    ['loadeddata','canplay','canplaythrough','playing','pageshow'].forEach(evt=>addEventListener(evt,queueCinemaSync,{passive:true}));
+    cinemaVideo.addEventListener('loadeddata',queueCinemaSync);
+    cinemaVideo.addEventListener('canplay',queueCinemaSync);
   }
-  addEventListener('scroll',request,{passive:true});
-  addEventListener('resize',()=>{visualProgress=targetProgress=scrollProgress(root,stage.clientHeight);request()},{passive:true});
-  document.addEventListener('visibilitychange',()=>{if(document.hidden)cinemaVideo?.pause();else request()});
+  addEventListener('scroll',()=>{request();queueCinemaSync()},{passive:true});
+  addEventListener('resize',()=>{visualProgress=targetProgress=scrollProgress(root,stage.clientHeight);request();queueCinemaSync()},{passive:true});
+  addEventListener('focus',queueCinemaSync,{passive:true});
+  document.addEventListener('visibilitychange',()=>{request();queueCinemaSync()});
   visualProgress=targetProgress=scrollProgress(root,stage.clientHeight);
   request();
 })();
@@ -157,7 +185,7 @@
 /* Reapply approved original-v7 order after the existing CMS section-order loader. */
 (()=>{'use strict';
  const root=document.querySelector('main#top');if(!root)return;
- const ids=['hero','dd-story','dd-why','dd-community-story','community','events','boss','news','dd-version','dd-join'];
+ const ids=['hero','dd-why','dd-community-story','community','events','boss','news','dd-version','dd-join'];
  const trust=root.querySelector(':scope > .trust');
  for(const id of ids){const e=document.getElementById(id);if(e)root.appendChild(e);if(id==='hero'&&trust)root.appendChild(trust);}
  // Honour visibility toggles for sections now wrapped to isolate their CSS.
@@ -185,4 +213,26 @@
  }
  // The official backend version publisher owns this node (not a hard-coded version).
  window.DuoDuoGameVersionRender?.();
+})();
+
+
+/* HOME v7 · section title animations for preserved official blocks. */
+(()=>{
+  'use strict';
+  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const titles=[...document.querySelectorAll('.dd-title-anim')];
+  if(!titles.length) return;
+  if(reduced || !('IntersectionObserver' in window)){
+    titles.forEach(node=>node.classList.add('is-in'));
+    return;
+  }
+  document.documentElement.classList.add('dd-title-motion-ready');
+  const observer=new IntersectionObserver(entries=>{
+    for(const entry of entries){
+      if(!entry.isIntersecting) continue;
+      entry.target.classList.add('is-in');
+      observer.unobserve(entry.target);
+    }
+  },{threshold:.22,rootMargin:'0px 0px -8% 0px'});
+  titles.forEach(node=>observer.observe(node));
 })();
