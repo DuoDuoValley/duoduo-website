@@ -36,7 +36,7 @@
   });
 })();
 </script>
-<link rel="stylesheet" href="cursor-ui/cursor.css">
+<link rel="stylesheet" href="cursor-ui/cursor.css?v=20261107-cursor-route-v417">
 <script defer src="cursor-ui/cursor.js"></script>
 <style>
 :root { color-scheme:dark; --panel:#101d2d; --line:rgba(175,205,245,.22); --text:#f5f7ff; --muted:#a8b7cc; --accent:#82c9ff; }
@@ -1165,6 +1165,10 @@ let activeFrameDocument=null;
 // Navigation guard is scoped to real iframe page changes. It never touches
 // the BGM audio element, existing route handling, or mobile touch inputs.
 const routeCursorGuard=byId('duoduoRouteCursorGuard');
+// The persistent shell primes the cursor asset before any inner-page navigation.
+// A CSS cursor falls back to the OS arrow while its PNG has not decoded yet.
+const routeCursorGlove=new Image();
+routeCursorGlove.src=new URL('cursor-ui/cursor-default.png',siteBase).href;
 let routeCursorPoll=null, routeCursorLimit=null, routeCursorToken=0;
 function clearRouteCursorGuard(){
   ++routeCursorToken;
@@ -1187,8 +1191,13 @@ function holdRouteCursorUntilReady(destination){
       // A ready class alone is not enough if the linked cursor stylesheet failed.
       const cursor=frame.contentWindow.getComputedStyle(doc.documentElement).cursor;
       if(!cursor.includes('cursor-'))return;
+      if(!routeCursorGlove.complete||!routeCursorGlove.naturalWidth)return;
       releaseScheduled=true;
-      requestAnimationFrame(()=>{if(token===routeCursorToken)clearRouteCursorGuard();});
+      // Cursor style activation is earlier than the browser's painted pointer.
+      // Keep the shell glove for two complete frames plus a brief transition.
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        setTimeout(()=>{if(token===routeCursorToken)clearRouteCursorGuard();},120);
+      }));
     }catch(_){/* Keep the glove until the page is ready or the safety limit. */}
   }
   routeCursorPoll=setInterval(releaseWhenStyled,35);
