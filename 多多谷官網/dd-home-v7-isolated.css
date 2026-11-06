@@ -2103,3 +2103,63 @@ html.dd20-motion-on #versions #versionsTitle.dd20-done .dd20-versions-text::afte
   filter:brightness(1.13);
   box-shadow:0 12px 25px rgba(0,18,38,.30),inset 0 1px 0 rgba(255,255,255,.16);
 }
+
+
+/* V410: community Discord CTA should match the official header button family. */
+.dd-preview-island .community-copy .btn-discord{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  min-height:54px;
+  padding:0 24px;
+  border-radius:999px;
+  text-decoration:none;
+  background:#5865F2;
+  border:1px solid #5865F2;
+  color:#fff;
+  font-weight:900;
+  box-shadow:0 18px 28px rgba(88,101,242,.22);
+}
+.dd-preview-island .community-copy .btn-discord::before{
+  content:"";
+  display:block;
+  inline-size:25px;
+  block-size:21px;
+  flex:0 0 25px;
+  background:url("assets/discord-logo-white.png") center / contain no-repeat;
+}
+.dd-preview-island .community-copy .btn-discord:hover,
+.dd-preview-island .community-copy .btn-discord:focus-visible{
+  background:#4752C4;
+  border-color:#4752C4;
+  color:#fff;
+  transform:translateY(-1px);
+}
+html[data-theme="light"] .dd-preview-island .community-copy .btn-discord,
+html[data-theme="dark"] .dd-preview-island .community-copy .btn-discord{
+  color:#fff;
+}
+
+/* V410: make the dark quick-link block slightly more vivid, closer to the light-mode rhythm. */
+:root[data-theme="dark"] .dd-preview-island #start .v2-links{
+  background:linear-gradient(145deg,rgba(18,42,61,.96),rgba(13,31,47,.96));
+  border-color:rgba(113,188,206,.34);
+  box-shadow:0 20px 58px rgba(0,12,28,.28),inset 0 1px 0 rgba(255,255,255,.08);
+}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+1){
+  background:linear-gradient(145deg,rgba(56,112,138,.98),rgba(32,67,91,.98));
+  border-color:#5ba0b9;
+}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+2){
+  background:linear-gradient(145deg,rgba(50,111,101,.98),rgba(29,73,71,.98));
+  border-color:#5ea99b;
+}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n+3){
+  background:linear-gradient(145deg,rgba(58,89,132,.98),rgba(35,61,96,.98));
+  border-color:#7397c2;
+}
+:root[data-theme="dark"] .dd-preview-island #start .v2-links .v2-link-grid a:nth-child(4n){
+  background:linear-gradient(145deg,rgba(112,88,68,.98),rgba(69,66,75,.98));
+  border-color:#b69b72;
+}

@@ -307,3 +307,70 @@ html:not(.dd-game-version-ready) .site-header .header-status::after{
 /* The shared version manager's [hidden] state still wins when the admin
    disables the badge; do not reserve space for a deliberately hidden badge. */
 .site-header .header-status[hidden]{display:none!important}
+
+
+/* V410: header action rhythm + fixed badge spacing.
+   Keep the published version chip visually grouped with the right-side actions,
+   while reserving a stable width so V283 / 載入中 never nudges the layout. */
+.site-header .header-actions{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex:0 0 auto;
+}
+.site-header .header-status{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:10px;
+  margin-inline-start:16px;
+  margin-inline-end:12px;
+  padding-inline:16px;
+  flex:0 0 168px;
+  inline-size:168px;
+  width:168px;
+  min-inline-size:168px;
+  max-inline-size:168px;
+}
+.site-header .status-dot{
+  position:relative;
+  display:inline-block;
+  inline-size:8px;
+  block-size:8px;
+  flex:0 0 8px;
+  border-radius:50%;
+  background:#56d67f;
+  box-shadow:0 0 0 0 rgba(86,214,127,.28);
+  animation:dd-status-breathe 2.2s ease-in-out infinite;
+}
+.site-header .status-dot::after{
+  content:"";
+  position:absolute;
+  inset:-4px;
+  border-radius:inherit;
+  border:1px solid rgba(86,214,127,.26);
+  opacity:.0;
+  animation:dd-status-ring 2.2s ease-in-out infinite;
+}
+@keyframes dd-status-breathe{
+  0%,100%{transform:scale(.96);box-shadow:0 0 0 0 rgba(86,214,127,.22)}
+  40%{transform:scale(1);box-shadow:0 0 0 6px rgba(86,214,127,.10)}
+  60%{transform:scale(1.08);box-shadow:0 0 0 8px rgba(86,214,127,.04)}
+}
+@keyframes dd-status-ring{
+  0%,100%{opacity:0;transform:scale(.82)}
+  45%{opacity:.65;transform:scale(1)}
+  70%{opacity:0;transform:scale(1.18)}
+}
+@media(max-width:1180px){
+  .site-header .header-actions{gap:10px}
+  .site-header .header-status{margin-inline-start:12px;margin-inline-end:10px;flex-basis:164px;inline-size:164px;width:164px;min-inline-size:164px;max-inline-size:164px}
+}
+@media(max-width:700px){
+  .site-header .header-actions{gap:8px}
+  .site-header .header-status{margin-inline-start:8px;margin-inline-end:8px;padding-inline:14px;flex-basis:160px;inline-size:160px;width:160px;min-inline-size:160px;max-inline-size:160px}
+}
+@media(prefers-reduced-motion:reduce){
+  .site-header .status-dot,.site-header .status-dot::after{animation:none!important}
+}
