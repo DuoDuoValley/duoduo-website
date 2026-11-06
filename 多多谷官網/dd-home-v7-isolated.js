@@ -49,7 +49,7 @@
     set($('.ambient-sunrise'),{opacity:String(finalIn)});
     if(stepLabel)stepLabel.textContent=x<.22?'01 / 04':x<.48?'02 / 04':x<.75?'03 / 04':'04 / 04';
     if(indicator)indicator.style.width=`${(x*100).toFixed(2)}%`;
-    if(scrollHint)scrollHint.style.opacity=x<.1?'1':String((1-smooth(.1,.2,x))*.7);
+    if(scrollHint){scrollHint.style.opacity=x<.1?'1':String((1-smooth(.1,.2,x))*.7);scrollHint.style.pointerEvents=x<.125?'auto':'none';}
     const offsets=[[-145,40],[80,-105],[-65,135],[145,62]];
     cards.forEach((card,i)=>{
       const v=smooth(.145+i*.022,.275+i*.018,x);
@@ -78,6 +78,12 @@
     set(cinemaCopy,{opacity:String(cp),transform:`translateY(${(35-35*cp).toFixed(1)}px)`});
     if(cinemaProgress)cinemaProgress.style.width=`${(p*100).toFixed(2)}%`;
   }
+  // The first scene is pinned inside a multi-chapter scroll story; the button advances to chapter 2.
+  scrollHint?.addEventListener('click',()=>{
+    const span=Math.max(0,root.offsetHeight-stage.offsetHeight);
+    const target=root.getBoundingClientRect().top+window.scrollY+span*.25;
+    window.scrollTo({top:target,behavior:reduced?'auto':'smooth'});
+  });
   // Follow the scroll position smoothly, but never hold or delay native scrolling.
   function tick(now){
     frame=0;
@@ -247,4 +253,65 @@
   }
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
+})();
+
+
+/* HOME V10 — restrained desktop mouse-wheel easing. Keeps touchpads, phones,
+   menus, nested scroll containers, keyboard and reduced-motion users native. */
+(()=>{
+  'use strict';
+  if(!('requestAnimationFrame' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  if(!matchMedia('(pointer:fine) and (hover:hover)').matches) return;
+  let raf=0, target=window.scrollY, current=target, last=0, controlled=false;
+  const maxScroll=()=>Math.max(0,document.documentElement.scrollHeight-innerHeight);
+  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+  const stop=()=>{if(raf)cancelAnimationFrame(raf);raf=0;controlled=false;};
+  const isNestedScrollable=(node)=>{
+    for(let el=node;el&&el!==document.documentElement;el=el.parentElement){
+      if(!(el instanceof Element))continue;
+      if(el.matches('dialog[open], [role="dialog"], [aria-modal="true"], .dd-nav-panel, .dd-nav-menu, [data-scroll-lock]')) return true;
+      const css=getComputedStyle(el);
+      if(/auto|scroll/.test(css.overflowY) && el.scrollHeight>el.clientHeight+2) return true;
+    }
+    return false;
+  };
+  const apply=(y)=>{
+    try{window.scrollTo({top:y,behavior:'instant'})}
+    catch(_){window.scrollTo(0,y)}
+  };
+  const tick=(now)=>{
+    raf=0;
+    if(document.hidden){stop();return;}
+    const dt=clamp(now-last,1,40); last=now;
+    const ease=1-Math.exp(-dt/115); // quick easing, no long wheel queue
+    current+=(target-current)*ease;
+    if(Math.abs(target-current)<.6){current=target;apply(current);controlled=false;return;}
+    apply(current);
+    raf=requestAnimationFrame(tick);
+  };
+  window.addEventListener('wheel',e=>{
+    if(e.defaultPrevented||!e.cancelable||e.ctrlKey||e.metaKey||e.shiftKey||e.altKey||
+       innerWidth<900||document.hidden||isNestedScrollable(e.target))return;
+    // Wheel detents only: small precise trackpad deltas stay native.
+    const dy=e.deltaMode===1?e.deltaY*33:e.deltaMode===2?e.deltaY*innerHeight:e.deltaY;
+    if(!Number.isFinite(dy)||Math.abs(dy)<75||Math.abs(dy)>1800||Math.abs(e.deltaX)>Math.abs(e.deltaY)*.45)return;
+    const base=window.scrollY;
+    const start=controlled?target:base;
+    const next=clamp(start+clamp(dy,-Math.min(280,innerHeight*.38),Math.min(280,innerHeight*.38)),0,maxScroll());
+    if(Math.abs(next-base)<.5&&Math.abs(next-start)<.5)return;
+    e.preventDefault();
+    // On reverse direction, respond immediately rather than finishing the old scroll.
+    if(controlled&&Math.sign(dy)!==Math.sign(target-base))target=base;
+    else target=start;
+    target=clamp(target+clamp(dy,-Math.min(280,innerHeight*.38),Math.min(280,innerHeight*.38)),0,maxScroll());
+    current=base;
+    controlled=true;
+    if(!raf){last=performance.now();raf=requestAnimationFrame(tick)}
+  },{passive:false});
+  window.addEventListener('keydown',e=>{
+    if(['ArrowDown','ArrowUp','PageDown','PageUp','Home','End',' ','Spacebar'].includes(e.key))stop();
+  },{passive:true});
+  window.addEventListener('pointerdown',stop,{passive:true});
+  window.addEventListener('resize',stop,{passive:true});
+  document.addEventListener('visibilitychange',stop,{passive:true});
 })();

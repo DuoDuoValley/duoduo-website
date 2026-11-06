@@ -998,3 +998,34 @@ html.dd-motion-ready #system-collection.dd-motion-in .v3-sys-head h2{opacity:1;t
 @media (prefers-reduced-motion:reduce){
   html.dd-motion-ready #hero #hero-title,html.dd-motion-ready #why #whyTitle,html.dd-motion-ready #community-story .v2-community-header h2,html.dd-motion-ready #community #communityTitle,html.dd-motion-ready #events #eventsTitle,html.dd-motion-ready #boss #bossTitle,html.dd-motion-ready #news #newsTitle,html.dd-motion-ready #versions #versionsTitle,html.dd-motion-ready #start #startTitle,html.dd-motion-ready #system-collection .v3-sys-head h2,html.dd-motion-ready #why .hybrid-why-card,html.dd-motion-ready #community-story .v2-community-feature,html.dd-motion-ready #community #review-grid>*,html.dd-motion-ready #events .event-grid>*,html.dd-motion-ready #boss .boss-art,html.dd-motion-ready #news .news-list>*,html.dd-motion-ready #versions .hybrid-timeline-item,html.dd-motion-ready #start .v2-steps>.reveal,html.dd-motion-ready #start .v2-download-hub.reveal,html.dd-motion-ready #start .v2-links.reveal{opacity:1!important;transform:none!important;filter:none!important;clip-path:none!important;transition:none!important;letter-spacing:normal!important}
 }
+
+
+/* HOME V10 — clearly clickable first-chapter navigation, no extra UI elsewhere. */
+#dd-story .story-run .scroll-hint{
+  pointer-events:auto;cursor:pointer;appearance:none;font:inherit;
+  bottom:clamp(22px,3.8svh,42px);display:inline-flex;flex-direction:column;
+  align-items:center;justify-content:center;gap:6px;
+  padding:11px 22px 10px;min-height:70px;border:1px solid rgba(56,140,165,.33);
+  border-radius:999px;background:rgba(255,255,255,.74);
+  color:#24748d;font-size:14px;font-weight:850;letter-spacing:.08em;
+  box-shadow:0 6px 30px rgba(34,95,122,.12);backdrop-filter:blur(9px);
+  transition:background .2s ease,box-shadow .2s ease,border-color .2s ease,transform .2s ease;
+}
+#dd-story .story-run .scroll-hint:hover{background:rgba(255,255,255,.97);color:#006e96;border-color:#42b1d3;box-shadow:0 10px 32px rgba(34,95,122,.19)}
+#dd-story .story-run .scroll-hint:focus-visible{outline:3px solid #008ba9;outline-offset:4px}
+#dd-story .story-run .scroll-hint svg{width:27px;height:27px;flex:none;animation:hint 1.6s ease-in-out infinite;stroke-width:1.8}
+@media(max-width:760px){#dd-story .story-run .scroll-hint{bottom:19px;font-size:13px;min-height:62px;padding:9px 19px 8px;gap:3px}
+  #dd-story .story-run .scroll-hint svg{width:24px;height:24px}}
+/* WHY DUODUO now rotates into focus like an opening folio, rather than the
+   previous hero's horizontally revealing line. Works after CMS text updates. */
+html.dd-motion-ready #why #whyTitle{
+  clip-path:none;opacity:0;transform:perspective(1050px) rotateX(-64deg) rotateY(8deg) scale(.9);
+  transform-origin:50% 75%;filter:blur(9px);letter-spacing:.018em;
+  transition:transform 1.08s cubic-bezier(.15,1,.22,1),opacity .6s ease,filter .9s ease,letter-spacing .9s ease;
+}
+html.dd-motion-ready #why.dd-motion-in #whyTitle{
+  clip-path:none;opacity:1;transform:perspective(1050px) rotateX(0deg) rotateY(0deg) scale(1);
+  filter:none;letter-spacing:normal;
+}
+@media(prefers-reduced-motion:reduce){#dd-story .story-run .scroll-hint svg{animation:none!important}
+  html.dd-motion-ready #why #whyTitle{transform:none!important;opacity:1!important;filter:none!important;clip-path:none!important;transition:none!important}}
