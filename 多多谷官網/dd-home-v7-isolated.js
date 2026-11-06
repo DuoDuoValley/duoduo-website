@@ -29,6 +29,7 @@
   const cinemaVideo=$('.v2-cinema-video');
   const cinemaCopy=$('.v2-cinema-copy');
   const cinemaProgress=$('.v2-cinema-progress i');
+  const isMobileLayout=()=>matchMedia('(max-width: 760px), (max-width: 1024px) and (pointer: coarse)').matches;
   const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
   let frame=0;
   let last=performance.now();
@@ -40,6 +41,8 @@
     return clamp(-rect.top/Math.max(1,rect.height-pin));
   }
   function paintStory(x){
+    // Phones use native-flow story chapters; avoid frame-by-frame sticky transforms.
+    if(isMobileLayout())return;
     const introExit=smooth(.055,.225,x);
     const orbitIn=smooth(.105,.235,x);
     const orbitOut=smooth(.385,.495,x);
@@ -114,6 +117,7 @@
   // Follow the scroll position smoothly, but never hold or delay native scrolling.
   function tick(now){
     frame=0;
+    if(isMobileLayout())return;
     if(document.hidden)return;
     const dt=Math.min(64,Math.max(1,now-last));
     last=now;
@@ -167,7 +171,10 @@
   };
   if(cinemaVideo){
     cinemaVideo.muted=true;cinemaVideo.playsInline=true;cinemaVideo.loop=true;
-    cinemaVideo.setAttribute('preload','auto');
+    // Do not decode a multi-megabyte background movie while mobile users
+    // are reading the story. IntersectionObserver starts it when in view.
+    cinemaVideo.setAttribute('preload',isMobileLayout()?'none':'auto');
+    if(isMobileLayout()){cinemaVideo.removeAttribute('autoplay');cinemaVideo.pause();}
     if(reduced){cinemaVideo.pause();cinemaVideo.removeAttribute('autoplay')}
     else if('IntersectionObserver' in window){
       const movieObserver=new IntersectionObserver(entries=>entries.forEach(e=>{
@@ -180,12 +187,11 @@
     cinemaVideo.addEventListener('loadeddata',queueCinemaSync);
     cinemaVideo.addEventListener('canplay',queueCinemaSync);
   }
-  addEventListener('scroll',()=>{request();queueCinemaSync()},{passive:true});
-  addEventListener('resize',()=>{visualProgress=targetProgress=scrollProgress(root,stage.clientHeight);request();queueCinemaSync()},{passive:true});
+  addEventListener('scroll',()=>{if(!isMobileLayout())request();queueCinemaSync()},{passive:true});
+  addEventListener('resize',()=>{if(!isMobileLayout()){visualProgress=targetProgress=scrollProgress(root,stage.clientHeight);request();}queueCinemaSync()},{passive:true});
   addEventListener('focus',queueCinemaSync,{passive:true});
   document.addEventListener('visibilitychange',()=>{request();queueCinemaSync()});
-  visualProgress=targetProgress=scrollProgress(root,stage.clientHeight);
-  request();
+  if(!isMobileLayout()){visualProgress=targetProgress=scrollProgress(root,stage.clientHeight);request();}
 })();
 
 
