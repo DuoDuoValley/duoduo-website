@@ -10,7 +10,7 @@
  hide.textContent=`html:not(.${READY}) [data-dd-game-version],html:not(.${READY}) #download-grid{visibility:hidden!important}html:not(.${READY}) [data-dd-game-version="status"]{visibility:visible!important}html:not(.${READY}) a[data-link="launcher"],html:not(.${READY}) a[data-link="pack"]{pointer-events:none!important;opacity:.55}.header-status[hidden]{display:none!important}`;
  d.head.appendChild(hide);
  const DEFAULT={number:'282',phase:'active',showBadge:true};
- const PHASES={active:'持續更新',preparing:'即將更新',maintenance:'版本維護中'};
+ const PHASES={active:'持續更新',official:'正式開放',preparing:'即將更新',maintenance:'版本維護中',custom:'自訂文字'};
  const endpoint=(location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'')+'/api/site-data';
  let current=null,loaded=false,serverError=null;
  let cloudData=null;
@@ -63,6 +63,7 @@
   return {
    number:/^\d{2,4}(?:\.\d{1,2})?$/.test(number)?number:DEFAULT.number,
    phase:Object.prototype.hasOwnProperty.call(PHASES,value.phase)?value.phase:'active',
+   customText:typeof value.customText==='string'?value.customText.replace(/[\u0000-\u001f\u007f\u202a-\u202e\u2066-\u2069]/g,' ').replace(/\s+/g,' ').trim().slice(0,24):'',
    showBadge:value.showBadge!==false
   };
  };
@@ -70,7 +71,7 @@
   hydratePublishedDownloads();
   hydratePublishedLinks();
   const ver=version?'V'+version.number:'';
-  const message=version?PHASES[version.phase]:'';
+  const message=version?(version.phase==='custom'?(version.customText||'版本狀態未設定'):PHASES[version.phase]):'';
   const nodes=d.querySelectorAll('[data-dd-game-version]');
   for(const node of nodes){
    const type=node.dataset.ddGameVersion;
@@ -90,6 +91,9 @@
     node.textContent=version?`${ver} · ${version.phase==='active'?'版本持續更新中':message}`:'版本資訊載入中';
    }else if(type==='timeline'){
     node.textContent=version?ver:'—';
+   }else if(type==='timeline-phase'){
+    // Same authoritative status string as the header badge and the admin preview.
+    node.textContent=version?message:'版本狀態暫不可用';
    }else if(type==='timeline-label'){
     node.textContent=version?.phase==='preparing'?'預計版本':'目前版本';
    }

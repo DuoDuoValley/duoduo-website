@@ -71,11 +71,11 @@
  /* Audio has no visible player. Show a same-style action button only if the browser blocks autoplay. */
  #dd-maintenance-screen #dd-maint-audio-unlock{display:none}
  #dd-maintenance-screen.dd-maint-audio-blocked #dd-maint-audio-unlock{display:inline-flex}
- #dd-maint-admin-preview-bar{position:fixed;z-index:2147483646;top:12px;right:12px;max-width:calc(100vw - 24px);display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 12px;background:rgba(12,29,43,.96);border:1px solid #77b7c3;border-radius:12px;box-shadow:0 10px 35px #0007;color:#f1fbff;font:600 12px/1.4 system-ui,"Microsoft JhengHei",sans-serif;visibility:visible!important;pointer-events:auto!important}
+ #dd-maint-admin-preview-bar{position:fixed;z-index:2147483646;top:auto;right:auto;bottom:max(12px,env(safe-area-inset-bottom));left:12px;max-width:calc(100vw - 24px);display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px 12px;background:rgba(12,29,43,.96);border:1px solid #77b7c3;border-radius:12px;box-shadow:0 10px 35px #0007;color:#f1fbff;font:600 12px/1.4 system-ui,"Microsoft JhengHei",sans-serif;visibility:visible!important;pointer-events:auto!important}
  #dd-maint-admin-preview-bar button,#dd-maint-admin-preview-bar a{font:inherit;color:#f1fbff;cursor:pointer;border:1px solid #477388;border-radius:7px;background:#1d4a63;padding:8px 10px;text-decoration:none;white-space:nowrap}
  #dd-maint-admin-preview-bar button:hover,#dd-maint-admin-preview-bar a:hover{background:#2b607b}
  #dd-maint-admin-preview-bar button:focus-visible,#dd-maint-admin-preview-bar a:focus-visible{outline:2px solid #fff;outline-offset:2px}
- @media(max-width:650px){#dd-maint-admin-preview-bar{left:8px;right:8px;top:8px;justify-content:center;padding:7px;gap:5px}#dd-maint-admin-preview-bar .dd-maint-preview-status{width:100%;text-align:center}#dd-maint-admin-preview-bar button,#dd-maint-admin-preview-bar a{padding:7px;font-size:11px}}
+ @media(max-width:650px){#dd-maint-admin-preview-bar{left:8px;right:8px;top:auto;bottom:max(8px,env(safe-area-inset-bottom));justify-content:center;padding:7px;gap:5px}#dd-maint-admin-preview-bar .dd-maint-preview-status{width:100%;text-align:center}#dd-maint-admin-preview-bar button,#dd-maint-admin-preview-bar a{padding:7px;font-size:11px}}
  #dd-maintenance-screen .dd-maint-hero video::-webkit-media-controls{display:none!important}
  #dd-maintenance-screen .dd-maint-hero video::-webkit-media-controls-enclosure{display:none!important}
 
