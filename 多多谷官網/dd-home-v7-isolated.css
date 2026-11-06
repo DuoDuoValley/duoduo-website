@@ -1448,29 +1448,6 @@ html.dd-motion-ready #events #event-grid>.empty{opacity:1!important;clip-path:no
 /* Keep imagery sufficiently distinct without expanding satellite collision radii. */
 #dd-story .scene-night .night-art::after{content:"";pointer-events:none;position:absolute;inset:0;z-index:0;border-radius:50%;background:radial-gradient(circle at center,transparent 58%,rgba(58,184,229,.028) 70%,transparent 88%)}
 
-/* Globe: the logo is already a circular transparent asset. The old opaque blue
-   underlay, multiple inset shadows and screen-blend overlay showed through its
-   transparent pixels as shifting dark/blue smudges. One alpha-aware shadow and
-   restrained front-face lighting keep it crisp at every rotation angle. */
-#dd-story .dd14-world{filter:none}
-#dd-story .dd14-world-globe{
- background:transparent;box-shadow:none;overflow:visible;isolation:auto;
- animation:dd15-world-float 8.8s ease-in-out infinite;
-}
-#dd-story .dd14-world-texture{overflow:visible;animation:none;background:transparent}
-#dd-story .dd14-world-texture img{
- transform:scale(1);filter:drop-shadow(0 19px 20px rgba(22,85,118,.27));
- image-rendering:auto;
-}
-#dd-story .dd14-world-light{
- inset:3%;z-index:3;mix-blend-mode:normal;animation:none;
- background:radial-gradient(ellipse 35% 31% at 30% 16%,rgba(255,255,255,.18),transparent 96%);
- opacity:.72;
-}
-#dd-story .dd14-world-rim{inset:3%;box-shadow:none;border-radius:50%;z-index:4}
-#dd-story .dd14-world-aura{background:radial-gradient(circle,rgba(81,211,223,.22) 0%,rgba(132,217,235,.14) 38%,transparent 69%)}
-@keyframes dd15-world-float{0%,100%{transform:translateY(0) rotateZ(-2.4deg) rotateY(-4deg)}50%{transform:translateY(-7px) rotateZ(2.4deg) rotateY(4deg)}}
-
 /* Version timeline: precisely measured endpoints and progress, never a decorative
    line extending below the last milestone. JS updates only custom properties. */
 .dd-preview-island #versions .hybrid-timeline{--dd15-rail-top:30px;--dd15-rail-height:280px;--dd15-rail-x:17px;--dd15-rail-fill:0}
@@ -1537,3 +1514,22 @@ html.dd-motion-ready .dd-preview-island .hybrid-info-chapter #versions.dd-motion
 .dd-preview-island #start .v2-link-grid a .v3-link-icon{color:#89d0e4}
 .dd-preview-island #start .v2-link-grid a b{color:#79e1f1}
 @media(max-width:540px){.dd-preview-island #start .v2-join-heading h2{font-size:clamp(34px,8.6vw,44px);line-height:1.16}}
+
+
+/* V16: V14 globe appearance restored; preserve V15 timeline, cards and safety. */
+#dd-story .scene-night .night-art .night-center{
+  width:21.5%;height:21.5%;
+  filter:drop-shadow(0 0 11px rgba(109,208,255,.22)) drop-shadow(0 12px 17px rgba(0,7,32,.27));
+}
+/* NEWS: high-contrast cyan scan line clearly distinguishes it from other titles. */
+#news #newsTitle{position:relative;overflow:visible}
+#news #newsTitle::after{content:"";position:absolute;left:0;bottom:-12px;width:min(190px,44%);height:3px;border-radius:6px;background:linear-gradient(90deg,#00cceb,#89dfff,transparent);box-shadow:0 0 12px rgba(71,203,245,.22);transform:scaleX(0);transform-origin:left center;opacity:0;pointer-events:none}
+#news #newsTitle.dd16-news-in::after{animation:dd16-news-rule 1.48s .22s cubic-bezier(.12,.83,.18,1) forwards}
+@keyframes dd16-news-rule{0%{transform:scaleX(0);opacity:0}24%{opacity:1}100%{transform:scaleX(1);opacity:1}}
+/* Download chapter: different cues for steps, main hub and compact links, all fail visible. */
+.dd-preview-island #start .v2-steps>div{transform-origin:50% 50%}
+.dd-preview-island #start .v2-download-hub{position:relative;overflow:hidden}
+.dd-preview-island #start .v2-download-hub::before{content:"";position:absolute;z-index:0;pointer-events:none;left:-36%;top:0;width:33%;height:100%;opacity:0;background:linear-gradient(90deg,transparent,rgba(73,219,247,.11),transparent);transform:skewX(-21deg)}
+.dd-preview-island #start .v2-download-hub.dd16-hub-in::before{animation:dd16-hub-light 1.45s cubic-bezier(.22,.78,.22,1) both}
+@keyframes dd16-hub-light{0%{left:-36%;opacity:0}18%{opacity:1}83%{opacity:.7}100%{left:122%;opacity:0}}
+@media(prefers-reduced-motion:reduce){#news #newsTitle::after{transform:scaleX(1);opacity:1;animation:none!important}.dd-preview-island #start .v2-download-hub::before{animation:none!important}}

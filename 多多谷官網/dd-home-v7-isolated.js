@@ -379,7 +379,6 @@
   ['#hero #hero-title','hero'],
   ['#community #communityTitle','reviews'],
   ['#events #eventsTitle','events'],
-  ['#news #newsTitle','news'],
   ['#versions #versionsTitle','timeline'],
   ['#start #startTitle','finale']
  ];
@@ -461,32 +460,39 @@
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueTimeline()});
  queueTimeline();
  if(reduce || !Element.prototype.animate) return;
+ // V16: independent movement vocabulary for each part of the join chapter.
+ // All content remains visible if effects are unsupported/interrupted.
  const items=[
-  ...[...document.querySelectorAll('#start .v2-steps > div')].map((node,i)=>({node,kind:'step',delay:i*125})),
+  ...[...document.querySelectorAll('#start .v2-steps > div')].map((node,i)=>({node,kind:'step'+i,delay:0})),
   ...[...document.querySelectorAll('#start .v2-download-hub')].map(node=>({node,kind:'hub',delay:0})),
-  ...[...document.querySelectorAll('#start .v2-download-card')].map((node,i)=>({node,kind:'download',delay:i*105})),
+  ...[...document.querySelectorAll('#start .v2-download-card')].map((node,i)=>({node,kind:'download',delay:i*90})),
   ...[...document.querySelectorAll('#start .v2-links')].map(node=>({node,kind:'links',delay:0})),
-  ...[...document.querySelectorAll('#start .v2-link-grid a')].map((node,i)=>({node,kind:'link',delay:Math.min(i,7)*65})),
+  ...[...document.querySelectorAll('#start .v2-link-grid a')].map((node,i)=>({node,kind:i%2?'linkRight':'linkLeft',delay:Math.min(i,7)*55})),
  ];
  const seen=new WeakSet();
  function appear(item){
    const {node,kind,delay}=item;
    if(seen.has(node))return;
    seen.add(node);
-   const frames={
-     step:[{opacity:.28,transform:'perspective(900px) rotateY(-11deg) translateX(-25px)'},{opacity:1,transform:'none'}],
-     hub:[{opacity:.36,clipPath:'inset(4% 6% 4% 6% round 28px)',filter:'blur(5px)'},{opacity:1,clipPath:'inset(0 0 0 0 round 28px)',filter:'blur(0)'}],
-     download:[{opacity:.35,transform:'translateX(-18px) scale(.98)'},{opacity:1,transform:'none'}],
-     links:[{opacity:.55,transform:'translateY(13px)'},{opacity:1,transform:'none'}],
-     link:[{opacity:.3,transform:'translateX(-12px)'},{opacity:1,transform:'none'}]
+   const effects={
+     step0:[{opacity:.32,clipPath:'inset(0 100% 0 0 round 20px)'},{opacity:1,clipPath:'inset(0 0 0 0 round 20px)'}],
+     step1:[{opacity:.36,transform:'perspective(850px) rotateX(-38deg) scale(.96)'},{opacity:1,transform:'perspective(850px) rotateX(0deg) scale(1)'}],
+     step2:[{opacity:.36,transform:'scale(.82)',filter:'blur(6px)'},{opacity:1,transform:'scale(1)',filter:'blur(0px)'}],
+     hub:[{opacity:.6,clipPath:'inset(0 50% 0 50% round 28px)'},{opacity:1,clipPath:'inset(0 0 0 0 round 28px)'}],
+     download:[{opacity:.22,transform:'perspective(600px) rotateY(-16deg) scale(.93)'},{opacity:1,transform:'perspective(600px) rotateY(0) scale(1)'}],
+     links:[{opacity:.4,clipPath:'inset(0 0 100% 0 round 26px)'},{opacity:1,clipPath:'inset(0 0 0 0 round 26px)'}],
+     linkLeft:[{opacity:.25,clipPath:'inset(0 100% 0 0)'},{opacity:1,clipPath:'inset(0 0 0 0)'}],
+     linkRight:[{opacity:.25,clipPath:'inset(0 0 0 100%)'},{opacity:1,clipPath:'inset(0 0 0 0)'}]
    }[kind];
-   const duration={step:1000,hub:1200,download:850,links:800,link:660}[kind];
+   if(!effects) return;
+   const durations={step0:1020,step1:1130,step2:1120,hub:1280,download:980,links:920,linkLeft:690,linkRight:690};
+   if(kind==='hub')node.classList.add('dd16-hub-in');
    try{
-     const a=node.animate(frames,{duration,delay,easing:'cubic-bezier(.22,.75,.2,1)',fill:'both'});
+     const a=node.animate(effects,{duration:durations[kind],delay,easing:'cubic-bezier(.16,.86,.22,1)',fill:'both'});
      a.finished.then(()=>a.cancel()).catch(()=>{});
-   }catch(_){/* Content remains visible when motion is unsupported. */}
+   }catch(_){/* Content stays visible. */}
  }
- if(!('IntersectionObserver' in window)) {items.forEach(appear);return;}
+ if(!('IntersectionObserver' in window)){items.forEach(appear);return;}
  const lookup=new Map(items.map(item=>[item.node,item]));
  const io=new IntersectionObserver(entries=>{
    for(const entry of entries){
@@ -495,6 +501,37 @@
      if(item)appear(item);
      io.unobserve(entry.target);
    }
- },{threshold:0,rootMargin:'0px 0px -9% 0px'});
+ },{threshold:.015,rootMargin:'0px 0px 5% 0px'});
  items.forEach(({node})=>io.observe(node));
+})();
+
+/* V16: latest news uses a clearly visible editorial wipe, not the subtle V15
+   blur-only effect. It works on CMS-replaced text without wrapping text nodes. */
+(()=>{
+ 'use strict';
+ const node=document.querySelector('#news #newsTitle');
+ if(!node)return;
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ let started=false;
+ const start=()=>{
+  if(started)return;
+  started=true;
+  node.classList.add('dd16-news-in');
+  if(reduce || !Element.prototype.animate)return;
+  try{
+   const a=node.animate([
+    {clipPath:'inset(0 100% 0 0)',opacity:.78,transform:'translateX(-16px)'},
+    {clipPath:'inset(0 45% 0 0)',opacity:1,transform:'translateX(0)' ,offset:.53},
+    {clipPath:'inset(0 0 0 0)',opacity:1,transform:'none'}
+   ],{duration:1600,easing:'cubic-bezier(.2,.82,.24,1)',fill:'both'});
+   a.finished.then(()=>a.cancel()).catch(()=>{});
+  }catch(_){/* Do not hide the heading if animation is unsupported. */}
+ };
+ if(reduce || !('IntersectionObserver' in window)){start();return;}
+ const io=new IntersectionObserver(entries=>{
+  for(const entry of entries){
+   if(entry.isIntersecting){start();io.disconnect();break;}
+  }
+ },{threshold:.015,rootMargin:'0px 0px -11% 0px'});
+ io.observe(node);
 })();
