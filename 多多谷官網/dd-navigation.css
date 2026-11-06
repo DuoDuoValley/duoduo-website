@@ -167,23 +167,26 @@
  .site-header.dd-nav-ready nav.dd-main-nav .dd-top-link::after{transition:none!important}
 }
 
-/* 2026-11-06: Astra submenu title must remain on one line in the desktop
-   six-column nav. Scope to this link so other shared menus remain unchanged. */
+/* 2026-11-06 · Astra submenu: keep the original 13px typography and one full line.
+   On narrow desktop widths only, reserve sufficient room for player tools without
+   creating overlap with Download or changing the mobile dropdown arrangement. */
 .dd-nav-menu .dd-nav-col[data-dd-group="player-tools"] a[href*="ddnav=astra"]{
+  font-size:13px;
+  letter-spacing:normal;
   white-space:nowrap;
   overflow-wrap:normal;
-  font-size:12px;
-  letter-spacing:-.02em;
+  inline-size:max-content;
+  max-inline-size:none;
+  align-self:center;
 }
-@media(max-width:700px){
-  .dd-nav-menu .dd-nav-col[data-dd-group="player-tools"] a[href*="ddnav=astra"]{
-    font-size:13px;
-    letter-spacing:normal;
+@media (min-width:701px) and (max-width:980px){
+  .dd-nav-menu .dd-nav-rail{
+    grid-template-columns:minmax(76px,.73fr) repeat(2,minmax(0,1fr)) minmax(105px,1fr) repeat(2,minmax(0,1fr)) minmax(140px,1fr);
   }
 }
-@media(min-width:701px) and (max-width:760px){
+@media (max-width:700px){
   .dd-nav-menu .dd-nav-col[data-dd-group="player-tools"] a[href*="ddnav=astra"]{
-    font-size:11px;
-    letter-spacing:-.07em;
+    inline-size:auto;
+    align-self:stretch;
   }
 }
