@@ -908,36 +908,93 @@ html[data-theme=dark] .dd-preview-island{--ink:#eef6ff;--ink-soft:#b5c4d4;--bg:#
 @media(prefers-reduced-motion:reduce){.dd-preview-island .reveal,.dd-preview-island .v6-animated-heading{opacity:1!important;transform:none!important;clip-path:none!important;animation:none!important}}
 
 
-/* V8 review fixes: distinct title motion for preserved official sections */
-.dd-title-anim{position:relative;display:block;overflow:visible}
-.dd-title-anim .dd-title-mask{display:block;overflow:hidden;max-width:100%;padding-bottom:.08em;margin-bottom:-.08em;position:relative}
-.dd-title-anim .dd-title-line{display:inline-block;will-change:transform,opacity,filter,letter-spacing}
-html.dd-title-motion-ready .dd-title-events .dd-title-line{transform:translate3d(0,112%,0) skewY(5deg);opacity:0;filter:blur(6px);transition:transform .88s cubic-bezier(.2,.9,.22,1),opacity .58s ease,filter .72s ease}
-html.dd-title-motion-ready .dd-title-events.is-in .dd-title-line{transform:none;opacity:1;filter:blur(0)}
-html.dd-title-motion-ready .dd-title-events::after{content:"";position:absolute;left:0;bottom:-8px;width:118px;height:3px;border-radius:999px;background:linear-gradient(90deg,#2fd8ff,#8fe8ff 64%,rgba(143,232,255,0));transform:scaleX(.12);transform-origin:left;opacity:0;transition:transform .76s cubic-bezier(.22,1,.32,1),opacity .42s ease}
-html.dd-title-motion-ready .dd-title-events.is-in::after{transform:scaleX(1);opacity:.95}
-html.dd-title-motion-ready .dd-title-boss .dd-title-mask{perspective:900px}
-html.dd-title-motion-ready .dd-title-boss .dd-title-line{transform:translate3d(-24px,22px,0) rotateX(70deg) scale(.965);transform-origin:left bottom;opacity:0;filter:blur(8px);transition:transform .98s cubic-bezier(.16,1,.22,1),opacity .58s ease,filter .85s ease}
-html.dd-title-motion-ready .dd-title-boss.is-in .dd-title-line{transform:none;opacity:1;filter:blur(0)}
-html.dd-title-motion-ready .dd-title-boss::before{content:"";position:absolute;left:-18px;top:.26em;width:8px;height:56%;border-radius:999px;background:linear-gradient(180deg,#ffe193,#ffbf42);box-shadow:0 0 22px rgba(255,225,147,.22);transform:translateY(18px) scaleY(.1);opacity:0;transition:transform .72s cubic-bezier(.22,1,.32,1),opacity .45s ease}
-html.dd-title-motion-ready .dd-title-boss.is-in::before{transform:translateY(0) scaleY(1);opacity:1}
-html.dd-title-motion-ready .dd-title-news .dd-title-line{transform:translate3d(0,16px,0);opacity:0;letter-spacing:.18em;filter:blur(1.5px);transition:transform .72s cubic-bezier(.25,.95,.28,1),opacity .48s ease,letter-spacing .9s ease,filter .62s ease}
-html.dd-title-motion-ready .dd-title-news.is-in .dd-title-line{transform:none;opacity:1;letter-spacing:0;filter:blur(0)}
-html.dd-title-motion-ready .dd-title-news .dd-title-mask::after{content:"";position:absolute;inset:-10% -4%;background:linear-gradient(100deg,rgba(255,255,255,0) 0%,rgba(111,208,255,.18) 46%,rgba(255,255,255,0) 100%);transform:translateX(-120%) skewX(-20deg);opacity:0;pointer-events:none}
-html.dd-title-motion-ready .dd-title-news.is-in .dd-title-mask::after{opacity:1;animation:dd-title-news-scan .95s cubic-bezier(.22,1,.36,1) both}
-.dd-title-systems{position:relative}
-html.dd-title-motion-ready .dd-title-systems .v6-line{transform:translate3d(0,26px,0) rotateX(74deg) scale(.985)!important;transform-origin:left bottom;opacity:0!important;filter:blur(4px);transition:transform .92s cubic-bezier(.18,1,.22,1),opacity .55s ease,filter .8s ease!important}
-html.dd-title-motion-ready .dd-title-systems.is-in .v6-line{transform:none!important;opacity:1!important;filter:blur(0)!important}
-html.dd-title-motion-ready .dd-title-systems .v6-line-mask:nth-child(2) .v6-line{transition-delay:.14s!important}
-html.dd-title-motion-ready .dd-title-systems::after{content:"";position:absolute;left:0;bottom:-12px;width:152px;height:1px;background:linear-gradient(90deg,rgba(47,216,255,.95),rgba(47,216,255,.15));transform:scaleX(0);transform-origin:left;opacity:0;transition:transform .82s cubic-bezier(.22,1,.32,1),opacity .45s ease}
-html.dd-title-motion-ready .dd-title-systems.is-in::after{transform:scaleX(1);opacity:1}
-@keyframes dd-title-news-scan{0%{transform:translateX(-120%) skewX(-20deg)}100%{transform:translateX(120%) skewX(-20deg)}}
-@media(max-width:760px){
-  html.dd-title-motion-ready .dd-title-events::after{width:88px;bottom:-6px}
-  html.dd-title-motion-ready .dd-title-boss::before{left:-12px;width:6px}
-  html.dd-title-motion-ready .dd-title-systems::after{width:112px}
-}
-@media(prefers-reduced-motion:reduce){
-  .dd-title-anim .dd-title-line,.dd-title-systems .v6-line{opacity:1!important;transform:none!important;filter:none!important;letter-spacing:normal!important;transition:none!important}
-  .dd-title-events::after,.dd-title-boss::before,.dd-title-news .dd-title-mask::after,.dd-title-systems::after{animation:none!important;opacity:1!important;transform:none!important;transition:none!important}
+
+
+/* ========================================================
+   HOME V9: one visual motion language for each content chapter
+   ======================================================== */
+/* Animation only starts when JS has armed the observer; backend text remains plain text. */
+html.dd-motion-ready #hero #hero-title{clip-path:inset(0 99% 0 0);opacity:.5;filter:blur(3px);transition:clip-path 1.3s cubic-bezier(.18,.8,.18,1),opacity .55s ease,filter .9s ease}
+html.dd-motion-ready #hero.dd-motion-in #hero-title{clip-path:inset(0);opacity:1;filter:none}
+html.dd-motion-ready #hero #hero-title em{display:inline;position:relative;text-shadow:0 0 0 transparent;transition:text-shadow .9s 1s ease}
+html.dd-motion-ready #hero.dd-motion-in #hero-title em{text-shadow:0 0 24px rgba(43,211,250,.24)}
+/* WHY — opening theatre curtains from the center, followed by physical card flips. */
+html.dd-motion-ready .dd-preview-island #why.reveal{opacity:1!important;transform:none!important}
+html.dd-motion-ready #why #whyTitle{clip-path:inset(0 51% 0 49%);opacity:0;transition:clip-path 1.05s cubic-bezier(.19,1,.25,1),opacity .42s ease}
+html.dd-motion-ready #why.dd-motion-in #whyTitle{clip-path:inset(0);opacity:1}
+html.dd-motion-ready #why .hybrid-why-grid{perspective:1000px}
+html.dd-motion-ready .dd-preview-island #why .hybrid-why-card.reveal{opacity:0;transform:perspective(900px) rotateY(-62deg) scale(.94);transform-origin:left center;transition:transform .94s cubic-bezier(.2,1,.2,1),opacity .7s ease!important;transition-delay:0ms!important}
+html.dd-motion-ready .dd-preview-island #why.dd-motion-in .hybrid-why-card.reveal{opacity:1;transform:none}
+html.dd-motion-ready .dd-preview-island #why.dd-motion-in .hybrid-why-card:nth-child(2){transition-delay:.08s!important}
+html.dd-motion-ready .dd-preview-island #why.dd-motion-in .hybrid-why-card:nth-child(3){transition-delay:.16s!important}
+html.dd-motion-ready .dd-preview-island #why.dd-motion-in .hybrid-why-card:nth-child(4){transition-delay:.24s!important}
+html.dd-motion-ready .dd-preview-island #why.dd-motion-in .hybrid-why-card:nth-child(5){transition-delay:.32s!important}
+html.dd-motion-ready .dd-preview-island #why.dd-motion-in .hybrid-why-card:nth-child(6){transition-delay:.40s!important}
+html.dd-motion-ready .dd-preview-island #system-collection .v3-sys-head.reveal{opacity:1!important;transform:none!important}
+/* COMMUNITY STORY — soft-focus typography and chapters entering from alternating sides. */
+html.dd-motion-ready .dd-preview-island #community-story .v2-community-header.reveal{opacity:1!important;transform:none!important}
+html.dd-motion-ready #community-story .v2-community-header h2{filter:blur(9px);opacity:0;letter-spacing:.045em;transition:filter 1.15s ease,opacity .76s ease,letter-spacing 1.1s ease}
+html.dd-motion-ready #community-story.dd-motion-in .v2-community-header h2{filter:none;opacity:1;letter-spacing:normal}
+html.dd-motion-ready .dd-preview-island #community-story .v2-community-feature.reveal{opacity:0;transform:translateX(-66px) rotate(-3deg);transition:transform 1s cubic-bezier(.17,1,.25,1),opacity .73s ease!important}
+html.dd-motion-ready .dd-preview-island #community-story .v2-community-feature:nth-child(even){transform:translateX(66px) rotate(3deg)}
+html.dd-motion-ready .dd-preview-island #community-story.dd-motion-in .v2-community-feature.reveal{opacity:1;transform:none}
+html.dd-motion-ready .dd-preview-island #community-story.dd-motion-in .v2-community-feature:nth-child(2){transition-delay:.16s!important}
+html.dd-motion-ready .dd-preview-island #community-story.dd-motion-in .v2-community-feature:nth-child(3){transition-delay:.32s!important}
+/* PLAYER REVIEWS — text focus-in and cards fanning like printed postcards. */
+html.dd-motion-ready #community #communityTitle{opacity:0;transform:scale(1.075);filter:blur(5px);transition:opacity .62s ease,transform .93s cubic-bezier(.2,1,.25,1),filter .87s ease}
+html.dd-motion-ready #community.dd-motion-in #communityTitle{opacity:1;transform:none;filter:none}
+html.dd-motion-ready #community #review-grid>*{opacity:0;transform:perspective(1000px) rotateZ(-5deg) rotateY(16deg) scale(.94);transition:opacity .65s ease,transform .93s cubic-bezier(.2,1,.25,1)!important}
+html.dd-motion-ready #community #review-grid>*:nth-child(even){transform:perspective(1000px) rotateZ(5deg) rotateY(-16deg) scale(.94)}
+html.dd-motion-ready #community.dd-motion-in #review-grid>*{opacity:1;transform:none}
+html.dd-motion-ready #community.dd-motion-in #review-grid>*:nth-child(2){transition-delay:.14s!important}
+html.dd-motion-ready #community.dd-motion-in #review-grid>*:nth-child(3){transition-delay:.28s!important}
+/* EVENTS — diagonal type reveal; posters wipe sideways instead of floating upward. */
+html.dd-motion-ready #events #eventsTitle{clip-path:polygon(0 0,0 0,0 100%,0 100%);opacity:.3;transition:clip-path 1.03s cubic-bezier(.2,.9,.25,1),opacity .5s ease}
+html.dd-motion-ready #events.dd-motion-in #eventsTitle{clip-path:polygon(0 0,100% 0,100% 100%,0 100%);opacity:1}
+html.dd-motion-ready #events .event-grid>*{opacity:0!important;transform:none!important;clip-path:inset(0 100% 0 0 round 16px);transition:clip-path .93s cubic-bezier(.2,.85,.2,1),opacity .65s ease!important}
+html.dd-motion-ready #events.dd-motion-in .event-grid>*{opacity:1!important;clip-path:inset(0 0 0 0 round 16px)}
+html.dd-motion-ready #events.dd-motion-in .event-grid>*:nth-child(2){transition-delay:.15s!important}
+html.dd-motion-ready #events.dd-motion-in .event-grid>*:nth-child(3){transition-delay:.30s!important}
+/* BOSS — 3D text unroll and boss art turns toward the viewer. */
+html.dd-motion-ready #boss #bossTitle{opacity:0;transform:perspective(900px) rotateX(65deg) scale(.93);transform-origin:left bottom;filter:blur(4px);transition:opacity .63s ease,transform 1.12s cubic-bezier(.15,1,.22,1),filter .87s ease}
+html.dd-motion-ready #boss.dd-motion-in #bossTitle{opacity:1;transform:none;filter:none}
+html.dd-motion-ready #boss .boss-art{opacity:.15;transform:perspective(1100px) rotateY(-26deg) scale(.91);transform-origin:70% center;transition:opacity .82s ease,transform 1.28s cubic-bezier(.15,1,.22,1)}
+html.dd-motion-ready #boss.dd-motion-in .boss-art{opacity:1;transform:none}
+/* NEWS — typographic tracking closes in, rows appear like scanner bars. */
+html.dd-motion-ready #news #newsTitle{opacity:0;letter-spacing:.2em;filter:blur(2px);transition:opacity .75s ease,letter-spacing 1.15s cubic-bezier(.16,1,.22,1),filter .9s ease}
+html.dd-motion-ready #news.dd-motion-in #newsTitle{opacity:1;letter-spacing:normal;filter:none}
+html.dd-motion-ready #news .news-list>*{opacity:0!important;transform:none!important;clip-path:inset(0 0 0 100%);transition:opacity .55s ease,clip-path .82s cubic-bezier(.2,.9,.2,1)!important}
+html.dd-motion-ready #news.dd-motion-in .news-list>*{opacity:1!important;clip-path:inset(0)}
+html.dd-motion-ready #news.dd-motion-in .news-list>*:nth-child(2){transition-delay:.14s!important}
+html.dd-motion-ready #news.dd-motion-in .news-list>*:nth-child(3){transition-delay:.28s!important}
+html.dd-motion-ready #news.dd-motion-in .news-list>*:nth-child(4){transition-delay:.42s!important}
+/* VERSION HISTORY — drawn timeline, blinking milestones, no vertical lift. */
+html.dd-motion-ready .dd-preview-island #versions.reveal{opacity:1!important;transform:none!important}
+html.dd-motion-ready #versions #versionsTitle{clip-path:inset(0 0 100% 0);opacity:.5;transition:clip-path .87s cubic-bezier(.2,1,.2,1),opacity .65s ease}
+html.dd-motion-ready #versions.dd-motion-in #versionsTitle{clip-path:inset(0);opacity:1}
+html.dd-motion-ready .dd-preview-island #versions .hybrid-timeline-item.reveal{opacity:0;transform:scaleX(.25);transform-origin:left center;transition:transform .75s cubic-bezier(.2,1,.25,1),opacity .68s ease!important}
+html.dd-motion-ready .dd-preview-island #versions.dd-motion-in .hybrid-timeline-item.reveal{opacity:1;transform:none}
+html.dd-motion-ready #versions .hybrid-timeline::after{content:"";position:absolute;left:18px;top:21px;bottom:18px;width:2px;background:linear-gradient(#16b1d6,#f4c572);transform:scaleY(0);transform-origin:top;transition:transform 1.18s ease;pointer-events:none}
+html.dd-motion-ready #versions.dd-motion-in .hybrid-timeline::after{transform:scaleY(1)}
+html.dd-motion-ready #versions .hybrid-timeline-item .timeline-dot{transform:scale(.25);opacity:.15;transition:transform .55s ease,opacity .55s ease}
+html.dd-motion-ready #versions.dd-motion-in .hybrid-timeline-item .timeline-dot{transform:scale(1);opacity:1}
+html.dd-motion-ready #versions.dd-motion-in .hybrid-timeline-item:nth-child(2){transition-delay:.18s!important}
+html.dd-motion-ready #versions.dd-motion-in .hybrid-timeline-item:nth-child(3){transition-delay:.36s!important}
+/* JOIN — iris-like title focus; roadmap flips like a deck. */
+html.dd-motion-ready #start #startTitle{opacity:0;transform:scale(.8);filter:blur(6px);transition:opacity .6s ease,transform 1.07s cubic-bezier(.17,1,.26,1),filter .83s ease}
+html.dd-motion-ready #start.dd-motion-in #startTitle{opacity:1;transform:none;filter:none}
+html.dd-motion-ready .dd-preview-island #start .v2-steps>.reveal{opacity:0;transform:perspective(850px) rotateY(-67deg);transform-origin:left center;transition:opacity .6s ease,transform 1s cubic-bezier(.2,1,.2,1)!important}
+html.dd-motion-ready .dd-preview-island #start.dd-motion-in .v2-steps>.reveal{opacity:1;transform:none}
+html.dd-motion-ready .dd-preview-island #start.dd-motion-in .v2-steps>.reveal:nth-child(2){transition-delay:.17s!important}
+html.dd-motion-ready .dd-preview-island #start.dd-motion-in .v2-steps>.reveal:nth-child(3){transition-delay:.34s!important}
+html.dd-motion-ready .dd-preview-island #start .v2-download-hub.reveal{opacity:0;transform:scale(.86);clip-path:inset(12% 18% 12% 18% round 20px);transition:opacity .6s ease,transform 1.05s cubic-bezier(.2,1,.25,1),clip-path .95s ease!important}
+html.dd-motion-ready .dd-preview-island #start.dd-motion-in .v2-download-hub.reveal{opacity:1;transform:none;clip-path:inset(0 round 20px)}
+html.dd-motion-ready .dd-preview-island #start .v2-links.reveal{opacity:0;transform:translateX(-32px);transition:opacity .6s ease,transform .89s ease!important}
+html.dd-motion-ready .dd-preview-island #start.dd-motion-in .v2-links.reveal{opacity:1;transform:none}
+/* SYSTEMS — geometric tilt to distinguish it from the later text scenes. */
+html.dd-motion-ready #system-collection .v3-sys-head h2{opacity:0;transform:perspective(900px) rotateY(-13deg) scale(.97);transform-origin:left center;transition:opacity .65s ease,transform 1.04s cubic-bezier(.18,1,.2,1)}
+html.dd-motion-ready #system-collection.dd-motion-in .v3-sys-head h2{opacity:1;transform:none}
+/* No motion-induced flicker for accessibility or at small viewport widths. */
+@media (prefers-reduced-motion:reduce){
+  html.dd-motion-ready #hero #hero-title,html.dd-motion-ready #why #whyTitle,html.dd-motion-ready #community-story .v2-community-header h2,html.dd-motion-ready #community #communityTitle,html.dd-motion-ready #events #eventsTitle,html.dd-motion-ready #boss #bossTitle,html.dd-motion-ready #news #newsTitle,html.dd-motion-ready #versions #versionsTitle,html.dd-motion-ready #start #startTitle,html.dd-motion-ready #system-collection .v3-sys-head h2,html.dd-motion-ready #why .hybrid-why-card,html.dd-motion-ready #community-story .v2-community-feature,html.dd-motion-ready #community #review-grid>*,html.dd-motion-ready #events .event-grid>*,html.dd-motion-ready #boss .boss-art,html.dd-motion-ready #news .news-list>*,html.dd-motion-ready #versions .hybrid-timeline-item,html.dd-motion-ready #start .v2-steps>.reveal,html.dd-motion-ready #start .v2-download-hub.reveal,html.dd-motion-ready #start .v2-links.reveal{opacity:1!important;transform:none!important;filter:none!important;clip-path:none!important;transition:none!important;letter-spacing:normal!important}
 }

@@ -159,35 +159,13 @@
   request();
 })();
 
-/* HOME v6 · selective text animation only. Never intercept wheel/scroll. */
-(()=>{
-  'use strict';
-  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if(reduced || !('IntersectionObserver' in window)) return;
-  const headings=[...document.querySelectorAll('.v6-animated-heading')];
-  if(!headings.length) return;
-  const observer=new IntersectionObserver(entries=>{
-    for(const entry of entries){
-      if(!entry.isIntersecting)continue;
-      entry.target.classList.add('v6-in');
-      observer.unobserve(entry.target);
-    }
-  },{threshold:.12,rootMargin:'0px 0px -5% 0px'});
-  // Mark headings already visible before adding the entrance-only motion state.
-  for(const heading of headings){
-    const rect=heading.getBoundingClientRect();
-    if(rect.top<innerHeight*.94 && rect.bottom>0)heading.classList.add('v6-in');
-  }
-  document.documentElement.classList.add('v6-motion-ready');
-  headings.forEach(h=>observer.observe(h));
-})();
+
 
 /* Reapply approved original-v7 order after the existing CMS section-order loader. */
 (()=>{'use strict';
  const root=document.querySelector('main#top');if(!root)return;
  const ids=['hero','dd-why','dd-community-story','community','events','boss','news','dd-version','dd-join'];
- const trust=root.querySelector(':scope > .trust');
- for(const id of ids){const e=document.getElementById(id);if(e)root.appendChild(e);if(id==='hero'&&trust)root.appendChild(trust);}
+ for(const id of ids){const e=document.getElementById(id);if(e)root.appendChild(e);}
  // Honour visibility toggles for sections now wrapped to isolate their CSS.
  try{
    const raw=sessionStorage.getItem('duoduo_cloud_duoduo_layout')||localStorage.getItem('duoduo_layout');
@@ -216,23 +194,57 @@
 })();
 
 
-/* HOME v7 · section title animations for preserved official blocks. */
+
+
+/* HOME V9 — distinct section choreography, CMS-safe and native-scroll-only. */
 (()=>{
   'use strict';
-  const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const titles=[...document.querySelectorAll('.dd-title-anim')];
-  if(!titles.length) return;
-  if(reduced || !('IntersectionObserver' in window)){
-    titles.forEach(node=>node.classList.add('is-in'));
-    return;
-  }
-  document.documentElement.classList.add('dd-title-motion-ready');
-  const observer=new IntersectionObserver(entries=>{
-    for(const entry of entries){
-      if(!entry.isIntersecting) continue;
-      entry.target.classList.add('is-in');
-      observer.unobserve(entry.target);
+  function init(){
+    const eyebrow=document.getElementById('hero-eyebrow');
+    if(eyebrow){
+      // Hero eyebrow is the approved site identity, independent from game version.
+      const official='DUODUO VALLEY · OFFICIAL';
+      const enforce=()=>{if(eyebrow.textContent!==official) eyebrow.textContent=official;};
+      enforce();
+      new MutationObserver(enforce).observe(eyebrow,{childList:true,subtree:true,characterData:true});
     }
-  },{threshold:.22,rootMargin:'0px 0px -8% 0px'});
-  titles.forEach(node=>observer.observe(node));
+    const map=[
+      ['hero','#hero'],
+      ['why','#why'],
+      ['communityStory','#community-story'],
+      ['community','#community'],
+      ['events','#events'],
+      ['boss','#boss'],
+      ['news','#news'],
+      ['versions','#versions'],
+      ['join','#start'],
+      ['systems','#system-collection']
+    ];
+    const all=map.map(([name,selector])=>({name,node:document.querySelector(selector)})).filter(x=>x.node);
+    if(!all.length)return;
+    const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if(reduce || !('IntersectionObserver' in window)) {
+      all.forEach(({node})=>node.classList.add('dd-motion-in'));
+      return;
+    }
+    // Observer is armed before hiding styles become active, preventing invisible headings.
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(({target,isIntersecting})=>{
+        if(!isIntersecting)return;
+        target.classList.add('dd-motion-in');
+        io.unobserve(target);
+      });
+    },{threshold:0,rootMargin:'0px 0px -13% 0px'});
+    all.forEach(({node})=>io.observe(node));
+    document.documentElement.classList.add('dd-motion-ready');
+    // Already visible elements (including the Hero relocated below the film) must play on arrival.
+    all.forEach(({node})=>{
+      const r=node.getBoundingClientRect();
+      if(r.top < innerHeight*.87 && r.bottom > innerHeight*.1){
+        node.classList.add('dd-motion-in');io.unobserve(node);
+      }
+    });
+  }
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});
+  else init();
 })();
