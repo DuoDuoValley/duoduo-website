@@ -127,13 +127,9 @@
     if(active&&visualProgress!==targetProgress)request();
   }
   function request(){if(!frame){last=performance.now();frame=requestAnimationFrame(tick)}}
-  const themeButton=$('#themeToggle');
-  const rootEl=document.documentElement;
-  if(matchMedia('(prefers-color-scheme:dark)').matches)rootEl.dataset.theme='dark';
-  themeButton?.addEventListener('click',()=>{
-    rootEl.dataset.theme=rootEl.dataset.theme==='dark'?'light':'dark';
-    themeButton.setAttribute('aria-label',rootEl.dataset.theme==='dark'?'切換為淺色模式':'切換為深色模式');
-  });
+  // Theme switching is owned exclusively by app.js. The story animation
+  // reads the current theme but must never override a saved user choice or
+  // install a second click listener on #themeToggle.
   // Interactive FAQ: only one expanded answer so the layout stays easy to scan.
   document.querySelectorAll('.v2-faq-list details').forEach(detail=>{
     detail.addEventListener('toggle',()=>{

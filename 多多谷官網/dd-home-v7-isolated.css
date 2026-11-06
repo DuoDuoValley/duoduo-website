@@ -1815,3 +1815,16 @@ html.dd20-motion-on #versions #versionsTitle.dd20-done .dd20-versions-text::afte
   opacity:1!important;transform:none!important;filter:none!important;letter-spacing:normal!important;animation:none!important;
  }
 }
+
+
+/* Theme / navigation consistency fix (2026-11-06).
+   Scope: the homepage header only. Avoid translucent header on mixed light/dark
+   scroll chapters; retain existing typography, spacing, dropdowns and accents. */
+:root[data-theme="dark"] .site-header.dd-nav-ready {
+  background-color: #07111f;
+  background: #07111f;
+}
+:root[data-theme="light"] .site-header.dd-nav-ready {
+  background-color: #f4f7fa;
+  background: #f4f7fa;
+}
