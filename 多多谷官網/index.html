@@ -46,7 +46,7 @@ body { background:#07111f; }
 /* Match the visible outer canvas to the actual site's initial color scheme. */
 :root[data-site-theme="light"] body { background:#f4f7fa; }
 :root[data-site-theme="light"] #duoduoSite { background:#f4f7fa; }
-#duoduoSite { width:100%; height:100%; height:100dvh; border:0; display:block; background:#07111f; visibility:hidden; }
+#duoduoSite { width:100%; height:100%; height:100dvh; border:0; display:block; background:#07111f; visibility:hidden; cursor:url('cursor-ui/cursor-default.png') 2 2, auto; }
 html.duoduo-site-ready #duoduoSite { visibility:visible; }
 /* The BGM shell keeps the Maple cursor during an iframe document switch. */
 #duoduoRouteCursorGuard { position:fixed; inset:0; z-index:2; background:transparent;
@@ -1165,10 +1165,11 @@ let activeFrameDocument=null;
 // Navigation guard is scoped to real iframe page changes. It never touches
 // the BGM audio element, existing route handling, or mobile touch inputs.
 const routeCursorGuard=byId('duoduoRouteCursorGuard');
-// The persistent shell primes the cursor asset before any inner-page navigation.
-// A CSS cursor falls back to the OS arrow while its PNG has not decoded yet.
 const routeCursorGlove=new Image();
 routeCursorGlove.src=new URL('cursor-ui/cursor-default.png',siteBase).href;
+// Keep the cursor image in the persistent shell while its inner iframe changes
+// document. An iframe can replace its pointer layer *after* its ready class is
+// set, so a ready class alone is not an adequate handoff signal.
 let routeCursorPoll=null, routeCursorLimit=null, routeCursorToken=0;
 function clearRouteCursorGuard(){
   ++routeCursorToken;
@@ -1176,37 +1177,46 @@ function clearRouteCursorGuard(){
   if(routeCursorLimit!==null){clearTimeout(routeCursorLimit);routeCursorLimit=null;}
   routeCursorGuard.hidden=true;
 }
-function holdRouteCursorUntilReady(destination){
+function holdRouteCursorUntilReady(destination=null){
   if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches)return;
+  // Do not restart a currently active transition on the outgoing document's
+  // beforeunload event (which would otherwise reset the same guard's timers).
+  if(!routeCursorGuard.hidden)return;
   clearRouteCursorGuard();
   const token=routeCursorToken;
+  const outgoingDocument=frame?.contentDocument||null;
   routeCursorGuard.hidden=false;
   let releaseScheduled=false;
   function releaseWhenStyled(){
     if(token!==routeCursorToken||releaseScheduled)return;
     try{
-      const doc=frame.contentDocument;
-      if(!doc||doc.readyState==='loading'||doc.URL!==destination.href)return;
+      const doc=frame?.contentDocument;
+      if(!doc || doc===outgoingDocument || doc.readyState==='loading')return;
+      // The destination may normalize its query/hash during initialization;
+      // the replacement document and known route are safer than exact URL equality.
+      if(!safePage(doc.URL))return;
       if(!doc.documentElement.classList.contains('duoduo-cursor-ready'))return;
-      // A ready class alone is not enough if the linked cursor stylesheet failed.
+      const cursorStylesLoaded=Array.from(doc.styleSheets).some(sheet=>
+        sheet.href && sheet.href.includes('/cursor-ui/cursor.css'));
+      if(!cursorStylesLoaded)return;
       const cursor=frame.contentWindow.getComputedStyle(doc.documentElement).cursor;
-      if(!cursor.includes('cursor-'))return;
+      if(!cursor.includes('cursor-default.png'))return;
       if(!routeCursorGlove.complete||!routeCursorGlove.naturalWidth)return;
       releaseScheduled=true;
-      // Cursor style activation is earlier than the browser's painted pointer.
-      // Keep the shell glove for two complete frames plus a brief transition.
-      requestAnimationFrame(()=>requestAnimationFrame(()=>{
-        setTimeout(()=>{if(token===routeCursorToken)clearRouteCursorGuard();},120);
+      // Two animation frames in the *new iframe* ensure it has really painted;
+      // scheduling just on the parent can run before the inner document paints.
+      const inner=frame.contentWindow;
+      inner.requestAnimationFrame(()=>inner.requestAnimationFrame(()=>{
+        setTimeout(()=>{if(token===routeCursorToken)clearRouteCursorGuard();},180);
       }));
-    }catch(_){/* Keep the glove until the page is ready or the safety limit. */}
+    }catch(_){/* Keep the persistent glove until ready or bounded fallback. */}
   }
   routeCursorPoll=setInterval(releaseWhenStyled,35);
   routeCursorLimit=setTimeout(()=>{
     if(token===routeCursorToken)clearRouteCursorGuard();
-  },8000);
+  },15000);
   releaseWhenStyled();
 }
-
 
 // Cloud data can arrive after the first page has already painted. Do not
 // reload the *visible* document: prepare its replacement offscreen, then
@@ -1262,6 +1272,7 @@ window.duoduoRefreshCloudFrame=function(requestingWindow){
     // fading it in; the old page stays fully visible underneath.
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       if(frame!==oldFrame){candidate.remove();cloudFrameRefreshing=false;return;}
+      holdRouteCursorUntilReady();
       candidate.style.opacity='1';
       setTimeout(()=>{
         if(frame!==oldFrame){candidate.remove();cloudFrameRefreshing=false;return;}
@@ -1468,6 +1479,9 @@ function wirePage(){
       };
     }catch{}
   }
+  win.addEventListener('beforeunload',()=>{
+    if(routeCursorGuard.hidden)holdRouteCursorUntilReady();
+  });
   win.addEventListener('popstate',synchronizeFromFrame);
   win.addEventListener('hashchange',synchronizeFromFrame);
 }
