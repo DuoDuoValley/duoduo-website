@@ -403,7 +403,6 @@
  'use strict';
  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
  const stages=[
-  ['#hero #hero-title','hero'],
   ['#events #eventsTitle','events'],
   ['#versions #versionsTitle','timeline'],
   ['#start #startTitle','finale']
@@ -554,53 +553,88 @@
       }
     });
   }
-  if(!reduce && Element.prototype.animate){
-    const community=document.getElementById('communityTitle');
-    if(community){
-      let played=false;
-      let observer;
-      const reveal=()=>{
-        if(played)return;
-        played=true;observer?.disconnect();
-        try{const a=community.animate([
-          {opacity:.35,transform:'perspective(1100px) rotateY(-19deg) scaleX(1.065)',filter:'blur(5px)',letterSpacing:'.09em'},
-          {opacity:.86,transform:'perspective(1100px) rotateY(4deg) scaleX(.99)',filter:'blur(.8px)',letterSpacing:'.02em',offset:.63},
-          {opacity:1,transform:'none',filter:'none',letterSpacing:'normal'}
-        ],{duration:1790,easing:'cubic-bezier(.16,.82,.22,1)',fill:'none'});a.finished.catch(()=>{});}catch(_){}
-      };
-      if('IntersectionObserver' in window){
-        observer=new IntersectionObserver(entries=>{
-          if(entries.some(e=>e.isIntersecting))reveal();
-        },{threshold:0,rootMargin:'0px 0px -18% 0px'});
-        observer.observe(community);
-      }else reveal();
-    }
-  }
-  // Read-only scroll progress: the text begins appearing at the bottom edge
-  // and finishes while entering the reading area. No timers or delayed replays.
-  const heading=document.getElementById('newsTitle');
-  if(!heading)return;
-  if(reduce){heading.style.removeProperty('clip-path');return;}
-  let raf=0;
-  let previous=-1;
-  let completed=false;
-  const clamp=x=>Math.min(1,Math.max(0,x));
-  function paint(){
-    raf=0;
-    if(completed)return;
-    const r=heading.getBoundingClientRect();
-    const vh=window.innerHeight||720;
-    const progress=clamp((vh*1.02-r.top)/(vh*.38));
-    if(Math.abs(progress-previous)<.002)return;
-    previous=progress;
-    heading.style.clipPath=`inset(0 ${(100*(1-progress)).toFixed(2)}% 0 0)`;
-    heading.style.setProperty('--dd18-news-progress',progress.toFixed(3));
-    if(progress>=.999){completed=true;heading.classList.add('dd18-news-done');}
-  }
-  function queue(){if(!raf)raf=requestAnimationFrame(paint)}
-  addEventListener('scroll',queue,{passive:true});
-  addEventListener('resize',queue,{passive:true});
-  addEventListener('pageshow',queue,{passive:true});
-  document.addEventListener('visibilitychange',()=>{if(!document.hidden)queue()});
-  paint();
+})();
+
+
+/* HOME V19 - three independent title treatments, no late WAAPI replay.
+   CMS text remains the source of truth. Headings default visible without JS.
+   Prep is applied off-screen; one scroll gate animates just before entry. */
+(()=>{
+ 'use strict';
+ const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const title=document.getElementById('hero-title');
+ const community=document.getElementById('communityTitle');
+ const news=document.getElementById('newsTitle');
+ const brand=document.querySelector('.site-header > a.brand');
+ // Logo art only: no glow on the containing rectangle or neighboring label.
+ if(brand)brand.classList.add('dd19-brand');
+ function playHero(){if(!title || !Element.prototype.animate)return;
+   // Debut in two deliberate beats. No content wrappers or innerHTML changes,
+   // so the back-office title remains untouched.
+   try{
+     const a=title.animate([
+       {offset:0,opacity:.10,transform:'perspective(1300px) translate3d(-26px,9px,-80px) rotateY(-6deg) scale(.92)',filter:'blur(11px)',clipPath:'inset(0 96% 0 0)'},
+       {offset:.33,opacity:.88,transform:'perspective(1300px) translate3d(-4px,2px,-15px) rotateY(-2deg) scale(.99)',filter:'blur(1.5px)',clipPath:'inset(0 24% 0 0)'},
+       {offset:.72,opacity:1,transform:'perspective(1300px) translate3d(0,0,0) rotateY(0) scale(1.01)',filter:'blur(0)',clipPath:'inset(0 0 0 0)'},
+       {offset:1,opacity:1,transform:'none',filter:'none',clipPath:'inset(0 0 0 0)'}
+     ],{duration:2320,easing:'cubic-bezier(.16,.77,.24,1)',fill:'none'});
+     a.finished.catch(()=>{});
+     const em=title.querySelector('em');
+     if(em){const glow=em.animate([
+       {opacity:.65,filter:'brightness(.68) saturate(.5)',textShadow:'0 0 0 transparent'},
+       {opacity:1,filter:'brightness(1.28) saturate(1.18)',textShadow:'0 0 25px rgba(114,231,255,.36)',offset:.67},
+       {opacity:1,filter:'none',textShadow:'none'}
+     ],{duration:1820,delay:420,easing:'cubic-bezier(.15,.86,.22,1)',fill:'none'});glow.finished.catch(()=>{});}
+   }catch(_){}
+ }
+ if(reduced) return;
+ const targets=[];
+ if(title)targets.push({node:title,kind:'hero',entered:false});
+ if(community)targets.push({node:community,kind:'community',entered:false});
+ if(news){
+   // Safely turn the latest CMS headline into individual illuminated glyphs.
+   // A later CMS textContent update is re-split without losing the state.
+   news.classList.add('dd19-news');
+   function buildGlyphs(){
+     if(news.querySelector('.dd19-news-glyph'))return;
+     const label=(news.textContent||'').trim();
+     if(!label)return;
+     news.setAttribute('aria-label',label);
+     const frag=document.createDocumentFragment();
+     [...label].forEach((char,i)=>{
+       const span=document.createElement('span');span.className='dd19-news-glyph';
+       span.setAttribute('aria-hidden','true');span.style.setProperty('--dd19-glyph',String(i));
+       span.textContent=char;frag.appendChild(span);
+     });
+     news.replaceChildren(frag);
+   }
+   buildGlyphs();
+   const changes=new MutationObserver(()=>{if(!news.querySelector('.dd19-news-glyph'))buildGlyphs()});
+   changes.observe(news,{childList:true});
+   targets.push({node:news,kind:'news',entered:false});
+ }
+ let raf=0;
+ function check(){
+   raf=0;
+   const vh=innerHeight||720;
+   for(const t of targets){
+     if(t.entered)continue;
+     const r=t.node.getBoundingClientRect();
+     // Prepare only when outside the viewing area; avoid hiding visible
+     // titles on deep-link restoration or BFCache return.
+     if(r.bottom<=0){t.node.classList.add('dd19-entered');t.entered=true;continue;}
+     if(r.top>vh+25){t.node.classList.add('dd19-prepared');continue;}
+     // 25px before the section arrives: visual motion begins as it enters.
+     t.node.classList.add('dd19-prepared');
+     t.node.classList.add('dd19-entered');
+     t.entered=true;
+     if(t.kind==='hero')playHero();
+   }
+ }
+ function queue(){if(!raf)raf=requestAnimationFrame(check)}
+ addEventListener('scroll',queue,{passive:true});
+ addEventListener('resize',queue,{passive:true});
+ addEventListener('pageshow',queue,{passive:true});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)queue()});
+ check();
 })();

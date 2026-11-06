@@ -1645,3 +1645,80 @@ html.dd-motion-ready #news #newsTitle,html.dd-motion-ready #news.dd-motion-in #n
  #news #newsTitle{clip-path:none!important}
  #news #newsTitle::after{transform:scaleX(1)!important}
 }
+
+
+/* ===============================================================
+   HOME V19 — Five approved details only. Never change the CMS grid.
+   =============================================================== */
+/* Logo gleam follows its original transparent pixels, not a rectangle. */
+.site-header .brand.dd19-brand::before{
+ left:0;top:50%;width:132px;height:58px;border-radius:0;
+ transform:translateY(-50%);clip-path:none;
+ -webkit-mask-image:url('assets/logo1-header.png');mask-image:url('assets/logo1-header.png');
+ -webkit-mask-size:contain;mask-size:contain;
+ -webkit-mask-position:center;mask-position:center;
+ -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+ background:linear-gradient(105deg,transparent 31%,rgba(255,255,255,.06) 40%,rgba(255,255,233,.93) 49%,rgba(255,255,255,.15) 55%,transparent 70%);
+ background-size:320% 100%;background-position:100% 0;mix-blend-mode:screen;
+ animation:dd19-logo-glint 8.6s linear infinite!important;
+}
+.site-header .brand.dd19-brand::after{display:none!important}
+.site-header .brand.dd19-brand.dd18-brand-click img{animation:dd19-logo-tap .64s cubic-bezier(.19,.94,.26,1) both}
+@keyframes dd19-logo-glint{0%,64%,100%{opacity:0;background-position:100% 0}66%{opacity:0}70%{opacity:.92}84%{opacity:0;background-position:0 0}}
+@keyframes dd19-logo-tap{0%,100%{transform:none;filter:none}25%{transform:scale(.94) rotate(-2deg);filter:brightness(1.08)}62%{transform:scale(1.055) rotate(1.6deg);filter:brightness(1.22) drop-shadow(0 0 7px rgba(254,223,125,.38))}}
+@media(max-width:680px){.site-header .brand.dd19-brand::before{width:105px;height:48px}}
+/* Thin, paired chevrons in the old official site's typographic language. */
+#dd-story .story-run .scroll-hint .hint-arrow{width:25px;height:25px;filter:none;color:#159ebd}
+#dd-story .story-run .scroll-hint .hint-arrow svg{width:21px;height:21px;stroke:none;animation:dd19-chevron 2.7s ease-in-out infinite}
+@keyframes dd19-chevron{0%,100%{opacity:.72;transform:translateY(-2px)}50%{opacity:1;transform:translateY(3px)}}
+/* Hero's new slow cinematic reveal is governed by WAAPI in JS. */
+#hero #hero-title{transform-origin:20% 48%;will-change:auto}
+#hero #hero-title.dd19-prepared:not(.dd19-entered){opacity:0!important;clip-path:inset(0 100% 0 0)!important}
+/* Community: symmetrical opening matte, distinct from route text and cards. */
+#community #communityTitle.dd19-prepared{
+ opacity:0!important;filter:blur(8px)!important;
+ clip-path:inset(0 50% 0 50%)!important;
+ transform:scaleX(1.10) translateY(-2px)!important;
+ transition:opacity 1.15s ease,clip-path 1.85s cubic-bezier(.17,.9,.22,1),transform 1.85s cubic-bezier(.17,.9,.22,1),filter 1.45s ease!important;
+}
+#community #communityTitle.dd19-prepared.dd19-entered{
+ opacity:1!important;filter:none!important;clip-path:inset(0 0 0 0)!important;
+ transform:none!important;
+}
+/* Prevent the older one-shot community-title animation from reappearing. */
+html.dd-motion-ready #community .section-head::after{transition-delay:.3s}
+/* Latest news: four independent glyph lights, no full-title scroll clipping.
+   The prior v18 bar is replaced by a restrained, readable illumination rail. */
+#news #newsTitle.dd19-news{clip-path:none!important;letter-spacing:normal!important}
+#news #newsTitle.dd19-news .dd19-news-glyph{
+ display:inline-block;white-space:pre;opacity:1;transform:none;filter:none;
+}
+#news #newsTitle.dd19-news.dd19-prepared:not(.dd19-entered) .dd19-news-glyph{
+ opacity:0;transform:translate3d(0,10px,0) scale(.8);filter:blur(8px);
+}
+#news #newsTitle.dd19-news.dd19-prepared.dd19-entered .dd19-news-glyph{
+ animation:dd19-news-light 1.07s cubic-bezier(.16,.9,.25,1) both;
+ animation-delay:calc(var(--dd19-glyph) * 185ms);
+}
+@keyframes dd19-news-light{
+ 0%{opacity:0;transform:translate3d(0,11px,0) scale(.8);filter:blur(9px);text-shadow:0 0 0 transparent}
+ 55%{opacity:1;filter:blur(0);text-shadow:0 0 30px rgba(88,220,255,.7)}
+ 78%{transform:translate3d(0,-3px,0) scale(1.055);text-shadow:0 0 14px rgba(112,225,248,.35)}
+ 100%{opacity:1;transform:none;filter:none;text-shadow:none}
+}
+#news #newsTitle.dd19-news::after,#news #newsTitle.dd19-news.dd17-news-started::after{
+ width:min(180px,55%);height:2px;transform:scaleX(0);
+ opacity:0!important;animation:none!important;box-shadow:none!important;
+ background:linear-gradient(90deg,rgba(14,199,224,.96),rgba(255,209,124,.66),transparent)!important;
+}
+#news #newsTitle.dd19-news.dd19-entered::after,
+#news #newsTitle.dd19-news.dd19-entered.dd17-news-started::after{
+ animation:dd19-news-rail 1.65s .18s cubic-bezier(.14,.86,.25,1) both!important;
+}
+@keyframes dd19-news-rail{0%{transform:scaleX(0);opacity:0}100%{transform:scaleX(1);opacity:.82}}
+@media(prefers-reduced-motion:reduce){
+ .site-header .brand.dd19-brand::before,.site-header .brand.dd19-brand.dd18-brand-click img,
+ #dd-story .story-run .scroll-hint .hint-arrow svg{animation:none!important}
+ #community #communityTitle.dd19-prepared,#news #newsTitle.dd19-news .dd19-news-glyph{opacity:1!important;clip-path:none!important;transform:none!important;filter:none!important;transition:none!important;animation:none!important}
+ #news #newsTitle.dd19-news::after{transform:scaleX(1)!important;opacity:1!important;animation:none!important}
+}
