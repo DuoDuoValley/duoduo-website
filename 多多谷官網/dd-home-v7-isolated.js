@@ -403,8 +403,7 @@
  'use strict';
  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
  const stages=[
-  ['#events #eventsTitle','events'],
-  ['#versions #versionsTitle','timeline'],
+  // V20 headlines for events and versions own their timing independently.
   ['#start #startTitle','finale']
  ];
  const nodes=stages.map(([selector,kind])=>({node:document.querySelector(selector),kind})).filter(x=>x.node);
@@ -563,7 +562,6 @@
  'use strict';
  const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
  const title=document.getElementById('hero-title');
- const community=document.getElementById('communityTitle');
  const news=document.getElementById('newsTitle');
  const brand=document.querySelector('.site-header > a.brand');
  // Logo art only: no glow on the containing rectangle or neighboring label.
@@ -590,7 +588,6 @@
  if(reduced) return;
  const targets=[];
  if(title)targets.push({node:title,kind:'hero',entered:false});
- if(community)targets.push({node:community,kind:'community',entered:false});
  if(news){
    // Safely turn the latest CMS headline into individual illuminated glyphs.
    // A later CMS textContent update is re-split without losing the state.
@@ -637,4 +634,68 @@
  addEventListener('pageshow',queue,{passive:true});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)queue()});
  check();
+})();
+
+
+/* HOME V20 — only three headline motions: COMMUNITY, EVENTS, VERSION LOG.
+   These headings have independent scroll gates; older section effects may
+   still animate the CARDS, but cannot replay or pre-animate the headings.
+   The real CMS text remains authoritative and can be rewritten safely. */
+(()=>{
+  'use strict';
+  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const nodes=[
+    {id:'communityTitle',kind:'community',duration:1880},
+    {id:'eventsTitle',kind:'events',duration:1720},
+    {id:'versionsTitle',kind:'versions',duration:1920},
+  ].map(x=>({...x,node:document.getElementById(x.id),entered:false,done:false})).filter(x=>x.node);
+  if(!nodes.length || reduce) return;
+  // Split only the SOCIAL headline into individually choreographed glyphs.
+  // The two other headings use whole-title geometries, never glyph cascades.
+  const refresh=(item)=>{
+    const {node,kind}=item;
+    if(node.querySelector(':scope > .dd20-text'))return;
+    const label=(node.textContent||'').replace(/\s+/g,' ').trim();
+    if(!label)return;
+    node.setAttribute('aria-label',label);
+    const span=document.createElement('span');span.className='dd20-text dd20-'+kind+'-text';
+    if(kind==='community'){
+      [...label].forEach((ch,i)=>{
+        const glyph=document.createElement('span');glyph.className='dd20-community-char';
+        glyph.setAttribute('aria-hidden','true');glyph.style.setProperty('--dd20-i',String(i));
+        glyph.style.setProperty('--dd20-d',String(i%3-1));
+        glyph.textContent=ch;span.appendChild(glyph);
+      });
+    } else span.textContent=label;
+    node.replaceChildren(span);
+  };
+  nodes.forEach(item=>{
+    refresh(item);
+    new MutationObserver(()=>{if(!item.node.querySelector(':scope > .dd20-text'))refresh(item)})
+      .observe(item.node,{childList:true});
+  });
+  document.documentElement.classList.add('dd20-motion-on');
+  let frame=0;
+  const check=()=>{
+    frame=0;
+    const h=innerHeight||720;
+    for(const item of nodes){
+      if(item.entered)continue;
+      const rect=item.node.getBoundingClientRect();
+      // If arriving from history/bfcache below the title, never hide it.
+      if(rect.bottom < 0){item.entered=true;item.done=true;item.node.classList.add('dd20-done');continue;}
+      // A title is revealed only as it starts entering the READING zone.
+      // Never use 1.06h overscan: that is what let V19 finish off-screen.
+      if(rect.top > h*.77 || rect.bottom < h*.14)continue;
+      item.entered=true;item.node.classList.add('dd20-entered');
+      // After the motion is complete, drop will-change and allow CMS edits.
+      setTimeout(()=>{item.done=true;item.node.classList.add('dd20-done')},item.duration+350);
+    }
+  };
+  const queue=()=>{if(!frame)frame=requestAnimationFrame(check)};
+  addEventListener('scroll',queue,{passive:true});
+  addEventListener('resize',queue,{passive:true});
+  addEventListener('pageshow',queue,{passive:true});
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)queue()});
+  check();
 })();

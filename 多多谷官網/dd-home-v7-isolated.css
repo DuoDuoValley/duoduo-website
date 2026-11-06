@@ -1722,3 +1722,96 @@ html.dd-motion-ready #community .section-head::after{transition-delay:.3s}
  #community #communityTitle.dd19-prepared,#news #newsTitle.dd19-news .dd19-news-glyph{opacity:1!important;clip-path:none!important;transform:none!important;filter:none!important;transition:none!important;animation:none!important}
  #news #newsTitle.dd19-news::after{transform:scaleX(1)!important;opacity:1!important;animation:none!important}
 }
+
+
+/* V20: Three headline-only chapters. Scope intentionally excludes every
+   list/card, site navigation, footer, story, and video element. */
+html.dd20-motion-on #community #communityTitle,
+html.dd20-motion-on #community.dd-motion-in #communityTitle,
+html.dd20-motion-on #events #eventsTitle,
+html.dd20-motion-on #events.dd-motion-in #eventsTitle,
+html.dd20-motion-on #versions #versionsTitle,
+html.dd20-motion-on #versions.dd-motion-in #versionsTitle{
+ opacity:1!important;filter:none!important;clip-path:none!important;
+ transform:none!important;letter-spacing:normal!important;
+ transition:none!important;animation:none!important;
+}
+html.dd20-motion-on #community #communityTitle.dd20-done,
+html.dd20-motion-on #events #eventsTitle.dd20-done,
+html.dd20-motion-on #versions #versionsTitle.dd20-done{overflow:visible}
+html.dd20-motion-on #communityTitle .dd20-text,
+html.dd20-motion-on #eventsTitle .dd20-text,
+html.dd20-motion-on #versionsTitle .dd20-text{display:inline-block;max-width:100%;white-space:normal;position:relative;vertical-align:baseline}
+
+/* COMMUNITY: player silhouettes gather in staggered waves and settle as one
+   sentence. NOT a box wipe or fade-up; each letter has a distinct arrival. */
+html.dd20-motion-on #community #communityTitle .dd20-community-char{
+ display:inline-block;white-space:pre;opacity:0;
+ transform:translate3d(calc(var(--dd20-d) * 16px),16px,0) rotate(calc(var(--dd20-d) * 8deg)) scale(.88);
+ filter:blur(3px);transform-origin:center 75%;
+}
+html.dd20-motion-on #community #communityTitle.dd20-entered .dd20-community-char{
+ animation:dd20-community-gather 1220ms cubic-bezier(.18,.84,.20,1) both;
+ animation-delay:calc(var(--dd20-i) * 24ms);
+}
+@keyframes dd20-community-gather{
+ 0%{opacity:0;transform:translate3d(calc(var(--dd20-d) * 16px),16px,0) rotate(calc(var(--dd20-d) * 8deg)) scale(.88);filter:blur(3px)}
+ 58%{opacity:1;transform:translate3d(0,-4px,0) rotate(0deg) scale(1.035);filter:blur(0);text-shadow:0 0 14px rgba(113,224,249,.22)}
+ 100%{opacity:1;transform:none;filter:none;text-shadow:none}
+}
+html.dd20-motion-on #community #communityTitle.dd20-done .dd20-community-char{opacity:1;transform:none;filter:none;animation:none}
+/* EVENTS: a tilted festival poster locks into its frame, then the gold
+   foil highlight crosses the title; no glyph stagger. */
+html.dd20-motion-on #events #eventsTitle .dd20-events-text{
+ opacity:0;clip-path:polygon(0 0,100% 0,100% 100%,0 100%);
+ transform:perspective(980px) rotate(-3.5deg) rotateY(-19deg) scale(.89);
+ filter:brightness(1.5) blur(5px);transform-origin:15% 50%;
+}
+html.dd20-motion-on #events #eventsTitle.dd20-entered .dd20-events-text{
+ animation:dd20-events-poster 1720ms cubic-bezier(.17,.82,.22,1) both;
+}
+@keyframes dd20-events-poster{
+ 0%{opacity:0;transform:perspective(980px) rotate(-3.5deg) rotateY(-19deg) scale(.89);filter:brightness(1.6) blur(5px)}
+ 38%{opacity:1;filter:brightness(1.18) blur(0);transform:perspective(980px) rotate(1.1deg) rotateY(4deg) scale(1.02)}
+ 66%{transform:perspective(980px) rotate(-.5deg) rotateY(-1.5deg) scale(1);filter:brightness(1.05)}
+ 100%{opacity:1;transform:none;filter:none}
+}
+html.dd20-motion-on #events #eventsTitle.dd20-done .dd20-events-text{opacity:1;transform:none;filter:none;animation:none}
+/* VERSIONS: time synchronization — wide tracking contracts while a small
+   traveling tick marks the point in time. Distinct from 3D poster or letters. */
+html.dd20-motion-on #versions #versionsTitle .dd20-versions-text{
+ opacity:0;letter-spacing:.25em;filter:contrast(.4) blur(4px);
+ transform:scaleX(.86);transform-origin:left center;
+}
+html.dd20-motion-on #versions #versionsTitle.dd20-entered .dd20-versions-text{
+ animation:dd20-time-calibrate 1920ms cubic-bezier(.18,.78,.22,1) both;
+}
+@keyframes dd20-time-calibrate{
+ 0%{opacity:0;letter-spacing:.25em;filter:contrast(.4) blur(4px);transform:scaleX(.86)}
+ 30%{opacity:.82;filter:contrast(.9) blur(1px)}
+ 65%{opacity:1;letter-spacing:.05em;filter:none;transform:scaleX(.97)}
+ 100%{opacity:1;letter-spacing:normal;filter:none;transform:none}
+}
+html.dd20-motion-on #versions #versionsTitle .dd20-versions-text::after{
+ content:"";position:absolute;bottom:-.14em;left:0;width:100%;height:2px;
+ background:linear-gradient(90deg,transparent,#19b8d4 20%,#f3c675 50%,transparent 80%);
+ transform-origin:left center;transform:scaleX(0);opacity:0;pointer-events:none;
+}
+html.dd20-motion-on #versions #versionsTitle.dd20-entered .dd20-versions-text::after{
+ animation:dd20-time-signal 1650ms 110ms cubic-bezier(.2,.85,.25,1) both;
+}
+@keyframes dd20-time-signal{
+ 0%{transform:translateX(-10%) scaleX(0);opacity:0}
+ 38%{opacity:.9}
+ 83%{transform:translateX(0) scaleX(1);opacity:.74}
+ 100%{transform:translateX(0) scaleX(1);opacity:0}
+}
+html.dd20-motion-on #versions #versionsTitle.dd20-done .dd20-versions-text{opacity:1;letter-spacing:normal;filter:none;transform:none;animation:none}
+html.dd20-motion-on #versions #versionsTitle.dd20-done .dd20-versions-text::after{display:none}
+@media(prefers-reduced-motion:reduce){
+ html.dd20-motion-on #community #communityTitle .dd20-community-char,
+ html.dd20-motion-on #events #eventsTitle .dd20-events-text,
+ html.dd20-motion-on #versions #versionsTitle .dd20-versions-text{
+  opacity:1!important;transform:none!important;filter:none!important;letter-spacing:normal!important;animation:none!important;
+ }
+}
