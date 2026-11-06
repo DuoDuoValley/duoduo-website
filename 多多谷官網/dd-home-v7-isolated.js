@@ -394,13 +394,13 @@
    hero:[{clipPath:'inset(0 97% 0 0)',filter:'blur(3px)'},{clipPath:'inset(0 0 0 0)',filter:'blur(0)'}],
    reviews:[{clipPath:'polygon(0 0, 0 0, -12% 100%, 0 100%)'},{clipPath:'polygon(0 0, 115% 0, 100% 100%, 0 100%)'}],
    events:[{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0 0 0)'}],
-   news:[{letterSpacing:'.16em',filter:'blur(2px)',opacity:.55},{letterSpacing:'0',filter:'blur(0)',opacity:1}],
+   news:[{letterSpacing:'.12em',filter:'blur(2.5px)',opacity:.65,transform:'translateX(-12px)'},{letterSpacing:'.045em',filter:'blur(.6px)',opacity:.93,transform:'translateX(0)'},{letterSpacing:'0',filter:'blur(0)',opacity:1,transform:'none'}],
    timeline:[{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0 0 0)'}],
    finale:[{transform:'perspective(900px) rotateY(-13deg) scale(.98)',filter:'blur(3px)'},{transform:'none',filter:'blur(0)'}]
   };
   const frames=effects[kind];
   if(!frames)return;
-  try{const animation=node.animate(frames,{duration:kind==='hero'?1180:kind==='finale'?1350:kind==='reviews'?1120:950,easing:'cubic-bezier(.18,.84,.2,1)',fill:'none'});
+  try{const animation=node.animate(frames,{duration:kind==='hero'?1180:kind==='finale'?1350:kind==='reviews'?1120:kind==='news'?1650:950,easing:'cubic-bezier(.18,.84,.2,1)',fill:'none'});
    animation.finished.catch(()=>{});}
   catch(_){/* The element is intentionally visible even without animation. */}
  }
@@ -422,4 +422,79 @@
  addEventListener('pageshow',request,{passive:true});
  document.addEventListener('visibilitychange',()=>{if(!document.hidden)request()});
  request();
+})();
+
+
+/* HOME V15 — timeline that follows the scroll and fail-visible entrance choreography.
+   Never intercepts wheel/scroll and never hides CMS content outside a short WAAPI
+   animation that is automatically cancelled at completion. */
+(()=>{
+ 'use strict';
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const track=document.querySelector('#versions .hybrid-timeline');
+ const dots=track?[...track.querySelectorAll('.hybrid-timeline-item .timeline-dot')]:[];
+ let frame=0;
+ const clamp=v=>Math.max(0,Math.min(1,v));
+ function paintTimeline(){
+   frame=0;
+   if(!track || dots.length<2) return;
+   const box=track.getBoundingClientRect(),first=dots[0].getBoundingClientRect(),last=dots[dots.length-1].getBoundingClientRect();
+   if(!first.height || !last.height) return;
+   const top=first.top+first.height/2-box.top;
+   const end=last.top+last.height/2-box.top;
+   const x=first.left+first.width/2-box.left;
+   const length=Math.max(1,end-top);
+   const fraction=clamp((innerHeight*.73-(first.top+first.height/2))/length);
+   track.style.setProperty('--dd15-rail-top',top.toFixed(2)+'px');
+   track.style.setProperty('--dd15-rail-height',length.toFixed(2)+'px');
+   track.style.setProperty('--dd15-rail-x',x.toFixed(2)+'px');
+   track.style.setProperty('--dd15-rail-fill',String(reduce?1:fraction));
+   dots.forEach((dot,i)=>{
+     const center=dot.getBoundingClientRect().top+dot.offsetHeight/2-box.top;
+     dot.classList.toggle('dd15-node-reached',reduce || fraction*length>=center-top-5);
+   });
+ }
+ function queueTimeline(){if(!frame)frame=requestAnimationFrame(paintTimeline)}
+ addEventListener('scroll',queueTimeline,{passive:true});
+ addEventListener('resize',queueTimeline,{passive:true});
+ addEventListener('pageshow',queueTimeline,{passive:true});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)queueTimeline()});
+ queueTimeline();
+ if(reduce || !Element.prototype.animate) return;
+ const items=[
+  ...[...document.querySelectorAll('#start .v2-steps > div')].map((node,i)=>({node,kind:'step',delay:i*125})),
+  ...[...document.querySelectorAll('#start .v2-download-hub')].map(node=>({node,kind:'hub',delay:0})),
+  ...[...document.querySelectorAll('#start .v2-download-card')].map((node,i)=>({node,kind:'download',delay:i*105})),
+  ...[...document.querySelectorAll('#start .v2-links')].map(node=>({node,kind:'links',delay:0})),
+  ...[...document.querySelectorAll('#start .v2-link-grid a')].map((node,i)=>({node,kind:'link',delay:Math.min(i,7)*65})),
+ ];
+ const seen=new WeakSet();
+ function appear(item){
+   const {node,kind,delay}=item;
+   if(seen.has(node))return;
+   seen.add(node);
+   const frames={
+     step:[{opacity:.28,transform:'perspective(900px) rotateY(-11deg) translateX(-25px)'},{opacity:1,transform:'none'}],
+     hub:[{opacity:.36,clipPath:'inset(4% 6% 4% 6% round 28px)',filter:'blur(5px)'},{opacity:1,clipPath:'inset(0 0 0 0 round 28px)',filter:'blur(0)'}],
+     download:[{opacity:.35,transform:'translateX(-18px) scale(.98)'},{opacity:1,transform:'none'}],
+     links:[{opacity:.55,transform:'translateY(13px)'},{opacity:1,transform:'none'}],
+     link:[{opacity:.3,transform:'translateX(-12px)'},{opacity:1,transform:'none'}]
+   }[kind];
+   const duration={step:1000,hub:1200,download:850,links:800,link:660}[kind];
+   try{
+     const a=node.animate(frames,{duration,delay,easing:'cubic-bezier(.22,.75,.2,1)',fill:'both'});
+     a.finished.then(()=>a.cancel()).catch(()=>{});
+   }catch(_){/* Content remains visible when motion is unsupported. */}
+ }
+ if(!('IntersectionObserver' in window)) {items.forEach(appear);return;}
+ const lookup=new Map(items.map(item=>[item.node,item]));
+ const io=new IntersectionObserver(entries=>{
+   for(const entry of entries){
+     if(!entry.isIntersecting)continue;
+     const item=lookup.get(entry.target);
+     if(item)appear(item);
+     io.unobserve(entry.target);
+   }
+ },{threshold:0,rootMargin:'0px 0px -9% 0px'});
+ items.forEach(({node})=>io.observe(node));
 })();
