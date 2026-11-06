@@ -1,0 +1,118 @@
+/* Official news.html modal stylesheet, copied unchanged for the home-page-only modal.
+   Source: news.html from the 7b1b961/2026-11-06 verified official implementation.
+   Existing news.html remains untouched. */
+
+.news-wrap{padding-top:10px}
+.news-filter{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.news-filter-btn{border:1px solid var(--line);background:var(--panel);color:var(--muted);padding:10px 16px;border-radius:999px;cursor:pointer;font:inherit;transition:.2s}
+.news-filter-btn:hover,.news-filter-btn.active{color:#fff;border-color:#4ecbff;background:#123047}
+.news-title-list{display:grid;gap:10px}
+.news-title-row{width:100%;display:grid;grid-template-columns:auto minmax(0,1fr) auto auto;align-items:center;gap:16px;text-align:left;padding:20px 22px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:14px;cursor:pointer;font:inherit;transition:.2s}
+.news-title-row:hover{transform:translateY(-1px);border-color:#4ecbff;background:#12253a}
+.news-title-text{font-size:18px;font-weight:700;min-width:0}
+.news-title-row time{font-size:13px;color:var(--muted2);white-space:nowrap}
+.news-arrow{font-size:20px;color:#66d8ff}
+.news-empty{padding:40px;text-align:center;color:var(--muted);border:1px dashed var(--line);border-radius:16px}
+.news-pagination{display:flex;justify-content:center;align-items:center;gap:8px;margin-top:22px;flex-wrap:wrap}
+.news-page-btn{min-width:40px;height:40px;padding:0 14px;border:1px solid var(--line);background:var(--panel);color:var(--muted);border-radius:10px;cursor:pointer;font:inherit;transition:.2s}
+.news-page-btn:hover:not(:disabled),.news-page-btn.active{color:#fff;border-color:#4ecbff;background:#123047}
+.news-page-btn:disabled{opacity:.4;cursor:not-allowed}
+.news-detail{position:fixed;inset:0;z-index:1000;display:flex;align-items:center;justify-content:center;padding:24px;box-sizing:border-box}
+.news-detail[hidden]{display:none}
+.news-modal-backdrop{position:absolute;inset:0;background:rgba(2,10,20,.72);backdrop-filter:blur(4px)}
+/* 彈窗保留完整圓角外框，只有內文捲動；捲軸內縮到外框內側。 */
+.news-modal-dialog{position:relative;z-index:1;width:min(900px,100%);max-height:min(86vh,900px);display:flex;flex-direction:column;overflow:hidden;background:var(--panel);border:1px solid var(--line);border-radius:20px;box-shadow:0 24px 80px rgba(0,0,0,.42)}
+.news-modal-scroll{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;margin:7px 7px 7px 0;border-radius:14px;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;scrollbar-width:thin;scrollbar-color:#91a6b8 transparent}
+.news-modal-scroll::-webkit-scrollbar{width:9px}
+.news-modal-scroll::-webkit-scrollbar-track{background:transparent}
+.news-modal-scroll::-webkit-scrollbar-thumb{background:#91a6b8;border:2px solid var(--panel);border-radius:99px}
+:root[data-theme="dark"] .news-modal-scroll{scrollbar-color:#647c91 transparent}
+:root[data-theme="dark"] .news-modal-scroll::-webkit-scrollbar-thumb{background:#647c91}
+.news-detail-card{position:relative;margin:0;padding:27px 38px;background:var(--panel);border:0;border-radius:0}
+.news-detail-card h2{font-size:clamp(25px,3.25vw,34px);line-height:1.38;margin:14px 48px 20px 0;overflow-wrap:anywhere;letter-spacing:.01em}
+.news-detail-meta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.news-detail-card .news-detail-meta .meta{color:var(--muted2);font-size:13px;margin:0}
+.news-body{color:var(--muted);font-size:16px;line-height:1.8;white-space:normal;overflow-wrap:anywhere}
+.news-readable-body{display:grid;gap:12px}
+.news-paragraph{margin:0;line-height:1.85}
+.news-body a{color:#168ac8;text-decoration:underline;text-underline-offset:3px;overflow-wrap:anywhere;word-break:break-word}
+.news-body a:hover{color:#0bafdf;text-decoration-thickness:2px}
+:root[data-theme="dark"] .news-body a{color:#6fd4ff}
+.news-readable-body strong{color:var(--text);font-weight:700}
+.news-readable-body code{font-size:.95em;background:rgba(90,150,190,.09);padding:1px 4px;border-radius:4px}
+.news-discord-emoji{display:inline-block;width:1.28em;height:1.28em;vertical-align:-.24em;object-fit:contain}
+.news-mention{display:inline;border-radius:4px;background:rgba(90,150,190,.12);padding:1px 4px;font-size:.94em}
+/* 已分段公告的空白行必須保留視覺間距，不影響舊公告的既有格式 */
+.news-structured-intro{display:grid;gap:18px;min-width:0}
+.news-detail-block{row-gap:15px}
+.news-detail-block>.news-paragraph+.news-paragraph{margin-top:4px}
+.news-rewards-content{display:grid;gap:12px;min-width:0}
+.news-reward-description{display:inline-flex;align-items:center;gap:9px;min-width:0}
+.news-reward-name{min-width:0;overflow-wrap:anywhere}
+.news-item-thumb{width:36px;height:36px;flex:0 0 36px;display:inline-flex;align-items:center;justify-content:center;background:rgba(95,148,190,.08);border:1px solid var(--line);border-radius:8px}
+.news-item-thumb img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated}
+.news-inline-item{display:inline-flex;align-items:center;gap:8px;vertical-align:middle}
+.news-exp-inline{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;white-space:normal}
+.news-exp-inline .news-item-thumb{width:25px;height:25px;flex:0 0 25px;border-radius:6px}
+.news-exp-inline .news-item-thumb img{width:23px;height:23px}
+.news-inline-item .news-item-thumb{width:28px;height:28px;flex-basis:28px;border-radius:6px}
+.news-inline-item .news-item-thumb img{width:24px;height:24px}
+@media(max-width:700px){.news-structured-intro{gap:16px}.news-item-thumb{width:32px;height:32px;flex-basis:32px}.news-item-thumb img{width:28px;height:28px}}
+.news-detail-block{margin-top:7px;padding:19px 0 0;border-top:1px solid var(--line);display:grid;gap:15px;min-width:0;background:transparent;max-width:none}
+.news-section-heading{display:flex;align-items:center;gap:10px;margin:0;color:var(--text);font-size:18px;line-height:1.4;font-weight:750}
+.news-section-heading svg{flex:none;color:#249bc3}
+.news-readable-list{margin:0;padding-left:26px;display:grid;gap:6px;list-style-position:outside}
+ol.news-readable-list{list-style-type:decimal}
+ul.news-readable-list{list-style-type:disc}
+.news-readable-list li::marker{color:var(--muted)}
+.news-readable-list li{padding-left:3px}
+/* 團康名次／積分獎勵：同一個名次的道具合併，其他獎勵卡片不受影響。 */
+.news-ranked-rewards{display:grid;gap:9px;min-width:0}
+.news-rank-row{display:grid;grid-template-columns:minmax(108px,155px) minmax(0,1fr);gap:10px;align-items:stretch;padding:10px;border:1px solid var(--line);border-radius:11px;background:rgba(100,150,185,.04);min-width:0}
+.news-rank-label{display:flex;align-items:center;color:var(--text);font-weight:750;font-size:14px;line-height:1.6;overflow-wrap:anywhere}
+.news-rank-items{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:8px;min-width:0}
+.news-rank-item{display:flex;align-items:center;justify-content:space-between;gap:8px;min-width:0;background:rgba(100,150,185,.065);border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:14px}
+.news-rank-item strong{color:var(--text);font-size:14px;white-space:nowrap;font-variant-numeric:tabular-nums}
+@media(max-width:700px){.news-rank-row{grid-template-columns:minmax(0,1fr)}.news-rank-items{grid-template-columns:minmax(0,1fr)}}
+.news-reward-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+.news-reward-item{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:rgba(100,150,185,.065)}
+.news-reward-item span{min-width:0;overflow-wrap:anywhere}
+.news-reward-item strong{color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:15px}
+.news-code-box{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;background:rgba(95,165,200,.08);border:1px solid var(--line);border-radius:12px}
+.news-code-box code{background:none;padding:0;font-weight:750;font-size:17px;color:var(--text);word-break:break-all}
+.news-code-copy{display:inline-flex;align-items:center;gap:5px;flex:none;border:1px solid #65a8c8;background:rgba(50,125,170,.12);border-radius:9px;padding:8px 11px;color:var(--text);font:inherit;font-size:13px;cursor:pointer}
+.news-code-copy:hover{border-color:#3bc5ed;background:rgba(65,170,210,.16)}
+.news-code-copy svg{width:15px;height:15px}
+.news-modal-close{position:absolute;top:14px;right:14px;z-index:2;width:40px;height:40px;border:1px solid var(--line);background:var(--panel);color:var(--text);border-radius:50%;cursor:pointer;font-size:28px;line-height:1;font-family:inherit}
+.news-modal-close:hover{border-color:#4ecbff;color:#66d8ff}
+
+/* V3.1 — Space the notice modal close control away from its inner scrollbar.
+   Pseudo-lines rather than a text glyph keep the × centered on all platforms. */
+.news-modal-scroll{margin-right:10px}
+.news-modal-close{right:29px;box-sizing:border-box;display:grid;place-items:center;padding:0;font-size:0;line-height:0;isolation:isolate}
+.news-modal-close::before,.news-modal-close::after{content:"";position:absolute;left:50%;top:50%;width:17px;height:1.8px;border-radius:2px;background:currentColor;pointer-events:none}
+.news-modal-close::before{transform:translate(-50%,-50%) rotate(45deg)}
+.news-modal-close::after{transform:translate(-50%,-50%) rotate(-45deg)}
+
+.news-modal-open{overflow:hidden}
+@media(max-width:700px){.news-title-row{grid-template-columns:auto 1fr auto}.news-title-row time{grid-column:2}.news-arrow{grid-column:3;grid-row:1/3}.news-title-text{font-size:16px}.news-detail{padding:12px}.news-modal-dialog{max-height:88vh}.news-detail-card{padding:26px 22px}.news-detail-card h2{font-size:25px;margin-right:38px}.news-body{font-size:15px;line-height:1.8}.news-reward-grid{grid-template-columns:1fr}.news-section-heading{font-size:17px}.news-code-box{flex-wrap:wrap}}
+
+/* 只新增公告分類顏色；其餘公告列表、日期排序、詳細頁邏輯保持原版不變。 */
+.news-title-row .tag,.news-detail-card .tag{border:1px solid transparent}
+.news-title-row .tag.category-important,.news-detail-card .tag.category-important{color:#ff8f9a;background:rgba(220,65,82,.16);border-color:rgba(255,115,130,.30)}
+.news-title-row .tag.category-maintenance,.news-detail-card .tag.category-maintenance{color:#ffb65c;background:rgba(230,135,35,.16);border-color:rgba(255,180,85,.30)}
+.news-title-row .tag.category-update,.news-detail-card .tag.category-update{color:#65c9ff;background:rgba(45,145,220,.16);border-color:rgba(75,175,240,.30)}
+.news-title-row .tag.category-event,.news-detail-card .tag.category-event{color:#72d69a;background:rgba(48,170,100,.16);border-color:rgba(85,200,130,.30)}
+.news-title-row .tag.category-code,.news-detail-card .tag.category-code{color:#c9a5ff;background:rgba(125,75,210,.17);border-color:rgba(170,125,245,.30)}
+.news-title-row .tag.category-punishment,.news-detail-card .tag.category-punishment{color:#ff79c6;background:rgba(220,65,145,.16);border-color:rgba(245,100,175,.30)}
+.news-title-row .tag.category-default,.news-detail-card .tag.category-default{color:#9cc4d8;background:rgba(95,145,170,.14);border-color:rgba(120,175,200,.28)}
+:root[data-theme="light"] .news-title-row .tag.category-important,:root[data-theme="light"] .news-detail-card .tag.category-important{color:#a9273a;background:#ffe9ed;border-color:#f3a9b5}
+:root[data-theme="light"] .news-title-row .tag.category-maintenance,:root[data-theme="light"] .news-detail-card .tag.category-maintenance{color:#a85a00;background:#fff0db;border-color:#efc27c}
+:root[data-theme="light"] .news-title-row .tag.category-update,:root[data-theme="light"] .news-detail-card .tag.category-update{color:#075f91;background:#e5f4ff;border-color:#a9d7f2}
+:root[data-theme="light"] .news-title-row .tag.category-event,:root[data-theme="light"] .news-detail-card .tag.category-event{color:#187345;background:#e6f8ee;border-color:#a7dfbf}
+:root[data-theme="light"] .news-title-row .tag.category-code,:root[data-theme="light"] .news-detail-card .tag.category-code{color:#6840a8;background:#f1e9ff;border-color:#cbb4ee}
+:root[data-theme="light"] .news-title-row .tag.category-punishment,:root[data-theme="light"] .news-detail-card .tag.category-punishment{color:#a52c70;background:#ffe8f4;border-color:#efafd0}
+:root[data-theme="light"] .news-title-row .tag.category-default,:root[data-theme="light"] .news-detail-card .tag.category-default{color:#35657a;background:#e9f5fa;border-color:#b7d8e4}
+
+/* Keep the homepage modal above the fixed navigation and music controls. */
+#home-news-detail{z-index:120000}

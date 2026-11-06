@@ -1,0 +1,418 @@
+/* Home-only reuse of the news.html official renderer and modal layout.
+   The home news list and full news page are otherwise unchanged.
+   Announcement rows retain their real href as an accessible fallback.
+*/
+(()=>{
+'use strict';
+const list=document.getElementById('news-list');
+if(!list)return;
+const pageEsc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+const pageTagShort=t=>({'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'}[t]||t);
+const pageDefaultNews=[]; // Do not invent content if neither cloud nor cache is available.
+async function pageLoadNews(){
+  const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+  try{
+    const res=await fetch(`${API_BASE}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
+    if(!res.ok)throw new Error(`HTTP ${res.status}`);
+    const payload=await res.json();
+    const cloudNews=payload?.data?.duoduo_news;
+    if(Array.isArray(cloudNews))return cloudNews.filter(n=>n&&typeof n==='object');
+    return [];
+  }catch(e){
+    console.warn('雲端公告讀取失敗，使用本機公告資料。',e);
+    try{
+      const raw=localStorage.getItem('duoduo_news');
+      const parsed=raw?JSON.parse(raw):null;
+      if(Array.isArray(parsed))return parsed.filter(n=>n&&typeof n==='object');
+    }catch(e){}
+    return pageDefaultNews.slice();
+  }
+}
+
+const pageTagClass=t=>({'重要消息':'category-important','維護通知':'category-maintenance','更新說明':'category-update','活動資訊':'category-event','序號發放':'category-code','處分名單':'category-punishment'}[String(t||'')]||'category-default');
+const NEWS_HEADINGS = {
+  '活動時間':'calendar', '活動地點':'map-pin', '活動時程':'calendar', '活動方式':'list', '活動內容':'list',
+  '活動規則':'shield', '活動提醒':'info', '活動獎勵':'gift', '獎勵內容':'gift',
+   '排名獎勵':'gift', '名次獎勵':'gift', '積分區間':'gift', '積分獎勵':'gift',
+  '補償內容':'gift', '補償獎勵':'gift', '序號內容物':'gift', '獎勵清單':'gift',
+  '兌換序號':'ticket', '序號兌換':'ticket', '序號資訊':'ticket',
+  '兌換期限':'clock', '兌換時間':'clock', '使用期限':'clock',
+  '使用方式':'list', '領取方式':'list', '參加方式':'list', '報名方式':'list',
+  '注意事項':'info', '重要提醒':'info', '特別提醒':'info',
+  '更新內容':'file', '更新項目':'file', '維護內容':'file', '維護時間':'clock',
+  '調整項目':'file', '相關說明':'file', '補充說明':'file', '公告說明':'file',
+  '活動介紹':'file', '活動期間':'calendar', '活動日期':'calendar',
+  // 舊版「更新公告」常見獨立小標題：只有整行相符才會辨識成段落。
+  '新增內容':'file', '新增功能':'file', '系統調整':'file', '商城更新':'file',
+  '已修正問題':'shield', '已修復問題':'shield', '問題修復':'shield', '問題修正':'shield',
+  '錯誤修正':'shield', 'BUG修復':'shield', 'BUG 修復':'shield',
+  '功能優化':'file', '優化內容':'file', '優化調整':'file', '平衡調整':'file',
+  '技能調整':'file', '職業調整':'file', '更新提醒':'info'
+};
+const NEWS_ICON_PATHS = {
+  gift:'<rect x="3" y="8" width="18" height="13" rx="2"/><path d="M12 8v13M3 12h18M12 8H8.5a2.5 2.5 0 1 1 2.45-3c.28.76.6 1.9 1.05 3ZM12 8h3.5a2.5 2.5 0 1 0-2.45-3c-.28.76-.6 1.9-1.05 3Z"/>',
+  ticket:'<path d="M2 9a3 3 0 0 0 0 6v4a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-4a3 3 0 0 1 0-6V5a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2zM13 5v2M13 11v2M13 17v2"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  calendar:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M7 3v4M17 3v4M3 10h18"/>',
+  'map-pin':'<path d="M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/>',
+  list:'<path d="m3 7 2 2 4-4M13 7h8M3 17l2 2 4-4M13 17h8"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+  shield:'<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z"/><path d="m9 12 2 2 4-4"/>',
+  file:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8zM14 2v6h6M8 13h8M8 17h8"/>'
+};
+function newsIcon(name){
+  return `<svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${NEWS_ICON_PATHS[name]||NEWS_ICON_PATHS.file}</svg>`;
+}
+// 公告內文的指定道具名稱：精確匹配；原本 30 分鐘道具和其他圖示維持原樣。
+const NEWS_EXP_MINUTE_NAMES=['經驗值5倍券(1分)','MVP加倍EXP天氣效果(1分)','YuYu的應援(1分)','五星推廣禮交換券','特權點數'];
+const NEWS_EXP_MINUTE_PATTERN=new RegExp(NEWS_EXP_MINUTE_NAMES.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
+function newsExpInlineText(text,showImage=true){
+  const source=String(text||'');
+  if(!showImage)return pageEsc(source);
+  let out='',from=0;
+  for(const match of source.matchAll(NEWS_EXP_MINUTE_PATTERN)){
+    const label=match[0];
+    out+=pageEsc(source.slice(from,match.index));
+    out+=`<span class="news-exp-inline">${newsItemThumb(label)}<span>${pageEsc(label)}</span></span>`;
+    from=match.index+label.length;
+  }
+  return out+pageEsc(source.slice(from));
+}
+// 只把有效的 http(s) URL 輸出為連結；標點符號不包含在連結裡。
+function newsLinkParts(raw){
+  let url=String(raw||''),tail='';
+  while(url&&/[.,!?;:，。！？；：、）)]$/.test(url)){
+    const mark=url.slice(-1);
+    if(mark===')' && (url.match(/\(/g)||[]).length >= (url.match(/\)/g)||[]).length) break;
+    tail=mark+tail;url=url.slice(0,-1);
+  }
+  const absolute=/^www\./i.test(url)?'https://'+url:url;
+  try{
+    const parsed=new URL(absolute);
+    if(!['http:','https:'].includes(parsed.protocol))return null;
+    return {href:parsed.href,text:url,tail};
+  }catch(_){return null;}
+}
+function newsLinkMarkup(label,raw,showItemIcons=true){
+  const url=newsLinkParts(raw);
+  if(!url)return newsExpInlineText(label||raw,showItemIcons);
+  const linkedText=label?newsExpInlineText(label,showItemIcons):pageEsc(url.text);
+  return `<a href="${pageEsc(url.href)}" target="_blank" rel="noopener noreferrer">${linkedText}</a>`+pageEsc(url.tail);
+}
+// 同時支援 Discord、Markdown、直接網址和指定道具圖示；不執行公告中的 HTML。
+function newsInline(value,showItemIcons=true){
+  let input=String(value??'');
+  if((input.match(/\*\*/g)||[]).length%2===1) input=input.replace(/\*\*\s*$/,'');
+  const token=/<a:([A-Za-z0-9_]{1,40}):(\d{15,22})>|<:([A-Za-z0-9_]{1,40}):(\d{15,22})>|<@&\d{15,22}>|<@!?\d{15,22}>|<#\d{15,22}>|\[([^\]\n]{1,80})\]\((https?:\/\/[^\s)<>]+)\)|\*\*([^*\n]+)\*\*|__([^_\n]+)__|~~([^~\n]+)~~|`([^`\n]+)`|((?:https?:\/\/|www\.)[^\s<>"'【】\[\]，。！？；：、（）]+)/gi;
+  let result='',last=0,match;
+  while((match=token.exec(input))!==null){
+    result+=newsExpInlineText(input.slice(last,match.index),showItemIcons);
+    const whole=match[0];
+    if(match[1]||match[3]){
+      const animated=!!match[1],name=match[1]||match[3],id=match[2]||match[4];
+      const ext=animated?'gif':'png';
+      result+=`<img class="news-discord-emoji" src="https://cdn.discordapp.com/emojis/${id}.${ext}?size=48" alt=":${pageEsc(name)}:" title=":${pageEsc(name)}:" loading="lazy">`;
+    }else if(whole.startsWith('<@&')) result+='<span class="news-mention">@身分組</span>';
+    else if(whole.startsWith('<@')) result+='<span class="news-mention">@使用者</span>';
+    else if(whole.startsWith('<#')) result+='<span class="news-mention">#頻道</span>';
+    else if(match[5]) result+=newsLinkMarkup(match[5],match[6],showItemIcons);
+    else if(match[7]) result+=`<strong>${newsInline(match[7],showItemIcons)}</strong>`;
+    else if(match[8]) result+=`<u>${newsInline(match[8],showItemIcons)}</u>`;
+    else if(match[9]) result+=`<s>${newsInline(match[9],showItemIcons)}</s>`;
+    else if(match[10]) result+=`<code>${pageEsc(match[10])}</code>`;
+    else if(match[11]) result+=newsLinkMarkup('',match[11],showItemIcons);
+    last=token.lastIndex;
+  }
+  return result+newsExpInlineText(input.slice(last),showItemIcons);
+}
+function newsHeading(line){
+  const normalized=String(line).trim().replace(/^(?:#{1,4}\s*)/,'').replace(/^[★☆⭐🌟📌📢🎁🎫⏰📝📜🔔ℹ️\s]+/u,'').replace(/\s*[:：]\s*$/,'').trim();
+  if(NEWS_HEADINGS[normalized])return {name:normalized,icon:NEWS_HEADINGS[normalized]};
+  return null;
+}
+function newsRewardItems(line){
+  const text=String(line||'').trim();
+  if(!text)return null;
+  // 在「獎勵」欄位逐項讀取「名稱 × 數量」；名稱允許空白及標點。
+  // 必須完整消耗這一行，避免只有部分文字被轉成卡片。
+  const re=/([^×xX＊*]+?)\s*[×xX＊*]\s*(\d[\d,]*(?:\.\d+)?(?:千|萬|億|[Ee])?)(?=$|[\s　,，、;；|｜])/g;
+  const items=[];
+  let last=0,m;
+  while((m=re.exec(text))!==null){
+    const between=text.slice(last,m.index);
+    if(between.replace(/[\s　,，、;；|｜]/g,''))return null;
+    const label=m[1].replace(/^[\s　,，、;；|｜]+|[\s　,，、;；|｜]+$/g,'');
+    if(!label)return null;
+    items.push({label,quantity:m[2]});
+    last=re.lastIndex;
+  }
+  if(!items.length||text.slice(last).replace(/[\s　,，、;；|｜]/g,''))return null;
+  return items;
+}
+/* 道具圖片：只對照官網玩家工具中已存在的 PNG；不使用模糊猜測。 */
+const NEWS_ITEM_ASSETS={"200 靈魂卷軸 100%":"gacha/apple/200 靈魂卷軸 100%.png","M-DAY機器心臟":"gacha/apple/M-DAY機器心臟.png","V卷軸":"gacha/frame/V卷軸.png","亞尼的靈魂寶珠":"gacha/apple/亞尼的靈魂寶珠.png","仇恨套裝(女)":"gacha/fashion/仇恨套裝(女).png","仇恨套裝(男)":"gacha/fashion/仇恨套裝(男).png","仇恨惡魔角(女)":"gacha/fashion/仇恨惡魔角(女).png","仇恨惡魔角(男)":"gacha/fashion/仇恨惡魔角(男).png","仇恨手套":"gacha/fashion/仇恨手套.png","仇恨披風":"gacha/fashion/仇恨披風.png","仇恨靴子":"gacha/fashion/仇恨靴子.png","傑諾帝神祕手套":"gacha/fashion/傑諾帝神祕手套.png","傳說中的祝福祕藥":"gacha/apple/傳說中的祝福祕藥.png","傳說中的英雄祕藥":"gacha/apple/傳說中的英雄祕藥.png","傳說潛在能力卷軸100%":"gacha/apple/傳說潛在能力卷軸100%.png","內面暴風":"gacha/apple/內面暴風.png","內面耀光":"gacha/apple/內面耀光.png","凝聚力量的結晶石":"gacha/apple/凝聚力量的結晶石.png","凝聚的戒指":"gacha/apple/凝聚的戒指.png","凡雷恩的靈魂寶珠":"gacha/apple/凡雷恩的靈魂寶珠.png","午夜的現身":"gacha/apple/午夜的現身.png","卓越強化石":"excellent-stone.png","南瓜魔卡":"gacha/fashion/南瓜魔卡.png","卡勒馬附加傳說潛在能力賦予卷軸100%":"gacha/apple/卡勒馬附加傳說潛在能力賦予卷軸100%.png","命運卷軸":"gacha/frame/命運卷軸.png","噬血套裝(女)":"gacha/fashion/噬血套裝(女).png","噬血長靴":"gacha/fashion/噬血長靴.png","回真卷軸 100%":"gacha/apple/回真卷軸 100%.png","地之精靈圖騰":"gacha/apple/地之精靈圖騰.png","基礎強化石":"basic-stone.png","夕陽的現身":"gacha/apple/夕陽的現身.png","天上的氣息":"gacha/apple/天上的氣息.png","天照之眼":"gacha/fashion/天照之眼.png","奇異的狐狸面具":"gacha/fashion/奇異的狐狸面具.png","套服內襯":"gacha/comet/套服內襯.png","女武神之心":"gacha/apple/女武神之心.png","害羞害羞麋鹿帽":"gacha/fashion/害羞害羞麋鹿帽.png","寶玉加工石":"gacha/apple/寶玉加工石.png","寶玉研磨石":"gacha/apple/寶玉研磨石.png","小布娃娃凌卡(女)":"gacha/fashion/小布娃娃凌卡(女).png","小布娃娃普卡(男)":"gacha/fashion/小布娃娃普卡(男).png","小筱精靈圖騰":"gacha/apple/小筱精靈圖騰.png","帽子內襯":"gacha/comet/帽子內襯.png","幸運石":"lucky-stone.png","幽暗戒指":"gacha/apple/幽暗戒指.png","強力輪迴星火":"gacha/apple/強力輪迴星火.png","強化KAITO套服":"gacha/fashion/強化KAITO套服.png","強化初音未來套服":"gacha/fashion/強化初音未來套服.png","強化厭煩咖波":"gacha/fashion/強化厭煩咖波.png","強化咖波雨傘":"gacha/fashion/強化咖波雨傘.png","強化哇屋咖波":"gacha/fashion/強化哇屋咖波.png","強化的A.T.力場斗篷":"gacha/fashion/強化的A.T.力場斗篷.png","強化的兔兔手套":"gacha/fashion/強化的兔兔手套.png","強化的兔兔玩偶帽":"gacha/fashion/強化的兔兔玩偶帽.png","強化的兔兔玩偶服":"gacha/fashion/強化的兔兔玩偶服.png","強化的小櫻戰鬥帽":"gacha/fashion/強化的小櫻戰鬥帽.png","強化的小櫻戰鬥服":"gacha/fashion/強化的小櫻戰鬥服.png","強化的小櫻戰鬥鞋":"gacha/fashion/強化的小櫻戰鬥鞋.png","強化的小狼戰鬥帽":"gacha/fashion/強化的小狼戰鬥帽.png","強化的小狼戰鬥服":"gacha/fashion/強化的小狼戰鬥服.png","強化的小狼戰鬥鞋":"gacha/fashion/強化的小狼戰鬥鞋.png","強化的愛蜜莉雅套服":"gacha/fashion/強化的愛蜜莉雅套服.png","強化的明日香帽子":"gacha/fashion/強化的明日香帽子.png","強化的明日香戰鬥服":"gacha/fashion/強化的明日香戰鬥服.png","強化的昴的休閒服":"gacha/fashion/強化的昴的休閒服.png","強化的普莉希拉禮服":"gacha/fashion/強化的普莉希拉禮服.png","強化的第4使徒面具":"gacha/fashion/強化的第4使徒面具.png","強化的綾波零戰鬥服":"gacha/fashion/強化的綾波零戰鬥服.png","強化的莎莉手套":"gacha/fashion/強化的莎莉手套.png","強化的莎莉玩偶帽":"gacha/fashion/強化的莎莉玩偶帽.png","強化的莎莉玩偶服":"gacha/fashion/強化的莎莉玩偶服.png","強化的菲魯特套服":"gacha/fashion/強化的菲魯特套服.png","強化的雷納德手套":"gacha/fashion/強化的雷納德手套.png","強化的雷納德玩偶帽":"gacha/fashion/強化的雷納德玩偶帽.png","強化的雷納德玩偶服":"gacha/fashion/強化的雷納德玩偶服.png","強化石碎片":"gacha/apple/強化石碎片.png","強化與惠惠一起披風":"gacha/fashion/強化與惠惠一起披風.png","強化與達克妮絲一起披風":"gacha/fashion/強化與達克妮絲一起披風.png","強化討厭散步咖波":"gacha/fashion/強化討厭散步咖波.png","強化貓貓蟲咖波套服":"gacha/fashion/強化貓貓蟲咖波套服.png","強化貓貓蟲咖波帽子":"gacha/fashion/強化貓貓蟲咖波帽子.png","強化鏡音連套服":"gacha/fashion/強化鏡音連套服.png","強化鏡音鈴套服":"gacha/fashion/強化鏡音鈴套服.png","強化閃耀音樂蔥":"gacha/fashion/強化閃耀音樂蔥.png","彩虹月石寶石圖騰":"gacha/apple/彩虹月石寶石圖騰.png","恢復卡":"gacha/apple/恢復卡.png","戴雅希杜斯耳環":"gacha/apple/戴雅希杜斯耳環.png","披風內襯":"gacha/comet/披風內襯.png","掛機能量1小時補充券":"gacha/apple/掛機能量1小時補充券.png","掛機能量6小時補充券":"gacha/apple/掛機能量6小時補充券.png","搖滾精神的靈魂寶珠":"gacha/apple/搖滾精神的靈魂寶珠.png","救世卷軸":"gacha/frame/救世卷軸.png","昇華結晶":"ascension-crystal.png","昇華結晶碎片":"gacha/apple/昇華結晶碎片.png","星光錦囊":"starlight-pouch.png","星力強化券":"gacha/apple/星力強化券.png","星彩卷軸":"gacha/frame/星彩卷軸.png","星星威克":"gacha/fashion/星星威克.png","星耀耳環":"gacha/apple/星耀耳環.png","時尚隨機箱":"fashion-box.png","智慧翅膀":"gacha/fashion/智慧翅膀.png","暗影之淚":"gacha/fashion/暗影之淚.png","暗黑輪迴星火":"gacha/apple/暗黑輪迴星火.png","暮光印記":"gacha/apple/暮光印記.png","最上級祝福的祕藥":"gacha/apple/最上級祝福的祕藥.png","最上級英雄的祕藥":"gacha/apple/最上級英雄的祕藥.png","月牙之刃":"gacha/fashion/月牙之刃.png","朝曦羽翼":"gacha/fashion/朝曦羽翼.png","楓幣":"mesos.png","楓葉點數":"maple-points.png","楓點":"maple-points.png","極限強化石":"extreme-stone.png","榮耀卷軸":"gacha/frame/榮耀卷軸.png","正午的現身":"gacha/apple/正午的現身.png","武公的靈魂寶珠":"gacha/apple/武公的靈魂寶珠.png","武器內襯":"gacha/comet/武器內襯.png","武士象徵":"gacha/fashion/武士象徵.png","殘暴炎魔的靈魂寶珠":"gacha/apple/殘暴炎魔的靈魂寶珠.png","水中信紙眼飾":"gacha/apple/水中信紙眼飾.png","水之精靈圖騰":"gacha/apple/水之精靈圖騰.png","水星寶寶操控帽":"gacha/fashion/水星寶寶操控帽.png","水晶愛心":"gacha/apple/水晶愛心.png","永遠的輪迴星火":"gacha/apple/永遠的輪迴星火.png","波賽頓墜飾":"gacha/apple/波賽頓墜飾.png","波賽頓眼鏡":"gacha/apple/波賽頓眼鏡.png","波賽頓紋身":"gacha/apple/波賽頓紋身.png","波賽頓耳環":"gacha/apple/波賽頓耳環.png","活屍面具":"gacha/fashion/活屍面具.png","湛藍之翼":"gacha/fashion/湛藍之翼.png","漆黑的BOSS飾品碎片":"gacha/apple/漆黑的BOSS飾品碎片.png","濃厚的靈魂艾爾達氣息":"gacha/apple/濃厚的靈魂艾爾達氣息.png","火之精靈圖騰":"gacha/apple/火之精靈圖騰.png","烏勒斯女用西裝":"gacha/fashion/烏勒斯女用西裝.png","烏勒斯男用西裝":"gacha/fashion/烏勒斯男用西裝.png","燃燒之戒":"gacha/apple/燃燒之戒.png","特殊名譽勳章":"gacha/apple/特殊名譽勳章.png","猛烈翅膀":"gacha/fashion/猛烈翅膀.png","獨眼巨人眼":"gacha/fashion/獨眼巨人眼.png","璀璨彗星":"brilliant-comet.png","璀璨星光":"brilliant-starlight.png","生命的鞋子":"gacha/fashion/生命的鞋子.png","白色烏勒斯帽子":"gacha/fashion/白色烏勒斯帽子.png","白色烏勒斯手套":"gacha/fashion/白色烏勒斯手套.png","白色烏勒斯拖鞋":"gacha/fashion/白色烏勒斯拖鞋.png","白金蘋果":"platinum-apple.png","白金鐵鎚":"gacha/apple/白金鐵鎚.png","真-智慧翅膀":"gacha/fashion/真-智慧翅膀.png","真-猛烈翅膀":"gacha/fashion/真-猛烈翅膀.png","真-神祕翅膀":"gacha/fashion/真-神祕翅膀.png","真‧亞絲娜的套服":"gacha/fashion/真‧亞絲娜的套服.png","真‧桐人的外套":"gacha/fashion/真‧桐人的外套.png","真‧桐人的手套":"gacha/fashion/真‧桐人的手套.png","真‧結衣的裙子":"gacha/fashion/真‧結衣的裙子.png","真‧莉法的外套":"gacha/fashion/真‧莉法的外套.png","真月牙之刃":"gacha/fashion/真月牙之刃.png","真生命的鞋子":"gacha/fashion/真生命的鞋子.png","真破滅的鞋子":"gacha/fashion/真破滅的鞋子.png","真黑暗之槌":"gacha/fashion/真黑暗之槌.png","真．戴碧斯魂":"gacha/fashion/真．戴碧斯魂.png","真．活屍面具":"gacha/fashion/真．活屍面具.png","真．精靈王之頭冠":"gacha/fashion/真．精靈王之頭冠.png","真．紫烏鴉":"gacha/fashion/真．紫烏鴉.png","真．諾比利塔斯奧拉":"gacha/fashion/真．諾比利塔斯奧拉.png","真．龍魔導士翅膀頭巾":"gacha/fashion/真．龍魔導士翅膀頭巾.png","破曉墜飾":"gacha/apple/破曉墜飾.png","破滅的鞋子":"gacha/fashion/破滅的鞋子.png","神祕冥界幽靈武器箱":"gacha/apple/神祕冥界幽靈武器箱.png","神祕冥界幽靈防具箱":"gacha/apple/神祕冥界幽靈防具箱.png","神祕翅膀":"gacha/fashion/神祕翅膀.png","神諭者的戒指":"gacha/apple/神諭者的戒指.png","稀有航海師武器選擇箱":"gacha/apple/稀有航海師武器選擇箱.png","稀有航海師防具選擇箱":"gacha/apple/稀有航海師防具選擇箱.png","究極的黑暗卷":"gacha/frame/究極的黑暗卷.png","突破1星強化券":"gacha/pouch/突破1星強化券.png","米特拉的核心寶石":"gacha/apple/米特拉的核心寶石.png","粉紅太陽眼鏡帽":"gacha/fashion/粉紅太陽眼鏡帽.png","粉豆的靈魂寶珠":"gacha/apple/粉豆的靈魂寶珠.png","精靈閃電":"gacha/fashion/精靈閃電.png","紅十字手套":"gacha/fashion/紅十字手套.png","紅蓮之眼":"gacha/fashion/紅蓮之眼.png","經驗值4倍券(30分)":"gacha/apple/經驗值4倍券(30分).png","經驗值5倍券(30分)":"gacha/apple/經驗值5倍券(30分).png","耶誕帽":"gacha/fashion/耶誕帽.png","聖誕手套":"gacha/fashion/聖誕手套.png","聖誕衣":"gacha/fashion/聖誕衣.png","聖誕衣(女)":"gacha/fashion/聖誕衣(女).png","聖誕靴(紅)":"gacha/fashion/聖誕靴(紅).png","聖誕靴(黑)":"gacha/fashion/聖誕靴(黑).png","能量光劍":"gacha/fashion/能量光劍.png","臉飾內襯":"gacha/comet/臉飾內襯.png","艾爾達斯的祝福戒指":"gacha/apple/艾爾達斯的祝福戒指.png","艾畢奈亞的靈魂寶珠":"gacha/apple/艾畢奈亞的靈魂寶珠.png","苦行的戒指":"gacha/apple/苦行的戒指.png","蒼穹之翼":"gacha/fashion/蒼穹之翼.png","藍焰之瞳":"gacha/fashion/藍焰之瞳.png","覺醒刀片":"gacha/fashion/覺醒刀片.png","覺醒的輪迴星火":"gacha/apple/覺醒的輪迴星火.png","覺醒立體機動裝置":"gacha/fashion/覺醒立體機動裝置.png","覺醒米卡莎調查兵團服":"gacha/fashion/覺醒米卡莎調查兵團服.png","覺醒艾連調查兵團服":"gacha/fashion/覺醒艾連調查兵團服.png","覺醒調查兵團披風":"gacha/fashion/覺醒調查兵團披風.png","覺醒調查兵團服":"gacha/fashion/覺醒調查兵團服.png","覺醒里維調查兵團服":"gacha/fashion/覺醒里維調查兵團服.png","變節的伊卡勒特":"gacha/fashion/變節的伊卡勒特.png","變節的伊麗娜":"gacha/fashion/變節的伊麗娜.png","變節的奧茲":"gacha/fashion/變節的奧茲.png","變節的米哈逸":"gacha/fashion/變節的米哈逸.png","變節的鷹眼":"gacha/fashion/變節的鷹眼.png","追加1星強化券":"gacha/pouch/追加1星強化券.png","選擇真實符文交換券":"gacha/apple/選擇真實符文交換券.png","選擇祕法符文交換券":"news-rewards/選擇祕法符文交換券.png","酷夏潛水鏡":"gacha/fashion/酷夏潛水鏡.png","酷夏螃蟹耳環":"gacha/fashion/酷夏螃蟹耳環.png","酷夏鮮豔蛙鞋":"gacha/fashion/酷夏鮮豔蛙鞋.png","酷夏鯊魚武器":"gacha/fashion/酷夏鯊魚武器.png","銀花戒指":"gacha/apple/銀花戒指.png","鋰愛心":"gacha/apple/鋰愛心.png","鏡子世界的核心寶石":"gacha/apple/鏡子世界的核心寶石.png","闇黑龍王的靈魂寶珠":"gacha/apple/闇黑龍王的靈魂寶珠.png","阿爾卑斯少年鞋子":"gacha/fashion/阿爾卑斯少年鞋子.png","雪人帽子":"gacha/fashion/雪人帽子.png","雷克斯的靈魂寶珠":"gacha/apple/雷克斯的靈魂寶珠.png","露希妲耳環":"gacha/apple/露希妲耳環.png","露希妲靈魂寶珠":"gacha/apple/露希妲靈魂寶珠.png","露西亞披風":"gacha/fashion/露西亞披風.png","靈魂艾爾達碎片":"gacha/apple/靈魂艾爾達碎片.png","鞋子內襯":"gacha/comet/鞋子內襯.png","風之精靈圖騰":"gacha/apple/風之精靈圖騰.png","鬥神翅膀":"gacha/fashion/鬥神翅膀.png","魔法畫框":"magic-frame.png","魔法靈氣":"gacha/comet/魔法靈氣.png","黃金愛心":"gacha/apple/黃金愛心.png","黃金蘋果":"golden-apple.png","黎明守護者天使戒指":"gacha/apple/黎明守護者天使戒指.png","黎明的現身":"gacha/apple/黎明的現身.png","黑暗之槌":"gacha/fashion/黑暗之槌.png","黑翼胸章":"gacha/apple/黑翼胸章.png","黑色烏勒斯帽子":"gacha/fashion/黑色烏勒斯帽子.png","黑色烏勒斯手套":"gacha/fashion/黑色烏勒斯手套.png","黑色烏勒斯拖鞋":"gacha/fashion/黑色烏勒斯拖鞋.png","黯影套裝(男)":"gacha/fashion/黯影套裝(男).png","黯闇影十字":"gacha/fashion/黯闇影十字.png","龍騎士的靈魂寶珠":"gacha/apple/龍騎士的靈魂寶珠.png","MVP追加經驗值天氣效果(鑽石)":"news-rewards/MVP追加經驗值天氣效果(鑽石).png","YuYu的應援(30分)":"news-rewards/YuYu的應援(30分).png","YuYu大大的應援(180分)":"news-rewards/YuYu大大的應援(180分).png","豪華真實符文：塔拉哈特":"news-rewards/豪華真實符文：塔拉哈特.png","豪華真實符文：基爾德拉":"news-rewards/豪華真實符文：基爾德拉.png"};
+// 使用者另外提供的新圖，先以正式名稱精確匹配，不猜測其他物品。
+const NEWS_EXTRA_ITEM_ASSETS={
+  '五星推廣禮交換券':'news-rewards/五星推廣禮交換券.png',
+  '特權點數':'news-rewards/特權點數.png',
+  '經驗值5倍券(1分)':'news-rewards/經驗值5倍券(1分).png',
+  'MVP加倍EXP天氣效果(1分)':'news-rewards/MVP加倍EXP天氣效果(1分).png',
+  'YuYu的應援(1分)':'news-rewards/YuYu的應援(1分).png',
+  '紫水晶寶石':'news-rewards/紫水晶寶石.png',
+  '救世卷軸選擇券':'news-rewards/救世卷軸選擇券.png',
+  '星彩卷軸選擇券':'news-rewards/星彩卷軸選擇券.png',
+  '選擇祕法符文交換券':'news-rewards/選擇祕法符文交換券.png',
+  "萌獸卡牌包":"news-rewards/萌獸卡牌包.png",
+  "拼圖隨機箱":"news-rewards/拼圖隨機箱.png",
+  "YuYu的真終極成長祕藥":"news-rewards/YuYu的真終極成長祕藥.png",
+  "高級掛機能量6小時補充券":"news-rewards/高級掛機能量6小時補充券.png",
+  "掛機能量1小時補充券":"news-rewards/掛機能量1小時補充券.png"
+};
+// 由管理員提供的 14 張 PNG 直接內嵌，避免 GitHub Pages 圖檔漏上傳／路徑不符。
+const NEWS_INLINE_ITEM_PNG={"news-rewards/MVP追加經驗值天氣效果(鑽石).png":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAOFSURBVFhHrZcBkfQqEISxgAUsYAELsYAFLGABC1jAAhZiAQv9qofAEjZ3t3f/m6qu7GYT+pthIFmlvg78z/pVAEg/ajXYf9v1GwigWbSiv1U3jQB47BD7Nas45qcQE8AY86huDsAXMa8qTIjbtdbK8Z8AnHFw5pDjq9wvc1G+QwjIEWBChnYeZ/4zgMVhPJLPsMoBjSVnKEClDnGZDwA0hZIdXCIg4FJFzscvAU6LMxlY7eB1wlkaDhVwlgiEBFgvRgKh0jRP6kDRETEP0B6hJLRzVvDHQCsO1R/wOiKZngmPApESmgk47XGbf5pTLSsoywrUv1eglQNnzJL5GvweXUIraZkOxtULtc+/ZfP9Sw+wApxzZrxWIOgk51s0YjYj90akBoBAuKVxfwCYFw6dDahz7pv0AleDUhrKBOhQpvhdtJhT2jnZhmS9PHjcADKaiEWnTKkCwYy5CrgaaN5n9jn42wrhMu0Bd77GHT47gEBon8SYGjecJ2CUgVYGtQG+dqM9eC5UINZXtsx8VGCMS4/d/HXDCREJ5YbcQZSLYj4Adgh+5jkC5ApwAUizLsYcc4y/TwNaauC+weUzqjBL5cI0XwGo1LrGdwLQnMq5Q4xxZvbWiRc910pA2zwhSMkbxLy8zAfAEQo85dJd3KcWgBo7BMeSzC9zer1NA4lqxoSg+RkhEogCmFDgaLxUYSpigtB8AHB+CDHM6bFnPyFulXABrXYAistN5v6qxB5zeq6sa4XcTwBvwp75m/mIWQm56ILgcTX37r7XMyT70Qux75g1NDHnWN9lvodcNB7HNFc+yHL6FCCnhmCCyGmLlvsLzCfmjNv7ADcUFfqOJhVtvQn3kMZcAKIOyD7Ca4eWfvks+BZgrPtN/N1zyy4NOVRkHdHKiaj5YDPyiP87gLPQKBNiNxe1hlRPxFDlnaCavg0XE9GOAy05GD5HPggBKPWAyxku+BvETa1AnwW6Fthc4H1G9UUyvwWXRI5fAqwNIiJAOnOf21JeDxd9TLG7d7HpOPdJe8n8iwrs6oZDh3muwKdylmM4gdh7YIw9tPbEG8B3r+U/yRoj3Z+P+ypYAZ4a8g1g/3fzsVoCagL46laT7APr2E/mjPkvhhfu/2x+pfyudcwngLdBeMNDw/xJTwldvz2bbxf5S+EDjWup49LbuDvEG/Eic8k+yD2co8Y9Q/ph3Kn/AM4eBEuTsVhBAAAAAElFTkSuQmCC","news-rewards/YuYu大大的應援(180分).png":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACYAAAAjCAYAAAD48HgdAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARdSURBVFhHxZYNsewqEIRjAQtYiAUsYAELWMACFrCABSxgAQt9qwdIWHbP7t5bp96bqq4QmJn+INmf4/ilKAcUtc//b9E6kK4HTopjzu15vxJj9zR7a5IPKAFScFUjiBRc6ZBcU6ynOJ51417T4+tTjodDOjySikhHAO/jYREPs4lzzI0oZ0HLEHHMOfbo673f3WfWheHR13aOh2BROTKKrmgJqGdFOQrKkVAIcIn3VM9Fxh2E023UFRRVUHVFVbzPQ0V604P1nKP3ziORFVQ8PMpRUU3bTNhsgRnNi2JuT6UJxeBcUQ3lbH2uAi02gZQ63eR0ey77V9CbDDsXwTSPVpqVsXuy2YagMpyK8DohnhnJVCRbZW3mFtvFoGk2fa1GoLgmNewTVJG6GcyhJ73JsEOppGGSztdO1sJkGyIfa2ho9XFdcghyNpG8Z34Yuj5mlAhEApi+ttfTmwwPp5ZOqHjCJr7EW5EUChwQTRPI7NHl+ommk+A07WsMXmevWU/92P8s6AwLWDDQwcJHPp6wFN8nLieVPBAdUDNQCxAtEEzrwL7JHGOCSx1NfdfDaY/eXKcnvaOFJ0uHclDe4oweYTZ+CDZYACs/hHGMCxBcQ1kevwD7nsfI/HTvQEu/GaMukIVMHczhDD+BvQgaTbMQAO8agqc47nN73qeQTRKMLARjOAvtHVywRZomnsDc2avdLYY+Ao5ABAxjPE/0J7ClN73oSW8ykOV6x6yFsh7GmyzN3zaj4biWBnh+SS75HMvczJ1rbzYpmzIZZCDLBWYClAk4g0koy+Nk88CP/9KQ4zzMIr8SFsh1zDUGc/f6p558jCaBDGS5wBhngApnQHQVNhS40GCHpHkFXAJsusFm8IRmLsdrMJc1rGUPuR+59IiJn/QKepPhAWpGUg7pzNBngOEOKJthXYHxBadcqzRPtZ+Kja2v2SzimHNcYw5zWdNrS+/FvNE/B34PZtB757ki80dcJ2hlYXToOmOXoQiaYFwHoJnAcP7KSx1ygEguayRnKl79W2jiSe+d5wouVoIdBkb7RQFWRzidRBeEaGxgFede5LBHClWuszdCE88vwU5Y5W9pD6ful4fjG6QbzNx1M1NWB/kTwB9wRjiK3FvF74mvwBza+QJMEWx8OQ0wwoq2vK4OwmvPCcjh8RPD+wlGz/IOrLwBm2aX4dP6rbmJnnvX8qQY+4l1sDcv/3uwv9FyYss853hSN3B/xz6C1ScwNp7azT+DPJ/yc78JRu+d5woBM3mA9ab3DnfTW8+P7nH+1doDmMl/BzZf2Pmi7k1vvT6x3wNT/p9O7Gftj3JfX8CU/xmsMdFOsN54fyd+WwSDyaD3znPFBBOx4L/Q8Pse7JX4q7zPfasPtR/AwlPBQ2PGB4OX+qKW3jvPFVjBGJb/a5bGM1YDyduMrrnx32eNn2o/grnyWnn85eR1X/uk+c/yXe0/g4nBm8af9Kn2HRhD4P5SfD9W7evfaOf4A7Ml+Bphg5KLAAAAAElFTkSuQmCC","news-rewards/YuYu的應援(30分).png":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAjCAYAAADxG9hnAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAQkSURBVFhHvZgBkfQoEIVjAQtYwAIWsIAFLGABC1jAAhawgIV39bqTSZZM/pmtu/u76hUM6X79QZjdrd22fxl9g6HW9b8WUwHs2OAozrm25v2v0TYYATCIwyKLDGJXKD4zhKI4X+s/hMUnGZGD2wLillFdx2wQcc41PlvFGtaufqoFwtn0XibBi7IomIJkKqodAnCEwNiBZJoo247iOrJtiKaIB71W/wXmDcheSIOwA0RTpUkxHT1MBagqBtcIU93A4PoARp1ItsomDs+vQLZt22VEdnMINiG7iuI7qh9oYWL2o7nqOJXm9dkoEy1OFNcQTIKV10pP9f8jiDRm0UXeFtQ8ZHdr6N2YIs57gkC0qHNGzxPRVjiTf/hm19+BODibYYyHdwXBVXhX4WwRkOgaCk8iTrSkjWrgbieymyhe1xkcj9PimH1H4Kuhl6u7d0F2Q3qy9wtDAZiQkeJAb5AxuAYvJhXRdVkfDShhIhHCT5Q0MfbGlZA7ECFKGIhWPeh19WYte7K3QMQIY21EDB05DYz9FXDMPNbQ95005KgXlI05p+kRXCtJ6xgEJDzrxDvPt97SO8IQxDqX0fddrdHahPcNnobxBBWjOJHSRE4TKU7krM+Yw8+sCb6hd93AGuzJ3mTYQRLS5TSO4OeYBpyvcL7J/MhJBQjcNYEy86asnXVTalh7rTtCYOntkoKEAGNsgA8dKWv2q1lWM+sKbGiIRXfWaVJ1POK1tm+euaxhLT3oxTg3MqUne5PhvKy+wseK1jWJo49djAxBYkPZ70TpZ0OO1zmfSU6D1EitK+J19eYrZc/XZRWQzclXyrgAFypcaDIKBL/WLotpXe5RrBM+qzi/BnMVJIuHnMzFO4WhPa9fX36XPb/TxsDYpM1lpCKMS7CxovYpDbhrXwZs7DChijjnWu4KwVzWsFY8Xn7qzR9o0vMtyLbBmHgXjTxPhQ2b7pQAstu9AecC1GATc6rUSK2J8tP06vkWRF7NC4S3l8kcA6yJcKaIjtf0ArgB70Ci/SSkPqHmDrcdNUF+M7Pnj1dzBznlt/2HA6Awa/NX7rp+QsRNbznHA+YBxCPY8hGE85/Nf0pPj7/UNIcjT+Ia/Mx1grAne38FwiICUEeDJ3G3DN0116LMn07kVyC/kZzIdp7IIa6dd0TXvgThLV/vwF1Pje+nePd7AAkXEDXhH0Of7sT9Vaju9+peS5AoIOEnCP+KIoheMP2FwHHd7VVPJ/I9SH0G+c2JPOn+au45DyDxAsLE+zv9r3WCxBPE7iAUE/6Gjn7s/QMk8W/KB7Uybmvf6lPtApJuCVcjxifDd/qmlr3fgjBWoyOuhte8d2vf1j6CrPpmV0/6pnYByfuD/lZqtK5f839be9aw9wuE4eRfClkeHPN3n9dnh9Znf9I1/+j/D1OURfWxSoqqAAAAAElFTkSuQmCC","news-rewards/救世卷軸選擇券.png":"data:image/png;base64,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","news-rewards/星彩卷軸選擇券.png":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAfCAYAAACCox+xAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAATASURBVFhHlVcJkew6DBQFUxAFURAFUwiFUDAFUwiFUDAFUxCF/l+yc87s1j5V9SiX3W0dnoTosIafMU3xI1hBqqCsoOUX+H0VEAuIHGRp4IO0Id0Q1xTyG/GqoKqgpqCuIPsFXUBNQJVBORnxT0KYGqQBm/t5fgg5yH1lb2L8izEIyaiRpULGQl0eQjwCTr4YYO79PPUtKVgUVBS0/0RMW59oA93i/Ly3rKCyoe3LNcbYqEuhrvwQ4pFwEf6Q+x3YxBZVJI9AXD8nOYk7qA3SEzbun89FAusQ0cci+jI8dd2pZX1HRKlhnRFZuddFwZsifRcQpDcRLuj2zHi+gfICKhVbZaClEHMKaUujvuZ3WrKnZDfsqe9ZTKsiRSQeKzxwPz9EuK97pCGe92NPy1pCSC8UYq6IrDtZOSPiRZlvtaFsOQvSfqzqEjFr4FjtgdouEY5jTNlGRBzLEHMY9WJktZBtZ43IvTaombLJKmc05qRRgDdiRxxP8jIiEek6IuLnmk/yMc8KstKmCCHsZ9fcI5JTr8pI9ZgofJupcH9bdYkamQIc/sy6RXHGuMO3ZQjoIaCSbZls5xBxE+I1EntI+J412UzLubJ9iDgI647UR92k4/paLyw1whven+kFZNtGvS3UzWvRuc5N8941F7oIGV9CfMJDgK9+b0jdMBKG8LwbUm1IZUdaKlIuMS68C7HNyFq5R/7YML8L8V2uC1OX6htyiDnC6xvSJP/JmpMvG5JOIe5dCBqS9cc+NaMyhbyteUsHVmoufobXJ1036P7Y1z4sl46kFbICyX98nHuPmqFRR7nv3L8KSX115NTXKIJ7mH21eZTNh+ViYK1BfCDG8RAiBuOOSM/cPG+p+WLJqkOTjb69h9nBS5TPh7FuQZp4geQe3poLGf8vuQPasHGD+i7/LNYvlrA7OKFVz63bPcxO+M1Y6hChLfyBh5gNTbeIyONV46sx+oQtDIuiiPBGmJcIv1vdDCxbeH+IpSClBSnlCT+eQtIQoiu6riHk2SSD2CZA8oTK7FIX0PfhB1ak5HCy+/Eh4kKMm0JEYaJY/L3iIcTJb0I4yIGshkU7Sm5oefasTzYm/SQT3SGeMnOyDZ5gh9+rZYyJ9DE6MzLzKx1DSKxeBChq2LWj5wZbdph3SB6ZOCfVIN1PfyBWLC7CWS7chUhCkwQV1/kW4iLUULWPzeabHcR3ETm3p4iIhJP7a/H1hutC4n4KVEngEHIvUvHWHykIEcekb9K3X8slzqMQY6UGcaSL60daJMEkYWX50i3aobkh2CPHU4STrMXi2jMFG9Z1kDq8U5jL2RmnkIl3WljP1n0W6+IRrqMz7sU2MIjz0m/ENYiZ14Bof7XpJeAhgmGcUbf+/EI4kStU1ysiPpmH+iDOi1f6II62vbUoBXRg1sO+IfzdPCWs2Kl+/M9ckdElvhUKy6gRD7Wv5FrtjXSS/cWEAl4TOzPK1l5fCIb6EOIbCzOEOar5x66520nyHV0ITQhVCIu3KvsX2hZ/co9vpocQ31gckiCSUHwFktCjwn8nWYPoE1kIKgQWehRkvAHOSHzWyBRxwPvbNxuf7E3wQfIXPMi+fFefiL3kEnLhy6Tf8Cd7k74F/G//AfcfRH8UL44aAAAAAElFTkSuQmCC","news-rewards/紫水晶寶石.png":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAR3SURBVFhHpZcNleYsDIWxgIVawAIWYgELWMACFrAQC7EQC1jIdy4/89JpZ3++7Zx7utud5T4kaUidXc2ZK27cs7pO7HoS30muThI6cewk1NMh/P1N698VonGPShqU9JKkXkidZXN2mXOuuIZ7XuaSxCmJn+YM87gWTD1J7knKn0qnsqbxQ0oKkEtT90LdS+rT3BX3Zh56GuYwxoK1J2k9Cf8kvUm3miatmrQskCikQRYEb4i7uXw3b8Zd7X9enbsukAEhA6IPCF4QH/M0zBFyhBu7ZuPe50pL8pSWpyRPTQjrmjpr6lVSz5I6SQKEAcLtgts7f5qfAN2sy126zLY4fdTSB0JSZ/lArEiYd6PaP2F/mu/rhOCPJH3E0awtMZnVpfHf7xBwi0J2AeDM+bs5LjxFNUAHhNA05mBWL7MWpvCs4Fl8hSiSLAlZQAqQ911w7+a4ToAN0cwUANc0PyXBrFw/QViTZICIABih/6Nqf4HQawH4u/As+wOCbjWhkqxKMgJAVuz+X64jJVpnMcI8ebMMEERjRWG/HSsKCQAz97h+F4MzAngNYVpnKsa9ToABkQzxNfLd0oa4AzBvAHSw8XQv/nad5mxjUYR373BDbAD0gw1A63fyN4CvCDwA3iA2gHzMoVH1cUEc5hsAQipS6A+AnyPwBrHD3mzsCBA77MgvdO4eDWqbR0QBAPEBkH8NcEIs8216agCEuzmUnOFF/wuAo9vdhGsX3KEdCQDcwr8AojMjD3VLqIHfAuwef7RaLIhInJW+9TCHcCYkM01ml9Oh4NVi6JZi/wLgPwLAyYYOBoCX0A+AHfq9+3Uu4O6d/AMAzLEYAF7Cv/UwR6XTBmgD4hcAyc3xSW8A506w2Oj5p9kSIoA6+G4+APIGaHZ5mQD0Afh6DR8AK48nAM72206XdhHuvJ+7R9FNc7bg2WKQG8AZAQyP4yz4Hl6kAYLZgHiZfnbFw3QIr98wR/7FLq8WLjGKaon0BGgLYPxUzG8rNHOiwemF4QI9fLxKT+E5jN6F3RcLV7UYqlFsY+2xUTblZJVxGo6xeQ6Nra95YAPsCQctd7TTQxsK3e40nruG+GaONZd5X7svjHlgzOwzCqMW8As3CIxVaCIr3/scQHfDn0eX832ZouJlhDxcyPurOXIP88SYiOYHwxcE5vg7RJoTDRrOOFLDPFjG4RJstNiteOF1m6LIP5lXJstMFhkzoSb14/NpQqAgqxwQyFuF1oCJdrqF8x3v9lYe91lsifgr5wpz6tKot0aaG3Vq1AMTskbq8d0GiPVFl4U2xKyJPXL/raZ5t0aqNTKXyLXElkvkWEmvFju+jLob32uknklCI6YWuTTi1khEfzWo/uaCeSXREllyaC2FWlIolEMNJbCvpPg2tAWhvkW+SmyxxJpKbLVGbjWyAKSR6M/ShyqJVBLGGth5Di2nUCmFEnKoPkd22Tc3vlABUUlcjc3X2BZEoxo51xENqUuIylAdd31TXSoVipJqFCqRQ4l85dB8ic3li51z5v4Dw13bBDN1gDkAAAAASUVORK5CYII=","news-rewards/豪華真實符文：基爾德拉.png":"data:image/png;base64,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","news-rewards/豪華真實符文：塔拉哈特.png":"data:image/png;base64,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","news-rewards/選擇祕法符文交換券.png":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAiCAYAAAA6RwvCAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARnSURBVFhHvZcNlewgDIVrAQu1UAtYwAIWsIAFLGABC1iIhVjIOzclLe10dmffX865Z2emNPmahJRdlj8wEbn/9P8MwT/RP7FbECciq4hsD8LvuP53gd4E9/K14foOxSfUb9sEAYBLcOJdnSCWptq/z8bMnpkPoB/bLQu7U3UsQgjaSSrUSHLrkuup0nDtCsXMGzP/DGaCQHqHoxMCGehE+ldhOmnw3EgSVCGW0kRaxz3DB/0A5h2ElQJZIebxd5RnqLFIJZFCIrmL5CYKU5tI7wZDKNXXMJ9AmBmABh8q02cI13TN6J0jM8zot/cwA+SxKWcIOKcmQpFUPXVpqUvN6BHSbCArANAM9TMrbH3D2nt3hEs2oq6znniCyCwcSbhMEKlLyU1yaRJLldhJM2IPgl4BCFmJmMNjVqZtqoH3hmSFMVOnA2LOxgGRm6RSJdQqvhXNiD0I/OhW/y4rA0R7AzdjJ2A28GhMCE8oyEQgoUBSKx+9AGHXxLqDbK1I6O21r6ZdJKzxXiCOJsWMKK1L7V13CO4zEEBA2A33suF7bCS+nSDzfDOIqWmv5ZnLAmcYSqk2qZgVKMcAwdNbNgCCa7NhnYJoRupLRmA2V47y7HFfQVAOQOwgLM2yMRoVIN2zNI8eOgNgDXZKKE1CbZqVTPQCUqtIaxeQszxzfwAkovNrU8doctxj92k/eJYazhGu2eoiqZDE0lWYsPeMITggAPM9SDeQriBYXycQ2DxbEAxlSokk5l0Y8drYN0NJ0CcKMrbxRyDoCawvCHiDgWk5FIJ3ZdLhdV+na8eOwWD7LiOjR0RBQu3qEABPEDBt7MiS0y6U5yERuwFkQLQZBFuYeZFtvYKg7qn2AwSOnyBgKEuOskOgAe8LJkNZrD8ANC3WXaNZuc+RfTCRvsS+dG4gcf/81kY2kAnIxryIHHPkXh4FqegTnCnwfpgd3kx3y3jNzxxPTAAxmKk/jrfwHeQoD96iEeeJMdCezHaNzhebN2NHHWvGZy0NsnEtCx78EeQoj84F7Ig3WbEdEyJLCDiZ7Y3+VCJ7kyvUeT09gjxlRXsAJ60xT8yPPfkWSbYAdfG+6Vq9jqyMmaHjHN9xDU90glzK8gTicNA1GMjerraN8RmZWiPJGrqsvsm61ePADACT9sQAmSDQpJf/f14MP+JMaTB4SaEEOH/e5bOI803cViXmfY5Y89rg0vfKtSSAuJTkEQRmMER0wCCIAlXMmVfh9zJkIJdDkJaMA3wS0UpE8P8ewiyEsJRSXGvtOMNqqkcQBJyDGwCuHwBT49ZaU845hBC2EMIaY3Tbtt3DPppzzq3btvkYY0wp5dPtecCZDzv34LCUUs05V+99Xtc1OeeCcw4E7h7wybBoXZbFL8sSl2VJ67rmbduK977GiAnz3mKMNYSA4AX3QM65NHyFZVl+BILFAMGNcKBAcDigMgKFEGbhN3vyCI37IfiCTzzgRxBmlhUTnBxyznnTuq4QflNNAU3wZXprvwCYocahMhxgcgAAAABJRU5ErkJggg==","news-rewards/萌獸卡牌包.png":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB0AAAAeCAYAAADQBxWhAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAHWSURBVEhLrZYBEYQgEEWpQAUrbIWtQAUqUMEKVLCCFaxwFaiwNx9dTzk50ZOZN6AuPBdFMaZSnGMxxjxNvUDopiQvkVzjOE39ZSRNGccsY/S/xdbaLJxEVjFRJ9R1wtTONIQsDSH8FiOrQUTiIkVbpY7bgVSzbZLykMSlJDEl8SkJD68sDd414ZlWqQpRx74ixUmIKU7ikWEc5yyd30HE0hF9oeLLUgTnZ7hQCp1zWVrjSOq9P5ciGB0xgPN+B7MTZq5SkzYLEbwFWf6iFOKNz+dDaJf2wYsPYaa4gZI+PCRFG2LUq/wAFc5Se1dq86tfLocz5uVSSHn9pB6WnRSLfIghM43xEL0OPh+GdulOqAMx7ryBbXwpxPSeSqmz+RmBnO0QP4MvbdTb8xqPvrelOlU62BkaX0qZqE3aWfMX23EgrQlRqlJkgLr3vGtvr92RVoVXKYWXpNqhlb+l20Fa0T6v8ZbULgPYw/Yns+9rqF9jaHqeKLvlgnWH+grap1WahQhmdF5wTM1on1J4KsXODZQ7ula0f7MUgdipPcHB1JIxpsPO9lD8BBDie7uRemwyF/m3mIg+dPPmulwaLRS/s6oUB2D+KzCv0n84m14tWfwgmsyuvAF861xA9568nAAAAABJRU5ErkJggg==","news-rewards/拼圖隨機箱.png":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAiCAYAAAA+stv/AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAALfSURBVFhHvZYNlaswEEZrAQuxgIVYiIVYiAUsxAIWsBALsRAL8843MNlhQku3u2/nnO/Qn5B7MwTax+NcpPLnRbUQralyXkhoSZsfFYMhsYRKcS52Un5fa+2x9VMRhgIOCemGBdtVX8l8KtI7IF0wneBQKad0kYJzvwTLNnTwtnoHbBfCFAewjYBzxBzbIbEfLehZsYDuwgmONksMHGOC2xi+rejeDkZ9R6ILCPgSbkQwZo2Fkv+Cx3kjP3mGf0tAoKeWW6gKxkUHCDE8+r393uUu8G4XhrZamM3VyjtcCTj/4MgesWAUUaMBcJcwBSrreeW9/YcAwEt9UCXHx5CvJfYVQ+JdkVLIT2FYuYUDqDPHVwKSVyJ63Loy6LRq1X6sWCJwiZUYr/+ViP1eSXCUgLQdEWjBeEzZ2iAxTizBLm5tj/1OSYiIvuYCF3CvklniXmA7BA7AS5HW+jXXrYfAGb5Si44oBxYTCWpxHScFXAtYEZUS0iBwufo17gJpPgl0iZPIFVylxcxgCQQA1Tter7rHT9TcRNXZfdAnPkQ+EBAJSS8tcSegAS0sw+fPBObZU85rF0FOhfYrOC5DF5geE9VkYDkTLQvVsOddASTGhUqptGIcb9y8w/3EYAgMHYjOnyUOAQm6oUW0wDLNHJEYBLZlh69x35h69SKQZk8RcX6HGwF+GCmRdQ4djNeIczPDkRAA2yUYuiU+IvhsEKCYKWCCC4Hkw7GZ8F/t6EjMHSyBDCQAl4iEZEnLAN8FUr7cA4B6N9MSIjW5PZ8IaAktAiiC11dwVAcndEAL1EoJkx2BDKXnAiKhRSTP4KgusHpPYZp3Ebn+/PPrOA3jbgS0hM4rARQL1JQoT54fsQBi9SzBu3kj8olzJ2Al7uBSPLD4RJuPfOIWQu8CxeUQwDP9XgCROS3orvikLcTzrYi82YFPwbZ4kkHixV3wW2Bbg4gV+F9gW11EBP4KbOvXwP8AVDhFPapiofcAAAAASUVORK5CYII=","news-rewards/YuYu的真終極成長祕藥.png":"data:image/png;base64,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","news-rewards/高級掛機能量6小時補充券.png":"data:image/png;base64,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","news-rewards/掛機能量1小時補充券.png":"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAB8AAAAfCAYAAAAfrhY5AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAIYSURBVFhHtVYLsYMwEMRCLWABC7FQC1ioBSzUAhawgAUsxMK92Us27zh+bYGd2aGEJrt3uXyq6gTi2OAhmbeBAiIStIHCcWzuF4eISLAGinA2ch4iGkSJ1AzuDdwjnBBUzEVXDPTtzOAlUFkzjxSeGfDG/CC/QsX57AeR7pXerSGm3Bi6BGXgEEWaXqSuRdqQDDDVV0ZsByoDvyWJS2wl9g8VBt2U2P4/mSmp9msX0UOYRWafaE99QyFN9K2X2IbtuNg8EK0VbqvHjPwvaVbBMbhhuCIywil6fJ/CS971swjHYVCuTMdn4oA14FNIYYiCMJAcRRVmVrJpP/Q+/Nplmq04I4X4P5LJqZ6UMuYlOn4eNLBImXnX7yXN01SEKRqfIrGJPxvwKZu9t9VD2zjHs2g7ERnktIE9qKAWlRGHoAojETcaWNSDijcxGUD0XTJxh4GyhjklQ9WvGlATuSavMrC2lGYGFM7AVRlY7FpD1Wv7UQYWBvIV7BtoR79f7xrImdD2PGXcO77eiLawZ4DCaTNKFxROX16+57FmYE3YH0Z+nLP4N+CEeS5cIY6cbVENeGGehpr6fA/wg3pwwNoQ1QKibLdYNiUeRulACnofxLVsT5yCFHnqFp/4MuxWyG+zecZvXMlAXki9KEBhinqh9wGtEVa2phpXMgDPPfGjiLfI/4LoS1LMchNb82wJc74NtP1AW4wL/AFbGwnrGpZa/wAAAABJRU5ErkJggg=="};
+// 僅確認是同一道具的別名才對應圖片；不以模糊搜尋猜測道具。
+const NEWS_ITEM_ALIASES={
+  '選擇秘法符文交換券':'選擇祕法符文交換券',
+  '經驗值5倍券':'經驗值5倍券(30分)',
+  'YuYu的應援':'YuYu的應援(30分)',
+  'YuYu大大的應援':'YuYu大大的應援(180分)',
+  '星彩卷軸抽選券':'星彩卷軸',
+  '救世卷軸抽選券':'救世卷軸選擇券'
+};
+function newsCanonicalItemName(name){
+  const normalized=String(name||'').trim().normalize('NFC').replace(/[\u00a0\u3000]/g,' ').replace(/\s*[:：]\s*/g,'：');
+  return Object.prototype.hasOwnProperty.call(NEWS_ITEM_ALIASES,normalized)?NEWS_ITEM_ALIASES[normalized]:normalized;
+}
+function newsItemAsset(name){
+  const canonical=newsCanonicalItemName(name);
+  return Object.prototype.hasOwnProperty.call(NEWS_EXTRA_ITEM_ASSETS,canonical)?NEWS_EXTRA_ITEM_ASSETS[canonical]:(Object.prototype.hasOwnProperty.call(NEWS_ITEM_ASSETS,canonical)?NEWS_ITEM_ASSETS[canonical]:null);
+}
+function newsDisplayItemName(name){
+  // 僅更正已確認的「祕法」錯字；其他簡稱仍按照公告原文顯示。
+  const normalized=String(name||'').trim().normalize('NFC');
+  return normalized==='選擇秘法符文交換券'?'選擇祕法符文交換券':normalized;
+}
+function newsItemThumb(name){
+  const path=newsItemAsset(name);
+  if(!path)return '';
+  const url=NEWS_INLINE_ITEM_PNG[path]||('player-tools/assets/'+path.split('/').map(encodeURIComponent).join('/'));
+  return `<span class="news-item-thumb"><img src="${pageEsc(url)}" alt="" loading="lazy" decoding="async"></span>`;
+}
+// 團康獎勵：只有明確的「名次／積分區間｜獎勵」才分組，不猜測普通道具名稱。
+function newsGroupedRewardLine(line){
+  const raw=String(line||'').trim();
+  // 優先使用明確的「條件｜獎勵」；兼容舊 OX 公告「每答對 1 題，額外獲得道具×數量」。
+  // 僅在獎勵段落辨識完整的條件句，不對一般敘述或道具名稱猜測。
+  const divider=raw.match(/^(.+?)\s*[｜|]\s*(.+)$/);
+  const ox=divider?null:raw.match(/^(每\s*(?:答對|答錯|完成)\s*\d+\s*(?:題|次))\s*[,，：:]\s*額外(?:可)?獲得\s*(.+)$/u);
+  if(!divider&&!ox)return null;
+  const label=(divider?divider[1]:ox[1]).trim().replace(/\s+/g,' ');
+  const rank=/^(?:參加獎|參與獎|報名獎|入圍獎|完賽獎|安慰獎|參加獎勵|參與獎勵|第\s*\d+\s*(?:[-－~～至]\s*\d+\s*)?名(?:\s*[(（]含[)）])?\s*(?:以後|以上)?)$/u;
+  const points=/^(?:\d+\s*[-－~～至]\s*\d+\s*積分|\d+\s*積分\s*(?:以上|以下))$/u;
+  const extra=/^每\s*(?:答對|完成)\s*\d+\s*(?:題|次)(?:\s*額外獲得)?$/u;
+  if(!rank.test(label)&&!points.test(label)&&!extra.test(label))return null;
+  const rewards=newsRewardItems(divider?divider[2]:ox[2]);
+  if(!rewards||!rewards.length)return null;
+  return {label,rewards};
+}
+function newsGroupedRewardCards(groups){
+  if(!groups.length)return '';
+  return `<div class="news-ranked-rewards">${groups.map(group=>`<div class="news-rank-row"><div class="news-rank-label">${pageEsc(group.label)}</div><div class="news-rank-items">${group.rewards.map(item=>`<div class="news-rank-item"><span class="news-reward-description">${newsItemThumb(item.label)}<span class="news-reward-name">${newsInline(newsDisplayItemName(item.label),false)}</span></span><strong>×${pageEsc(item.quantity)}</strong></div>`).join('')}</div></div>`).join('')}</div>`;
+}
+function newsRewardGrid(items){
+  return `<div class="news-reward-grid">${items.map(x=>`<div class="news-reward-item"><span class="news-reward-description">${newsItemThumb(x.label)}<span class="news-reward-name">${newsInline(newsDisplayItemName(x.label),false)}</span></span>${x.quantity?`<strong>×${pageEsc(x.quantity)}</strong>`:''}</div>`).join('')}</div>`;
+}
+function newsStandaloneItemLine(raw){
+  const text=String(raw||'').trim();
+  // 刻意只匹配一整行完整的道具名稱，避免公告敘述中的同名詞語被誤判。
+  if(!newsItemAsset(text))return null;
+  return `<span class="news-inline-item">${newsItemThumb(text)}<span>${newsInline(newsDisplayItemName(text),false)}</span></span>`;
+}
+
+function newsRenderedBody(raw){
+  const text=String(raw??'').replace(/\r\n?/g,'\n').replace(/\u00a0/g,' ');
+  const lines=text.split('\n');
+  const blocks=[];
+  let buffer=[],list=[],listType='',group=[],grouped=[];
+  let currentHeading='',section=[];
+  function finishParagraph(){if(buffer.length){blocks.push(`<p class="news-paragraph">${buffer.map(x=>newsInline(x)).join('<br>')}</p>`);buffer=[];}}
+  function finishList(){if(list.length){blocks.push(`<${listType} class="news-readable-list">${list.map(x=>`<li>${newsInline(x)}</li>`).join('')}</${listType}>`);list=[];listType='';}}
+  function finishGroup(){if(group.length){blocks.push(newsRewardGrid(group));group=[];}}
+   function finishGrouped(){if(grouped.length){blocks.push(newsGroupedRewardCards(grouped));grouped=[];}}
+  function finishSection(){finishParagraph();finishList();finishGroup();finishGrouped();if(currentHeading){section.push(...blocks);blocks.length=0;const icon=NEWS_HEADINGS[currentHeading];const headingHtml=`<h3 class="news-section-heading">${newsIcon(icon)}<span>${pageEsc(currentHeading)}</span></h3>`;const contentHtml=section.join('');section=[];sections.push(`<section class="news-detail-block">${headingHtml}${contentHtml}</section>`);}else{intro.push(...blocks);blocks.length=0;}}
+  const sections=[],intro=[];
+  for(const untrimmed of lines){
+    const line=untrimmed.trim();
+    const heading=newsHeading(line);
+    if(heading){finishSection();currentHeading=heading.name;continue;}
+    if(!line){finishParagraph();finishList();finishGroup();finishGrouped();continue;}
+    const rewardSection=/^(序號內容物|獎勵內容|活動獎勵|補償內容|補償獎勵|獎勵清單|排名獎勵|名次獎勵|積分獎勵|積分區間)$/.test(currentHeading);
+    const tier=rewardSection?newsGroupedRewardLine(line):null;
+    if(tier){finishParagraph();finishList();finishGroup();grouped.push(tier);continue;}
+    finishGrouped();
+    const rewards=rewardSection?(newsRewardItems(line)||(newsItemAsset(line)?[{label:line,quantity:''}]:null)):null;
+    if(rewards){finishParagraph();finishList();group.push(...rewards);continue;}
+    finishGroup();
+    if(/^(兌換序號|序號兌換|序號資訊)$/.test(currentHeading)&&/^[A-Za-z0-9][A-Za-z0-9_-]{3,49}$/.test(line)){
+      finishParagraph();finishList();blocks.push(`<div class="news-code-box"><code>${pageEsc(line)}</code><button type="button" class="news-code-copy" data-copy-code="${pageEsc(line)}" aria-label="複製兌換序號">${newsIcon('ticket')}<span>複製序號</span></button></div>`);continue;
+    }
+    const unordered=line.match(/^(?:[-*•·・])\s+(.+)$/),ordered=line.match(/^\d+[.、．)]\s*(.+)$/);
+    if(unordered||ordered){finishParagraph();const wanted=ordered?'ol':'ul';if(list.length&&listType!==wanted)finishList();listType=wanted;list.push((ordered||unordered)[1]);continue;}
+    finishList();buffer.push(line);
+  }
+  finishSection();
+  return `<div class="news-readable-body">${intro.join('')}${sections.join('')}</div>`;
+}
+async function newsCopyCode(button){
+  const value=button.getAttribute('data-copy-code');
+  if(!value)return;
+  try{
+    if(navigator.clipboard&&window.isSecureContext)await navigator.clipboard.writeText(value);
+    else {
+      const temp=document.createElement('textarea');temp.value=value;temp.style.position='fixed';temp.style.opacity='0';document.body.appendChild(temp);temp.select();
+      const copied=document.execCommand('copy');temp.remove();if(!copied)throw new Error('copy failed');
+    }
+    const label=button.querySelector('span');if(label)label.textContent='已複製';
+  }catch(err){window.prompt('請複製以下序號：',value);}
+}
+const DUODUO_NEWS_ICON_PATHS={"book-open":"<path d=\"M12 7v14\"/><path d=\"M3 18V5a2 2 0 0 1 2-2h3a4 4 0 0 1 4 4 4 4 0 0 1 4-4h3a2 2 0 0 1 2 2v13h-5a4 4 0 0 0-4 3 4 4 0 0 0-4-3z\"/>","list-checks":"<path d=\"m3 5 2 2 4-4\"/><path d=\"M12 6h9\"/><path d=\"m3 12 2 2 4-4\"/><path d=\"M12 13h9\"/><path d=\"m3 19 2 2 4-4\"/><path d=\"M12 20h9\"/>","scroll-text":"<path d=\"M8 21h12a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2H6\"/><path d=\"M4 17h13a2 2 0 0 1 2 2v2H6a3 3 0 0 1-3-3V6a3 3 0 0 1 6 0v1H5\"/><path d=\"M11 9h7M11 13h7\"/>","gift":"<rect x=\"3\" y=\"8\" width=\"18\" height=\"4\" rx=\"1\"/><path d=\"M5 12v9h14v-9M12 8v13\"/><path d=\"M12 8H8a2 2 0 0 1 0-4c3 0 4 4 4 4zM12 8h4a2 2 0 0 0 0-4c-3 0-4 4-4 4z\"/>","info":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 16v-4M12 8h.01\"/>","file-text":"<path d=\"M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z\"/><path d=\"M14 2v6h6M8 13h8M8 17h8\"/>","send":"<path d=\"m22 2-7 20-4-9-9-4z\"/><path d=\"M22 2 11 13\"/>","target":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><circle cx=\"12\" cy=\"12\" r=\"6\"/><circle cx=\"12\" cy=\"12\" r=\"2\"/>","shopping-cart":"<circle cx=\"9\" cy=\"21\" r=\"1\"/><circle cx=\"20\" cy=\"21\" r=\"1\"/><path d=\"M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6\"/>","trophy":"<path d=\"M8 21h8M12 17v4\"/><path d=\"M7 4h10v8a5 5 0 0 1-10 0z\"/><path d=\"M7 6H4v3a4 4 0 0 0 4 4M17 6h3v3a4 4 0 0 1-4 4\"/>","calendar-days":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M16 2v4M8 2v4M3 10h18M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01\"/>","star":"<path d=\"m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01z\"/>","sparkles":"<path d=\"m12 3 1.9 6.1L20 11l-6.1 1.9L12 19l-1.9-6.1L4 11l6.1-1.9zM5 2v4M3 4h4M19 17v4M17 19h4\"/>","skull":"<path d=\"M12 2a8 8 0 0 0-8 8c0 3 1 5 3 6v4h10v-4c2-1 3-3 3-6a8 8 0 0 0-8-8z\"/><path d=\"M9 21v1M12 21v1M15 21v1\"/><circle cx=\"9\" cy=\"11\" r=\"1\"/><circle cx=\"15\" cy=\"11\" r=\"1\"/><path d=\"m12 13-1 2h2z\"/>","swords":"<path d=\"m14.5 17.5 3-3L6 3H3v3l11.5 11.5zM13 19l2-2M16 16l3 3M2 22l6-6M9 9l11-6h2v2l-7 7\"/>","gem":"<path d=\"M6 3h12l4 6-10 13L2 9zM2 9h20M6 3l3 6 3 13 3-13 3-6\"/>","lightbulb":"<path d=\"M9 18h6M10 22h4M15 15.5A7 7 0 1 0 9 15.5c.7.5 1 1.2 1 2.5h4c0-1.3.3-2 1-2.5z\"/>","bell":"<path d=\"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4\"/>","heart":"<path d=\"M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1.1-1.1a5.5 5.5 0 0 0-7.8 7.8L12 21l8.8-8.6a5.5 5.5 0 0 0 0-7.8z\"/>","users":"<path d=\"M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M16 3a4 4 0 0 1 0 8M22 21v-2a4 4 0 0 0-3-3.87\"/><circle cx=\"9\" cy=\"7\" r=\"4\"/>","clipboard-list":"<rect x=\"5\" y=\"4\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M9 4.5V3h6v1.5M9 11h.01M12 11h4M9 15h.01M12 15h4M9 19h.01M12 19h4\"/>","clock":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M12 6v6l4 2\"/>","shield-alert":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/><path d=\"M12 8v5M12 17h.01\"/>","map-pin":"<path d=\"M20 10c0 5-8 12-8 12S4 15 4 10a8 8 0 1 1 16 0z\"/><circle cx=\"12\" cy=\"10\" r=\"2.5\"/>","coins":"<circle cx=\"8\" cy=\"8\" r=\"6\"/><path d=\"M8 5v6M6 6h3a1.5 1.5 0 0 1 0 3H6M16 7a6 6 0 1 1-9 9M16 14v5M14 15h3a1.5 1.5 0 0 1 0 3h-3\"/>","megaphone":"<path d=\"m3 11 18-5v12L3 13zM3 11v2M7 14l2 6h4l-2.3-7\"/>","ticket":"<path d=\"M2 9a2 2 0 0 0 0 6v3h20v-3a2 2 0 0 0 0-6V6H2zM13 6v2M13 11v2M13 16v2\"/>","flag":"<path d=\"M4 22V4m0 1c5-4 9 3 16-1v12c-7 4-11-3-16 1\"/>","check-circle":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m8 12 3 3 5-6\"/>","clipboard-check":"<rect x=\"5\" y=\"4\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M9 4V2h6v2m-6 9 2.5 2.5L16 10\"/>","list-todo":"<path d=\"M3 5h.01M8 5h13M3 11h.01M8 11h13M3 17h.01M8 17h13\"/>","list-ordered":"<path d=\"M8 6h13M8 12h13M8 18h13M2 4h2v4M2 10h2l-2 4h2M2 16h2v4H2\"/>","route":"<circle cx=\"5\" cy=\"5\" r=\"2\"/><circle cx=\"19\" cy=\"19\" r=\"2\"/><path d=\"M5 7v5a4 4 0 0 0 4 4h6a4 4 0 0 0 4-4V9\"/>","map":"<path d=\"m3 5 6-2 6 2 6-2v16l-6 2-6-2-6 2zM9 3v16M15 5v16\"/>","footprints":"<ellipse cx=\"7\" cy=\"14\" rx=\"3\" ry=\"5\" transform=\"rotate(-18 7 14)\"/><ellipse cx=\"17\" cy=\"10\" rx=\"3\" ry=\"5\" transform=\"rotate(18 17 10)\"/><path d=\"M3 6h.01M6 4h.01M17 19h.01M20 17h.01\"/>","compass":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m16 8-2 6-6 2 2-6z\"/>","search":"<circle cx=\"11\" cy=\"11\" r=\"7\"/><path d=\"m16 16 5 5\"/>","filter":"<path d=\"M3 4h18l-7 8v7l-4 2v-9z\"/>","puzzle":"<path d=\"M5 3h5a2 2 0 1 0 4 0h5v6a2 2 0 1 1 0 4v6h-6a2 2 0 1 1-4 0H5v-6a2 2 0 1 0 0-4z\"/>","book-check":"<path d=\"M12 7V21M3 18V4c3-1 6-1 9 2 3-3 6-3 9-2v14c-3-1-6-1-9 3-3-4-6-4-9-3z\"/><path d=\"m15 11 2 2 3-4\"/>","pen-line":"<path d=\"m4 17-1 4 4-1L20 7l-3-3zM14 7l3 3M3 10v-6h7\"/>","check-check":"<path d=\"m2 12 4 4 7-8M10 12l4 4 8-9\"/>","bookmark":"<path d=\"M5 4a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v18l-7-5-7 5z\"/>","clipboard-pen":"<rect x=\"5\" y=\"4\" width=\"14\" height=\"18\" rx=\"2\"/><path d=\"M9 4V2h6v2m-6 11 6-6 2 2-6 6-3 1z\"/>","file-check":"<path d=\"M14 2H5a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V9zM14 2v7h7m-13 7 3 3 5-6\"/>","list-filter":"<path d=\"M4 7h16M7 12h10M10 17h4\"/><path d=\"M3 4v6M21 4v6\"/>","package":"<path d=\"m3 7 9-4 9 4v10l-9 4-9-4zM3 7l9 4 9-4M12 11v10M7 5l9 4\"/>","package-open":"<path d=\"m3 9 9 4 9-4M12 13v8M3 13v5l9 3 9-3v-5M3 9l5-6 4 4 4-4 5 6-5 3-4-5-4 5z\"/>","medal":"<circle cx=\"12\" cy=\"16\" r=\"5\"/><path d=\"M8 12 5 3h5l2 5 2-5h5l-3 9m-4 1 1 2 2 .5-1.5 1.5.5 2-2-1-2 1 .5-2L9 15l2-.5z\"/>","award":"<circle cx=\"12\" cy=\"9\" r=\"6\"/><path d=\"m8 14-2 8 6-3 6 3-2-8M12 6l1 2 2 .4-1.5 1.5.4 2.1-1.9-1-1.9 1 .4-2.1L9 8.4l2-.4z\"/>","crown":"<path d=\"m2 7 5 5 5-7 5 7 5-5-2 12H4zM5 22h14\"/>","wallet":"<rect x=\"3\" y=\"6\" width=\"18\" height=\"15\" rx=\"2\"/><path d=\"M3 9V5a2 2 0 0 1 2-2h13M15 13h6v5h-6a2 2 0 0 1 0-5z\"/>","credit-card":"<rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20M6 15h4\"/>","key-round":"<circle cx=\"16\" cy=\"8\" r=\"5\"/><path d=\"m12 12-9 9 4-1 1-3 3-1 2-3\"/>","lock-keyhole":"<rect x=\"4\" y=\"10\" width=\"16\" height=\"12\" rx=\"2\"/><path d=\"M8 10V7a4 4 0 0 1 8 0v3M12 15v3\"/>","shopping-bag":"<path d=\"M4 8h16l-1 13H5zM9 9V6a3 3 0 0 1 6 0v3\"/>","box":"<rect x=\"3\" y=\"8\" width=\"18\" height=\"13\" rx=\"2\"/><path d=\"M3 12h18M10 12v4h4v-4M7 8V5h10v3\"/>","gift-card":"<rect x=\"2\" y=\"5\" width=\"20\" height=\"14\" rx=\"2\"/><path d=\"M2 10h20M12 10v9M12 10H9a2 2 0 0 1 0-4c2 0 3 4 3 4zM12 10h3a2 2 0 0 0 0-4c-2 0-3 4-3 4z\"/>","diamond":"<path d=\"M12 2 22 12 12 22 2 12z\"/><path d=\"M2 12h20M12 2l4 10-4 10-4-10z\"/>","coins-stack":"<ellipse cx=\"12\" cy=\"6\" rx=\"8\" ry=\"3\"/><path d=\"M4 6v5c0 2 3.5 3 8 3s8-1 8-3V6M4 11v5c0 2 3.5 3 8 3s8-1 8-3v-5M4 16v2c0 2 3.5 3 8 3s8-1 8-3v-2\"/>","piggy-bank":"<path d=\"M5 11a7 7 0 0 1 13-3l3-1v6l-3 1a7 7 0 0 1-2 3v3h-3v-2H9v2H6v-4a7 7 0 0 1-1-5zM8 6l-1-3 4 2M16 10h.01\"/>","percent":"<circle cx=\"6\" cy=\"6\" r=\"3\"/><circle cx=\"18\" cy=\"18\" r=\"3\"/><path d=\"M3 21 21 3\"/>","hand-coins":"<circle cx=\"17\" cy=\"6\" r=\"4\"/><path d=\"M15 6h4M4 16l5-2 5 2h4a2 2 0 0 1 0 4h-8l-6 2M2 13h3v9H2\"/>","scroll":"<path d=\"M8 20h11a3 3 0 0 0 3-3V5H7v12a3 3 0 0 1-3 3h4M7 4H5a3 3 0 0 0-3 3v2h5M11 10h7M11 14h7\"/>","flask-conical":"<path d=\"M9 2h6M10 2v7L4 20a1 1 0 0 0 1 2h14a1 1 0 0 0 1-2L14 9V2M7 16h10\"/>","shield-check":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/><path d=\"m9 12 2 2 4-4\"/>","dices":"<rect x=\"3\" y=\"3\" width=\"14\" height=\"14\" rx=\"2\"/><path d=\"M8 8h.01M12 12h.01M18 9h3v12H9v-3M13 18h.01M18 14h.01\"/>","chess-knight":"<path d=\"M7 21h13M9 18h9v3H7v-3l3-5-5-4 1-5 6-2 6 5v4l-3 7M9 7l2 1M5 9l4 1\"/>","party-popper":"<path d=\"m3 22 6-2-4-6-2 8zM5 14l7 7M13 3v3M21 4l-2 2M20 12h3M9 8l2-2M15 11l3-3\"/><path d=\"M8 2c5 0 9 4 9 8\"/>","users-round":"<circle cx=\"9\" cy=\"8\" r=\"4\"/><path d=\"M2 21v-2a5 5 0 0 1 5-5h4a5 5 0 0 1 5 5v2M17 5a3 3 0 0 1 0 6M18 14a4 4 0 0 1 4 4v3\"/>","user-round":"<circle cx=\"12\" cy=\"8\" r=\"4\"/><path d=\"M4 22v-2a8 8 0 0 1 16 0v2\"/>","user-plus":"<circle cx=\"9\" cy=\"8\" r=\"4\"/><path d=\"M2 21v-2a7 7 0 0 1 11-6M18 14v8M14 18h8\"/>","message-circle":"<path d=\"M21 11a9 9 0 0 1-9 9c-2 0-4-.5-5-1l-5 2 2-5a9 9 0 1 1 17-5z\"/>","messages-square":"<rect x=\"3\" y=\"3\" width=\"15\" height=\"12\" rx=\"2\"/><path d=\"M7 15v5l4-5M18 8h2a2 2 0 0 1 2 2v9h-7l-3 3v-4\"/>","thumbs-up":"<path d=\"M3 10h4v12H3zM7 11l5-9a2 2 0 0 1 3 2l-1 4h5a3 3 0 0 1 3 4l-3 9H7z\"/>","share-2":"<circle cx=\"18\" cy=\"5\" r=\"3\"/><circle cx=\"6\" cy=\"12\" r=\"3\"/><circle cx=\"18\" cy=\"19\" r=\"3\"/><path d=\"m9 11 6-5M9 13l6 5\"/>","radio":"<circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M7 7a7 7 0 0 0 0 10M17 7a7 7 0 0 1 0 10M4 4a11 11 0 0 0 0 16M20 4a11 11 0 0 1 0 16\"/>","camera":"<path d=\"M3 7h4l2-3h6l2 3h4v13H3z\"/><circle cx=\"12\" cy=\"13\" r=\"4\"/>","image":"<rect x=\"3\" y=\"3\" width=\"18\" height=\"18\" rx=\"2\"/><circle cx=\"8\" cy=\"8\" r=\"2\"/><path d=\"m3 17 5-5 4 4 4-6 5 7\"/>","video":"<rect x=\"2\" y=\"5\" width=\"15\" height=\"14\" rx=\"2\"/><path d=\"m17 10 5-3v10l-5-3\"/>","mic":"<rect x=\"9\" y=\"2\" width=\"6\" height=\"12\" rx=\"3\"/><path d=\"M5 10a7 7 0 0 0 14 0M12 17v5M8 22h8\"/>","music-2":"<path d=\"M9 18V5l12-2v12M9 5l12-2\"/><circle cx=\"6\" cy=\"18\" r=\"3\"/><circle cx=\"18\" cy=\"15\" r=\"3\"/>","headphones":"<path d=\"M3 14v-2a9 9 0 0 1 18 0v2M3 14h4v7H5a2 2 0 0 1-2-2zM17 14h4v5a2 2 0 0 1-2 2h-2z\"/>","heart-handshake":"<path d=\"M12 21 3 12a5 5 0 0 1 7-7l2 2 2-2a5 5 0 0 1 7 7z\"/><path d=\"m8 12 2 2 4-4\"/>","sword":"<path d=\"m14 12 8-10-10 8-2 4-3 3 3 3 3-3M6 18l-3 3M4 15l5 5\"/>","shield":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z\"/>","flame":"<path d=\"M12 22c5 0 8-4 8-9 0-4-3-7-5-10 0 5-4 5-5 9-1-2-2-3-2-5-3 3-4 6-4 9 0 4 3 6 8 6z\"/><path d=\"M12 22c3 0 4-2 4-4 0-2-2-4-3-5 0 3-4 4-4 6 0 2 1 3 3 3z\"/>","wand-sparkles":"<path d=\"m4 20 13-13 3 3L7 23zM17 2v4M15 4h4M3 5v4M1 7h4M20 15v4M18 17h4\"/>","mountain":"<path d=\"m2 21 8-16 5 10 3-5 4 11zM8 11l2 2 2-2\"/>","trees":"<path d=\"m7 3 5 8H9l5 7H1l5-7H3zM7 18v4M17 5l5 8h-3l4 7H12l3-7h-2zM17 20v2\"/>","castle":"<path d=\"M3 22V9h4V4h4v5h2V4h4v5h4v13zM9 22v-6h6v6M3 13h18M6 3v3M18 3v3\"/>","landmark":"<path d=\"m2 9 10-6 10 6zM4 10v10M9 10v10M15 10v10M20 10v10M2 22h20M3 20h18\"/>","door-open":"<path d=\"M4 22h16M6 22V4l12-2v20M6 4h12M15 13h.01\"/><path d=\"M20 12h3m-1-2 2 2-2 2\"/>","map-pinned":"<path d=\"m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3zM9 3v15M15 6v15\"/><circle cx=\"15\" cy=\"11\" r=\"2\"/>","anchor":"<circle cx=\"12\" cy=\"5\" r=\"3\"/><path d=\"M12 8v13M5 12H2M22 12h-3M5 14a7 7 0 0 0 14 0M5 14l-2 2M19 14l2 2\"/>","ship":"<path d=\"M12 2v12M5 14V6l7-4 7 4v8M2 15l10 7 10-7-10-3z\"/>","ghost":"<path d=\"M5 21V11a7 7 0 0 1 14 0v10l-4-3-3 3-3-3z\"/><path d=\"M9 11h.01M15 11h.01\"/>","bot":"<rect x=\"4\" y=\"7\" width=\"16\" height=\"14\" rx=\"3\"/><path d=\"M12 7V3M9 3h6M4 12H2M22 12h-2M8 14h.01M16 14h.01M9 18h6\"/>","rocket":"<path d=\"M4 13c1-6 7-10 16-11 1 9-3 15-9 16l-7-5zM11 18l-3 3M4 13l-2 6 6-2\"/><circle cx=\"15\" cy=\"9\" r=\"2\"/>","zap":"<path d=\"m13 2-9 12h7l-1 8 10-12h-7z\"/>","activity":"<path d=\"M2 12h5l3-8 4 16 3-8h5\"/>","bug":"<rect x=\"7\" y=\"8\" width=\"10\" height=\"13\" rx=\"5\"/><path d=\"M9 8V5a3 3 0 0 1 6 0v3M4 9l3 2M20 9l-3 2M3 15h4M17 15h4M5 21l3-3M19 21l-3-3M12 8v13\"/>","fish":"<path d=\"M2 12C7 5 15 5 20 12c-5 7-13 7-18 0zM20 12l3-4v8zM7 11h.01\"/>","leaf":"<path d=\"M20 3C8 2 4 8 4 14a7 7 0 0 0 7 7c6 0 10-6 9-18zM4 21C7 16 11 13 16 9\"/>","flower-2":"<circle cx=\"12\" cy=\"12\" r=\"2\"/><path d=\"M12 10c-5-8 5-10 3-3M14 11c8-5 10 5 3 3M14 14c5 8-5 10-3 3M10 14c-8 5-10-5-3-3M12 14v8\"/>","calendar-check":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 2v4M16 2v4M3 10h18m-12 6 2 2 4-4\"/>","calendar-clock":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 2v4M16 2v4M3 10h18\"/><circle cx=\"13\" cy=\"16\" r=\"4\"/><path d=\"M13 14v2l2 1\"/>","alarm-clock":"<circle cx=\"12\" cy=\"13\" r=\"8\"/><path d=\"M12 9v4l3 2M5 3 2 5M19 3l-2 5M5 21l2-3M19 21l-2-3\"/>","timer":"<circle cx=\"12\" cy=\"14\" r=\"8\"/><path d=\"M12 10v4l3 2M9 2h6M12 2v4M19 7l2-2\"/>","hourglass":"<path d=\"M6 2h12M6 22h12M7 2v4l5 6-5 6v4M17 2v4l-5 6 5 6v4\"/>","sun":"<circle cx=\"12\" cy=\"12\" r=\"4\"/><path d=\"M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2\"/>","moon":"<path d=\"M20 15a9 9 0 0 1-11-11 9 9 0 1 0 11 11z\"/>","sunrise":"<path d=\"M2 20h20M4 16h16M12 3v3M5 7l2 2M19 7l-2 2M7 16a5 5 0 0 1 10 0\"/>","sunset":"<path d=\"M2 20h20M4 16h16M12 3v3M5 7l2 2M19 7l-2 2M7 16a5 5 0 0 1 10 0\"/><path d=\"m10 10 2 2 2-2\"/>","repeat":"<path d=\"m17 2 4 4-4 4M3 11V9a3 3 0 0 1 3-3h15M7 22l-4-4 4-4M21 13v2a3 3 0 0 1-3 3H3\"/>","refresh-cw":"<path d=\"M21 9a9 9 0 0 0-16-3L2 9m0-6v6h6M3 15a9 9 0 0 0 16 3l3-3m0 6v-6h-6\"/>","bell-ring":"<path d=\"M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9M10 21h4M3 4l2 2M21 4l-2 2\"/>","alert-triangle":"<path d=\"m12 3 10 18H2zM12 9v5M12 18h.01\"/>","circle-help":"<circle cx=\"12\" cy=\"12\" r=\"10\"/><path d=\"M9 9a3 3 0 1 1 5 2c-2 1-2 2-2 3M12 18h.01\"/>","settings":"<circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M10 2h4l1 3 2 1 3-1 2 4-2 2v2l2 2-2 4-3-1-2 1-1 3h-4l-1-3-2-1-3 1-2-4 2-2v-2L2 9l2-4 3 1 2-1z\"/>","link":"<path d=\"M10 13a5 5 0 0 0 7 0l3-3a5 5 0 0 0-7-7l-2 2M14 11a5 5 0 0 0-7 0l-3 3a5 5 0 0 0 7 7l2-2\"/>","external-link":"<path d=\"M14 3h7v7M21 3 10 14\"/><path d=\"M20 13v7H4V4h7\"/>","qr-code":"<path d=\"M3 3h7v7H3zM14 3h7v7h-7zM3 14h7v7H3zM14 14h3M21 14v4M17 17v4M20 21h1M6 6h1M17 6h1M6 17h1\"/>","clover":"<circle cx=\"9\" cy=\"8\" r=\"4\"/><circle cx=\"15\" cy=\"8\" r=\"4\"/><circle cx=\"9\" cy=\"14\" r=\"4\"/><circle cx=\"15\" cy=\"14\" r=\"4\"/><path d=\"M12 16v6\"/>","snowflake":"<path d=\"M12 2v20M2 12h20M5 5l14 14M19 5 5 19M9 4l3-2 3 2M9 20l3 2 3-2\"/>","candy":"<rect x=\"7\" y=\"8\" width=\"10\" height=\"8\" rx=\"2\"/><path d=\"m7 10-5-3v10l5-3M17 10l5-3v10l-5-3\"/>","cake":"<path d=\"M3 13h18v9H3zM3 17h18M8 13V9M12 13V9M16 13V9M8 5v2M12 5v2M16 5v2\"/>","balloons":"<ellipse cx=\"8\" cy=\"8\" rx=\"5\" ry=\"6\"/><ellipse cx=\"17\" cy=\"7\" rx=\"4\" ry=\"5\"/><path d=\"m8 14-1 2h2zM17 12l-1 2h2zM8 16c0 3 4 3 4 6M17 14c0 5-3 5-3 8\"/>","confetti":"<path d=\"M3 21 8 8l8 8L3 21zM13 2v4M19 5l-2 2M21 12h-4M3 4l2 2M11 7l2-2M10 18l-2-2\"/>","palette":"<path d=\"M12 2a10 10 0 1 0 0 20h2a2 2 0 0 0 1-4 2 2 0 0 1 1-4h2a4 4 0 0 0 4-4A10 10 0 0 0 12 2z\"/><path d=\"M8 8h.01M13 6h.01M18 9h.01M7 15h.01\"/>","paintbrush":"<path d=\"m14 3 7 7-11 11-7 1 1-7zM11 6l7 7M3 21l4-4\"/>","masks":"<path d=\"M3 7c6 2 12 2 18 0v9c0 5-6 6-9 6S3 21 3 16zM7 12l3 1-3 1M14 13l3-1M9 17c2 2 4 2 6 0\"/>","pumpkin":"<path d=\"M12 6c-7-3-11 3-9 9 1 5 6 7 9 7s8-2 9-7c2-6-2-12-9-9zM12 6V2l3 2M9 8c-3 4-3 8 0 12M15 8c3 4 3 8 0 12\"/>","moon-star":"<path d=\"M19 15a9 9 0 0 1-10-10 9 9 0 1 0 10 10zM19 2l1 3 3 1-3 1-1 3-1-3-3-1 3-1z\"/>","cloud":"<path d=\"M7 19h11a4 4 0 0 0 0-8 7 7 0 0 0-13-2 5 5 0 0 0 2 10z\"/>","umbrella":"<path d=\"M3 12a9 9 0 0 1 18 0H3zM12 3v15a3 3 0 0 1-6 0\"/>","coffee":"<path d=\"M3 6h14v9a6 6 0 0 1-12 0V6M17 8h3a3 3 0 0 1 0 6h-3M2 22h19\"/>","apple":"<path d=\"M12 8c-5-5-11-1-9 7 2 8 7 8 9 6 2 2 7 2 9-6 2-8-4-12-9-7zM12 8c0-3 1-5 3-6M12 7c-2-3-4-4-7-3\"/>","heart-pulse":"<path d=\"M20 5a6 6 0 0 0-8 0 6 6 0 0 0-8 8l8 8 8-8a6 6 0 0 0 0-8z\"/><path d=\"M2 13h5l2-4 3 8 2-4h8\"/>","calendar-range":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 2v4M16 2v4M3 10h18M7 15h10M7 18h10\"/>","calendar-plus":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 2v4M16 2v4M3 10h18M12 13v6M9 16h6\"/>","calendar-x":"<rect x=\"3\" y=\"4\" width=\"18\" height=\"18\" rx=\"2\"/><path d=\"M8 2v4M16 2v4M3 10h18m6 3 6 6m0-6-6 6\"/>","clock-alert":"<circle cx=\"11\" cy=\"12\" r=\"9\"/><path d=\"M11 7v5l3 2M21 16v4M21 23h.01\"/>","book-marked":"<path d=\"M4 3h16v18H7a3 3 0 0 1-3-3V3zM4 18a3 3 0 0 1 3-3h13M10 3v7l3-2 3 2V3\"/>","notebook-pen":"<rect x=\"5\" y=\"3\" width=\"16\" height=\"18\" rx=\"2\"/><path d=\"M9 7h7M9 11h5M3 7h3M3 12h3M3 17h3m7 2 6-6 2 2-6 6-3 1z\"/>","list-tree":"<path d=\"M5 3v15M5 6h5M5 12h5M5 18h5M10 5h11M10 11h11M10 17h11\"/><circle cx=\"5\" cy=\"3\" r=\"1\"/>","badge-check":"<path d=\"m12 2 3 2 4-.2.2 4 2 3-2 3 .2 4-4 .2-3 2-3-2-4-.2.2-4-2-3 2-3-.2-4 4-.2z\"/><path d=\"m9 12 2 2 4-4\"/>","ticket-check":"<path d=\"M3 6h18v5a2 2 0 0 0 0 4v3H3v-3a2 2 0 0 0 0-4V6zM14 6v3M14 15v3m-8-6 2 2 3-4\"/>","badge-percent":"<circle cx=\"12\" cy=\"12\" r=\"9\"/><path d=\"m8 16 8-8\"/><circle cx=\"8.5\" cy=\"8.5\" r=\"1\"/><circle cx=\"15.5\" cy=\"15.5\" r=\"1\"/>","receipt-text":"<path d=\"M5 2h14v20l-3-2-4 2-4-2-3 2V2zM8 7h8M8 11h8M8 15h5\"/>","vote":"<rect x=\"3\" y=\"11\" width=\"18\" height=\"10\" rx=\"2\"/><path d=\"M7 11V6h10v5M8 4h8M9 16l2 2 4-4\"/>","podium":"<path d=\"M2 21v-7h6v7M8 21V9h8v12M16 21v-5h6v5M2 21h20M12 5v4M10 7l2-2 2 2\"/>","handshake":"<path d=\"m2 11 5-5 4 1 3-2 8 6-3 4-2-2-2 3-2-2-2 2-5-5-3 3-1-3zM7 6l3-3h5l2 3M11 7l-3 3 4 3 3-2M5 15l3 3M9 17l3 3\"/>","images":"<rect x=\"5\" y=\"5\" width=\"16\" height=\"16\" rx=\"2\"/><path d=\"M3 17V4a2 2 0 0 1 2-2h13M5 18l4-4 3 3 4-6 5 6\"/><circle cx=\"10\" cy=\"10\" r=\"2\"/>","message-square-text":"<path d=\"M4 3h16a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H9l-5 3V5a2 2 0 0 1 2-2zM8 9h10M8 13h7\"/>","crosshair":"<circle cx=\"12\" cy=\"12\" r=\"8\"/><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2v4M12 18v4M2 12h4M18 12h4\"/>","axe":"<path d=\"M4 21 16 9M7 18l-3 3M15 4c4-2 6-2 7-2-1 5-2 8-5 11l-6-6zM5 16l3 3\"/>","shield-plus":"<path d=\"M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10zM12 8v8M8 12h8\"/>","orbit":"<circle cx=\"12\" cy=\"12\" r=\"3\"/><ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"4\" transform=\"rotate(-35 12 12)\"/><ellipse cx=\"12\" cy=\"12\" rx=\"10\" ry=\"4\" transform=\"rotate(35 12 12)\"/>","tree-pine":"<path d=\"m12 2 7 9h-3l5 7H3l5-7H5zM12 18v4M9 22h6\"/>","snowman":"<circle cx=\"12\" cy=\"7\" r=\"4\"/><circle cx=\"12\" cy=\"17\" r=\"6\"/><path d=\"M9 2h6M12 3v-1M9 7h.01M15 7h.01M12 14h.01M12 18h.01M5 13l-3-2M19 13l3-2\"/>"};
+
+/* 前台新版公告：明確的後台欄位，不靠推測公告文字的標題。 */
+function newsSectionSvg(icon){
+  const key=String(icon||'file-text');const path=DUODUO_NEWS_ICON_PATHS[key]||DUODUO_NEWS_ICON_PATHS['file-text'];
+  return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${path}</svg>`;
+}
+function newsPlainContent(raw){
+ const lines=String(raw||'').replace(/\r\n?/g,'\n').split('\n');
+ let out=[],list=[],type='',paragraph=[];
+ const flushP=()=>{if(paragraph.length){out.push(`<p class="news-paragraph">${paragraph.map(x=>newsStandaloneItemLine(x)||newsInline(x)).join('<br>')}</p>`);paragraph=[];}};
+ const flushList=()=>{if(list.length){out.push(`<${type} class="news-readable-list">${list.map(x=>`<li>${newsInline(x)}</li>`).join('')}</${type}>`);list=[];type='';}};
+ for(const input of lines){const x=input.trim();if(!x){flushP();flushList();continue;}
+  const unordered=x.match(/^(?:[-*•·・])\s+(.+)$/),ordered=x.match(/^\d+[.、．)]\s*(.+)$/);
+  if(unordered||ordered){flushP();const wanted=ordered?'ol':'ul';if(list.length&&type!==wanted)flushList();type=wanted;list.push((unordered||ordered)[1]);continue;}
+  flushList();paragraph.push(x);
+ }flushP();flushList();return out.join('');
+}
+function newsRewardCards(raw){
+ const lines=String(raw||'').replace(/\r\n?/g,'\n').split('\n');
+ if(!lines.some(s=>s.trim()))return '';
+ const out=[];let collected=[],freeLines=[],tierGroups=[];
+  const flushTiers=()=>{if(tierGroups.length){out.push(newsGroupedRewardCards(tierGroups));tierGroups=[];}};
+ const flushCards=()=>{if(collected.length){out.push(newsRewardGrid(collected));collected=[];}};
+ const flushFree=()=>{if(freeLines.some(s=>s.trim()))out.push(newsPlainContent(freeLines.join('\n')));freeLines=[];};
+ for(const original of lines){
+  const line=original.trim();
+  if(!line){flushCards();flushTiers();freeLines.push('');continue;}
+  const tier=newsGroupedRewardLine(line);
+  if(tier){flushCards();flushFree();tierGroups.push(tier);continue;}
+  flushTiers();
+  const multiple=newsRewardItems(line);
+  const one=line.match(/^(.+?)\s*[×xX*＊]\s*(\d[\d,]*(?:\.\d+)?(?:千|萬|億|[Ee])?)\s*$/);
+  const result=multiple||(one?[{label:one[1].trim(),quantity:one[2]}]:(newsItemAsset(line)?[{label:line,quantity:''}]:null));
+  if(result){flushFree();collected.push(...result);}
+  else{flushCards();freeLines.push(original);}
+ }
+ flushCards();flushTiers();flushFree();return `<div class="news-rewards-content">${out.join('')}</div>`;
+}
+function newsStructuredBody(n){
+ const blocks=Array.isArray(n.newsSections)?n.newsSections.filter(x=>x&&typeof x==='object'&&String(x.body||'').trim()):[];
+ const serial=n.tag==='序號發放'&&n.newsSerial&&typeof n.newsSerial==='object'?n.newsSerial:null;
+ const hasCode=serial&&Object.values(serial).some(x=>typeof x==='string'&&x.trim());
+ const lead=String(n.newsLead||'').trim();
+ if(!lead&&!blocks.length&&!hasCode)return newsRenderedBody(n.body||'');
+ let out='<div class="news-readable-body news-structured">';
+ if(lead)out+=`<div class="news-structured-intro">${newsPlainContent(lead)}</div>`;
+ for(const item of blocks){
+  const title=String(item.title||'').trim()||'公告內容';
+  const body=String(item.body||'');
+  const gift=/(?:^|\b)(rewards|compensation)(?:$|\b)/.test(String(item.type||'')) || /^(?:活動獎勵|獎勵內容|排名獎勵|名次獎勵|積分獎勵|積分區間)$/.test(title);
+  out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg(item.icon)}<span>${pageEsc(title)}</span></h3>${gift?newsRewardCards(body):newsPlainContent(body)}</section>`;
+ }
+ if(hasCode){
+  const s=serial;
+  if(s.rewards){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('gift')}<span>序號獎勵</span></h3>${newsRewardCards(s.rewards)}</section>`;}
+  if(s.code){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('ticket')}<span>兌換序號</span></h3><div class="news-code-box"><code>${pageEsc(s.code)}</code><button type="button" class="news-code-copy" data-copy-code="${pageEsc(s.code)}" aria-label="複製兌換序號">${newsIcon('ticket')}<span>複製序號</span></button></div></section>`;}
+  if(s.expiry){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('clock')}<span>兌換期限</span></h3>${newsPlainContent(s.expiry)}</section>`;}
+  if(s.method){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('list-checks')}<span>使用方式</span></h3>${newsPlainContent(s.method)}</section>`;}
+  if(s.notes){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('info')}<span>兌換注意事項</span></h3>${newsPlainContent(s.notes)}</section>`;}
+ }
+ if(n.newsIncludeLegacy&&n.body){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('file-text')}<span>補充說明</span></h3>${newsRenderedBody(n.body)}</section>`;}
+ return out+'</div>';
+}
+
+let modal=document.getElementById('home-news-detail');
+if(!modal){modal=document.createElement('div');modal.id='home-news-detail';modal.className='news-detail';modal.dataset.scrollLock='';modal.hidden=true;document.body.appendChild(modal);}
+let returnFocus=null;
+let scrollBeforeOpen=0;
+let active=false;
+const readStorage=key=>{try{const raw=sessionStorage.getItem('duoduo_cloud_'+key)??localStorage.getItem(key);const parsed=raw?JSON.parse(raw):null;return Array.isArray(parsed)?parsed.filter(x=>x&&typeof x==='object'):null;}catch(_){return null;}};
+// Match official app.js sorting so the selected announcement is exactly the home row.
+const parseDate=value=>{
+ const raw=String(value??'').trim().replace(/\s+/g,' ').replace(/\s*([\/-])\s*/g,'$1');
+ const match=raw.match(/^(\d{4})[\/-](\d{1,2})[\/-](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?(?::(\d{1,2}))?)?$/);
+ if(match){const d=new Date(Number(match[1]),Number(match[2])-1,Number(match[3]),Number(match[4]||0),Number(match[5]||0),Number(match[6]||0));return d.getTime();}
+ const parsed=Date.parse(raw);return Number.isFinite(parsed)?parsed:Number.MIN_SAFE_INTEGER;
+};
+const ordered=list=>list.map((item,index)=>({item,index})).sort((a,b)=>{
+ const delta=parseDate(b.item?.date)-parseDate(a.item?.date);if(delta)return delta;
+ const ca=Number(a.item?.createdAt)||0,cb=Number(b.item?.createdAt)||0;
+ if(cb!==ca)return cb-ca;
+ return a.index-b.index;
+}).map(x=>x.item);
+const identity=item=>[String(item.title||'').trim(),String(item.date||'').trim(),String(item.tag||'').trim()].join('\u001f');
+async function resolveAnnouncement(link){
+ const index=Number(link.hash.replace(/^#n-/,''));
+ const target={title:link.querySelector('h3')?.textContent||'',date:link.querySelector('time')?.textContent||''};
+ let matches=ordered(readStorage('duoduo_news')||[]);
+ if(!matches.length){matches=ordered(await pageLoadNews());}
+ const choice=matches[index];
+ if(choice&&choice.title===target.title&&choice.date===target.date)return choice;
+ const found=matches.find(x=>x.title===target.title&&x.date===target.date);
+ if(found)return found;
+ // Backstop: fetch the official announcement source if the home cache diverged.
+ const remote=ordered(await pageLoadNews());
+ return remote.find(x=>identity(x)===identity(target) || (x.title===target.title&&x.date===target.date))||null;
+}
+function closeModal(){
+ if(!active)return;
+ active=false;
+ modal.hidden=true;
+ modal.innerHTML='';
+ document.documentElement.classList.remove('news-modal-open');
+ document.body.classList.remove('news-modal-open');
+ // Native scroll remains untouched; only restore on unexpected browser jump.
+ if(Math.abs(window.scrollY-scrollBeforeOpen)>2)window.scrollTo({top:scrollBeforeOpen,behavior:'instant'});
+ if(returnFocus?.isConnected)returnFocus.focus({preventScroll:true});
+ returnFocus=null;
+}
+function showModal(n,source){
+ if(active)closeModal();
+ active=true;
+ returnFocus=source;
+ scrollBeforeOpen=window.scrollY;
+ modal.hidden=false;
+ modal.innerHTML=`<div class="news-modal-backdrop" data-close-news></div><div class="news-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="news-modal-title"><button class="news-modal-close" type="button" aria-label="關閉公告" data-close-news>×</button><div class="news-modal-scroll" tabindex="0" aria-label="公告內文捲動區"><article class="news-detail-card"><div class="news-detail-meta"><span class="tag ${pageTagClass(n.tag)}">${pageEsc(pageTagShort(n.tag||'未分類'))}</span><time class="meta">${pageEsc(n.date||'')}</time></div><h2 id="news-modal-title">${pageEsc(n.title||'未命名公告')}</h2><div class="news-body">${newsStructuredBody(n)}</div></article></div></div>`;
+ document.documentElement.classList.add('news-modal-open');
+ document.body.classList.add('news-modal-open');
+ modal.querySelectorAll('[data-close-news]').forEach(el=>el.addEventListener('click',closeModal));
+ modal.querySelectorAll('[data-copy-code]').forEach(el=>el.addEventListener('click',()=>newsCopyCode(el)));
+ modal.querySelectorAll('.news-discord-emoji').forEach(img=>img.addEventListener('error',()=>img.replaceWith(document.createTextNode(img.alt))));
+ modal.querySelectorAll('.news-item-thumb img').forEach(img=>img.addEventListener('error',()=>img.closest('.news-item-thumb')?.remove()));
+ modal.querySelector('.news-modal-close')?.focus({preventScroll:true});
+}
+// Event delegation works even when app.js rebuilds the list after cloud updates.
+list.addEventListener('click',async e=>{
+ const a=e.target.closest('a.news-item[href*="news.html#n-"]');
+ if(!a||!list.contains(a)||e.defaultPrevented||e.button!==0||e.ctrlKey||e.metaKey||e.altKey||e.shiftKey)return;
+ e.preventDefault();
+ if(a.dataset.newsModalPending)return;
+ a.dataset.newsModalPending='1';
+ try{
+  const article=await resolveAnnouncement(a);
+  if(article)showModal(article,a);
+  else window.location.assign(a.href); // No fabricated/mismatched article details.
+ }catch(error){console.warn('首頁公告視窗載入失敗，改用公告頁面：',error);window.location.assign(a.href);}
+ finally{delete a.dataset.newsModalPending;}
+});
+document.addEventListener('keydown',e=>{if(active&&e.key==='Escape'){e.preventDefault();e.stopPropagation();closeModal();}});
+})();
