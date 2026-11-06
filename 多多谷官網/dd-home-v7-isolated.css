@@ -1533,3 +1533,61 @@ html.dd-motion-ready .dd-preview-island .hybrid-info-chapter #versions.dd-motion
 .dd-preview-island #start .v2-download-hub.dd16-hub-in::before{animation:dd16-hub-light 1.45s cubic-bezier(.22,.78,.22,1) both}
 @keyframes dd16-hub-light{0%{left:-36%;opacity:0}18%{opacity:1}83%{opacity:.7}100%{left:122%;opacity:0}}
 @media(prefers-reduced-motion:reduce){#news #newsTitle::after{transform:scaleX(1);opacity:1;animation:none!important}.dd-preview-island #start .v2-download-hub::before{animation:none!important}}
+
+
+/* ================================================================
+   HOME V17 — gentle brand world, three narrative scene languages,
+   single early news reveal. Scoped to the existing home only.
+   ================================================================ */
+/* The overly large outlined halo was the source of the 'empty disk' backdrop.
+   Reframe as restrained soft daylight around the actual logo sphere. */
+#dd-story .ambient-day{background:radial-gradient(ellipse at 69% 58%,rgba(185,232,238,.40) 0%,rgba(225,245,250,.23) 28%,transparent 61%),linear-gradient(110deg,#f6fafc 0%,#f7fbfc 52%,#edf7f9 100%)}
+#dd-story .scene-opening .opening-halo{width:min(35vw,520px);height:min(35vw,520px);min-width:0;min-height:0;left:74%;top:49%;opacity:.24;border:1px solid rgba(70,171,198,.14);box-shadow:0 0 0 27px rgba(119,219,220,.018),0 0 75px rgba(95,190,212,.13)}
+#dd-story .dd14-world{animation:dd17-world-hover 8.8s ease-in-out infinite;filter:drop-shadow(0 21px 30px rgba(22,103,127,.17))}
+#dd-story .dd14-world-aura{inset:-14%;opacity:.72;background:radial-gradient(circle,rgba(116,229,225,.18) 0%,rgba(120,207,229,.11) 38%,transparent 72%);animation:dd17-aura-breathe 7.8s ease-in-out infinite}
+#dd-story .dd14-world-ring{inset:-9%;border-color:rgba(55,165,194,.17);transform:rotate(-15deg) scaleY(.79)}
+#dd-story .dd14-world-ring-b{inset:-15%;border-color:rgba(67,177,201,.065);border-style:dotted;transform:rotate(23deg) scaleY(.83)}
+#dd-story .dd14-world-globe{animation:dd17-globe-axis 10.4s ease-in-out infinite;box-shadow:0 23px 38px rgba(29,104,134,.25),inset 0 -10px 18px rgba(12,89,115,.20),inset 10px 12px 18px rgba(255,255,255,.31)}
+#dd-story .dd14-world-texture{animation:dd17-texture-parallax 10.4s ease-in-out infinite}
+#dd-story .dd14-world-texture img{transform:scale(.95);filter:saturate(1.06) contrast(1.015)}
+#dd-story .dd14-world-light{background:radial-gradient(ellipse at 26% 17%,rgba(255,255,255,.47),rgba(255,255,255,.08) 22%,transparent 52%),linear-gradient(115deg,rgba(255,255,255,.09),transparent 52%,rgba(6,64,85,.08));mix-blend-mode:normal;animation:dd17-light-travel 10.4s ease-in-out infinite}
+#dd-story .dd14-world-rim{box-shadow:inset 13px 10px 16px rgba(255,255,255,.26),inset -17px -13px 20px rgba(18,83,116,.24),inset 0 0 0 2px rgba(255,255,255,.24)}
+#dd-story .dd17-world-motes{position:absolute;inset:-8%;z-index:1;pointer-events:none;animation:dd17-star-orbit 30s linear infinite}
+#dd-story .dd17-world-motes i{position:absolute;width:5px;height:5px;border-radius:50%;background:#74d8e5;box-shadow:0 0 12px rgba(57,192,220,.4)}
+#dd-story .dd17-world-motes i:nth-child(1){left:4%;top:42%;width:7px;height:7px;background:#f6c569}
+#dd-story .dd17-world-motes i:nth-child(2){left:29%;top:3%;width:3px;height:3px}
+#dd-story .dd17-world-motes i:nth-child(3){right:6%;top:24%;background:#f6d58f}
+#dd-story .dd17-world-motes i:nth-child(4){right:3%;bottom:20%;width:3px;height:3px}
+#dd-story .dd17-world-motes i:nth-child(5){left:22%;bottom:1%;background:#f6c569}
+#dd-story .dd17-world-motes i:nth-child(6){left:2%;bottom:27%;width:3px;height:3px}
+@keyframes dd17-world-hover{0%,100%{transform:translate3d(0,calc(var(--dd17-scroll-shift,0px) + 5px),0) rotate(-1.1deg)}50%{transform:translate3d(0,calc(var(--dd17-scroll-shift,0px) - 7px),0) rotate(1.1deg)}}
+@keyframes dd17-globe-axis{0%,100%{transform:perspective(960px) rotateY(-9deg) rotateX(4deg) rotateZ(-1.8deg) scale(.995)}32%{transform:perspective(960px) rotateY(5deg) rotateX(-2deg) rotateZ(.6deg) scale(1.006)}67%{transform:perspective(960px) rotateY(10deg) rotateX(2deg) rotateZ(1.8deg) scale(.997)}}
+@keyframes dd17-texture-parallax{0%,100%{transform:translate3d(-1.5%,0,0) scale(1.02)}45%{transform:translate3d(1.1%,.3%,0) scale(1.02)}70%{transform:translate3d(.5%,-.4%,0) scale(1.02)}}
+@keyframes dd17-light-travel{0%,100%{opacity:.58;transform:translateX(-5%)}50%{opacity:.75;transform:translateX(6%)}}
+@keyframes dd17-star-orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes dd17-aura-breathe{0%,100%{opacity:.56;transform:scale(.96)}50%{opacity:.82;transform:scale(1.045)}}
+/* Story titles are animated by the existing scroll-story requestAnimationFrame,
+   not by late IntersectionObservers or repeated entrance triggers. */
+#dd-story .dd17-story-line,#dd-story .dd17-route-lead,#dd-story .dd17-route-destination,#dd-story .dd17-rebirth-lead,#dd-story .dd17-rebirth-line,#dd-story .dd17-finale-lead,#dd-story .dd17-finale-next{display:block;max-width:100%;transform-origin:center center}
+#dd-story .dd17-route-heading{margin-bottom:6px}
+#dd-story .dd17-route-destination{color:#159fb9}
+#dd-story .dd17-route-trace{width:min(340px,43vw);height:12px;display:block;margin:4px auto 2px;position:relative;pointer-events:none}
+#dd-story .dd17-route-trace i{display:block;height:2px;width:100%;background:linear-gradient(90deg,rgba(44,172,208,.04),#35b9d2 35%,#90d4e1 75%,transparent);transform-origin:left;border-radius:5px}
+#dd-story .dd17-route-trace b{position:absolute;left:0;top:-11px;color:#f5c66b;font-size:18px;font-weight:400;text-shadow:0 0 9px rgba(255,200,82,.4)}
+#dd-story .dd17-rebirth-heading .dd17-rebirth-line em{font-style:normal;white-space:nowrap}
+#dd-story .dd17-rebirth-heading .dd17-rebirth-piece{display:inline-block;will-change:transform,opacity,filter}
+#dd-story .dd17-finale-heading .dd17-finale-next em{font-style:normal;color:#1391b5}
+#dd-story .dd17-finale-heading{perspective:850px}
+/* New editorial news reveal: one horizontal aperture opening, never a second wipe. */
+#news #newsTitle{position:relative;transition:none!important;filter:none;letter-spacing:normal}
+#news #newsTitle::after{content:"";position:absolute;left:0;bottom:-11px;height:2px;width:min(150px,38%);background:linear-gradient(90deg,#18c3df,#85d9ec,transparent);transform:scaleX(.36);transform-origin:left center;opacity:.55;box-shadow:none;animation:none!important;pointer-events:none}
+#news #newsTitle.dd17-news-started::after{animation:dd17-news-trace 1.3s cubic-bezier(.2,.84,.23,1) both!important}
+@keyframes dd17-news-trace{0%{transform:scaleX(0);opacity:0}40%{opacity:.65}100%{transform:scaleX(1);opacity:.8}}
+@media(max-width:850px){#dd-story .scene-opening .opening-halo{left:50%;top:62%;width:min(51vw,380px);height:min(51vw,380px)}#dd-story .dd17-route-trace{width:48vw}}
+@media(max-width:540px){#dd-story .scene-opening .opening-halo{width:62vw;height:62vw;opacity:.18}#dd-story .dd14-world-ring-b{opacity:.4}#dd-story .dd17-route-trace{height:8px;margin:1px auto}}
+@media(prefers-reduced-motion:reduce){
+ #dd-story .dd14-world,#dd-story .dd14-world-globe,#dd-story .dd14-world-texture,#dd-story .dd14-world-light,#dd-story .dd17-world-motes,#dd-story .dd14-world-aura{animation:none!important;transform:none!important}
+ #dd-story .dd17-rebirth-piece,#dd-story .dd17-route-lead,#dd-story .dd17-route-destination,#dd-story .dd17-rebirth-lead,#dd-story .dd17-finale-lead,#dd-story .dd17-finale-next{opacity:1!important;transform:none!important;filter:none!important;clip-path:none!important}
+ #dd-story .dd17-route-trace i{transform:none!important}
+ #news #newsTitle,#news #newsTitle::after{animation:none!important;clip-path:none!important;letter-spacing:normal!important}
+}

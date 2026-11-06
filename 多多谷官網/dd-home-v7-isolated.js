@@ -18,6 +18,13 @@
   const stepLabel=$('.story-step');
   const indicator=$('.story-progress i');
   const scrollHint=$('.scroll-hint');
+  // V17: distinct, scroll-linked story typography. No second observer may replay it.
+  const storyTitle={
+    routeLead:$('.dd17-route-lead'),routeNext:$('.dd17-route-destination'),routeTrace:$('.dd17-route-trace i'),routeStar:$('.dd17-route-trace b'),
+    rebirthLead:$('.dd17-rebirth-lead'),rebirthPieces:[...document.querySelectorAll('.dd17-rebirth-piece')],
+    finaleLead:$('.dd17-finale-lead'),finaleNext:$('.dd17-finale-next')
+  };
+  const globe=$('.dd14-world');
   const cinema=$('.v2-cinematic');
   const cinemaVideo=$('.v2-cinema-video');
   const cinemaCopy=$('.v2-cinema-copy');
@@ -58,6 +65,26 @@
       const [dx,dy]=offsets[i];
       set(card,{opacity:String(show),transform:`translate3d(${(dx*(1-v)+(-dx*.27)*off).toFixed(1)}px,${(dy*(1-v)-60*off).toFixed(1)}px,0) rotate(${((i%2?-5:5)*(1-v)+((i%2?-3:3)*off)).toFixed(2)}deg) scale(${(lerp(.83,1,v)*(1-.08*off)).toFixed(3)})`});
     });
+    // V17: the captions become a story event, not generic fade-up reveals.
+    // Motion is continuously linked to the existing chapter progress: it never
+    // waits until the text is already visible then plays a second animation.
+    if(!reduced){
+      const route=smooth(.092,.238,x),path=smooth(.15,.29,x);
+      set(storyTitle.routeLead,{opacity:String(route),clipPath:`inset(0 ${(100-100*route).toFixed(1)}% 0 0)`,transform:`translate3d(${(-22*(1-route)).toFixed(1)}px,0,0)`});
+      set(storyTitle.routeNext,{opacity:String(path),clipPath:`inset(0 ${(100-100*path).toFixed(1)}% 0 0)`,transform:`perspective(780px) translate3d(0,${(12*(1-path)).toFixed(1)}px,0) rotateY(${(-9*(1-path)).toFixed(1)}deg)`});
+      set(storyTitle.routeTrace,{transform:`scaleX(${path.toFixed(3)})`});
+      set(storyTitle.routeStar,{opacity:String(path),transform:`translate3d(${(85*path).toFixed(1)}px,0,0) rotate(${(110*path).toFixed(1)}deg)`});
+      const rebirth=smooth(.405,.548,x),pieces=smooth(.448,.58,x);
+      set(storyTitle.rebirthLead,{opacity:String(rebirth),filter:`blur(${(5*(1-rebirth)).toFixed(2)}px)`,transform:`translate3d(0,${(12*(1-rebirth)).toFixed(1)}px,0) rotate(${(-4*(1-rebirth)).toFixed(2)}deg)`});
+      const offsets=[[-23,-18],[-8,24],[17,-22],[33,16]];
+      storyTitle.rebirthPieces.forEach((e,i)=>{const p=smooth(.443+i*.012,.57+i*.012,x); const [dx,dy]=offsets[i];
+        set(e,{opacity:String(p),filter:`blur(${(6*(1-p)).toFixed(1)}px)`,transform:`translate3d(${(dx*(1-p)).toFixed(1)}px,${(dy*(1-p)).toFixed(1)}px,0) rotate(${((i%2?14:-11)*(1-p)).toFixed(1)}deg)`});
+      });
+      const lead=smooth(.692,.825,x),next=smooth(.745,.884,x);
+      set(storyTitle.finaleLead,{opacity:String(lead),transform:`perspective(900px) translate3d(0,${(10*(1-lead)).toFixed(1)}px,${(-110*(1-lead)).toFixed(1)}px) scale(${(.83+.17*lead).toFixed(3)})`,filter:`blur(${(3*(1-lead)).toFixed(1)}px)`});
+      set(storyTitle.finaleNext,{opacity:String(next),transform:`perspective(900px) translate3d(0,${(9*(1-next)).toFixed(1)}px,${(-150*(1-next)).toFixed(1)}px) scale(${(.76+.24*next).toFixed(3)})`,filter:`blur(${(4*(1-next)).toFixed(1)}px)`});
+      if(globe)globe.style.setProperty('--dd17-scroll-shift',`${(-Math.min(x,.24)*26).toFixed(1)}px`);
+    }
     // Individual planet tracks now have independent orbital paths; avoid rotating the whole artwork.
     features.forEach((card,i)=>{
       const v=smooth(.755+i*.026,.875+i*.025,x);
@@ -505,33 +532,46 @@
  items.forEach(({node})=>io.observe(node));
 })();
 
-/* V16: latest news uses a clearly visible editorial wipe, not the subtle V15
-   blur-only effect. It works on CMS-replaced text without wrapping text nodes. */
+/* HOME V17: News is only animated once and starts BEFORE entering the viewport.
+   If content is already visible (deep link/back navigation) we do not hide/replay.
+   No style is pre-hidden: if JS fails, the CMS title remains readable. */
 (()=>{
  'use strict';
  const node=document.querySelector('#news #newsTitle');
  if(!node)return;
  const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
- let started=false;
- const start=()=>{
-  if(started)return;
-  started=true;
-  node.classList.add('dd16-news-in');
-  if(reduce || !Element.prototype.animate)return;
-  try{
-   const a=node.animate([
-    {clipPath:'inset(0 100% 0 0)',opacity:.78,transform:'translateX(-16px)'},
-    {clipPath:'inset(0 45% 0 0)',opacity:1,transform:'translateX(0)' ,offset:.53},
-    {clipPath:'inset(0 0 0 0)',opacity:1,transform:'none'}
-   ],{duration:1600,easing:'cubic-bezier(.2,.82,.24,1)',fill:'both'});
-   a.finished.then(()=>a.cancel()).catch(()=>{});
-  }catch(_){/* Do not hide the heading if animation is unsupported. */}
- };
- if(reduce || !('IntersectionObserver' in window)){start();return;}
- const io=new IntersectionObserver(entries=>{
-  for(const entry of entries){
-   if(entry.isIntersecting){start();io.disconnect();break;}
-  }
- },{threshold:.015,rootMargin:'0px 0px -11% 0px'});
- io.observe(node);
+ if(reduce || !Element.prototype.animate)return;
+ let triggered=false,observer;
+ const alreadyVisible=()=>{const r=node.getBoundingClientRect();return r.top<innerHeight-18 && r.bottom>0;};
+ function launch(skip=false){
+   if(triggered)return; triggered=true;observer?.disconnect();
+   if(skip){node.classList.add('dd17-news-finished');return;}
+   try{
+     node.classList.add('dd17-news-started');
+     const effect=node.animate([
+       {clipPath:'inset(47% 0 47% 0)',opacity:.12,filter:'blur(5px)',letterSpacing:'.15em',transform:'scaleX(.91)',offset:0},
+       {clipPath:'inset(19% 0 19% 0)',opacity:.74,filter:'blur(2px)',letterSpacing:'.06em',transform:'scaleX(.97)',offset:.46},
+       {clipPath:'inset(0 0 0 0)',opacity:1,filter:'blur(0)',letterSpacing:'0',transform:'none',offset:1}
+     ],{duration:1430,easing:'cubic-bezier(.18,.8,.23,1)',fill:'both'});
+     effect.finished.then(()=>{node.classList.add('dd17-news-finished');effect.cancel();}).catch(()=>{node.classList.add('dd17-news-finished');});
+   }catch(_){node.classList.add('dd17-news-finished');}
+ }
+ // A restored scroll position or direct hash navigation should show the finished
+ // title, never flash the full text and then suddenly restart it.
+ if(alreadyVisible()){launch(true);return;}
+ function check(){
+   if(triggered)return;
+   const r=node.getBoundingClientRect();
+   if(r.bottom<=0){launch(true);return;}
+   // Start 105px *outside* the bottom edge, before the reader encounters text.
+   if(r.top<=innerHeight+105){launch(r.top<innerHeight-38);}
+ }
+ if('IntersectionObserver' in window){
+   observer=new IntersectionObserver(check,{threshold:0,rootMargin:'0px 0px 115px 0px'});
+   observer.observe(node);
+ }
+ addEventListener('scroll',check,{passive:true});
+ addEventListener('resize',check,{passive:true});
+ addEventListener('pageshow',check,{passive:true});
+ check();
 })();
