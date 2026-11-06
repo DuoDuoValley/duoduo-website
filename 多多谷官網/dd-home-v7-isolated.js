@@ -116,7 +116,7 @@
   if('IntersectionObserver' in window){
     const observer=new IntersectionObserver(entries=>entries.forEach(entry=>{
       if(entry.isIntersecting){entry.target.classList.add('is-visible');observer.unobserve(entry.target)}
-    }),{threshold:.1,rootMargin:'0px 0px -4% 0px'});
+    }),{threshold:.17,rootMargin:'0px 0px -24% 0px'});
     document.querySelectorAll('.reveal').forEach(node=>observer.observe(node));
   }else document.querySelectorAll('.reveal').forEach(node=>node.classList.add('is-visible'));
   const playVideo=()=>{if(!cinemaVideo)return;const pending=cinemaVideo.play();if(pending&&pending.catch)pending.catch(()=>{})};
@@ -233,21 +233,41 @@
       all.forEach(({node})=>node.classList.add('dd-motion-in'));
       return;
     }
-    // Observer is armed before hiding styles become active, preventing invisible headings.
+    // Reveal at the headline's arrival, not when the tall section first touches
+    // the viewport. A section may start appearing hundreds of pixels before its
+    // message is actually readable; using its title keeps the action in sync.
+    const activationAnchor=(name,node)=>{
+      if(name==='hero') return node.querySelector('#hero-title')||node;
+      if(name==='systems') return node.querySelector('.v3-sys-head h2')||node;
+      if(name==='communityStory') return node.querySelector('.v2-community-header h2')||node;
+      if(name==='why') return node.querySelector('#whyTitle')||node;
+      if(name==='community') return node.querySelector('#communityTitle')||node;
+      if(name==='events') return node.querySelector('#eventsTitle')||node;
+      if(name==='boss') return node.querySelector('#bossTitle')||node;
+      if(name==='news') return node.querySelector('#newsTitle')||node;
+      if(name==='versions') return node.querySelector('#versionsTitle')||node;
+      if(name==='join') return node.querySelector('#startTitle')||node;
+      return node;
+    };
+    const anchors=new Map();
     const io=new IntersectionObserver(entries=>{
       entries.forEach(({target,isIntersecting})=>{
         if(!isIntersecting)return;
-        target.classList.add('dd-motion-in');
+        const section=anchors.get(target);
+        if(!section)return;
+        section.classList.add('dd-motion-in');
         io.unobserve(target);
       });
-    },{threshold:0,rootMargin:'0px 0px -13% 0px'});
-    all.forEach(({node})=>io.observe(node));
+    },{threshold:0.15,rootMargin:'0px 0px -35% 0px'});
     document.documentElement.classList.add('dd-motion-ready');
-    // Already visible elements (including the Hero relocated below the film) must play on arrival.
-    all.forEach(({node})=>{
-      const r=node.getBoundingClientRect();
-      if(r.top < innerHeight*.87 && r.bottom > innerHeight*.1){
-        node.classList.add('dd-motion-in');io.unobserve(node);
+    all.forEach(({name,node})=>{
+      const anchor=activationAnchor(name,node);
+      anchors.set(anchor,node);
+      io.observe(anchor);
+      const rect=anchor.getBoundingClientRect();
+      if(rect.top<innerHeight*.65 && rect.bottom>Math.min(innerHeight*.16,110)){
+        node.classList.add('dd-motion-in');
+        io.unobserve(anchor);
       }
     });
   }

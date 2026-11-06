@@ -1114,3 +1114,60 @@ html.dd-motion-ready #community.dd-motion-in .section-head::after{transform:scal
   html.dd-motion-ready #community #communityTitle{opacity:1!important;clip-path:none!important;transition:none!important}
   html.dd-motion-ready #community .section-head::after{opacity:1!important;transform:none!important;transition:none!important}
 }
+
+
+/* HOME V12 — stabilize text flip, delay headline reveals, refine long headline sizing. */
+/* Keep the planned two-line composition at desktop/tablet widths; neither line
+   may fall into a third row or become clipped when the viewport narrows. */
+.dd-preview-island #community-story .v2-community-header{max-width:min(1150px,100%)}
+.dd-preview-island #community-story .v2-community-header h2{
+  font-size:clamp(33px,5.25vw,82px);
+  line-height:1.16;
+  letter-spacing:-.045em;
+  padding:.08em 0 .12em;
+}
+.dd-preview-island #community-story .v2-community-header .v6-line-mask{
+  display:block;max-width:100%;overflow:visible;
+  padding:0;margin:0;
+}
+.dd-preview-island #community-story .v2-community-header .v6-line{
+  display:inline-block;max-width:none;white-space:nowrap;
+}
+/* V11's second-line initial state had higher specificity than the final state.
+   Explicitly include nth-child in the completed rule so all characters return
+   to their face-on angle; do not rely on a last-in-file override alone. */
+html.dd-motion-ready #community-story.dd-motion-in .v6-line-mask:nth-child(2) .dd-flip-char,
+html.dd-motion-ready #community-story.dd-motion-in .v6-line-mask:nth-child(1) .dd-flip-char{
+  opacity:1;transform:perspective(530px) rotateY(0deg) scaleX(1);
+}
+/* Allow the final character to visibly complete before the next caption starts. */
+html.dd-motion-ready #community-story .dd-flip-char{
+  transition-duration:.43s,.9s;
+  transition-timing-function:ease,cubic-bezier(.2,.78,.15,1);
+  transition-delay:calc(var(--dd-char-order)*38ms);
+}
+/* The systems title is a separate visual beat. Ease into place deliberately,
+   then allow the emphasis line to resolve after the first line is readable. */
+html.dd-motion-ready #system-collection .v3-sys-head h2{
+  transition:opacity 1.08s ease,transform 1.72s cubic-bezier(.12,.8,.18,1)!important;
+}
+html.dd-motion-ready #system-collection .v3-sys-head .v6-line-mask{
+  display:block;overflow:visible;
+}
+html.dd-motion-ready #system-collection .v3-sys-head .v6-line-mask:nth-child(2) .v6-line{
+  display:inline-block;
+  opacity:.35;filter:blur(4px);transform:translateX(-10px);
+  transition:opacity 1.25s ease .44s,transform 1.65s cubic-bezier(.13,.8,.2,1) .44s,filter 1.45s ease .44s;
+}
+html.dd-motion-ready #system-collection.dd-motion-in .v3-sys-head .v6-line-mask:nth-child(2) .v6-line{
+  opacity:1;filter:none;transform:none;
+}
+@media(max-width:760px){
+  .dd-preview-island #community-story .v2-community-header h2{font-size:clamp(21px,6.5vw,36px);line-height:1.25;letter-spacing:-.04em}
+}
+@media(prefers-reduced-motion:reduce){
+ html.dd-motion-ready #system-collection .v3-sys-head h2,
+ html.dd-motion-ready #system-collection .v3-sys-head .v6-line-mask:nth-child(2) .v6-line{
+   opacity:1!important;transform:none!important;filter:none!important;transition:none!important;
+ }
+}
