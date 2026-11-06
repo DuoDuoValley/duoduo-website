@@ -58,7 +58,7 @@
       const [dx,dy]=offsets[i];
       set(card,{opacity:String(show),transform:`translate3d(${(dx*(1-v)+(-dx*.27)*off).toFixed(1)}px,${(dy*(1-v)-60*off).toFixed(1)}px,0) rotate(${((i%2?-5:5)*(1-v)+((i%2?-3:3)*off)).toFixed(2)}deg) scale(${(lerp(.83,1,v)*(1-.08*off)).toFixed(3)})`});
     });
-    if(ring)ring.style.transform=`rotate(${lerp(-28,53,smooth(.42,.73,x)).toFixed(1)}deg) scale(${lerp(.84,1,smooth(.4,.58,x)).toFixed(3)})`;
+    // Individual planet tracks now have independent orbital paths; avoid rotating the whole artwork.
     features.forEach((card,i)=>{
       const v=smooth(.755+i*.026,.875+i*.025,x);
       set(card,{opacity:String(v),transform:`translate3d(${((i-1)*88*(1-v)).toFixed(1)}px,${(120*(1-v)).toFixed(1)}px,0) rotate(${((i-1)*5*(1-v)).toFixed(1)}deg) scale(${lerp(.89,1,v).toFixed(3)})`});
@@ -366,4 +366,60 @@
       node.replaceWith(fragment);
     }
   }
+})();
+
+
+/* HOME V13 — fail-visible theatrical timing. CSS never suppresses site content.
+   Each headline's animation is a short WAAPI effect layered on visible content;
+   interruption or missing observers leave the normal HTML readable. */
+(()=>{
+ 'use strict';
+ const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const stages=[
+  ['#hero #hero-title','hero'],
+  ['#community #communityTitle','reviews'],
+  ['#events #eventsTitle','events'],
+  ['#news #newsTitle','news'],
+  ['#versions #versionsTitle','timeline'],
+  ['#start #startTitle','finale']
+ ];
+ const nodes=stages.map(([selector,kind])=>({node:document.querySelector(selector),kind})).filter(x=>x.node);
+ if(!nodes.length || reduce || !Element.prototype.animate)return;
+ let scrollFrame=0;
+ const done=new WeakSet();
+ function run(node,kind){
+  if(done.has(node))return;
+  done.add(node);
+  const effects={
+   hero:[{clipPath:'inset(0 97% 0 0)',filter:'blur(3px)'},{clipPath:'inset(0 0 0 0)',filter:'blur(0)'}],
+   reviews:[{clipPath:'polygon(0 0, 0 0, -12% 100%, 0 100%)'},{clipPath:'polygon(0 0, 115% 0, 100% 100%, 0 100%)'}],
+   events:[{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0 0 0)'}],
+   news:[{letterSpacing:'.16em',filter:'blur(2px)',opacity:.55},{letterSpacing:'0',filter:'blur(0)',opacity:1}],
+   timeline:[{clipPath:'inset(0 100% 0 0)'},{clipPath:'inset(0 0 0 0)'}],
+   finale:[{transform:'perspective(900px) rotateY(-13deg) scale(.98)',filter:'blur(3px)'},{transform:'none',filter:'blur(0)'}]
+  };
+  const frames=effects[kind];
+  if(!frames)return;
+  try{const animation=node.animate(frames,{duration:kind==='hero'?1180:kind==='finale'?1350:kind==='reviews'?1120:950,easing:'cubic-bezier(.18,.84,.2,1)',fill:'none'});
+   animation.finished.catch(()=>{});}
+  catch(_){/* The element is intentionally visible even without animation. */}
+ }
+ function check(){
+  scrollFrame=0;
+  const h=innerHeight;
+  for(const {node,kind} of nodes){
+   if(done.has(node))continue;
+   const r=node.getBoundingClientRect();
+   // Section text must reach a readable area. If user lands past it,
+   // leave it visible and consider its animation completed.
+   if(r.bottom<=0){done.add(node);continue;}
+   if(r.top<h*.66 && r.bottom>Math.min(90,h*.12))run(node,kind);
+  }
+ }
+ function request(){if(!scrollFrame)scrollFrame=requestAnimationFrame(check)}
+ addEventListener('scroll',request,{passive:true});
+ addEventListener('resize',request,{passive:true});
+ addEventListener('pageshow',request,{passive:true});
+ document.addEventListener('visibilitychange',()=>{if(!document.hidden)request()});
+ request();
 })();

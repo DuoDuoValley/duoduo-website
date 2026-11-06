@@ -1171,3 +1171,153 @@ html.dd-motion-ready #system-collection.dd-motion-in .v3-sys-head .v6-line-mask:
    opacity:1!important;transform:none!important;filter:none!important;transition:none!important;
  }
 }
+
+
+/* ==============================================================
+   HOME V13 · artistic scene, orbital planets, fail-visible content
+   ============================================================== */
+/* Four exploration cards should look like discovered objects, not a rigid chart.
+   Independent translate/rotate are additive to the original scroll transforms. */
+@media(min-width:761px){
+ .dd-preview-island .scene-orbit .float-grid{width:min(1180px,95%);gap:6px;align-items:center;perspective:1200px;min-height:350px}
+ .dd-preview-island .scene-orbit .float-card{height:242px;min-height:0;transition:box-shadow .32s ease,background .32s ease;border-radius:28px;}
+ .dd-preview-island .scene-orbit .float-card.c1{translate:22px -28px;rotate:-7deg;z-index:3;border-radius:26px 35px 22px 35px}
+ .dd-preview-island .scene-orbit .float-card.c2{translate:-3px 37px;rotate:5deg;z-index:2;border-radius:36px 25px 32px 20px}
+ .dd-preview-island .scene-orbit .float-card.c3{translate:14px -37px;rotate:-4deg;z-index:4;border-radius:22px 34px 32px 24px}
+ .dd-preview-island .scene-orbit .float-card.c4{translate:-16px 34px;rotate:7deg;z-index:1;border-radius:35px 19px 35px 23px}
+ .dd-preview-island .scene-orbit .float-card::after{content:'';pointer-events:none;position:absolute;inset:9px;border:1px solid rgba(100,181,205,.16);border-radius:inherit}
+ .dd-preview-island .scene-orbit .float-card:hover{z-index:6;box-shadow:0 24px 75px rgba(29,123,174,.25)}
+}
+@media(min-width:761px) and (max-width:1100px){
+ .dd-preview-island .scene-orbit .float-grid{width:100%;gap:3px;min-height:315px}
+ .dd-preview-island .scene-orbit .float-card{height:205px;padding:11px 8px}
+ .dd-preview-island .scene-orbit .float-card.c1{translate:8px -24px}
+ .dd-preview-island .scene-orbit .float-card.c2{translate:0 26px}
+ .dd-preview-island .scene-orbit .float-card.c3{translate:6px -30px}
+ .dd-preview-island .scene-orbit .float-card.c4{translate:-7px 24px}
+}
+@media(max-width:760px){
+ .dd-preview-island .scene-orbit .float-grid{gap:13px 11px;padding:8px 9px}
+ .dd-preview-island .scene-orbit .float-card.c1{translate:3px -5px;rotate:-3deg}
+ .dd-preview-island .scene-orbit .float-card.c2{translate:-2px 9px;rotate:3deg}
+ .dd-preview-island .scene-orbit .float-card.c3{translate:4px -7px;rotate:2deg}
+ .dd-preview-island .scene-orbit .float-card.c4{translate:-4px 7px;rotate:-3deg}
+}
+/* Different satellites use separate orbits and speeds; the hero icon stays central.
+   Compensating counter-turns prevent upside-down item images. */
+.dd-preview-island .night-art{isolation:isolate}
+.dd-preview-island .night-art .orbit-circle{pointer-events:none}
+.dd-preview-island .night-art .dd-orbit-track{position:absolute;inset:0;pointer-events:none;transform-origin:50% 50%;will-change:transform}
+.dd-preview-island .night-art .dd-orbit-one{inset:12%;--orbital-speed:12.5s;animation:dd-planet-orbit var(--orbital-speed) linear infinite}
+.dd-preview-island .night-art .dd-orbit-two{inset:3%;--orbital-speed:18.5s;animation:dd-planet-orbit var(--orbital-speed) linear infinite reverse}
+.dd-preview-island .night-art .dd-orbit-three{inset:21%;--orbital-speed:24s;animation:dd-planet-orbit var(--orbital-speed) linear infinite}
+.dd-preview-island .night-art .dd-orbit-track .night-mini,
+.dd-preview-island .scene-night .night-art .dd-orbit-track .night-mini{
+ position:absolute;left:50%;right:auto;top:0;bottom:auto;display:block;width:30%;height:30%;max-width:none;
+ object-fit:contain;transform:translate(-50%,-48%);animation:dd-planet-counter var(--orbital-speed) linear infinite;
+ will-change:transform;filter:drop-shadow(0 8px 16px rgba(0,0,0,.55));
+}
+.dd-preview-island .night-art .dd-orbit-two .night-mini{width:27%;height:27%;animation-direction:reverse}
+.dd-preview-island .night-art .dd-orbit-three .night-mini{width:37%;height:37%}
+.dd-preview-island .night-art .night-center{z-index:4;position:relative;animation:dd-center-breathe 5.4s ease-in-out infinite}
+@keyframes dd-planet-orbit{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}
+@keyframes dd-planet-counter{from{transform:translate(-50%,-48%) rotate(0deg)}to{transform:translate(-50%,-48%) rotate(-360deg)}}
+@keyframes dd-center-breathe{0%,100%{scale:1}50%{scale:1.065}}
+/* Visual chapter contrast inspired by a cinematic game-brand site. No extra page. */
+.dd-preview-island .scene-opening .opening-halo{box-shadow:0 0 0 1px rgba(48,164,203,.07),0 0 0 40px rgba(58,176,210,.024),0 0 125px rgba(69,204,235,.08)}
+.dd-preview-island .scene-orbit::after{content:'EXPLORE THE WORLD OF DUODUO';position:absolute;bottom:14%;right:5.5%;font-weight:900;font-size:clamp(10px,1.4vw,18px);letter-spacing:.3em;color:rgba(31,115,150,.16);pointer-events:none}
+.dd-preview-island #start{position:relative;overflow:hidden;isolation:isolate}
+.dd-preview-island #start .v2-container{position:relative;z-index:1}
+.dd-preview-island #start .dd-finale-ambient{position:absolute;inset:-85px -9vw auto; height:480px;z-index:-1;pointer-events:none;overflow:hidden}
+.dd-preview-island #start .dd-finale-monogram{position:absolute;top:16px;left:50%;translate:-50% 0;font-size:clamp(110px,20vw,420px);line-height:1;white-space:nowrap;letter-spacing:-.11em;font-weight:950;color:rgba(19,159,198,.045)}
+.dd-preview-island #start .dd-finale-arc{position:absolute;left:50%;top:-240px;width:620px;height:620px;border:1px solid rgba(33,163,199,.21);border-radius:50%;translate:-50% 0}
+.dd-preview-island #start .dd-finale-arc.b{width:850px;height:850px;top:-360px;border-color:rgba(22,155,210,.09)}
+.dd-preview-island #start .v2-join-heading{position:relative;z-index:1}
+.dd-preview-island #start .v2-join-heading::before{content:'✦  NEXT CHAPTER  ✦';display:block;font-size:10px;letter-spacing:.28em;color:#218dac;font-weight:900;margin-bottom:16px}
+.dd-preview-island #start .v2-join-heading h2{filter:drop-shadow(0 7px 24px rgba(28,175,217,.1))}
+/* Regression guard: content may NEVER remain invisible when a one-shot reveal is
+   missed due to rapid scrolling, CMS updates or browser back/forward navigation.
+   Decorative animation happens via JS WAAPI on already-visible headings. */
+html.dd-motion-ready #hero #hero-title,
+html.dd-motion-ready #community #communityTitle,
+html.dd-motion-ready #events #eventsTitle,
+html.dd-motion-ready #news #newsTitle,
+html.dd-motion-ready #versions #versionsTitle,
+html.dd-motion-ready #start #startTitle{
+ opacity:1;transform:none;filter:none;clip-path:none;letter-spacing:normal;transition:none;
+}
+html.dd-motion-ready #community #review-grid>*,
+html.dd-motion-ready #events .event-grid>*,
+html.dd-motion-ready #news .news-list>*{
+ opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important;
+}
+html.dd-motion-ready .dd-preview-island #versions .hybrid-timeline-item.reveal,
+html.dd-motion-ready .dd-preview-island #start .v2-steps>.reveal,
+html.dd-motion-ready .dd-preview-island #start .v2-download-hub.reveal,
+html.dd-motion-ready .dd-preview-island #start .v2-links.reveal{
+ opacity:1;transform:none;clip-path:none;filter:none;transition:none!important;
+}
+html.dd-motion-ready #versions .hybrid-timeline::after{transform:scaleY(1)}
+/* Override the earlier, more-specific visibility rules in both pre- and post-trigger states. */
+html.dd-motion-ready #hero.dd-motion-in #hero-title,
+html.dd-motion-ready #community.dd-motion-in #communityTitle,
+html.dd-motion-ready #events.dd-motion-in #eventsTitle,
+html.dd-motion-ready #news.dd-motion-in #newsTitle,
+html.dd-motion-ready #versions.dd-motion-in #versionsTitle,
+html.dd-motion-ready #start.dd-motion-in #startTitle{opacity:1;transform:none;clip-path:none;filter:none;transition:none}
+/* A failed nested reveal must not blank the section's only piece of content. */
+html.dd-motion-ready #community #review-grid>.empty,
+html.dd-motion-ready #events #event-grid>.empty{opacity:1!important;clip-path:none!important}
+@media(prefers-reduced-motion:reduce){
+ .dd-preview-island .night-art .dd-orbit-track,
+ .dd-preview-island .night-art .dd-orbit-track .night-mini,
+ .dd-preview-island .night-art .night-center{animation:none!important;transform:none!important}
+ .dd-preview-island .night-art .dd-orbit-track .night-mini{transform:translate(-50%,-48%)!important}
+ .dd-preview-island .scene-orbit .float-card{translate:none!important;rotate:none!important}
+}
+
+/* Finale contrast: a single memorable dark-to-aurora turn after the informational
+   chapters, without changing the approved download links or backend content. */
+.dd-preview-island #start.v2-join{
+ background:radial-gradient(ellipse 54% 45% at 50% 13%,rgba(20,150,190,.31),transparent 88%),
+  radial-gradient(ellipse 35% 35% at 82% 72%,rgba(20,82,134,.27),transparent 90%),
+  linear-gradient(156deg,#071522 0%,#122b3a 53%,#07131e 100%);
+}
+.dd-preview-island #start .dd-finale-monogram{color:rgba(102,212,244,.055)}
+.dd-preview-island #start .dd-finale-arc{border-color:rgba(112,218,250,.19)}
+.dd-preview-island #start .v2-join-heading h2{color:#effaff;text-shadow:0 9px 38px rgba(0,0,0,.28)}
+.dd-preview-island #start .v2-join-heading h2 em{color:#60d9f5}
+.dd-preview-island #start .v2-join-heading>p{color:#b9cdda}
+.dd-preview-island #start .v2-join-heading::before{color:#75dff6}
+.dd-preview-island #start .v2-join-heading .v2-eyebrow{color:#66d9f1}
+@media(max-width:760px){
+ .dd-preview-island #start .dd-finale-ambient{height:320px;inset:-30px -15vw auto}
+ .dd-preview-island #start .dd-finale-monogram{font-size:clamp(95px,25vw,170px);top:75px}
+ .dd-preview-island #start .dd-finale-arc{width:400px;height:400px;top:-135px}
+ .dd-preview-island #start .dd-finale-arc.b{width:530px;height:530px;top:-195px}
+}
+
+/* Mobile release gate: avoid one-character columns in the closing checklist. */
+@media(max-width:980px){
+ .dd-preview-island #start .v2-steps{grid-template-columns:1fr;gap:13px}
+ .dd-preview-island #start .v2-steps>div{
+  display:grid;grid-template-columns:54px minmax(0,1fr);
+  grid-template-areas:'number title' 'number description';column-gap:14px;
+  align-items:center;min-height:0;padding:19px 23px;text-align:left;border-radius:18px;
+ }
+ .dd-preview-island #start .v2-steps span{grid-area:number;font-size:24px;align-self:center}
+ .dd-preview-island #start .v2-steps b{grid-area:title;margin:0;font-size:20px;line-height:1.35}
+ .dd-preview-island #start .v2-steps p{grid-area:description;margin:7px 0 0;line-height:1.65;font-size:13px}
+ .dd-preview-island #start .v2-download-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+ .dd-preview-island #start .v2-link-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
+@media(max-width:540px){
+ .dd-preview-island #start .v2-download-grid{grid-template-columns:1fr;gap:10px}
+ .dd-preview-island #start .v2-download-card{min-height:115px;padding:17px 18px;gap:8px}
+ .dd-preview-island #start .v2-link-grid{grid-template-columns:1fr;gap:8px}
+ .dd-preview-island #start .v2-steps>div{padding:17px 16px;grid-template-columns:43px minmax(0,1fr);column-gap:11px}
+ .dd-preview-island #start .v2-steps b{font-size:18px}
+ .dd-preview-island .scene-night .night-copy h2{font-size:clamp(38px,10vw,52px);line-height:1.18;letter-spacing:-.055em}
+ .dd-preview-island .scene-night .night-copy h2 br{display:none}
+ .dd-preview-island .scene-night .night-copy h2 em{display:block;white-space:nowrap;margin-top:5px}
+}
