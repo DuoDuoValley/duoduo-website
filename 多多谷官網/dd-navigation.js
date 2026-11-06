@@ -10,6 +10,26 @@ const inLegion=location.pathname.includes('/legion-preview-6c82f4a9/');
 const inItempedia=location.pathname.endsWith('/item-encyclopedia.html');
 const prefix=(inTools||inJobs||inLegion)?'../':'';
 const defaultGroups=window.DuoDuoNavDefaults||[];
+// Each standalone page uses the same published game-version status as HOME.
+// Replace the V282 literal before adding the shared reader. Do not modify
+// unrelated WZ / launcher version numbers or the administrator preview.
+(function connectPublishedGameVersion(){
+ const status=header.querySelector('.header-status');
+ const label=status&&[...status.children].find(node=>node.tagName==='SPAN'&&!node.classList.contains('status-dot'));
+ if(!label)return;
+ label.dataset.ddGameVersion='status';
+ label.setAttribute('aria-live','polite');
+ if(!document.documentElement.classList.contains('dd-game-version-ready'))label.textContent='版本載入中';
+ // HOME already includes the shared reader as a deferred head script.
+ if(document.querySelector('script[src*="dd-game-version.js"]')){
+  if(window.DuoDuoGameVersionRender)window.DuoDuoGameVersionRender();
+  return;
+ }
+ const script=document.createElement('script');
+ script.src=new URL('dd-game-version.js?v=20261106-global-version-1',document.currentScript?.src||document.baseURI).href;
+ script.async=true;
+ document.head.appendChild(script);
+})();
 // Old published nav data may retain the previous default title. Upgrade only this exact link and label.
 const currentJobsLabel=item=>{
  const label=String(item.label||'').trim();

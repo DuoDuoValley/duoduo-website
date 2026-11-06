@@ -103,4 +103,14 @@ window.addEventListener('popstate',()=>{
  drawFilters();render();
 });
 drawFilters();render();if($('pediaDemoOutput'))keywordDemo();
+window.DuoDuoPediaApplyCatalog=(data)=>{
+ if(!Array.isArray(data?.items)||!Array.isArray(data?.categories))return false;
+ catalog={...catalog,version:data.version||catalog.version,items:data.items,categories:data.categories};
+ const available=new Set(catalog.items.map(item=>item.category));
+ if(category!=='全部'&&!available.has(category))category='全部';
+ $('pediaTotal').textContent=all().length;
+ if($('pediaCategoryTotal'))$('pediaCategoryTotal').textContent=catalog.categories.length;
+ drawFilters();render();if($('pediaDemoOutput'))keywordDemo();
+ return true;
+};
 })();

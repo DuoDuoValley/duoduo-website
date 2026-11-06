@@ -62,4 +62,14 @@ window.addEventListener('popstate',()=>{
 });
 if($('pediaBuffTotal'))$('pediaBuffTotal').textContent=groups(visible()).length;
 paintFilters();paintCards();switchSection(params.get('section')==='buffs'?'buffs':'items');
+window.DuoDuoPediaApplyBuffs=(data)=>{
+ if(!Array.isArray(data?.buffs)||!Array.isArray(data?.tiers))return false;
+ db={...db,tiers:data.tiers,buffs:data.buffs};
+ if(selected!=='全部'&&!db.tiers.includes(selected))selected='全部';
+ if($('pediaBuffTotal'))$('pediaBuffTotal').textContent=groups(visible()).length;
+ paintFilters();paintCards();
+ const section=$('pediaBuffsSection').hidden?'items':'buffs';
+ switchSection(section);
+ return true;
+};
 })();

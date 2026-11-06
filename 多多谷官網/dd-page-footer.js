@@ -139,5 +139,64 @@
    update();
   }
  }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render,{once:true});else render();
+ // Cloud-published footer values are authoritative. Cached settings are only a
+ // first-paint fallback; do not leave first-time visitors with stale links.
+ const cloudEndpoint=(location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'')+'/api/site-data';
+ let busy=false,lastPublished='',lastSuccessful=0;
+ const safePublishedLink=(record,key)=>{
+  const candidate=record?.[key]??record?.[legacy[key]];
+  if(typeof candidate!=='string')return defaults[key];
+  try{const url=new URL(candidate);return url.protocol==='https:'?url.href:defaults[key]}
+  catch(_){return defaults[key]}
+ };
+ function updateFooterFromCloud(data){
+  const root=document.querySelector('footer.site-footer');
+  const cfg=data?.duoduo_settings?.footer||{};
+  const pubLinks=data?.duoduo_links||{};
+  if(!root||root.dataset.ddFooterVersion!=='2')return;
+  const show=(field,property,fallback)=>{
+   const val=typeof cfg[property]==='string'&&cfg[property].trim()?cfg[property].trim():fallback;
+   const el=root.querySelector(`[data-footer="${field}"]`);
+   if(el)el.textContent=val;
+  };
+  show('description','description',defaultDescription);
+  show('navTitle','navTitle','網站導覽');
+  show('resourceTitle','resourceTitle','玩家服務');
+  show('copyright','copyright','© 2026 DuoDuo Valley · 多多谷');
+  for(const a of root.querySelectorAll('a[data-link]')){
+   const key=a.dataset.link;
+   if(!Object.hasOwn(defaults,key))continue;
+   a.href=safePublishedLink(pubLinks,key);
+  }
+ }
+ async function refreshCloudFooter(){
+  if(busy||document.visibilityState==='hidden'||navigator.onLine===false)return;
+  busy=true;
+  try{
+   const response=await fetch(cloudEndpoint,{cache:'no-store',headers:{Accept:'application/json'}});
+   if(!response.ok)throw Error('HTTP '+response.status);
+   const payload=await response.json();
+   if(payload?.ok!==true||payload.initialized!==true||!payload.data||typeof payload.data!=='object')throw Error('incomplete site-data');
+   const published={duoduo_settings:payload.data.duoduo_settings,duoduo_links:payload.data.duoduo_links};
+   const signature=JSON.stringify(published);
+   if(signature!==lastPublished){
+    lastPublished=signature;
+    // Publish only a confirmed server response to this tab's cache.
+    for(const [key,value] of Object.entries(published))if(value&&typeof value==='object'){
+     try{sessionStorage.setItem('duoduo_cloud_'+key,JSON.stringify(value))}catch(_){/* storage optional */}
+    }
+    updateFooterFromCloud(published);
+   }
+   lastSuccessful=Date.now();
+  }catch(err){
+   // Existing footer stays readable when offline; do not overwrite cache.
+   console.warn('[多多谷頁尾] 雲端設定暫不可確認，保留目前顯示。',err?.message||err);
+  }finally{busy=false}
+ }
+ window.DuoDuoFooterRefresh=refreshCloudFooter;
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{render();refreshCloudFooter()},{once:true});
+ else{render();refreshCloudFooter()}
+ window.setInterval(()=>{if(Date.now()-lastSuccessful>=45000)refreshCloudFooter()},60000);
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshCloudFooter()});
+ window.addEventListener('online',refreshCloudFooter);
 })();

@@ -190,3 +190,11 @@
     align-self:stretch;
   }
 }
+
+/* Shared version badge: do not flash old hard-coded V282 on subpages. */
+html:not(.dd-game-version-ready) .site-header .header-status > span:not(.status-dot){
+  visibility:hidden!important;
+}
+html:not(.dd-game-version-ready) .site-header .header-status::after{
+  content:'版本載入中';color:var(--muted);font:inherit;white-space:nowrap;
+}
