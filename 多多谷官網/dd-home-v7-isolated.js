@@ -575,14 +575,14 @@
        {offset:.33,opacity:.88,transform:'perspective(1300px) translate3d(-4px,2px,-15px) rotateY(-2deg) scale(.99)',filter:'blur(1.5px)',clipPath:'inset(0 24% 0 0)'},
        {offset:.72,opacity:1,transform:'perspective(1300px) translate3d(0,0,0) rotateY(0) scale(1.01)',filter:'blur(0)',clipPath:'inset(0 0 0 0)'},
        {offset:1,opacity:1,transform:'none',filter:'none',clipPath:'inset(0 0 0 0)'}
-     ],{duration:2320,easing:'cubic-bezier(.16,.77,.24,1)',fill:'none'});
+     ],{duration:3650,easing:'cubic-bezier(.16,.77,.24,1)',fill:'none'});
      a.finished.catch(()=>{});
      const em=title.querySelector('em');
      if(em){const glow=em.animate([
        {opacity:.65,filter:'brightness(.68) saturate(.5)',textShadow:'0 0 0 transparent'},
        {opacity:1,filter:'brightness(1.28) saturate(1.18)',textShadow:'0 0 25px rgba(114,231,255,.36)',offset:.67},
        {opacity:1,filter:'none',textShadow:'none'}
-     ],{duration:1820,delay:420,easing:'cubic-bezier(.15,.86,.22,1)',fill:'none'});glow.finished.catch(()=>{});}
+     ],{duration:2780,delay:660,easing:'cubic-bezier(.15,.86,.22,1)',fill:'none'});glow.finished.catch(()=>{});}
    }catch(_){}
  }
  if(reduced) return;
@@ -620,8 +620,10 @@
      // Prepare only when outside the viewing area; avoid hiding visible
      // titles on deep-link restoration or BFCache return.
      if(r.bottom<=0){t.node.classList.add('dd19-entered');t.entered=true;continue;}
-     if(r.top>vh+25){t.node.classList.add('dd19-prepared');continue;}
-     // 25px before the section arrives: visual motion begins as it enters.
+     const entryGate=t.kind==='hero'?vh*.84:vh+25;
+     if(r.top>entryGate){t.node.classList.add('dd19-prepared');continue;}
+     // Hero starts within the reading area rather than finishing below the viewport.
+     // News retains its previously approved gate and timing.
      t.node.classList.add('dd19-prepared');
      t.node.classList.add('dd19-entered');
      t.entered=true;
