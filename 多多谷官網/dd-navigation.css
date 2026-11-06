@@ -256,3 +256,27 @@ html:not(.dd-game-version-ready) .site-header .header-status::after{
   :root[data-theme="dark"] .site-header:not(.dd-nav-ready) nav.dd-main-nav .dd-mobile-toggle{background:#07111f}
   :root[data-theme="light"] .site-header:not(.dd-nav-ready) nav.dd-main-nav .dd-mobile-toggle{background:#f4f8fb}
 }
+
+
+/* V408: first-load version badge must not reserve invisible V282/V283 text
+   AND a second loading label at the same time. Keeps the existing cloud reader. */
+.site-header .header-status{
+  flex:0 0 auto;
+  width:max-content;
+  max-width:100%;
+  min-width:0;
+  justify-self:end;
+  align-self:center;
+  justify-content:center;
+  box-sizing:border-box;
+  white-space:nowrap;
+}
+html:not(.dd-game-version-ready) .site-header .header-status > span:not(.status-dot){
+  display:none!important;
+}
+html:not(.dd-game-version-ready) .site-header .header-status::after{
+  content:"版本載入中";
+  display:inline-block;
+  flex:0 0 auto;
+  white-space:nowrap;
+}
