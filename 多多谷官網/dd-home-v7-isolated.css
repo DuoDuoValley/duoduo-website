@@ -2163,3 +2163,76 @@ html[data-theme="dark"] .dd-preview-island .community-copy .btn-discord{
   background:linear-gradient(145deg,rgba(112,88,68,.98),rgba(69,66,75,.98));
   border-color:#b69b72;
 }
+
+
+/* V411: the community CTA is OUTSIDE .dd-preview-island.
+   The prior V410 rule could never match it. Mirror the real header Discord
+   button, including its white logo, in light and dark modes. */
+.community-section .community-copy > a.btn.btn-discord{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap:7px;
+  padding:10px 17px;
+  border-radius:999px;
+  background:#5865F2;
+  border:1px solid #5865F2;
+  color:#fff;
+  font-weight:800;
+  font-size:14px;
+  line-height:1.5;
+  white-space:nowrap;
+  box-shadow:0 8px 24px rgba(88,101,242,.20);
+}
+.community-section .community-copy > a.btn.btn-discord::before{
+  content:"";
+  display:block;
+  flex:0 0 25px;
+  inline-size:25px;
+  block-size:21px;
+  background:url("assets/discord-logo-white.png") center/contain no-repeat;
+}
+.community-section .community-copy > a.btn.btn-discord:hover,
+.community-section .community-copy > a.btn.btn-discord:focus-visible{
+  background:#4752C4;
+  border-color:#4752C4;
+  color:#fff;
+  box-shadow:0 11px 26px rgba(88,101,242,.27);
+}
+.community-section .community-copy > a.btn.btn-discord:focus-visible{
+  outline:2px solid var(--accent);
+  outline-offset:3px;
+}
+/* Time-line node breathing is a halo-only effect: original nodes, their
+   reached/unreached colors, progress animation and positions stay unchanged. */
+.dd-preview-island #versions .hybrid-timeline-item .timeline-dot{
+  --dd411-node-color:rgba(72,196,223,.56);
+}
+.dd-preview-island #versions .hybrid-timeline-item:last-child .timeline-dot{
+  --dd411-node-color:rgba(235,183,99,.59);
+}
+.dd-preview-island #versions .hybrid-timeline-item .timeline-dot::after{
+  content:"";
+  position:absolute;
+  inset:-7px;
+  border:1.5px solid var(--dd411-node-color);
+  border-radius:50%;
+  pointer-events:none;
+  opacity:.18;
+  transform:scale(.82);
+  animation:dd411-timeline-breathe 3.1s ease-in-out infinite;
+}
+.dd-preview-island #versions .hybrid-timeline-item:nth-child(2) .timeline-dot::after{animation-delay:-.55s}
+.dd-preview-island #versions .hybrid-timeline-item:nth-child(3) .timeline-dot::after{animation-delay:-1.1s}
+@keyframes dd411-timeline-breathe{
+  0%,100%{opacity:.14;transform:scale(.8)}
+  45%{opacity:.76;transform:scale(1.1)}
+  75%{opacity:.1;transform:scale(1.35)}
+}
+@media(prefers-reduced-motion:reduce){
+  .dd-preview-island #versions .hybrid-timeline-item .timeline-dot::after{
+    animation:none!important;
+    opacity:.38;
+    transform:scale(1);
+  }
+}

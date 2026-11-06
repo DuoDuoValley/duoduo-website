@@ -374,3 +374,23 @@ html:not(.dd-game-version-ready) .site-header .header-status::after{
 @media(prefers-reduced-motion:reduce){
   .site-header .status-dot,.site-header .status-dot::after{animation:none!important}
 }
+
+
+/* V411: actual visible spacing. The shared header has 24px gap between
+   siblings; V410 added a positive right margin, resulting in a 36px space
+   after the badge while the action buttons had only 12px between them.
+   Compensate for the header gap without changing badge width or action layout. */
+.site-header .header-status:not([hidden]){
+  margin-inline-end:-12px;
+}
+/* The main header changes from flex (24px gap) to a four-column grid
+   (14px gap) below 1660px, so it needs its own compensation. */
+@media (max-width:1660px){
+  .site-header .header-status:not([hidden]){margin-inline-end:-2px}
+}
+
+/* Restore the original tablet/mobile contract: version status is hidden at
+   narrow widths. The new high-specificity badge rule must not override it. */
+@media(max-width:1180px){
+  .site-header .header-status{display:none!important}
+}
