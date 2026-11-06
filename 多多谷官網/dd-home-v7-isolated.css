@@ -2257,7 +2257,7 @@ html[data-theme="dark"] .dd-preview-island .community-copy .btn-discord{
   #dd-story .story-stage>.story-topline,
   #dd-story .story-run>.scroll-feel-control,
   #dd-story .story-stage>.scroll-hint {display:none!important;}
-  #dd-story .story-stage>.scene {
+  #dd-story .story-stage .scene {
     position:relative!important;inset:auto!important;top:auto!important;left:auto!important;
     right:auto!important;bottom:auto!important;width:100%!important;height:auto!important;
     min-height:0!important;max-height:none!important;opacity:1!important;

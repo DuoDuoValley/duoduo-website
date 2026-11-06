@@ -1,0 +1,88 @@
+/* Mobile counterpart to the desktop story. All enhancements are opt-in;
+   ordinary HTML remains readable before JS and with reduced motion. */
+.dd-mobile-chapter-index {display:none;}
+/* Apply immediately, even if WebKit delays the media-query change event. */
+@media(prefers-reduced-motion:reduce) {
+  #dd-story.dd-mobile-cinema .story-run .scene * {
+    opacity:1!important;translate:none!important;rotate:none!important;
+    scale:none!important;animation:none!important;transition:none!important;
+  }
+}
+@media (prefers-reduced-motion:no-preference) {
+  @media (max-width:760px), (max-width:1024px) and (pointer:coarse) {
+    #dd-story.dd-mobile-cinema .dd-mobile-chapter {
+      position:relative;width:100%;flex:none;
+    }
+    #dd-story.dd-mobile-cinema .dd-mobile-chapter.is-pinned {
+      height:calc(var(--dd-scene-height) + var(--dd-hold));
+    }
+    #dd-story.dd-mobile-cinema .story-stage .dd-mobile-chapter.is-pinned > .scene {
+      position:sticky!important;top:var(--dd-mobile-header)!important;
+      height:var(--dd-scene-height)!important;
+    }
+    #dd-story.dd-mobile-cinema .story-stage .scene {
+      padding-top:52px!important;padding-bottom:54px!important;
+    }
+    #dd-story.dd-mobile-cinema .dd-mobile-chapter-index {
+      position:absolute;top:20px;left:22px;right:22px;display:flex;
+      align-items:center;gap:10px;color:#498da4;font-size:9px;
+      font-weight:700;letter-spacing:.18em;pointer-events:none;
+    }
+    #dd-story.dd-mobile-cinema .dd-mobile-chapter-index span {flex:none;}
+    #dd-story.dd-mobile-cinema .dd-mobile-chapter-index i {
+      display:block;height:1px;flex:1;background:currentColor;
+      transform-origin:left;transform:scaleX(var(--dd-chapter-progress,.04));opacity:.4;
+    }
+    #dd-story.dd-mobile-cinema .scene-night .dd-mobile-chapter-index {color:#a4d9ed;}
+    #dd-story.dd-mobile-cinema .scene-opening .dd14-world {
+      scale:var(--dd-camera-scale,1);
+    }
+    #dd-story.dd-mobile-cinema .scene-opening .dd14-opening-layout {gap:32px!important;}
+    #dd-story.dd-mobile-cinema .scene-orbit .float-grid {gap:16px!important;}
+    #dd-story.dd-mobile-cinema .scene-orbit .float-card {
+      background:linear-gradient(145deg,#fff,#e9f5f9)!important;
+      border:1px solid rgba(84,159,183,.18)!important;
+      box-shadow:0 12px 26px rgba(25,92,134,.09)!important;
+    }
+    #dd-story.dd-mobile-cinema .scene-orbit .dd-mobile-card:nth-child(even) {margin-top:14px;}
+    #dd-story.dd-mobile-cinema .dd-mobile-card {min-width:0;}
+    #dd-story.dd-mobile-cinema .dd17-route-trace i {transform:scaleX(var(--dd-route-progress,1))!important;}
+    #dd-story.dd-mobile-cinema .dd17-route-trace b {transform:translateX(calc(var(--dd-route-progress,1) * 110px))!important;}
+    #dd-story.dd-mobile-cinema .scene-final .feature-cards {gap:24px!important;}
+    #dd-story.dd-mobile-cinema .scene-final .feature-art img {
+      translate:0 var(--dd-art-shift,0px);
+    }
+    /* Reuse the desktop's collision-safe orbits. These are transforms only. */
+    #dd-story.dd-mobile-cinema .scene-night .night-art .dd-orbit-track {
+      transform:none!important;
+      animation:dd-mobile-orbit var(--dd14-period) linear infinite!important;
+      animation-play-state:paused!important;
+    }
+    #dd-story.dd-mobile-cinema .scene-night .night-art .dd-orbit-track .night-mini {
+      transform:none!important;translate:-50% -50%!important;
+      animation:dd-mobile-counter var(--dd14-period) linear infinite!important;
+      animation-play-state:paused!important;
+    }
+    #dd-story.dd-mobile-cinema.dd-mobile-night-running .scene-night .night-art .dd-orbit-track,
+    #dd-story.dd-mobile-cinema.dd-mobile-night-running .scene-night .night-art .dd-orbit-track .night-mini {
+      animation-play-state:running!important;
+    }
+    /* Individual rotate avoids the legacy important transform reset. */
+    @keyframes dd-mobile-orbit {
+      from{rotate:var(--dd14-start)}
+      to{rotate:calc(var(--dd14-start) + var(--dd14-turn))}
+    }
+    @keyframes dd-mobile-counter {
+      from{rotate:var(--dd14-unstart)}
+      to{rotate:calc(var(--dd14-unstart) + var(--dd14-return))}
+    }
+    html[data-theme="dark"] #dd-story.dd-mobile-cinema .scene-orbit .float-card {
+      background:linear-gradient(145deg,#243e51,#1c3042)!important;
+      border-color:#3d5668!important;
+    }
+    html[data-theme="dark"] #dd-story.dd-mobile-cinema .dd-mobile-chapter-index {color:#9bcfdf;}
+    @media(max-height:600px) {
+      #dd-story.dd-mobile-cinema .story-stage .scene {padding-block:46px!important;}
+    }
+  }
+}
