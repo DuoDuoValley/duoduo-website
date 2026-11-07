@@ -43,6 +43,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 <script defer src="cursor-ui/cursor.js"></script>
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
 <link rel="stylesheet" href="dd-navigation.css?v=20261107-badge-timeline-v411">
+<link rel="stylesheet" href="boss-videos.css?v=20261107-v1">
 </head><body>
 <header class="site-header">
   <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
@@ -64,7 +65,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
     <a class="btn btn-discord" data-link="discord" target="_blank">加入 Discord</a>
   </div>
 </header>
-<section class="page-hero"><span class="eyebrow">BOSS & DUNGEONS</span><h1>挑戰更高的極限</h1><p>獨家 BOSS、副本與排行榜，讓每一次養成都有下一個值得挑戰的目標。</p></section><main class="content-wrap"><div id="boss-page" class="boss-page-grid"></div><section id="ddBossAtlas" aria-label="多多谷 BOSS 圖鑑"><p style="color:var(--muted)">正在載入 BOSS 圖鑑…</p></section></main><footer class="site-footer">
+<section class="page-hero"><span class="eyebrow">BOSS & DUNGEONS</span><h1>挑戰更高的極限</h1><p>獨家 BOSS、副本與排行榜，讓每一次養成都有下一個值得挑戰的目標。</p></section><main class="content-wrap"><div id="boss-page" class="boss-page-grid"></div><section id="ddBossAtlas" aria-label="多多谷 BOSS 圖鑑"><p style="color:var(--muted)">正在載入 BOSS 圖鑑…</p></section><section id="ddBossVideos" aria-label="高階及終極 BOSS 影片攻略"><h2 style="text-align:center;margin:55px 0 15px">BOSS 影片攻略</h2><p>影片資料載入中…</p></section></main><footer class="site-footer">
   <div class="footer-brand">
     <b>DuoDuo Valley｜多多谷</b>
     <p data-footer="description">一個正在慢慢變熱鬧的小小世界。遊戲資訊、檔期活動與最新公告，都在這裡整理。</p>
@@ -89,6 +90,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 <!-- DuoDuo public pages: refresh after published cloud content changes -->
 <script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-cloud-refresh.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
 <!-- Site file changes are verified by dd-site-update.js; BOSS cloud sync remains above. -->
+<script defer src="boss-videos.js?v=20261107-v1"></script>
 <script src="dd-nav-data.js?v=20261104-v38"></script>
 <script src="dd-navigation.js?v=20261106-version-allpages-v1"></script>
 <script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-site-update.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>

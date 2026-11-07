@@ -106,7 +106,7 @@ function applyNavSettings(cfg){
  groups=defaultGroups.map(g=>{
   const section=sections[g.key]||{};
   const storedItems=Array.isArray(section.items)?section.items:g.items.map((x,i)=>({id:g.key+'-'+i,label:x[0],href:x[1],enabled:true}));
-  const items=g.key==='news'&&Array.isArray(section.items)?window.DuoDuoNavEnsureNewsPunishment(window.DuoDuoNavEnsureNewsSerial(storedItems,saved.newsSerialAdded)):g.key==='guide'&&Array.isArray(section.items)?window.DuoDuoNavEnsureItempedia(window.DuoDuoNavEnsureLegion(window.DuoDuoNavEnsureGuideChecklist(storedItems,saved.guideChecklistAdded))):storedItems;
+  const items=g.key==='news'&&Array.isArray(section.items)?window.DuoDuoNavEnsureNewsPunishment(window.DuoDuoNavEnsureNewsSerial(storedItems,saved.newsSerialAdded)):g.key==='boss'&&Array.isArray(section.items)?window.DuoDuoNavEnsureBossVideos(storedItems):g.key==='guide'&&Array.isArray(section.items)?window.DuoDuoNavEnsureItempedia(window.DuoDuoNavEnsureLegion(window.DuoDuoNavEnsureGuideChecklist(storedItems,saved.guideChecklistAdded))):storedItems;
   return {...g,items:items.filter(x=>x&&x.enabled!==false&&cleanHref(x.href))
    .slice(0,20).map(x=>({id:String(x.id||''),label:currentJobsLabel(x).slice(0,50),href:String(x.href)}))};
  }).sort((a,b)=>sorted.indexOf(a.key)-sorted.indexOf(b.key));
