@@ -7,6 +7,13 @@
  const $=id=>panel.querySelector('#'+id);
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const clone=x=>JSON.parse(JSON.stringify(x));
+ // Supabase JSONB may reorder object keys while retaining exactly the same data.
+ // Compare JSON structure, not JavaScript object insertion order; arrays keep order.
+ const canonical=x=>Array.isArray(x)?x.map(canonical):
+   (x!==null&&typeof x==='object')?Object.fromEntries(Object.keys(x).sort().map(k=>[k,canonical(x[k])])):x;
+ const sameDocument=(a,b)=>JSON.stringify(canonical(a))===JSON.stringify(canonical(b));
+ const cloudUrl=()=>API+'/api/site-data?guide_check='+Date.now()+'-'+Math.random().toString(36).slice(2,7);
+
  const token=()=>{try{return sessionStorage.getItem('duoduo_admin_session')||''}catch{return ''}};
  const TYPES={article:'圖文攻略',video:'影片攻略',note:'歷史機制筆記'};
  // Guide-only switch; never modify atlas `published` or other BOSS tools.
@@ -101,12 +108,30 @@
      const before=await fetch(API+'/api/site-data',{cache:'no-store'}),response=before.ok?await before.json():null;
      if(response?.ok!==true)throw Error('雲端現況讀取失敗，為避免覆蓋資料已中止');
      const currentCloud=response.data?.[CLOUD_KEY]||null;
-     if(JSON.stringify(currentCloud)!==JSON.stringify(loadedCloud))throw Error('雲端資料已由其他裝置更新，請先備份草稿並重新載入，不要直接覆蓋。');
+     if(!sameDocument(currentCloud,loadedCloud))throw Error('雲端資料已由其他裝置更新，請先備份草稿並重新載入，不要直接覆蓋。');
      const payload=clone(data);payload.schema=1;payload.dataRevision=14;payload.updatedAt=new Date().toISOString();
      const sent=await fetch(API+'/api/site-data',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t,'X-Admin-Activity':'1'},body:JSON.stringify({values:{[CLOUD_KEY]:payload}})});
      const saved=await sent.json().catch(()=>({}));if(!sent.ok||saved.ok!==true)throw Error(saved.error||'發布失敗：後端拒絕儲存');
-     const check=await fetch(API+'/api/site-data',{cache:'no-store'});const verified=check.ok?await check.json():{};
-     if(JSON.stringify(verified?.data?.[CLOUD_KEY])!==JSON.stringify(payload))throw Error('後端回報成功，但未讀回相同資料。請確認 Render 已更新 server.js；勿反覆發布。');
+     let confirmed=false;
+     // An immediate GET can see old data briefly, even after the POST succeeds.
+     // Check a few times before deciding the read-back is still unconfirmed.
+     for(let attempt=0;attempt<3;attempt++){
+       if(attempt)await new Promise(resolve=>setTimeout(resolve,450*attempt));
+       try{
+         const check=await fetch(cloudUrl(),{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
+         const verified=check.ok?await check.json():null;
+         if(verified?.ok===true&&sameDocument(verified.data?.[CLOUD_KEY]??null,payload)){
+           confirmed=true;break;
+         }
+       }catch(error){console.warn('BOSS 攻略雲端讀回暫時失敗',error)}
+     }
+     if(!confirmed){
+       // The server ACKs the write, but we cannot claim a verified publication.
+       // Keep a copy for recovery and do not encourage a second POST.
+       try{localStorage.setItem(DRAFT_KEY,JSON.stringify(payload))}catch(_){}
+       putStatus('⚠ 後端已接受儲存，但暫時未完成讀回確認。請點「重新載入正式資料」確認，不要重複發布。');
+       return;
+     }
      data=payload;loadedCloud=clone(payload);dirty=false;localStorage.removeItem(DRAFT_KEY);render();putStatus('✅ 雲端發布成功，且已讀回確認。本頁攻略將依新排序顯示。');
    }catch(e){putStatus('❌ '+e.message,true)}finally{btn.disabled=false}
  }

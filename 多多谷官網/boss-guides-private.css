@@ -228,3 +228,37 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
 #detail .item{min-width:0;height:100%}
 #detail .guide-item-body{min-width:0;overflow-wrap:anywhere}
 @media(max-width:950px){#detail .items{grid-template-columns:minmax(0,1fr)}}
+
+/* V15: match the stronger typography of the existing BOSS Atlas cards.
+   Do not alter artwork proportions, the 6-card grid or mobile card density. */
+.boss-tier-head{
+  min-height:47px;padding:10px 15px;margin-bottom:13px;
+  border-left-width:5px;border-radius:11px;
+  border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+  box-shadow:0 2px 7px rgba(23,67,97,.035);
+}
+.boss-tier-head h3{
+  font-size:19px;font-weight:900;line-height:1.35;letter-spacing:.018em;
+  color:var(--ink);
+}
+.boss-tier-head span{
+  padding:4px 9px;border-radius:999px;background:var(--card);border:1px solid var(--line);
+  font-weight:750;font-size:12px;color:var(--accent2);
+}
+.boss-tier .boss-text{padding:9px 10px 10px}
+.boss-tier .boss-text strong{
+  display:block;font-weight:900;font-size:16px;letter-spacing:.012em;
+  line-height:1.4;min-height:23px;color:var(--ink);
+  overflow-wrap:anywhere;
+}
+.boss-tier .boss-text .badge{margin-top:7px}
+@media(max-width:800px){
+  .boss-tier-head h3{font-size:17px}
+  .boss-tier .boss-text strong{font-size:14px;min-height:20px}
+}
+@media(max-width:520px){
+  .boss-tier-head{padding:9px 11px;min-height:42px}
+  .boss-tier-head h3{font-size:16px}
+  .boss-tier .boss-text{padding:8px 8px 10px}
+  .boss-tier .boss-text strong{font-size:13.5px;min-height:19px}
+}
