@@ -79,8 +79,8 @@
     chapters.forEach((c,i)=>{
       // Tall text, large fonts and landscape always remain fully scrollable.
       const fits=available>=550 && heights[i]<=available && innerHeight>innerWidth;
-      c.style.setProperty('--dd-scene-height',`${available}px`);
-      c.style.setProperty('--dd-hold',`${Math.round(Math.min(180,viewport*.2))}px`);
+      c.style.setProperty('--dd-scene-height',`${Math.min(available,Math.ceil(heights[i]+24))}px`);
+      c.style.setProperty('--dd-hold',`${Math.round(Math.min(72,viewport*.08))}px`);
       c.classList.toggle('is-pinned',fits);
     });
     requestPaint();
