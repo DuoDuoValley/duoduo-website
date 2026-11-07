@@ -221,3 +221,10 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
 .site-header .dd-nav-menu{background:var(--card);color:var(--ink)}
 @media(max-width:1160px){.site-header{flex-wrap:wrap}.site-header .brand img{width:34px;height:34px}.site-header .header-status{display:none}}
 @media(max-width:620px){.site-header .brand span{font-size:12px}.site-header .header-actions{margin-left:auto}.site-header .theme-toggle #themeLabel{display:none}.site-header .main-nav{order:3;flex:1 0 100%}.site-header .nav-pill{font-size:11px}}
+
+/* V14: six BOSS cards per wide desktop row; two guide entries per row. */
+@media(min-width:1200px){.boss-tier .boss-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
+#detail .items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;align-items:stretch}
+#detail .item{min-width:0;height:100%}
+#detail .guide-item-body{min-width:0;overflow-wrap:anywhere}
+@media(max-width:950px){#detail .items{grid-template-columns:minmax(0,1fr)}}

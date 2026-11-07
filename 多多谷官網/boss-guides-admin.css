@@ -26,3 +26,9 @@
 #bossGuidesPanel .bg-entry[hidden],#bossGuidesPanel .bg-pane[hidden]{display:none!important}
 @media(max-width:900px){#bossGuidesPanel .bg-layout{grid-template-columns:1fr}#bossGuidesPanel .bg-list{max-height:440px}}
 @media(max-width:520px){#bossGuidesPanel .bg-filters,#bossGuidesPanel .bg-form{grid-template-columns:1fr}#bossGuidesPanel .bg-pane{padding:11px}}
+
+/* V14 guide-only visibility switch; styled for the existing dark admin theme. */
+#bossGuidesPanel .bg-boss-visibility{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:11px 0 15px;padding:11px 13px;border:1px solid #36526b;border-radius:11px;background:#172e3d;color:#e7f6ff;font-size:13px;font-weight:850;cursor:pointer}
+#bossGuidesPanel .bg-boss-visibility input{width:18px;height:18px;accent-color:#27abd0;cursor:pointer}
+#bossGuidesPanel .bg-boss-visibility small{flex-basis:100%;font-size:11px;font-weight:500;color:#a7bfcd;margin-left:26px}
+#bossGuidesPanel .bg-boss-visibility:has(input:not(:checked)){border-color:#976b6b;background:#30212b}
