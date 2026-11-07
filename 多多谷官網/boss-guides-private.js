@@ -49,11 +49,18 @@
    }).join(''):'<div class="empty">找不到符合條件的 BOSS。</div>';
  }
  function renderItem(x){
-   const link=safeUrl(x.url),video=x.type==='video'?youtubeId(x.url):'',image=x.type==='note'?safeImg(x.image):'';
+   const link=safeUrl(x.url),video=x.type==='video'?youtubeId(x.url):'',image=safeImg(x.image);
    const intro=esc(x.summary||'');const badge=x.approved?'<span class="badge verified">✓ 已人工核對</span>':'<span class="badge">待核對來源／版本</span>';
+   const boss=bosses.find(b=>b.id===x.bossId);
+   const bossImage=boss?(safeImg(boss.image)||('assets/boss-atlas/bosses/'+boss.id+'.png')):'';
+   const photo=(x.type==='video'&&video)?'https://i.ytimg.com/vi/'+video+'/hqdefault.jpg':(image||bossImage);
+   const imageLabel=x.type==='video'?'YouTube 影片縮圖':(image?'攻略封面（自行提供）':'BOSS 形象圖（非原文截圖）');
+   const thumb=(x.type==='article'||x.type==='video')?'<div class="guide-thumb '+(x.type==='video'?'guide-thumb-video':'guide-thumb-article')+'">'+
+    (photo?'<img loading="lazy" src="'+esc(photo)+'" alt="'+esc(imageLabel)+'" onerror="this.hidden=true;this.parentNode.classList.add(\'guide-thumb-missing\')">':'')+
+    '<span class="guide-thumb-fallback" aria-hidden="true">'+(x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></div>':'';
    let content='';
    if(x.type==='note'&&x.content){content='<div class="owner-note">'+esc(x.content)+'</div>'+(image?'<img class="item-image" loading="lazy" alt="自編攻略圖片" src="'+esc(image)+'">':'')}
-   return '<article class="item"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3>'+esc(x.title||'未命名攻略')+'</h3><div class="by">'+esc(x.author||'未填作者')+(x.origin?' · '+esc(x.origin):'')+'</div>'+(intro?'<p>'+intro+'</p>':'')+content+'<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 在此頁嘗試播放</button>':'')+'</div><div class="video-target" data-target="'+esc(x.id)+'"></div></article>';
+   return '<article class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3>'+esc(x.title||'未命名攻略')+'</h3><div class="by">'+esc(x.author||'未填作者')+(x.origin?' · '+esc(x.origin):'')+'</div>'+(intro?'<p>'+intro+'</p>':'')+content+'<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 開啟迷你播放器</button>':'')+'</div></div></article>';
  }
  function drawDetail(){
   const b=currentBoss();if(!b){$('guideBody').innerHTML='<div class="empty">沒有可公開的高階或終極 BOSS。</div>';return}
@@ -69,10 +76,54 @@
  $('searchBoss').addEventListener('input',drawBossGrid);
  $('groupControls').addEventListener('click',e=>{const button=e.target.closest('[data-group]');if(!button)return;group=button.dataset.group;for(const b of $('groupControls').querySelectorAll('button'))b.classList.toggle('active',b===button);drawBossGrid()});
  $('tabArticle').onclick=()=>{currentTab='article';drawDetail()};$('tabVideo').onclick=()=>{currentTab='video';drawDetail()};$('tabNotes').onclick=()=>{currentTab='note';drawDetail()};
+ // Keep the iframe OUTSIDE #guideBody, which is re-rendered when tabs or BOSS change.
+ // A single permanent player node preserves the same YouTube iframe and playback position.
+ const floatingPlayer=$('ddFloatingPlayer');
+ const playerFrame=$('ddPlayerFrame');
+ const playerTitle=$('ddPlayerTitle');
+ const playerExternal=$('ddPlayerExternal');
+ const playerToggle=$('ddPlayerToggle');
+ let playingId='';
+ function openVideo(id,entry){
+   if(!/^[\w-]{11}$/.test(id))return;
+   const isSame=playingId===id&&playerFrame.querySelector('iframe');
+   if(!isSame){
+     const frame=document.createElement('iframe');
+     frame.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&playsinline=1';
+     frame.title='YouTube 攻略影片（可能受到原作者嵌入設定限制）';
+     frame.referrerPolicy='strict-origin-when-cross-origin';
+     frame.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';
+     frame.allowFullscreen=true;
+     // Iframe is created only on user interaction; never lazily replaced by tab switches.
+     playerFrame.replaceChildren(frame);playingId=id;
+   }
+   playerTitle.textContent=(entry?.title||'BOSS 攻略影片');
+   playerExternal.href='https://www.youtube.com/watch?v='+id;
+   floatingPlayer.hidden=false;
+   // Re-selecting the same video does not reload it or reset the current time.
+   if(isSame)floatingPlayer.classList.remove('dd-player-expanded');
+   playerToggle.textContent=floatingPlayer.classList.contains('dd-player-expanded')?'縮成迷你視窗':'放大播放';
+   playerToggle.setAttribute('aria-expanded',String(floatingPlayer.classList.contains('dd-player-expanded')));
+ }
  $('guideBody').addEventListener('click',e=>{
-  const button=e.target.closest('[data-play]');if(!button)return;const id=button.dataset.play;if(!/^[\w-]{11}$/.test(id))return;
-  const container=$('guideBody').querySelector('[data-target="'+button.dataset.entry+'"]');if(!container)return;
-  container.replaceChildren();const div=document.createElement('div');div.className='video-embed';const iframe=document.createElement('iframe');iframe.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1';iframe.title='YouTube 影片播放（可能受原作者嵌入設定限制）';iframe.referrerPolicy='strict-origin-when-cross-origin';iframe.allow='autoplay; encrypted-media; picture-in-picture; fullscreen';iframe.allowFullscreen=true;iframe.loading='lazy';div.appendChild(iframe);container.appendChild(div);button.textContent='已載入播放框（不保證可播放）';button.disabled=true;
+   const button=e.target.closest('[data-play]');if(!button)return;
+   const entry=entries.find(x=>x.id===button.dataset.entry);
+   if(!entry||entry.type!=='video'||youtubeId(entry.url)!==button.dataset.play)return;
+   openVideo(button.dataset.play,entry);
+ });
+ playerToggle.onclick=()=>{
+   const expanded=floatingPlayer.classList.toggle('dd-player-expanded');
+   playerToggle.textContent=expanded?'縮成迷你視窗':'放大播放';
+   playerToggle.setAttribute('aria-expanded',String(expanded));
+ };
+ $('ddPlayerClose').onclick=()=>{
+   floatingPlayer.hidden=true;floatingPlayer.classList.remove('dd-player-expanded');
+   // Closing is an intentional stop. Switching tabs or BOSS never reaches this path.
+   playerFrame.replaceChildren();playingId='';
+   playerToggle.textContent='放大播放';playerToggle.setAttribute('aria-expanded','false');
+ };
+ document.addEventListener('keydown',e=>{
+   if(e.key==='Escape'&&!floatingPlayer.hidden&&floatingPlayer.classList.contains('dd-player-expanded'))playerToggle.click();
  });
  $('copyUrl').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);$('copyUrl').textContent='已複製';setTimeout(()=>$('copyUrl').textContent='複製預覽連結',1700)}catch(_){$('copyUrl').textContent='複製失敗'}};
  $('themeBtn').onclick=()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';try{localStorage.setItem('duoduo_boss_preview_theme',dark?'dark':'light')}catch(_){}};

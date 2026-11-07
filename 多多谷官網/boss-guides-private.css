@@ -97,3 +97,36 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
   .boss-text strong{font-size:12px;min-height:0}
 }
 @media(max-width:360px){.boss-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+
+/* V6: lightweight guide thumbnails. Never present unverified article images as screenshots. */
+.item.guide-has-thumb{display:grid;grid-template-columns:148px minmax(0,1fr);column-gap:16px;align-items:start;min-width:0}
+.guide-item-body{min-width:0}
+.guide-thumb{position:relative;aspect-ratio:16/10;max-width:100%;border-radius:12px;overflow:hidden;background:linear-gradient(145deg,#e2f3fa,#d9eaf4);border:1px solid var(--line);isolation:isolate}
+.guide-thumb img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;position:relative;z-index:1}
+.guide-thumb-article img{object-fit:contain;background:var(--soft)}
+.guide-thumb .guide-thumb-fallback{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:var(--accent2)}
+.guide-thumb .guide-thumb-tag{position:absolute;z-index:2;left:6px;bottom:6px;max-width:calc(100% - 12px);padding:3px 6px;border-radius:6px;background:rgba(5,25,43,.78);color:#fff;font-size:10px;line-height:1.4;white-space:normal}
+.guide-thumb-video::after{content:'▶';display:grid;place-items:center;position:absolute;z-index:2;top:50%;left:50%;transform:translate(-50%,-50%);width:35px;height:35px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px;pointer-events:none}
+.item.guide-has-thumb h3{margin-top:7px}
+.item.guide-has-thumb .buttons{gap:7px}
+@media(max-width:650px){.item.guide-has-thumb{grid-template-columns:116px minmax(0,1fr);gap:12px;padding:12px}.guide-thumb{aspect-ratio:4/5}.guide-thumb-video img{object-fit:cover}.guide-thumb-article img{object-fit:contain}.guide-thumb .guide-thumb-tag{font-size:9px}.item.guide-has-thumb .buttons{gap:5px}.item.guide-has-thumb .buttons a,.item.guide-has-thumb .buttons button{font-size:11px;padding:7px 9px}}
+@media(max-width:350px){.item.guide-has-thumb{grid-template-columns:1fr}.guide-thumb{width:100%;max-height:145px;aspect-ratio:16/8}}
+:root[data-theme="dark"] .guide-thumb{background:linear-gradient(145deg,#243d54,#102438)}
+
+/* V6: one persistent YouTube iframe is mounted outside of the dynamically re-rendered BOSS detail. */
+.dd-floating-player{position:fixed;right:max(14px,env(safe-area-inset-right));bottom:max(14px,env(safe-area-inset-bottom));z-index:9999;width:min(355px,calc(100vw - 28px));background:var(--card);color:var(--ink);border:1px solid var(--line);border-radius:17px;overflow:hidden;box-shadow:0 16px 54px rgba(8,24,48,.34)}
+.dd-floating-player[hidden]{display:none!important}
+.dd-player-toolbar{min-height:46px;display:flex;align-items:center;gap:8px;padding:7px 10px;border-bottom:1px solid var(--line)}
+.dd-player-indicator{color:var(--accent);font-size:14px}
+.dd-player-title{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:12px;font-weight:850}
+.dd-player-controls{display:flex;gap:5px;flex:none}
+.dd-player-controls button{padding:5px 9px;border:1px solid var(--line);border-radius:8px;background:var(--soft);color:var(--ink);font-size:11px;font-weight:800}
+.dd-player-controls #ddPlayerClose{min-width:32px}
+.dd-player-frame{width:100%;aspect-ratio:16/9;background:#080f19}
+.dd-player-frame iframe{display:block;width:100%;height:100%;border:0}
+.dd-player-footer{padding:7px 11px;display:grid;gap:2px;font-size:11px;line-height:1.5;color:var(--muted)}
+.dd-player-footer a{font-weight:800;color:var(--accent2);width:max-content;max-width:100%}
+.dd-player-footer small{font-size:10px}
+.dd-floating-player.dd-player-expanded{width:min(850px,calc(100vw - 32px));right:50%;bottom:50%;transform:translate(50%,50%);box-shadow:0 18px 75px rgba(0,0,0,.55)}
+@media(max-width:520px){.dd-floating-player{right:8px;bottom:max(8px,env(safe-area-inset-bottom));width:min(340px,calc(100vw - 16px));border-radius:12px}.dd-floating-player.dd-player-expanded{width:calc(100vw - 12px)}.dd-player-toolbar{padding:5px 8px;min-height:40px}.dd-player-controls button{font-size:10px;padding:5px 7px}.dd-player-footer{padding:5px 8px}.dd-player-footer small{font-size:9px}}
