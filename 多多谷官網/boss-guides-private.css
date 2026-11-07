@@ -262,3 +262,133 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
   .boss-tier .boss-text{padding:8px 8px 10px}
   .boss-tier .boss-text strong{font-size:13.5px;min-height:19px}
 }
+
+/* V16: brand-aligned preview polish. Scoped to this unlisted guide page.
+   Real BOSS art, 6 columns and 2-column guide content are retained unchanged. */
+:root{
+  --guide-shadow:0 15px 42px rgba(23,67,104,.075);
+  --guide-shadow-hover:0 13px 29px rgba(15,82,127,.12);
+  --text:var(--ink);
+  --surface:var(--card);
+}
+:root[data-theme="dark"]{
+  --guide-shadow:0 17px 42px rgba(0,0,0,.18);
+  --guide-shadow-hover:0 14px 30px rgba(0,0,0,.24);
+}
+body{
+  background:radial-gradient(ellipse 85% 32% at 52% 0%,rgba(67,165,199,.085),transparent 72%),var(--bg);
+  font-family:"Noto Sans TC",-apple-system,BlinkMacSystemFont,"Microsoft JhengHei",system-ui,sans-serif;
+}
+/* Header: use the SAME canonical nav structure and shared dropdown stylesheet;
+   only supply the missing base shell metrics, without importing global styles.css. */
+.site-header{
+  min-height:73px;padding:10px clamp(14px,3.3vw,46px);gap:clamp(10px,1.5vw,24px);
+  background:var(--card);border-bottom:1px solid var(--line);
+  box-shadow:0 3px 20px rgba(27,66,102,.045);
+}
+.site-header .brand{flex:0 0 auto;gap:8px;font-size:14px;font-weight:850;letter-spacing:.02em}
+.site-header .brand img{width:44px;height:39px;object-fit:contain}
+.site-header .header-status{font-size:12px;font-weight:750;gap:8px;white-space:nowrap}
+.site-header .status-dot{box-shadow:0 0 0 5px rgba(50,205,136,.12)}
+.site-header .header-actions{gap:8px}
+.site-header .theme-toggle{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 13px;min-height:39px;white-space:nowrap;font-size:12px;font-weight:800;
+  border:1px solid var(--line);border-radius:11px;
+  background:var(--soft);color:var(--ink);
+  transition:background .16s,border-color .16s;
+}
+.site-header .theme-toggle:hover{border-color:var(--accent);background:var(--tint)}
+.site-header .theme-toggle span{margin-left:0}
+.site-header.dd-nav-ready{font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.7}
+.site-header.dd-nav-ready .dd-nav-menu{color:var(--ink)}
+.site-header.dd-nav-ready nav.dd-main-nav .dd-top-link{font-weight:850}
+@media(max-width:1160px){.site-header{gap:10px}.site-header .brand img{width:36px;height:34px}}
+@media(max-width:620px){.site-header{padding:9px 12px}.site-header .brand{font-size:12px}.site-header .header-actions{margin-left:auto}.site-header .theme-toggle{padding:7px 10px;min-height:36px}}
+/* Tame the testing banner into a discreet preview notice. */
+.top-strip{border-bottom:1px solid rgba(14,106,155,.14);background:linear-gradient(90deg,#e3f4f8,#f7fafc);color:#557c92;letter-spacing:.01em;font-size:11px;padding:6px 12px}
+:root[data-theme="dark"] .top-strip{background:#173243;color:#b9d9e9;border-color:#355768}
+/* Product-like hero with quiet Maple-themed gradients rather than a flat test heading. */
+.hero{
+  position:relative;overflow:hidden;isolation:isolate;
+  max-width:1320px;margin:26px auto 22px;padding:41px 24px 37px;
+  border:1px solid #2a5a7b;border-radius:23px;
+  background:radial-gradient(circle at 88% 12%,rgba(88,216,219,.24),transparent 30%),
+    radial-gradient(circle at 10% 120%,rgba(111,149,219,.19),transparent 42%),
+    linear-gradient(125deg,#102b47,#153b59 58%,#102b43);
+  box-shadow:0 16px 37px rgba(13,53,80,.14);
+  color:#f5fbff;
+}
+.hero::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(105deg,transparent 32%,rgba(255,255,255,.028) 49%,transparent 66%);z-index:-1}
+.hero::after{content:"";position:absolute;right:-48px;top:-65px;width:240px;height:240px;border:1px solid rgba(189,233,255,.13);border-radius:50%;box-shadow:0 0 0 47px rgba(184,233,255,.027),0 0 0 94px rgba(184,233,255,.02);pointer-events:none;z-index:-1}
+.hero .overline{color:#8cd9ec;font-size:11px;letter-spacing:.22em}
+.hero h1{color:#fff;margin:12px 0 12px;font-size:clamp(26px,3.5vw,39px);font-weight:900;letter-spacing:.025em}
+.hero p{color:#d5e6f1;font-size:13px;line-height:1.75}
+.hero .stats{gap:9px;margin-top:22px}
+.hero .stats span{padding:6px 14px;background:rgba(255,255,255,.085);border:1px solid rgba(202,237,252,.21);color:#e5f6ff;backdrop-filter:blur(3px);font-size:12px}
+/* Search and filters now read like a concise control toolbar. */
+.toolbar{padding:18px 19px;border-radius:17px;box-shadow:0 7px 27px rgba(29,77,111,.04);gap:16px;margin-bottom:23px}
+.searchbox{font-size:12px;font-weight:850;color:var(--ink)}
+.searchbox input{min-height:42px;border-radius:11px;padding:11px 14px;transition:border-color .15s,box-shadow .15s}
+.searchbox input:focus{border-color:var(--accent);outline:none;box-shadow:0 0 0 3px rgba(35,162,194,.13)}
+.segment{padding:3px;border:1px solid var(--line);background:var(--soft);border-radius:12px;gap:3px}
+.segment button{border:0;background:transparent;border-radius:9px;padding:9px 15px;transition:background .15s,color .15s}
+.segment button.active{background:var(--accent2);box-shadow:0 3px 8px rgba(26,123,160,.13)}
+/* Stage panels. Strong heading hierarchy with real artwork kept in its native aspect ratio. */
+#bossCatalog{padding:21px 22px 25px;background:var(--card);border:1px solid var(--line);border-radius:21px;box-shadow:var(--guide-shadow)}
+#bossCatalog>.sectionline{padding:0 3px 15px;border-bottom:1px solid var(--line);margin-bottom:19px}
+#bossCatalog>.sectionline h2{position:relative;padding-left:15px;font-size:21px;font-weight:900;letter-spacing:.015em}
+#bossCatalog>.sectionline h2::before{content:"";position:absolute;top:20%;bottom:20%;left:0;width:4px;background:var(--accent);border-radius:99px}
+#bossCatalog>.sectionline #countLabel{font-weight:850;padding:5px 11px;background:var(--soft);border:1px solid var(--line);border-radius:20px}
+.boss-groups{gap:25px}
+.boss-tier-head{border-left-width:5px;min-height:48px;padding:11px 16px;border-radius:11px;background:linear-gradient(95deg,var(--tint),var(--soft) 80%);box-shadow:none}
+.boss-tier-head h3{font-size:18px;letter-spacing:.025em}
+.boss-tier .boss-grid{gap:13px}
+.boss-tier .bossbtn{position:relative;border-radius:16px;box-shadow:0 4px 15px rgba(20,78,116,.035);background:var(--card);
+  transition:border-color .17s,box-shadow .17s,transform .17s}
+@media(hover:hover){.boss-tier .bossbtn:hover{transform:translateY(-2px);box-shadow:var(--guide-shadow-hover)}}
+.boss-tier .bossbtn.active{outline:2px solid var(--accent);outline-offset:0;box-shadow:0 0 0 5px rgba(49,166,198,.11),var(--guide-shadow-hover)}
+.boss-tier .boss-art{position:relative;border-radius:12px;overflow:hidden;background:linear-gradient(155deg,#f1f6fa,#e7eef6);border:1px solid var(--line)}
+:root[data-theme="dark"] .boss-tier .boss-art{background:linear-gradient(145deg,#1c3044,#172638)}
+.boss-tier .boss-art img{display:block;width:100%;height:100%;padding:0;object-fit:contain;object-position:center}
+.boss-tier .boss-text{display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:7px;padding:10px 7px 14px;text-align:center}
+.boss-tier .boss-text strong{display:block;width:100%;font-weight:900;font-size:15px;min-height:21px;line-height:1.4;text-align:center;overflow-wrap:anywhere}
+.boss-tier .boss-metrics{display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap;width:100%}
+.boss-tier .boss-metrics .badge{margin:0;white-space:nowrap;padding:3px 9px;min-width:33px;font-size:11px;font-weight:850;line-height:1.3}
+.boss-tier .boss-metrics .badge.verified{border:1px solid rgba(22,157,184,.13)}
+/* Guide area: clearer section banner, more readable two-card listings. */
+#detail{border-radius:21px;box-shadow:var(--guide-shadow);overflow:hidden}
+#detail .detailhead{padding:22px 24px;background:linear-gradient(110deg,var(--tint),var(--card) 93%);border-bottom:1px solid var(--line)}
+#detail .detailhead h2{font-weight:900;font-size:24px}
+#detail .tabs{padding:0 19px;gap:8px}
+#detail .tabs button{padding:14px 14px;font-size:13px;font-weight:850}
+#detail .tab-content{padding:22px 23px 25px}
+#detail .sectionline{padding-bottom:11px;margin-bottom:14px;border-bottom:1px solid var(--line)}
+#detail .sectionline h2{font-size:20px;font-weight:900}
+#detail .items{gap:16px}
+#detail .item{background:var(--soft);border:1px solid var(--line);border-radius:15px;padding:17px;box-shadow:0 3px 12px rgba(30,88,120,.026);transition:border-color .16s,box-shadow .16s}
+@media(hover:hover){#detail .item:hover{border-color:rgba(33,154,184,.55);box-shadow:0 9px 22px rgba(27,77,112,.075)}}
+#detail .item h3{font-weight:850;line-height:1.46}
+#detail .item .buttons a,#detail .item .buttons button{border-radius:10px;min-height:36px}
+.footnote{border-radius:14px}
+@media(max-width:900px){.hero{margin:18px 14px 18px;padding:31px 21px}.toolbar{gap:12px}#bossCatalog{padding:17px}}
+@media(max-width:620px){
+ .hero{margin:12px 12px 17px;padding:27px 15px 25px;border-radius:17px}
+ .hero h1{font-size:27px}.hero p{font-size:12px}.hero .stats{gap:6px;margin-top:18px}
+ .hero .stats span{padding:4px 8px;font-size:10px}
+ .toolbar{padding:13px;gap:9px;border-radius:15px}
+ #bossCatalog{padding:14px 12px 18px;border-radius:16px}
+ #bossCatalog>.sectionline h2{font-size:18px}
+ .boss-tier-head{padding:9px 12px}
+ .boss-tier-head h3{font-size:16px}
+ .boss-tier .boss-text{padding:8px 6px 11px;gap:6px}
+ .boss-tier .boss-text strong{font-size:13.5px;min-height:19px}
+ .boss-tier .boss-metrics{gap:4px}
+ .boss-tier .boss-metrics .badge{padding:3px 6px;font-size:10px}
+ #detail .detailhead{padding:15px 13px}
+ #detail .tab-content{padding:15px 12px}
+ #detail .tabs{padding:0 8px}
+ #detail .tabs button{padding:11px 9px;font-size:12px}
+}
+@media(prefers-reduced-motion:reduce){.boss-tier .bossbtn,.boss-tier .bossbtn:hover,#detail .item,.site-header .theme-toggle{transition:none;transform:none}}

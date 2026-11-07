@@ -53,7 +53,7 @@
    const card=b=>{
      const image=safeImg(b.image)||('assets/boss-atlas/bosses/'+b.id+'.png');
      // Keep the original full BOSS artwork in this picker. Only the detail header uses square icon.
-     return '<button type="button" class="bossbtn '+(current===b.id?'active':'')+'" data-boss="'+esc(b.id)+'" aria-pressed="'+(current===b.id)+'"><div class="boss-art"><span class="fallback" aria-hidden="true">⚔</span><img loading="lazy" src="'+esc(image)+'" alt="" onerror="this.hidden=true"></div><div class="boss-text"><strong>'+esc(b.name)+'</strong><span class="badge '+(byBoss(b.id,'article').length?'verified':'')+'">📖 '+(byBoss(b.id,'article').length||'待收錄')+'</span><span class="badge '+(byBoss(b.id,'video').length?'verified':'')+'">▶ '+(byBoss(b.id,'video').length||'待收錄')+'</span></div></button>';
+     return '<button type="button" class="bossbtn '+(current===b.id?'active':'')+'" data-boss="'+esc(b.id)+'" aria-pressed="'+(current===b.id)+'"><div class="boss-art"><span class="fallback" aria-hidden="true">⚔</span><img loading="lazy" src="'+esc(image)+'" alt="" onerror="this.hidden=true"></div><div class="boss-text"><strong>'+esc(b.name)+'</strong><span class="boss-metrics"><span class="badge '+(byBoss(b.id,'article').length?'verified':'')+'">📖 '+(byBoss(b.id,'article').length||'待收錄')+'</span><span class="badge '+(byBoss(b.id,'video').length?'verified':'')+'">▶ '+(byBoss(b.id,'video').length||'待收錄')+'</span></span></div></button>';
    };
    const sections=['高階','終極'].map(tier=>{
      const rows=visible.filter(b=>b.group===tier);
@@ -169,7 +169,19 @@
    if(e.key==='Escape'&&!floatingPlayer.hidden&&floatingPlayer.classList.contains('dd-player-expanded'))playerToggle.click();
  });
  $('copyUrl').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);$('copyUrl').textContent='已複製';setTimeout(()=>$('copyUrl').textContent='複製預覽連結',1700)}catch(_){$('copyUrl').textContent='複製失敗'}};
- $('themeBtn').onclick=()=>{const dark=document.documentElement.dataset.theme!=='dark';document.documentElement.dataset.theme=dark?'dark':'light';try{localStorage.setItem('duoduo_boss_preview_theme',dark?'dark':'light')}catch(_){}};
- try{document.documentElement.dataset.theme=localStorage.getItem('duoduo_boss_preview_theme')||localStorage.getItem('duoduo_theme')||'light'}catch(_){document.documentElement.dataset.theme='light'};
+ // Share the official light/dark choice across the whole DuoDuo website.
+ const updateThemeButton=()=>{
+   const dark=document.documentElement.dataset.theme==='dark';
+   $('themeIcon').textContent=dark?'☾':'☼';
+   $('themeLabel').textContent=dark?'深色模式':'淺色模式';
+   $('themeBtn').setAttribute('aria-pressed',String(dark));
+ };
+ $('themeBtn').onclick=()=>{
+   const dark=document.documentElement.dataset.theme!=='dark';
+   document.documentElement.dataset.theme=dark?'dark':'light';
+   try{localStorage.setItem('duoduo_theme',dark?'dark':'light')}catch(_){}
+   updateThemeButton();
+ };
+ updateThemeButton();
  openApp();
 })();
