@@ -82,21 +82,31 @@
    let isBahaArticle=false;
    try{
      const host=new URL(link).hostname.toLowerCase();
-     isBahaArticle=x.type==='article'&&(host==='gamer.com.tw'||host.endsWith('.gamer.com.tw'))&&!image;
+     isBahaArticle=x.type==='article'&&(host==='gamer.com.tw'||host.endsWith('.gamer.com.tw'));
    }catch(_){}
    const bahaLogo='https://www.oneup.com.tw/cis/download/Brand_logo1.png';
-   const photo=(x.type==='video'&&video)?'https://i.ytimg.com/vi/'+video+'/hqdefault.jpg':(image||(isBahaArticle?bahaLogo:bossImage));
-   const imageLabel=x.type==='video'?'YouTube 影片縮圖':(image?'攻略封面（自行提供）':isBahaArticle?'巴哈姆特（文章來源）':'BOSS 形象圖（非原文截圖）');
+   const photo=(x.type==='video'&&video)?'https://i.ytimg.com/vi/'+video+'/hqdefault.jpg':(isBahaArticle?bahaLogo:(image||bossImage));
+   const imageLabel=x.type==='video'?'YouTube 影片縮圖':(isBahaArticle?'巴哈姆特（文章來源）':image?'攻略封面（自行提供）':'BOSS 形象圖（非原文截圖）');
    const thumb=(x.type==='article'||x.type==='video')?'<div class="guide-thumb '+(x.type==='video'?'guide-thumb-video':'guide-thumb-article')+(isBahaArticle?' guide-thumb-bahamut':'')+'">'+
-    (photo?'<img loading="lazy" src="'+esc(photo)+'" alt="'+esc(imageLabel)+'" onerror="this.hidden=true;this.parentNode.classList.add(\'guide-thumb-missing\')">':'')+
-    '<span class="guide-thumb-fallback" aria-hidden="true">'+(isBahaArticle?'巴哈姆特':x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></div>':'';
+    (photo?'<img loading="lazy" src="'+esc(photo)+'" alt="'+esc(imageLabel)+'" onload="this.parentNode.classList.add(\'logo-loaded\')" onerror="this.hidden=true;this.parentNode.classList.add(\'guide-thumb-missing\')">':'')+
+    '<span class="guide-thumb-fallback" aria-hidden="true">'+(isBahaArticle?'<span class="baha-wordmark"><span class="baha-mark" aria-hidden="true">◆</span>巴哈姆特</span>':x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></div>':'';
    let content='';
    if(x.type==='note'&&x.content){content='<div class="owner-note">'+esc(x.content)+'</div>'+(image?'<img class="item-image" loading="lazy" alt="自編攻略圖片" src="'+esc(image)+'">':'')}
    return '<article class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3>'+esc(x.title||'未命名攻略')+'</h3><div class="by">'+esc(x.author||'未填作者')+(x.origin?' · '+esc(x.origin):'')+'</div>'+(intro?'<p>'+intro+'</p>':'')+content+'<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 開啟迷你播放器</button>':'')+'</div></div></article>';
  }
  function drawDetail(){
   const b=currentBoss();if(!b){$('guideBody').innerHTML='<div class="empty">沒有可公開的高階或終極 BOSS。</div>';return}
-  $('bossName').textContent=b.name;$('bossGroup').textContent=b.group+' BOSS';$('bossDifficulties').textContent=(b.difficulties||[]).map(d=>d.name).join('／')||'難度請參考 BOSS 資訊';
+  $('bossName').textContent=b.name;
+  $('bossGroup').textContent=b.group+' BOSS';
+  const portrait=$('bossHeadPortrait');
+  const portraitUrl=safeImg(b.image)||('assets/boss-atlas/bosses/'+b.id+'.png');
+  if(portrait){portrait.hidden=false;portrait.alt=b.name+' 頭像';portrait.src=portraitUrl}
+  const allowedDifficulties=new Set(['簡單','普通','困難','混沌','終極']);
+  const difficultyNames=[...new Set((Array.isArray(b.difficulties)?b.difficulties:[])
+    .map(d=>String(d?.name||'')) .filter(n=>allowedDifficulties.has(n)))];
+  $('bossDifficulties').innerHTML=difficultyNames.map(n=>'<img src="assets/boss-atlas/difficulties/'+encodeURIComponent(n)+'.png" alt="'+esc(n)+'" title="'+esc(n)+'" loading="lazy">').join('');
+  $('bossDifficulties').setAttribute('aria-label','可挑戰難度：'+difficultyNames.join('、'));
+
   const counts={article:byBoss(b.id,'article').length,video:byBoss(b.id,'video').length,note:byBoss(b.id,'note').length};
   $('articleCount').textContent='('+counts.article+')';$('videoCount').textContent='('+counts.video+')';$('noteCount').textContent='('+counts.note+')';
   for(const type of ['Article','Video','Notes']){const is=(currentTab==={Article:'article',Video:'video',Notes:'note'}[type]);const t=$('tab'+type);t.classList.toggle('active',is);t.setAttribute('aria-selected',String(is))}

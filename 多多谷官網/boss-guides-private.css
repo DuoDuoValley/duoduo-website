@@ -137,3 +137,33 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
 .guide-thumb-bahamut > img{object-fit:contain!important;object-position:center!important;padding:10px;background:#fff}
 .guide-thumb-bahamut .guide-thumb-fallback{font-size:16px;font-weight:900;color:#0385b1;background:#fff;padding:8px;text-align:center}
 .guide-thumb-bahamut .guide-thumb-tag{font-size:10px}
+
+
+/* V8: BOSS atlas portrait + difficulty PNGs in the guide detail header.
+   Does not change the card grid, guide data, editor, or floating player. */
+#detail .detailhead{padding:13px 17px;gap:10px;align-items:center}
+#detail .boss-info{min-width:0;display:flex;align-items:center;gap:11px;flex:1 1 210px}
+#detail .boss-head-portrait{display:block;flex:none;width:54px;height:54px;object-fit:cover;object-position:center 35%;border-radius:11px;background:var(--soft);border:1px solid var(--line)}
+#detail .boss-head-portrait[hidden]{display:none!important}
+#detail .boss-heading{min-width:0;display:flex;flex-direction:column;justify-content:center;gap:5px}
+#detail .boss-heading h2{font-size:19px;line-height:1.35;margin:0;overflow-wrap:anywhere}
+#detail .boss-difficulty-tags{display:flex;align-items:center;flex-wrap:wrap;gap:5px;min-height:19px}
+#detail .boss-difficulty-tags img{display:block;flex:none;width:68px;height:18px;max-width:100%;object-fit:contain}
+#detail .detail-actions{margin-left:auto;flex:none}
+@media(max-width:520px){#detail .detailhead{padding:11px 13px;gap:8px;flex-wrap:wrap}#detail .boss-info{gap:9px;flex-basis:175px}#detail .boss-head-portrait{width:46px;height:46px;border-radius:9px}#detail .boss-heading h2{font-size:17px}#detail .detail-actions .action{font-size:11px;padding:7px 9px}}
+@media(max-width:350px){#detail .detail-actions{margin-left:auto}}
+
+/* V8: Bahamut links are always source-branded, including older browser drafts.
+   If the third-party logo refuses hotlinking, show this visible wordmark,
+   never the old generic book icon or a misleading "custom cover" label. */
+.guide-thumb-bahamut{background:#fff!important}
+.guide-thumb-bahamut > img{position:relative;z-index:1;display:block;width:100%;height:100%;padding:11px;object-fit:contain!important;object-position:center;background:#fff}
+.guide-thumb-bahamut .guide-thumb-fallback{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:16px;color:#0385b1!important;background:#fff;text-align:center;padding:11px}
+.guide-thumb-bahamut .baha-wordmark{display:flex;flex-direction:column;align-items:center;gap:2px;letter-spacing:.04em;white-space:nowrap;font-size:clamp(11px,1.4vw,17px)}
+.guide-thumb-bahamut .baha-mark{display:block;color:#666;font-size:23px;line-height:1}
+.guide-thumb-bahamut .guide-thumb-tag{max-width:calc(100% - 12px);white-space:nowrap;text-overflow:ellipsis;overflow:hidden}
+
+/* Keep a readable Bahamut wordmark visible while a remote logo is pending/blocked. */
+.guide-thumb-bahamut > img:not([hidden]){opacity:0}
+.guide-thumb-bahamut.logo-loaded > img:not([hidden]){opacity:1}
+.guide-thumb-bahamut.logo-loaded .guide-thumb-fallback{visibility:hidden}
