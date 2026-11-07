@@ -99,8 +99,18 @@
   $('bossName').textContent=b.name;
   $('bossGroup').textContent=b.group+' BOSS';
   const portrait=$('bossHeadPortrait');
-  const portraitUrl=safeImg(b.image)||('assets/boss-atlas/bosses/'+b.id+'.png');
-  if(portrait){portrait.hidden=false;portrait.alt=b.name+' 頭像';portrait.src=portraitUrl}
+  // Use the exact square icon from the existing 個人傷害反推 BOSS picker.
+  // Keep the left BOSS selection gallery (large portrait artwork) unchanged.
+  const portraitUrl='assets/boss-atlas/inverse-ui/'+encodeURIComponent(b.name)+'.png';
+  if(portrait){
+    portrait.hidden=false;
+    portrait.alt=b.name+' 頭像';
+    portrait.onerror=()=>{
+      portrait.onerror=null;
+      portrait.src=safeImg(b.image)||('assets/boss-atlas/bosses/'+b.id+'.png');
+    };
+    portrait.src=portraitUrl;
+  }
   const allowedDifficulties=new Set(['簡單','普通','困難','混沌','終極']);
   const difficultyNames=[...new Set((Array.isArray(b.difficulties)?b.difficulties:[])
     .map(d=>String(d?.name||'')) .filter(n=>allowedDifficulties.has(n)))];
