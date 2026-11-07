@@ -130,3 +130,10 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
 .dd-player-footer small{font-size:10px}
 .dd-floating-player.dd-player-expanded{width:min(850px,calc(100vw - 32px));right:50%;bottom:50%;transform:translate(50%,50%);box-shadow:0 18px 75px rgba(0,0,0,.55)}
 @media(max-width:520px){.dd-floating-player{right:8px;bottom:max(8px,env(safe-area-inset-bottom));width:min(340px,calc(100vw - 16px));border-radius:12px}.dd-floating-player.dd-player-expanded{width:calc(100vw - 12px)}.dd-player-toolbar{padding:5px 8px;min-height:40px}.dd-player-controls button{font-size:10px;padding:5px 7px}.dd-player-footer{padding:5px 8px}.dd-player-footer small{font-size:9px}}
+
+/* V7: external Bahamut articles display their source logo instead of a generic book icon.
+   Preserve user-supplied, authorized article covers if the editor has set one. */
+.guide-thumb-bahamut{background:#fff;border-color:#d3e5eb}
+.guide-thumb-bahamut > img{object-fit:contain!important;object-position:center!important;padding:10px;background:#fff}
+.guide-thumb-bahamut .guide-thumb-fallback{font-size:16px;font-weight:900;color:#0385b1;background:#fff;padding:8px;text-align:center}
+.guide-thumb-bahamut .guide-thumb-tag{font-size:10px}
