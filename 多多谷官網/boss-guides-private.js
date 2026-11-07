@@ -12,6 +12,37 @@
  const youtubeId=s=>{try{const u=new URL(s);const host=u.hostname.replace(/^www\./,'');if(host==='youtu.be')return /^[\w-]{11}$/.test(u.pathname.slice(1))?u.pathname.slice(1):'';if(host==='youtube.com'||host==='m.youtube.com'||host==='youtube-nocookie.com'){const value=u.searchParams.get('v')||(u.pathname.match(/^\/(?:embed|shorts|live)\/([\w-]{11})/)||[])[1]||'';return /^[\w-]{11}$/.test(value)?value:''}}catch(_){}return ''};
  const safeUrl=v=>{try{const u=new URL(plain(v),location.href);return u.protocol==='https:'?u.href:''}catch(_){return ''}};
  const safeImg=v=>{const s=plain(v);if(/^assets\/[\w./%()\-]+$/i.test(s)&&!s.includes('..'))return s;return safeUrl(s)};
+ // Fetch original YouTube title + channel name only for placeholder entries.
+ // Does NOT modify site data, the administrator's cloud records, or version approvals.
+ const officialVideoMeta=new Map();
+ const placeholderTitle=x=>/^[^｜]+｜影片攻略(?:\s*\d+)?$/.test(plain(x.title));
+ const placeholderAuthor=x=>!plain(x.author)||/^(?:原作者待核對|作者待核對|未填作者)$/.test(plain(x.author));
+ const needsOfficialMeta=x=>x?.type==='video'&&(placeholderTitle(x)||placeholderAuthor(x));
+ const getOfficialMeta=id=>{
+   if(officialVideoMeta.has(id))return officialVideoMeta.get(id);
+   const url='https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id);
+   const promise=fetch(url,{credentials:'omit',referrerPolicy:'no-referrer'}).then(r=>r.ok?r.json():null).then(v=>{
+     if(!v||v.provider_name!=='YouTube')return null;
+     const title=plain(v.title),author=plain(v.author_name);
+     return title.length>0&&title.length<=180&&author.length>0&&author.length<=120?{title,author}:null;
+   }).catch(()=>null);
+   officialVideoMeta.set(id,promise);return promise;
+ };
+ function fillVisibleOfficialMeta(){
+   if(currentTab!=='video')return;
+   for(const x of byBoss(current,'video').filter(needsOfficialMeta)){
+     const id=youtubeId(x.url);if(!id)continue;
+     getOfficialMeta(id).then(meta=>{
+       if(!meta||currentTab!=='video'||x.bossId!==current)return;
+       const box=[...$('guideBody').querySelectorAll('[data-guide-entry]')].find(el=>el.dataset.guideEntry===x.id);
+       if(!box)return;
+       const title=box.querySelector('.guide-original-title'),author=box.querySelector('.guide-original-author');
+       if(title&&placeholderTitle(x))title.textContent=meta.title;
+       if(author&&placeholderAuthor(x))author.textContent=meta.author;
+     });
+   }
+ }
+
  let bosses=[],entries=[],current='',currentTab='article',group='全部',guideVisibility={};
  const isGuideBossVisible=b=>guideVisibility[b.id]===true||(guideVisibility[b.id]!==false&&b.published!==false);
  async function readJson(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('無法讀取 '+url);return r.json()}
@@ -81,7 +112,7 @@
    const thumb=(x.type==='article'||x.type==='video')?'<div class="guide-thumb '+(x.type==='video'?'guide-thumb-video':'guide-thumb-article')+(isBahaArticle?' guide-thumb-bahamut':'')+'">'+
     (photo?'<img loading="lazy" src="'+esc(photo)+'" alt="'+esc(imageLabel)+'" onload="this.parentNode.classList.add(\'logo-loaded\')" onerror="this.hidden=true;this.parentNode.classList.add(\'guide-thumb-missing\')">':'')+
     '<span class="guide-thumb-fallback" aria-hidden="true">'+(isBahaArticle?'<span class="baha-wordmark"><span class="baha-mark" aria-hidden="true">◆</span>巴哈姆特</span>':x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></div>':'';
-   return '<article class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3>'+esc(x.title||'未命名攻略')+'</h3><div class="by">'+esc(x.author||'未填作者')+(x.origin?' · '+esc(x.origin):'')+'</div>'+(intro?'<p>'+intro+'</p>':'')+'<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 播放影片</button>':'')+'</div></div></article>';
+   return '<article data-guide-entry="'+esc(x.id)+'" class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3 class="guide-original-title">'+esc(x.title||'未命名攻略')+'</h3><div class="by"><span class="guide-original-author">'+esc(x.author||'未填作者')+'</span>'+(x.origin?' · '+esc(x.origin):'')+'</div>'+(intro?'<p>'+intro+'</p>':'')+'<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 播放影片</button>':'')+'</div></div></article>';
  }
  function drawDetail(){
   const b=currentBoss();if(!b){$('guideBody').innerHTML='<div class="empty">沒有可公開的高階或終極 BOSS。</div>';return}
@@ -112,6 +143,7 @@
   let list=byBoss(b.id,currentTab);const kindName={article:'圖文攻略',video:'影片攻略'}[currentTab];
   $('guideBody').innerHTML='<div class="sectionline"><h2>'+kindName+'</h2><span>只提供來源與摘要，外部機制須重新核對</span></div>'+
   (list.length?'<div class="items">'+list.map(renderItem).join('')+'</div>':'<div class="empty">這隻 BOSS 的'+kindName+'目前尚未收錄。<br>後續將由官網管理後台新增攻略。</div>');
+  if(currentTab==='video')queueMicrotask(fillVisibleOfficialMeta);
  }
  $('bossGrid').addEventListener('click',e=>{const target=e.target.closest('[data-boss]');if(!target)return;current=target.dataset.boss;currentTab='article';const u=new URL(location.href);u.searchParams.set('boss',current);history.replaceState(null,'',u);drawBossGrid();drawDetail();$('detail').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'})});
  $('backToBoss').onclick=()=>{$('bossCatalog').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});};
@@ -168,7 +200,7 @@
  document.addEventListener('keydown',e=>{
    if(e.key==='Escape'&&!floatingPlayer.hidden&&floatingPlayer.classList.contains('dd-player-expanded'))playerToggle.click();
  });
- $('copyUrl').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);$('copyUrl').textContent='已複製';setTimeout(()=>$('copyUrl').textContent='複製預覽連結',1700)}catch(_){$('copyUrl').textContent='複製失敗'}};
+ $('copyUrl').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);$('copyUrl').textContent='已複製';setTimeout(()=>$('copyUrl').textContent='複製此 BOSS 網址',1700)}catch(_){$('copyUrl').textContent='複製失敗'}};
  // Share the official light/dark choice across the whole DuoDuo website.
  const updateThemeButton=()=>{
    const dark=document.documentElement.dataset.theme==='dark';

@@ -618,3 +618,84 @@ header.site-header .brand img{
   }
   html body header.site-header.dd-nav-ready .header-status{display:none!important}
 }
+
+/* V19 — user-requested glossy official logo and a single anchored playing-card fan.
+   Only the private BOSS Guides page gets these effects. Canonical nav CSS still owns layout. */
+header.site-header .brand{position:relative;isolation:isolate}
+header.site-header .brand img{
+  position:relative;z-index:0;
+  filter:brightness(1.09) saturate(1.08) drop-shadow(0 0 5px rgba(66,208,242,.32));
+  animation:dd-guide-logo-breath 4s ease-in-out infinite;
+}
+/* A real specular sweep, clipped to the logo's transparent silhouette. */
+header.site-header .brand::after{
+  content:"";position:absolute;top:50%;left:0;width:132px;height:58px;
+  transform:translateY(-50%);pointer-events:none;z-index:1;
+  background:linear-gradient(112deg,transparent 0%,transparent 31%,rgba(255,255,255,.11) 42%,rgba(255,255,255,.86) 49%,rgba(255,249,187,.48) 55%,transparent 67%,transparent 100%);
+  background-size:255% 100%;background-position:160% 0;
+  -webkit-mask:url('assets/logo1-header.png') center/contain no-repeat;
+  mask:url('assets/logo1-header.png') center/contain no-repeat;
+  animation:dd-guide-logo-shine 4.6s cubic-bezier(.18,.68,.3,1) infinite;
+}
+@keyframes dd-guide-logo-breath{
+  0%,100%{filter:brightness(1.05) saturate(1.06) drop-shadow(0 0 4px rgba(61,198,228,.26))}
+  50%{filter:brightness(1.17) saturate(1.19) drop-shadow(0 0 9px rgba(78,214,242,.55))}
+}
+@keyframes dd-guide-logo-shine{
+  0%,12%{background-position:165% 0;opacity:0}
+  16%{opacity:.9}
+  47%{background-position:-165% 0;opacity:.98}
+  54%,100%{background-position:-165% 0;opacity:0}
+}
+@media(max-width:520px){header.site-header .brand::after{width:106px;height:45px}}
+@media(prefers-reduced-motion:reduce){
+  header.site-header .brand img,header.site-header .brand::after{animation:none!important}
+  header.site-header .brand::after{opacity:0}
+}
+/* Original supplied green banner continues underneath six overlapping cards. */
+#privateApp .guide-hero-visual{
+  display:block;right:0;top:0;bottom:0;width:51%;overflow:hidden;
+  pointer-events:none;opacity:1;z-index:2;
+}
+#privateApp .guide-hero-art{
+  position:absolute!important;top:auto!important;right:auto!important;left:50%!important;bottom:72px!important;
+  width:clamp(86px,8.8vw,118px)!important;
+  aspect-ratio:422/500;border-radius:12px;
+  border:2px solid rgba(220,255,236,.78);
+  box-shadow:0 19px 25px rgba(0,15,25,.54),0 3px 9px rgba(0,20,24,.46),inset 0 1px rgba(255,255,255,.23);
+  transform-origin:50% 112%;
+  transform:translateX(calc(-50% + var(--fan-x,0px))) translateY(var(--fan-y,0px)) rotate(var(--fan-r,0deg))!important;
+  filter:saturate(1.09);transition:filter .2s;
+}
+#privateApp .guide-hero-art img{object-fit:cover;width:100%;height:100%}
+/* The card corners are deliberately offset vertically, like a fanned hand of playing cards. */
+#privateApp .guide-art-blackmage{--fan-x:-174px;--fan-y:24px;--fan-r:-28deg;z-index:1}
+#privateApp .guide-art-kaling{--fan-x:-117px;--fan-y:12px;--fan-r:-18deg;z-index:2}
+#privateApp .guide-art-kai{--fan-x:-50px;--fan-y:0px;--fan-r:-6deg;z-index:5}
+#privateApp .guide-art-first{--fan-x:50px;--fan-y:0px;--fan-r:6deg;z-index:6}
+#privateApp .guide-art-maria{--fan-x:117px;--fan-y:12px;--fan-r:18deg;z-index:4}
+#privateApp .guide-art-star{--fan-x:174px;--fan-y:24px;--fan-r:28deg;z-index:3}
+@media(max-width:1230px){
+  #privateApp .guide-hero-visual{width:49%}
+  #privateApp .guide-hero-art{width:clamp(80px,8.5vw,106px)!important}
+  #privateApp .guide-art-blackmage{--fan-x:-150px}
+  #privateApp .guide-art-kaling{--fan-x:-104px}
+  #privateApp .guide-art-kai{--fan-x:-44px}
+  #privateApp .guide-art-first{--fan-x:44px}
+  #privateApp .guide-art-maria{--fan-x:104px}
+  #privateApp .guide-art-star{--fan-x:150px}
+}
+@media(max-width:940px){
+  #privateApp .guide-hero-visual{width:44%;opacity:.81}
+  #privateApp .guide-hero-art{width:73px!important}
+  #privateApp .guide-art-blackmage{--fan-x:-118px}
+  #privateApp .guide-art-kaling{--fan-x:-77px}
+  #privateApp .guide-art-kai{--fan-x:-33px}
+  #privateApp .guide-art-first{--fan-x:33px}
+  #privateApp .guide-art-maria{--fan-x:77px}
+  #privateApp .guide-art-star{--fan-x:118px}
+}
+@media(max-width:760px){
+  /* Do not force six layered images to load or compete with text on mobile. */
+  #privateApp .guide-hero-visual{display:none!important}
+}
