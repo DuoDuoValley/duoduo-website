@@ -1,0 +1,28 @@
+/* Dedicated BOSS guide editor inside the existing authenticated admin. */
+#bossGuidesPanel .bg-note{font-size:13px;line-height:1.8;color:#b8cbdd;margin:10px 0 18px}
+#bossGuidesPanel .bg-toolbar{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:10px 0}
+#bossGuidesPanel .bg-toolbar button,#bossGuidesPanel .bg-toolbar label,#bossGuidesPanel .bg-toolbar a{border:1px solid #36526b;border-radius:9px;background:#192b3d;color:#eaf6ff;padding:9px 13px;cursor:pointer;text-decoration:none;font:inherit;font-size:13px}
+#bossGuidesPanel .bg-toolbar button.bg-primary{background:#157fa6;border-color:#1988b3;color:white;font-weight:850}
+#bossGuidesPanel button:disabled{opacity:.35;cursor:not-allowed}
+#bossGuidesPanel .bg-status{font-size:13px;color:#a7ceda;padding:11px 13px;border-radius:10px;background:#162b3d;border:1px solid #355069;margin:12px 0;line-height:1.65}
+#bossGuidesPanel .bg-status.error{color:#ffadb5;border-color:#94505d}
+#bossGuidesPanel .bg-layout{display:grid;grid-template-columns:minmax(250px,1fr) minmax(0,1.5fr);gap:15px}
+#bossGuidesPanel .bg-pane{border:1px solid #365069;background:#122334;border-radius:12px;padding:15px;min-width:0}
+#bossGuidesPanel .bg-filters{display:grid;gap:10px;grid-template-columns:1fr 1fr}
+#bossGuidesPanel label.bg-field{display:flex;flex-direction:column;gap:6px;font-size:12px;color:#bed2e2;font-weight:750;min-width:0}
+#bossGuidesPanel .bg-field :is(input,select,textarea){border:1px solid #44637b;border-radius:8px;background:#0a1927;color:#e9f4ff;padding:10px;width:100%;min-width:0;min-height:42px;font:inherit;font-size:13px}
+#bossGuidesPanel .bg-field textarea{min-height:82px;resize:vertical}
+#bossGuidesPanel .bg-list{display:grid;gap:8px;max-height:690px;overflow-y:auto;margin-top:13px;padding-right:3px}
+#bossGuidesPanel .bg-entry{border:1px solid #3b5973;background:#182d40;border-radius:10px;padding:9px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:center}
+#bossGuidesPanel .bg-entry.active{border-color:#37b2d2;background:#18445a}
+#bossGuidesPanel .bg-title{display:block;text-align:left;background:none;border:0;color:#e8f5ff;font-weight:850;width:100%;cursor:pointer;overflow-wrap:anywhere}
+#bossGuidesPanel .bg-meta{font-size:11px;color:#a2b9cb;word-break:break-word}
+#bossGuidesPanel .bg-arrows{display:flex;gap:4px}
+#bossGuidesPanel .bg-arrows button{border:1px solid #526c82;border-radius:7px;background:#203f57;color:#e8f5ff;padding:6px 9px;cursor:pointer}
+#bossGuidesPanel .bg-form{display:grid;grid-template-columns:1fr 1fr;gap:13px}
+#bossGuidesPanel .bg-form .full{grid-column:1/-1}
+#bossGuidesPanel .bg-check{flex-direction:row!important;align-items:center;gap:8px}
+#bossGuidesPanel .bg-check input{width:18px!important;height:18px;min-height:0!important}
+#bossGuidesPanel .bg-entry[hidden],#bossGuidesPanel .bg-pane[hidden]{display:none!important}
+@media(max-width:900px){#bossGuidesPanel .bg-layout{grid-template-columns:1fr}#bossGuidesPanel .bg-list{max-height:440px}}
+@media(max-width:520px){#bossGuidesPanel .bg-filters,#bossGuidesPanel .bg-form{grid-template-columns:1fr}#bossGuidesPanel .bg-pane{padding:11px}}

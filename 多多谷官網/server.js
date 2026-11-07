@@ -658,7 +658,7 @@ const SITE_DATA_KEYS=[
   'duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads',
   'duoduo_items','duoduo_links','duoduo_pools','duoduo_weekly_prizes',
   // BOSS Atlas site-data publishing (requires this version to be deployed on Render).
-  'duoduo_bgm','duoduo_boss_atlas','duoduo_itempedia'
+  'duoduo_bgm','duoduo_boss_atlas','duoduo_itempedia','duoduo_boss_guides'
 ];
 
 async function handleGetSiteData(req,res){

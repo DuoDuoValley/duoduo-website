@@ -205,3 +205,19 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
   .boss-tier .boss-text strong{font-size:11px}.boss-tier .boss-text{padding:7px 7px 9px}
   .boss-tier-head h3{font-size:13px}#detail .detail-actions{width:100%;justify-content:flex-start}
   .dd-player-controls #ddPlayerToggle{font-size:11px;padding:7px 10px}}
+
+/* V13: shared official menu on unlisted guide page, without importing global styles.css. */
+.site-header{position:relative;display:flex;align-items:center;gap:12px;min-height:76px;background:var(--card);border-bottom:1px solid var(--line);padding:10px max(14px,calc((100vw - 1340px)/2));z-index:200}
+.site-header .brand{display:flex;align-items:center;gap:9px;min-width:0;font-size:14px;font-weight:850;white-space:nowrap;flex:none}
+.site-header .brand img{width:42px;height:42px;object-fit:contain}
+.site-header .main-nav{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-around}
+.site-header .nav-pill{display:flex;align-items:center;gap:6px;border-radius:10px;text-decoration:none}
+.site-header .header-status{white-space:nowrap;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.site-header .status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#50c69f}
+.site-header .header-actions{display:flex;flex:none;align-items:center;gap:6px}
+.site-header .theme-toggle{border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink);padding:8px;font-size:11px;white-space:nowrap}
+.site-header .theme-toggle span{margin-left:4px}
+.site-header .dd-mobile-toggle{border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink);font-size:18px;padding:6px 12px}
+.site-header .dd-nav-menu{background:var(--card);color:var(--ink)}
+@media(max-width:1160px){.site-header{flex-wrap:wrap}.site-header .brand img{width:34px;height:34px}.site-header .header-status{display:none}}
+@media(max-width:620px){.site-header .brand span{font-size:12px}.site-header .header-actions{margin-left:auto}.site-header .theme-toggle #themeLabel{display:none}.site-header .main-nav{order:3;flex:1 0 100%}.site-header .nav-pill{font-size:11px}}
