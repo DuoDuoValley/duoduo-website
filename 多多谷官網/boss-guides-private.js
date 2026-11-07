@@ -65,13 +65,22 @@
  function fillBossSelect(){const f=$('fBoss');f.innerHTML=bosses.map(b=>'<option value="'+esc(b.id)+'">'+esc(b.group)+' · '+esc(b.name)+'</option>').join('')}
  function drawAll(){const total=entries.filter(x=>bosses.some(b=>b.id===x.bossId));$('bossStats').textContent=bosses.length+' 隻 BOSS';$('articleStats').textContent=total.filter(x=>x.type==='article').length+' 篇圖文候選';$('videoStats').textContent=total.filter(x=>x.type==='video').length+' 部影片候選';drawBossGrid();drawDetail();if(!$('editorPanel').hidden)drawEditorList()}
  function drawBossGrid(){
-   const q=$('searchBoss').value.trim().toLocaleLowerCase();const visible=bosses.filter(b=>(group==='全部'||b.group===group)&&b.name.toLocaleLowerCase().includes(q));
+   const q=$('searchBoss').value.trim().toLocaleLowerCase();
+   const visible=bosses.filter(b=>(group==='全部'||b.group===group)&&b.name.toLocaleLowerCase().includes(q));
    $('countLabel').textContent=visible.length+'／'+bosses.length+' 隻';
-   $('bossGrid').innerHTML=visible.length?visible.map(b=>{
-    const image=safeImg(b.image)||('assets/boss-atlas/bosses/'+b.id+'.png');
-    return '<button type="button" class="bossbtn '+(current===b.id?'active':'')+'" data-boss="'+esc(b.id)+'" aria-pressed="'+(current===b.id)+'"><div class="boss-art"><span class="fallback" aria-hidden="true">⚔</span><img loading="lazy" src="'+esc(image)+'" alt="" onerror="this.hidden=true"></div><div class="boss-text"><strong>'+esc(b.name)+'</strong><span class="badge '+(byBoss(b.id,'article').length?'verified':'')+'">📖 '+(byBoss(b.id,'article').length||'待收錄')+'</span><span class="badge '+(byBoss(b.id,'video').length?'verified':'')+'">▶ '+(byBoss(b.id,'video').length||'待收錄')+'</span></div></button>';
-   }).join(''):'<div class="empty">找不到符合條件的 BOSS。</div>';
+   const card=b=>{
+     const image=safeImg(b.image)||('assets/boss-atlas/bosses/'+b.id+'.png');
+     // Keep the original full BOSS artwork in this picker. Only the detail header uses square icon.
+     return '<button type="button" class="bossbtn '+(current===b.id?'active':'')+'" data-boss="'+esc(b.id)+'" aria-pressed="'+(current===b.id)+'"><div class="boss-art"><span class="fallback" aria-hidden="true">⚔</span><img loading="lazy" src="'+esc(image)+'" alt="" onerror="this.hidden=true"></div><div class="boss-text"><strong>'+esc(b.name)+'</strong><span class="badge '+(byBoss(b.id,'article').length?'verified':'')+'">📖 '+(byBoss(b.id,'article').length||'待收錄')+'</span><span class="badge '+(byBoss(b.id,'video').length?'verified':'')+'">▶ '+(byBoss(b.id,'video').length||'待收錄')+'</span></div></button>';
+   };
+   const sections=['高階','終極'].map(tier=>{
+     const rows=visible.filter(b=>b.group===tier);
+     if(!rows.length)return '';
+     return '<section class="boss-tier" aria-label="'+tier+' BOSS"><div class="boss-tier-head"><h3>'+tier+' BOSS</h3><span>'+rows.length+' 隻</span></div><div class="boss-grid">'+rows.map(card).join('')+'</div></section>';
+   }).join('');
+   $('bossGrid').innerHTML=sections||'<div class="empty">找不到符合條件的 BOSS。</div>';
  }
+
  function renderItem(x){
    const link=safeUrl(x.url),video=x.type==='video'?youtubeId(x.url):'',image=safeImg(x.image);
    const intro=esc(x.summary||'');const badge=x.approved?'<span class="badge verified">✓ 已人工核對</span>':'<span class="badge">待核對來源／版本</span>';
@@ -125,6 +134,7 @@
   (list.length?'<div class="items">'+list.map(renderItem).join('')+'</div>':'<div class="empty">這隻 BOSS 的'+kindName+'目前尚未收錄。<br>可切換到「編輯攻略資料」新增草稿。</div>');
  }
  $('bossGrid').addEventListener('click',e=>{const target=e.target.closest('[data-boss]');if(!target)return;current=target.dataset.boss;currentTab='article';const u=new URL(location.href);u.searchParams.set('boss',current);history.replaceState(null,'',u);drawBossGrid();drawDetail();$('detail').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'})});
+ $('backToBoss').onclick=()=>{$('bossCatalog').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});};
  $('searchBoss').addEventListener('input',drawBossGrid);
  $('groupControls').addEventListener('click',e=>{const button=e.target.closest('[data-group]');if(!button)return;group=button.dataset.group;for(const b of $('groupControls').querySelectorAll('button'))b.classList.toggle('active',b===button);drawBossGrid()});
  $('tabArticle').onclick=()=>{currentTab='article';drawDetail()};$('tabVideo').onclick=()=>{currentTab='video';drawDetail()};$('tabNotes').onclick=()=>{currentTab='note';drawDetail()};
@@ -155,7 +165,7 @@
    // Start NEW videos at normal player size. Only the viewer may switch to mini.
    // Re-selecting the SAME video preserves both the current size and playback iframe.
    if(!isSame)floatingPlayer.classList.add('dd-player-expanded');
-   playerToggle.textContent=floatingPlayer.classList.contains('dd-player-expanded')?'縮成迷你視窗':'放大播放';
+   playerToggle.textContent=floatingPlayer.classList.contains('dd-player-expanded')?'↙ 縮成迷你視窗':'⤢ 放大播放';
    playerToggle.setAttribute('aria-expanded',String(floatingPlayer.classList.contains('dd-player-expanded')));
  }
  $('guideBody').addEventListener('click',e=>{
@@ -166,14 +176,14 @@
  });
  playerToggle.onclick=()=>{
    const expanded=floatingPlayer.classList.toggle('dd-player-expanded');
-   playerToggle.textContent=expanded?'縮成迷你視窗':'放大播放';
+   playerToggle.textContent=expanded?'↙ 縮成迷你視窗':'⤢ 放大播放';
    playerToggle.setAttribute('aria-expanded',String(expanded));
  };
  $('ddPlayerClose').onclick=()=>{
    floatingPlayer.hidden=true;floatingPlayer.classList.remove('dd-player-expanded');
    // Closing is an intentional stop. Switching tabs or BOSS never reaches this path.
    playerFrame.replaceChildren();playingId='';
-   playerToggle.textContent='放大播放';playerToggle.setAttribute('aria-expanded','false');
+   playerToggle.textContent='⤢ 放大播放';playerToggle.setAttribute('aria-expanded','false');
  };
  document.addEventListener('keydown',e=>{
    if(e.key==='Escape'&&!floatingPlayer.hidden&&floatingPlayer.classList.contains('dd-player-expanded'))playerToggle.click();

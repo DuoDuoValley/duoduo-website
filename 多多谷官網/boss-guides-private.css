@@ -167,3 +167,41 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
 .guide-thumb-bahamut > img:not([hidden]){opacity:0}
 .guide-thumb-bahamut.logo-loaded > img:not([hidden]){opacity:1}
 .guide-thumb-bahamut.logo-loaded .guide-thumb-fallback{visibility:hidden}
+
+/* V12: Full-width, tiered BOSS picker above one shared guide panel.
+   Preserve original BOSS illustrations, images/data, filters, tabs and player node. */
+.guide-stack{display:flex;flex-direction:column;gap:24px;min-width:0}
+#bossCatalog{min-width:0;scroll-margin-top:16px}
+#bossCatalog>.sectionline{margin:0 0 16px}
+.boss-groups{display:grid;gap:22px}
+.boss-tier{min-width:0}
+.boss-tier-head{display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:8px 12px;margin:0 0 11px;border-left:4px solid var(--accent);border-radius:9px;
+  background:linear-gradient(100deg,var(--tint),var(--soft));}
+.boss-tier-head h3{font-size:15px;font-weight:900;margin:0;line-height:1.5}
+.boss-tier-head span{font-size:12px;color:var(--muted);white-space:nowrap}
+.boss-tier .boss-grid{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.boss-tier .bossbtn{display:flex;flex-direction:column;min-width:0;min-height:0;border-radius:14px;transition:border-color .15s,box-shadow .15s}
+.boss-tier .bossbtn:hover{border-color:var(--accent);box-shadow:0 5px 18px rgba(21,120,164,.1)}
+.boss-tier .bossbtn.active{outline:2px solid var(--accent);outline-offset:0;border-color:var(--accent)}
+.boss-tier .boss-art{width:min(124px,calc(100% - 20px));aspect-ratio:422 / 500;margin:10px auto 0;border-radius:11px}
+.boss-tier .boss-text{padding:7px 9px 9px;min-width:0}
+.boss-tier .boss-text strong{font-size:12px;min-height:0;line-height:1.45;overflow-wrap:anywhere}
+.boss-tier .boss-text .badge{padding:1px 6px;font-size:10px;margin:5px 3px 0 0}
+#detail{width:100%;scroll-margin-top:16px}
+#detail .detail-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}
+#detail #backToBoss{background:var(--tint);border-color:var(--line);color:var(--ink)}
+#detail #backToBoss:hover{border-color:var(--accent);color:var(--accent)}
+/* Make the player size control a visible primary action; leave the close button neutral. */
+.dd-player-controls #ddPlayerToggle{background:linear-gradient(115deg,#188fb7,#126c9d);border-color:#0e78a6;color:#fff;
+  font-weight:900;font-size:12px;padding:8px 13px;box-shadow:0 3px 12px rgba(17,111,157,.23);
+  min-height:34px;white-space:nowrap;transition:filter .15s,box-shadow .15s}
+.dd-player-controls #ddPlayerToggle:hover{filter:brightness(1.12);box-shadow:0 4px 16px rgba(17,111,157,.35)}
+@media(min-width:1200px){.boss-tier .boss-grid{grid-template-columns:repeat(7,minmax(0,1fr))}}
+@media(max-width:1099px){.boss-tier .boss-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media(max-width:760px){.boss-tier .boss-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:520px){.guide-stack{gap:17px}.boss-groups{gap:17px}.boss-tier .boss-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+  .boss-tier .boss-art{width:min(116px,calc(100% - 18px));margin:8px auto 0}
+  .boss-tier .boss-text strong{font-size:11px}.boss-tier .boss-text{padding:7px 7px 9px}
+  .boss-tier-head h3{font-size:13px}#detail .detail-actions{width:100%;justify-content:flex-start}
+  .dd-player-controls #ddPlayerToggle{font-size:11px;padding:7px 10px}}
