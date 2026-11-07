@@ -446,14 +446,17 @@ if(reviewGrid){
   const openReview=(index)=>{const r=orderedReviews[index];if(!r)return;const rating=Math.max(1,Math.min(5,Number(r.rating)||5));reviewModal.querySelector(".review-modal-stars").textContent="★".repeat(rating)+"☆".repeat(5-rating);reviewModal.querySelector(".review-modal-text").textContent=`「${r.text||""}」`;reviewModal.querySelector(".review-modal-author").textContent=`— ${r.author||"玩家心得"}`;if(typeof reviewModal.showModal==="function"){if(!reviewModal.open)reviewModal.showModal();}else{reviewModal.setAttribute("open","");reviewModal.style.display="flex";}};
   const closeReview=()=>{if(typeof reviewModal.close==="function"&&reviewModal.open)reviewModal.close();else{reviewModal.removeAttribute("open");reviewModal.style.display="none";}};
 
+  const mobileReviewLayout=matchMedia('(max-width:760px), (max-width:1024px) and (pointer:coarse)');
   const renderReviewCards=()=>{
-    const list=orderedReviews.slice(0,6);
-    reviewGrid.classList.toggle("has-more",orderedReviews.length>6);
+    const limit=mobileReviewLayout.matches?2:6;
+    const list=orderedReviews.slice(0,limit);
+    reviewGrid.classList.toggle("has-more",orderedReviews.length>limit);
     reviewGrid.innerHTML=list.map((r,i)=>{const rating=Math.max(1,Math.min(5,Number(r.rating)||5));const stars="★".repeat(rating)+"☆".repeat(5-rating);return `<article class="review-card" tabindex="0" role="button" data-review-index="${i}" aria-label="查看完整玩家心得"><div class="review-stars" aria-label="${rating} 顆星">${stars}</div><p>「${esc(r.text||"")}」</p><small>— ${esc(r.author||"玩家心得")}</small></article>`;}).join("")||`<div class="empty">目前還沒有玩家心得。</div>`;
-    if(orderedReviews.length>6){const more=document.createElement("button");more.type="button";more.className="reviews-more-btn";more.textContent=`查看更多評論（還有 ${orderedReviews.length-6} 則）`;more.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openReviewList();});reviewGrid.appendChild(more);}
+    if(orderedReviews.length>limit){const more=document.createElement("button");more.type="button";more.className="reviews-more-btn";more.textContent=mobileReviewLayout.matches?`查看全部評價（${orderedReviews.length} 則）`:`查看更多評論（還有 ${orderedReviews.length-6} 則）`;more.addEventListener("click",e=>{e.preventDefault();e.stopPropagation();openReviewList();});reviewGrid.appendChild(more);}
     reviewGrid.querySelectorAll(".review-card").forEach(card=>{const open=e=>{e.preventDefault();e.stopPropagation();openReview(Number(card.dataset.reviewIndex));};card.addEventListener("click",open);card.addEventListener("keydown",e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();e.stopPropagation();open(e);}});});
   };
   renderReviewCards();
+  mobileReviewLayout.addEventListener('change',renderReviewCards);
   if(reviewClose)reviewClose.onclick=e=>{e.preventDefault();e.stopPropagation();closeReview();};
   reviewModal.addEventListener("click",e=>{if(e.target===reviewModal)closeReview();});
   if(!reviewModal.dataset.escapeReady){reviewModal.dataset.escapeReady="1";reviewModal.addEventListener("cancel",e=>{e.preventDefault();closeReview();});}
