@@ -10,3 +10,37 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
 
 /* Unlisted preview: no authentication overlay. Keep page hidden until its initial data finishes loading. */
 [hidden]{display:none!important}
+
+/* 2026-11-07: Fix BOSS portraits escaping their fixed artwork slots.
+   The fallback icon and image previously occupied TWO grid rows inside a 98px
+   wrapper. Their combined heights pushed the image over the name / badges.
+   Overlay the two layers and clip artwork to the top section only. */
+.boss-art {
+  position:relative;
+  overflow:hidden;
+  isolation:isolate;
+}
+.boss-art > .fallback {
+  position:absolute;
+  inset:0;
+  display:grid;
+  place-items:center;
+  margin:0;
+}
+.boss-art > img {
+  position:absolute;
+  inset:0;
+  z-index:1;
+  box-sizing:border-box;
+  display:block;
+  width:100%;
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  padding:8px 10px;
+  object-fit:contain;
+  object-position:center center;
+}
+.boss-art > img[hidden] {display:none}
+/* Never show crossed swords behind a successfully displayed transparent PNG. */
+.boss-art:has(> img:not([hidden])) > .fallback {visibility:hidden}
