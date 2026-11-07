@@ -107,7 +107,7 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
 .guide-thumb-article img{object-fit:contain;background:var(--soft)}
 .guide-thumb .guide-thumb-fallback{position:absolute;inset:0;display:grid;place-items:center;font-size:26px;color:var(--accent2)}
 .guide-thumb .guide-thumb-tag{position:absolute;z-index:2;left:6px;bottom:6px;max-width:calc(100% - 12px);padding:3px 6px;border-radius:6px;background:rgba(5,25,43,.78);color:#fff;font-size:10px;line-height:1.4;white-space:normal}
-.guide-thumb-video::after{content:'▶';display:grid;place-items:center;position:absolute;z-index:2;top:50%;left:50%;transform:translate(-50%,-50%);width:35px;height:35px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px;pointer-events:none}
+.guide-thumb-video::after{content:"▶";display:grid;place-items:center;position:absolute;z-index:2;top:50%;left:50%;transform:translate(-50%,-50%);width:35px;height:35px;border-radius:50%;background:rgba(0,0,0,.7);color:#fff;font-size:16px;pointer-events:none}
 .item.guide-has-thumb h3{margin-top:7px}
 .item.guide-has-thumb .buttons{gap:7px}
 @media(max-width:650px){.item.guide-has-thumb{grid-template-columns:116px minmax(0,1fr);gap:12px;padding:12px}.guide-thumb{aspect-ratio:4/5}.guide-thumb-video img{object-fit:cover}.guide-thumb-article img{object-fit:contain}.guide-thumb .guide-thumb-tag{font-size:9px}.item.guide-has-thumb .buttons{gap:5px}.item.guide-has-thumb .buttons a,.item.guide-has-thumb .buttons button{font-size:11px;padding:7px 9px}}
@@ -207,20 +207,20 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
   .dd-player-controls #ddPlayerToggle{font-size:11px;padding:7px 10px}}
 
 /* V13: shared official menu on unlisted guide page, without importing global styles.css. */
-.site-header{position:relative;display:flex;align-items:center;gap:12px;min-height:76px;background:var(--card);border-bottom:1px solid var(--line);padding:10px max(14px,calc((100vw - 1340px)/2));z-index:200}
-.site-header .brand{display:flex;align-items:center;gap:9px;min-width:0;font-size:14px;font-weight:850;white-space:nowrap;flex:none}
-.site-header .brand img{width:42px;height:42px;object-fit:contain}
-.site-header .main-nav{flex:1;min-width:0;display:flex;align-items:center;justify-content:space-around}
-.site-header .nav-pill{display:flex;align-items:center;gap:6px;border-radius:10px;text-decoration:none}
-.site-header .header-status{white-space:nowrap;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
-.site-header .status-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#50c69f}
-.site-header .header-actions{display:flex;flex:none;align-items:center;gap:6px}
-.site-header .theme-toggle{border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink);padding:8px;font-size:11px;white-space:nowrap}
-.site-header .theme-toggle span{margin-left:4px}
-.site-header .dd-mobile-toggle{border:1px solid var(--line);border-radius:10px;background:var(--soft);color:var(--ink);font-size:18px;padding:6px 12px}
-.site-header .dd-nav-menu{background:var(--card);color:var(--ink)}
-@media(max-width:1160px){.site-header{flex-wrap:wrap}.site-header .brand img{width:34px;height:34px}.site-header .header-status{display:none}}
-@media(max-width:620px){.site-header .brand span{font-size:12px}.site-header .header-actions{margin-left:auto}.site-header .theme-toggle #themeLabel{display:none}.site-header .main-nav{order:3;flex:1 0 100%}.site-header .nav-pill{font-size:11px}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 /* V14: six BOSS cards per wide desktop row; two guide entries per row. */
 @media(min-width:1200px){.boss-tier .boss-grid{grid-template-columns:repeat(6,minmax(0,1fr))}}
@@ -281,30 +281,20 @@ body{
 }
 /* Header: use the SAME canonical nav structure and shared dropdown stylesheet;
    only supply the missing base shell metrics, without importing global styles.css. */
-.site-header{
-  min-height:73px;padding:10px clamp(14px,3.3vw,46px);gap:clamp(10px,1.5vw,24px);
-  background:var(--card);border-bottom:1px solid var(--line);
-  box-shadow:0 3px 20px rgba(27,66,102,.045);
-}
-.site-header .brand{flex:0 0 auto;gap:8px;font-size:14px;font-weight:850;letter-spacing:.02em}
-.site-header .brand img{width:44px;height:39px;object-fit:contain}
-.site-header .header-status{font-size:12px;font-weight:750;gap:8px;white-space:nowrap}
-.site-header .status-dot{box-shadow:0 0 0 5px rgba(50,205,136,.12)}
-.site-header .header-actions{gap:8px}
-.site-header .theme-toggle{
-  display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  padding:9px 13px;min-height:39px;white-space:nowrap;font-size:12px;font-weight:800;
-  border:1px solid var(--line);border-radius:11px;
-  background:var(--soft);color:var(--ink);
-  transition:background .16s,border-color .16s;
-}
-.site-header .theme-toggle:hover{border-color:var(--accent);background:var(--tint)}
-.site-header .theme-toggle span{margin-left:0}
-.site-header.dd-nav-ready{font-family:"Noto Sans TC",system-ui,sans-serif;line-height:1.7}
-.site-header.dd-nav-ready .dd-nav-menu{color:var(--ink)}
-.site-header.dd-nav-ready nav.dd-main-nav .dd-top-link{font-weight:850}
-@media(max-width:1160px){.site-header{gap:10px}.site-header .brand img{width:36px;height:34px}}
-@media(max-width:620px){.site-header{padding:9px 12px}.site-header .brand{font-size:12px}.site-header .header-actions{margin-left:auto}.site-header .theme-toggle{padding:7px 10px;min-height:36px}}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* Tame the testing banner into a discreet preview notice. */
 .top-strip{border-bottom:1px solid rgba(14,106,155,.14);background:linear-gradient(90deg,#e3f4f8,#f7fafc);color:#557c92;letter-spacing:.01em;font-size:11px;padding:6px 12px}
 :root[data-theme="dark"] .top-strip{background:#173243;color:#b9d9e9;border-color:#355768}
@@ -391,4 +381,90 @@ body{
  #detail .tabs{padding:0 8px}
  #detail .tabs button{padding:11px 9px;font-size:12px}
 }
-@media(prefers-reduced-motion:reduce){.boss-tier .bossbtn,.boss-tier .bossbtn:hover,#detail .item,.site-header .theme-toggle{transition:none;transform:none}}
+
+
+/* V17 — official DuoDuo site header ownership.
+   The header gets its layout from styles.css + dd-navigation.css (the same CSS as boss.html).
+   Do NOT restyle site-header/brand/nav in this file again. Only align its tokens. */
+:root[data-theme="light"] header.site-header{
+ --bg:#f4f7fa;--text:#172536;--muted:#586b7e;--muted2:#718296;--accent:#079bc0;--accent2:#007fa2;--line:#d7e0e8;--soft:#0b1d2d08;--header:rgba(244,247,250,.88);
+}
+:root[data-theme="dark"] header.site-header{
+ --bg:#07111f;--text:#f7fbff;--muted:#9cafc2;--muted2:#7f91a5;--accent:#72e6ff;--accent2:#a9f1ff;--line:#25384b;--soft:#ffffff08;--header:rgba(7,17,31,.84);
+}
+/* More important than color: don't have a test-only strip ahead of sticky site navigation. */
+#privateApp{--guide-surface:var(--card)}
+/* Reference: character cards & BOSS atlas — left-aligned cinematic banner, balanced visual. */
+#privateApp .guide-hero{
+  position:relative;isolation:isolate;overflow:hidden;display:flex;align-items:center;
+  min-height:300px;max-width:1320px;margin:30px auto 31px;padding:43px 50px;
+  border:1px solid #285264;border-radius:23px;
+  background:linear-gradient(112deg,#0c253b 0%,#0b253a 55%,#0d4054 100%);
+  box-shadow:0 18px 50px rgba(12,39,60,.18);color:#effaff;
+  text-align:left;
+}
+#privateApp .guide-hero:before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.08;
+  background:repeating-linear-gradient(125deg,transparent 0px,transparent 19px,#8de7ff2a 20px)}
+#privateApp .guide-hero-copy{position:relative;z-index:2;max-width:745px;min-width:0}
+#privateApp .guide-hero-eyebrow{display:flex;align-items:center;gap:9px;margin:0 0 17px;color:#9ce1ed;
+  font-size:11px;font-weight:900;letter-spacing:2.4px}
+#privateApp .guide-eyebrow-line{width:26px;height:2px;flex:none;background:#90e2ed;border-radius:20px}
+#privateApp .guide-hero h1{margin:0;color:#fff;font-size:clamp(36px,3.7vw,52px);font-weight:900;letter-spacing:.03em;line-height:1.18}
+#privateApp .guide-hero h1 span{color:#91e5ee}
+#privateApp .guide-hero-subtitle{font-size:17px;font-weight:750;letter-spacing:.02em;color:#d1e5eb;margin:15px 0 6px}
+#privateApp .guide-hero-description{max-width:620px;font-size:13px;color:#b2cbd7;line-height:1.85;margin:10px 0 17px}
+#privateApp .guide-hero-stats{display:flex;flex-wrap:wrap;align-items:center;gap:9px;margin-top:19px}
+#privateApp .guide-hero-stats span{border:1px solid rgba(137,219,235,.23);border-radius:10px;background:rgba(255,255,255,.07);
+ padding:7px 13px;color:#e0f4fb;font-size:12px;font-weight:800;white-space:nowrap}
+#privateApp .guide-preview-mark{display:flex;gap:7px;align-items:center;font-size:11px;margin:19px 0 0;color:#89a8b9}
+#privateApp .guide-preview-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#76bbcc}
+#privateApp .guide-hero-visual{pointer-events:none;position:absolute;top:0;right:23px;bottom:0;width:415px;isolation:isolate;overflow:hidden}
+#privateApp .guide-hero-ring{position:absolute;right:5px;top:26px;width:280px;height:280px;border-radius:50%;
+ border:1px solid rgba(154,222,234,.22);box-shadow:0 0 0 36px rgba(154,222,234,.035),0 0 0 76px rgba(154,222,234,.02)}
+#privateApp .guide-hero-art{position:absolute;width:125px;aspect-ratio:422/500;border-radius:15px;overflow:hidden;
+ background:#122c45;box-shadow:0 15px 34px rgba(0,10,26,.48);border:1px solid rgba(180,239,255,.22);transform:rotate(var(--tilt,0deg))}
+#privateApp .guide-hero-art img{display:block;width:100%;height:100%;object-fit:contain}
+#privateApp .guide-art-front{width:153px;top:55px;right:133px;--tilt:0deg;z-index:3;border-color:rgba(204,242,255,.43)}
+#privateApp .guide-art-back{top:76px;right:230px;--tilt:-12deg;z-index:2;filter:saturate(.8)}
+#privateApp .guide-art-side{top:73px;right:40px;--tilt:12deg;z-index:1;filter:saturate(.85)}
+/* Reference: BOSS atlas card surface, labels and precise information hierarchy. */
+#privateApp .workspace{max-width:1320px;padding:0 24px 68px}
+#privateApp .toolbar{margin-bottom:22px;min-width:0}
+#privateApp #bossCatalog{border-radius:19px}
+#privateApp #bossCatalog > .sectionline h2{letter-spacing:.012em}
+#privateApp .boss-tier-head{border-radius:12px}
+#privateApp .boss-tier .bossbtn{border-radius:16px}
+#privateApp .boss-tier .boss-art{border-radius:13px}
+#privateApp .boss-tier .boss-text strong{line-height:1.43;font-weight:850}
+#privateApp #detail .detailhead{background:linear-gradient(108deg,var(--tint),var(--card) 92%)}
+#privateApp #detail .detailhead .boss-heading{min-width:0}
+#privateApp #detail .tabs{background:var(--card)}
+#privateApp #detail .items{gap:16px}
+#privateApp #detail .item{background:var(--card);border:1px solid var(--line);box-shadow:0 7px 23px rgba(17,60,93,.045)}
+#privateApp #detail .item h3{font-weight:850;color:var(--ink)}
+/* Correct the official site's footer text alignment, not the guide's old minimal footer. */
+footer.site-footer{text-align:left}
+@media(max-width:1120px){
+  #privateApp .guide-hero{padding:36px 32px}
+  #privateApp .guide-hero-copy{max-width:65%}
+  #privateApp .guide-hero-visual{right:0;width:320px;opacity:.75}
+  #privateApp .guide-art-back{right:174px}
+  #privateApp .guide-art-front{right:98px}
+  #privateApp .guide-art-side{right:21px}
+}
+@media(max-width:760px){
+  #privateApp .guide-hero{min-height:0;margin:16px 13px 20px;padding:28px 23px;border-radius:17px}
+  #privateApp .guide-hero-copy{max-width:none}
+  #privateApp .guide-hero-visual{display:none}
+  #privateApp .guide-hero h1{font-size:clamp(28px,7vw,38px)}
+  #privateApp .guide-hero-subtitle{font-size:14px}
+  #privateApp .guide-hero-description{font-size:12px}
+  #privateApp .guide-hero-stats span{font-size:11px;padding:5px 9px}
+  #privateApp .workspace{padding:0 12px 38px}
+}
+@media(max-width:440px){
+  #privateApp .guide-hero{padding:25px 17px}
+  #privateApp .guide-hero-eyebrow{font-size:9px;letter-spacing:1.7px;margin-bottom:12px}
+  #privateApp .guide-hero h1{font-size:29px}
+  #privateApp .guide-hero-description{line-height:1.75}
+}

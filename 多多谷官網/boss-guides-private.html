@@ -4,11 +4,12 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="strict-origin-when-cross-origin">
 <title>多多谷｜BOSS 攻略測試版（未列入導覽）</title>
-<link rel="icon" href="favicon-64.png"><link rel="stylesheet" href="boss-guides-private.css?v=20261108-visual-nav-glove-v16">
+<link rel="icon" href="favicon-64.png">
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="boss-guides-private.css?v=20261108-reference-ui-v17">
 <link rel="stylesheet" href="dd-navigation.css?v=20261107-badge-timeline-v411">
 <link rel="stylesheet" href="cursor-ui/cursor.css?v=20261107-cursor-route-v417">
 </head><body>
-<div class="top-strip">🧪 BOSS 攻略測試版 · 不顯示於官網選單 · 知道網址的人仍可開啟</div>
 <header class="site-header">
   <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
   <nav class="main-nav dd-main-nav" aria-label="官網主導覽">
@@ -31,7 +32,22 @@
 </header>
 <main>
 <div id="privateApp" hidden>
-<section class="hero"><div class="overline">BOSS GUIDES · UNLISTED PREVIEW</div><h1>高階＆終極 BOSS 攻略</h1><p>圖文 × 影片攻略。已將編輯與排序移至官網管理後台，本頁僅供閱讀與驗收。</p><div class="stats"><span id="bossStats"></span><span id="articleStats"></span><span id="videoStats"></span><span>尚未加入導覽</span></div></section>
+<section class="guide-hero" aria-labelledby="guideHeroTitle">
+  <div class="guide-hero-copy">
+    <p class="guide-hero-eyebrow"><span class="guide-eyebrow-line" aria-hidden="true"></span> BOSS CHALLENGE GUIDE</p>
+    <h1 id="guideHeroTitle">高階與終極 <span>BOSS 攻略</span></h1>
+    <p class="guide-hero-subtitle">了解挑戰機制，迎接下一場戰鬥。</p>
+    <p class="guide-hero-description">整理各階段 BOSS 的圖文攻略與實戰影片，快速查找機制、走位與通關思路。不同版本的實際判定，請以多多谷遊戲內為準。</p>
+    <div class="guide-hero-stats" aria-label="已收錄的攻略數量"><span id="bossStats"></span><span id="articleStats"></span><span id="videoStats"></span></div>
+    <p class="guide-preview-mark"><span class="guide-preview-dot" aria-hidden="true"></span> 攻略專區調整中，暫未加入官網導覽</p>
+  </div>
+  <div class="guide-hero-visual" aria-hidden="true">
+    <div class="guide-hero-ring"></div>
+    <div class="guide-hero-art guide-art-back"><img src="assets/boss-atlas/bosses/boss24.png" alt="" loading="lazy"></div>
+    <div class="guide-hero-art guide-art-front"><img src="assets/boss-atlas/bosses/boss23.png" alt="" loading="eager"></div>
+    <div class="guide-hero-art guide-art-side"><img src="assets/boss-atlas/bosses/boss25.png" alt="" loading="lazy"></div>
+  </div>
+</section>
 <div class="workspace">
 <section class="toolbar"><label class="searchbox"><span>搜尋 BOSS 名稱</span><input id="searchBoss" placeholder="例如：威爾、黑魔法師、卡洛斯" type="search" autocomplete="off"></label><div class="segment" id="groupControls"><button class="active" type="button" data-group="全部">全部</button><button type="button" data-group="高階">高階</button><button type="button" data-group="終極">終極</button></div></section>
 <div class="guide-stack"><section class="catalog" id="bossCatalog"><div class="sectionline"><h2>選擇 BOSS</h2><span id="countLabel"></span></div><div class="boss-groups" id="bossGrid"></div></section>
@@ -44,9 +60,31 @@
   <div class="dd-player-frame" id="ddPlayerFrame"></div>
   <div class="dd-player-footer"><a id="ddPlayerExternal" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/">前往 YouTube 原影片 ↗</a><small>切換 BOSS／分頁不會重載影片；若無法嵌入請開啟原影片</small></div>
 </section>
-<footer>© 2026 DuoDuo Valley · BOSS 攻略測試區 · 管理功能位於官網後台</footer>
+<footer class="site-footer">
+  <div class="footer-brand">
+    <b>DuoDuo Valley｜多多谷</b>
+    <p data-footer="description">一個正在慢慢變熱鬧的小小世界。遊戲資訊、檔期活動與最新公告，都在這裡整理。</p>
+  </div>
+  <div class="footer-column">
+    <strong data-footer="navTitle">網站導覽</strong>
+    <div class="footer-links">
+      <a href="index.html">首頁</a><a href="index.html#why">為什麼選多多谷</a><a href="index.html#features">特色系統</a><a href="events.html" data-nav="events">檔期活動</a><a href="boss.html">BOSS</a><a href="news.html">最新消息</a><a href="guide.html">遊玩指南</a>
+    </div>
+  </div>
+  <div class="footer-column">
+    <strong data-footer="resourceTitle">玩家資源</strong>
+    <div class="footer-links">
+      <a data-link="topup" target="_blank">儲值入口</a><a data-link="guide" target="_blank">完整遊玩指南</a><a data-link="rates" target="_blank">機率型道具說明</a><a data-link="products" target="_blank">上架商品</a><a data-link="checklist" target="_blank">每日 Checklist</a><a data-link="discord" target="_blank">加入 Discord</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span data-footer="copyright">© 2026 DuoDuo Valley · 多多谷</span>
+    <span class="footer-legal"><a href="privacy.html">隱私權政策</a><a href="terms.html">使用條款</a></span>
+  </div>
+</footer>
 <script src="dd-nav-data.js?v=20261104-v38"></script>
 <script src="dd-navigation.js?v=20261106-version-allpages-v1"></script>
 <script defer src="cursor-ui/cursor.js"></script>
-<script defer src="boss-guides-private.js?v=20261108-visual-nav-glove-v16"></script>
+<script defer src="dd-page-footer.js?v=20261106-footer-cloud-v3"></script>
+<script defer src="boss-guides-private.js?v=20261108-reference-ui-v17"></script>
 </body></html>
