@@ -1,12 +1,13 @@
 <!doctype html>
 <html lang="zh-Hant"><head>
+<script src="dd-maintenance.js?v=20261108-guide-v18"></script>
 <script id="dd-guide-early-theme">try{document.documentElement.dataset.theme=localStorage.getItem('duoduo_theme')==='dark'?'dark':'light'}catch(_){document.documentElement.dataset.theme='light'}</script>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="strict-origin-when-cross-origin">
 <title>多多谷｜BOSS 攻略測試版（未列入導覽）</title>
 <link rel="icon" href="favicon-64.png">
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="boss-guides-private.css?v=20261108-reference-ui-v17">
+<link rel="stylesheet" href="boss-guides-private.css?v=20261108-reference-integration-v18">
 <link rel="stylesheet" href="dd-navigation.css?v=20261107-badge-timeline-v411">
 <link rel="stylesheet" href="cursor-ui/cursor.css?v=20261107-cursor-route-v417">
 </head><body>
@@ -26,8 +27,8 @@
   <div class="header-status"><span class="status-dot"></span><span>V282 持續更新</span></div>
   <div class="header-actions">
     <button class="theme-toggle" id="themeBtn" type="button" aria-label="切換深色模式與淺色模式"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button>
-    
-    
+    <a class="btn btn-gold" data-link="topup" href="https://fd-pay.com/ARrbXO" target="_blank" rel="noopener noreferrer">儲值</a>
+    <a class="btn btn-discord" data-link="discord" href="https://discord.gg/duoduovalley" target="_blank" rel="noopener noreferrer">加入 Discord</a>
   </div>
 </header>
 <main>
@@ -35,17 +36,18 @@
 <section class="guide-hero" aria-labelledby="guideHeroTitle">
   <div class="guide-hero-copy">
     <p class="guide-hero-eyebrow"><span class="guide-eyebrow-line" aria-hidden="true"></span> BOSS CHALLENGE GUIDE</p>
-    <h1 id="guideHeroTitle">高階與終極 <span>BOSS 攻略</span></h1>
-    <p class="guide-hero-subtitle">了解挑戰機制，迎接下一場戰鬥。</p>
-    <p class="guide-hero-description">整理各階段 BOSS 的圖文攻略與實戰影片，快速查找機制、走位與通關思路。不同版本的實際判定，請以多多谷遊戲內為準。</p>
+    <h1 id="guideHeroTitle">BOSS<span>攻略</span></h1>
+    <p class="guide-hero-subtitle">高階・終極 BOSS｜圖文與影片攻略</p>
+    <p class="guide-hero-description">從機制到實戰，把每場挑戰的重點整理在這裡。外部教學的版本差異與實際判定，請以多多谷遊戲內為準。</p>
     <div class="guide-hero-stats" aria-label="已收錄的攻略數量"><span id="bossStats"></span><span id="articleStats"></span><span id="videoStats"></span></div>
-    <p class="guide-preview-mark"><span class="guide-preview-dot" aria-hidden="true"></span> 攻略專區調整中，暫未加入官網導覽</p>
   </div>
   <div class="guide-hero-visual" aria-hidden="true">
-    <div class="guide-hero-ring"></div>
-    <div class="guide-hero-art guide-art-back"><img src="assets/boss-atlas/bosses/boss24.png" alt="" loading="lazy"></div>
-    <div class="guide-hero-art guide-art-front"><img src="assets/boss-atlas/bosses/boss23.png" alt="" loading="eager"></div>
-    <div class="guide-hero-art guide-art-side"><img src="assets/boss-atlas/bosses/boss25.png" alt="" loading="lazy"></div>
+    <div class="guide-hero-art guide-art-blackmage" title="黑魔法師"><img src="assets/boss-atlas/bosses/boss23.png" alt="" loading="eager"></div>
+    <div class="guide-hero-art guide-art-kaling" title="咖凌"><img src="assets/boss-atlas/bosses/boss26.png" alt="" loading="lazy"></div>
+    <div class="guide-hero-art guide-art-kai" title="凱伊"><img src="assets/boss-atlas/bosses/boss30.png" alt="" loading="lazy"></div>
+    <div class="guide-hero-art guide-art-first" title="最初的敵對者"><img src="assets/boss-atlas/bosses/boss29.png" alt="" loading="lazy"></div>
+    <div class="guide-hero-art guide-art-maria" title="瑪麗西亞"><img src="assets/boss-atlas/bosses/boss22.png" alt="" loading="lazy"></div>
+    <div class="guide-hero-art guide-art-star" title="燦爛的凶星"><img src="assets/boss-atlas/bosses/boss31.png" alt="" loading="lazy"></div>
   </div>
 </section>
 <div class="workspace">
@@ -86,5 +88,23 @@
 <script src="dd-navigation.js?v=20261106-version-allpages-v1"></script>
 <script defer src="cursor-ui/cursor.js"></script>
 <script defer src="dd-page-footer.js?v=20261106-footer-cloud-v3"></script>
-<script defer src="boss-guides-private.js?v=20261108-reference-ui-v17"></script>
+<script id="dd-guide-header-links">
+(() => {
+  const sync = () => {
+    for (const key of ['topup','discord']) {
+      const source = document.querySelector('footer.site-footer a[data-link="'+key+'"]');
+      const target = document.querySelector('header.site-header a[data-link="'+key+'"]');
+      if (!source || !target) continue;
+      const href = source.getAttribute('href');
+      if (href && /^https:\/\//i.test(href)) target.href = href;
+    }
+  };
+  document.addEventListener('DOMContentLoaded', () => {
+    const footer = document.querySelector('footer.site-footer');
+    if (footer) new MutationObserver(sync).observe(footer,{subtree:true,attributes:true,attributeFilter:['href']});
+    sync();
+  },{once:true});
+})();
+</script>
+<script defer src="boss-guides-private.js?v=20261108-reference-integration-v18"></script>
 </body></html>

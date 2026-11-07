@@ -38,7 +38,7 @@
      bosses=bosses.filter(isGuideBossVisible);
      current=bosses.find(x=>x.id===new URLSearchParams(location.search).get('boss'))?.id||bosses[0]?.id||'';
      drawAll();$('privateApp').hidden=false;
-   }catch(err){$('privateApp').hidden=false;document.querySelector('.hero p').textContent='測試資料載入異常：'+(err.message||'未知錯誤');console.error(err)}
+   }catch(err){$('privateApp').hidden=false;const message=document.querySelector('.guide-hero-description');if(message)message.textContent='攻略資料暫時無法載入，請稍後重新整理。（'+(err.message||'未知錯誤')+'）';console.error(err)}
  }
  function validEntry(v){return v&&typeof v==='object'&&typeof v.id==='string'&&['article','video'].includes(v.type)&&typeof v.bossId==='string'&&v.enabled!==false}
 
