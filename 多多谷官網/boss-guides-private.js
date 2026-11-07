@@ -92,7 +92,7 @@
     '<span class="guide-thumb-fallback" aria-hidden="true">'+(isBahaArticle?'<span class="baha-wordmark"><span class="baha-mark" aria-hidden="true">◆</span>巴哈姆特</span>':x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></div>':'';
    let content='';
    if(x.type==='note'&&x.content){content='<div class="owner-note">'+esc(x.content)+'</div>'+(image?'<img class="item-image" loading="lazy" alt="自編攻略圖片" src="'+esc(image)+'">':'')}
-   return '<article class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3>'+esc(x.title||'未命名攻略')+'</h3><div class="by">'+esc(x.author||'未填作者')+(x.origin?' · '+esc(x.origin):'')+'</div>'+(intro?'<p>'+intro+'</p>':'')+content+'<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 開啟迷你播放器</button>':'')+'</div></div></article>';
+   return '<article class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3>'+esc(x.title||'未命名攻略')+'</h3><div class="by">'+esc(x.author||'未填作者')+(x.origin?' · '+esc(x.origin):'')+'</div>'+(intro?'<p>'+intro+'</p>':'')+content+'<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 播放影片</button>':'')+'</div></div></article>';
  }
  function drawDetail(){
   const b=currentBoss();if(!b){$('guideBody').innerHTML='<div class="empty">沒有可公開的高階或終極 BOSS。</div>';return}
@@ -152,8 +152,9 @@
    playerTitle.textContent=(entry?.title||'BOSS 攻略影片');
    playerExternal.href='https://www.youtube.com/watch?v='+id;
    floatingPlayer.hidden=false;
-   // Re-selecting the same video does not reload it or reset the current time.
-   if(isSame)floatingPlayer.classList.remove('dd-player-expanded');
+   // Start NEW videos at normal player size. Only the viewer may switch to mini.
+   // Re-selecting the SAME video preserves both the current size and playback iframe.
+   if(!isSame)floatingPlayer.classList.add('dd-player-expanded');
    playerToggle.textContent=floatingPlayer.classList.contains('dd-player-expanded')?'縮成迷你視窗':'放大播放';
    playerToggle.setAttribute('aria-expanded',String(floatingPlayer.classList.contains('dd-player-expanded')));
  }
