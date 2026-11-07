@@ -45,21 +45,24 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
 /* Never show crossed swords behind a successfully displayed transparent PNG. */
 .boss-art:has(> img:not([hidden])) > .fallback {visibility:hidden}
 
-/* BOSS portrait layout V4: show complete 422×500 illustrations, like BOSS Atlas.
-   No cropping, stretching, overlapping labels, or sword icon on loaded images. */
+/* BOSS portrait layout V5: same portrait treatment as the official BOSS Atlas.
+   Use the existing 422:500 asset ratio, no nested picture box, no inset padding.
+   Rounded artwork is a single layer; the complete original image is visible. */
 .boss-grid{grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
-.bossbtn{display:flex;flex-direction:column;min-width:0;min-height:240px;border-radius:15px;overflow:hidden}
+.bossbtn{display:flex;flex-direction:column;min-width:0;min-height:0;border-radius:15px;overflow:hidden}
 .boss-art{
   flex:0 0 auto;
   position:relative;
   isolation:isolate;
-  width:calc(100% - 18px);
-  height:172px;
-  margin:9px auto 0;
+  width:calc(100% - 24px);
+  height:auto;
+  aspect-ratio:422 / 500;
+  margin:12px auto 0;
   overflow:hidden;
-  border:1px solid var(--line);
+  border:0;
   border-radius:12px;
-  background:var(--soft);
+  background:transparent;
+  box-shadow:none;
 }
 .boss-art > img{
   position:absolute;
@@ -68,26 +71,29 @@ main{min-height:75vh}.gate{max-width:450px;margin:10vh auto 12vh;padding:36px 30
   box-sizing:border-box;
   width:100%;
   height:100%;
-  max-width:100%;
-  max-height:100%;
-  padding:5px;
+  max-width:none;
+  max-height:none;
+  padding:0;
   object-fit:contain;
   object-position:center center;
   border-radius:inherit;
 }
 .boss-art > img[hidden]{display:none}
-.boss-art > .fallback{position:absolute;inset:0;display:grid;place-items:center;line-height:1;margin:0;color:var(--muted)}
-.boss-art:has(>img:not([hidden])) > .fallback{visibility:hidden}
-.boss-text{padding:9px 11px 12px;flex:1;width:100%}
+.boss-art > .fallback{
+  position:absolute;inset:0;display:grid;place-items:center;
+  line-height:1;margin:0;color:var(--muted);
+  background:var(--soft);border:1px solid var(--line);border-radius:inherit;
+}
+.boss-art:has(> img:not([hidden])) > .fallback{visibility:hidden}
+.boss-text{padding:10px 11px 12px;flex:1;width:100%}
 .boss-text strong{font-size:13px;min-height:0;line-height:1.5}
 .boss-text .badge{margin-top:7px;white-space:nowrap}
 @media(max-width:1100px){.boss-grid{grid-template-columns:repeat(4,minmax(0,1fr))}}
 @media(max-width:760px){.boss-grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media(max-width:600px){
   .boss-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
-  .bossbtn{min-height:218px}
-  .boss-art{width:calc(100% - 14px);height:151px;margin:7px auto 0;border-radius:10px}
-  .boss-text{padding:8px 9px 10px}
+  .boss-art{width:calc(100% - 20px);margin:10px auto 0;border-radius:11px}
+  .boss-text{padding:8px 10px 11px}
   .boss-text strong{font-size:12px;min-height:0}
 }
-@media(max-width:360px){.boss-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.boss-art{height:149px}}
+@media(max-width:360px){.boss-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
