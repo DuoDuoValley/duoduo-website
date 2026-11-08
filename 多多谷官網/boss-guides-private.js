@@ -15,6 +15,14 @@
  // Fetch original YouTube title + channel name only for placeholder entries.
  // Does NOT modify site data, the administrator's cloud records, or version approvals.
  const officialVideoMeta=new Map();
+ const genericArticleTitle=t=>/^[^｜]+｜圖文攻略(?:\s*\d+)?$/.test(String(t||'').trim());
+ const sourceKey=v=>{try{const u=new URL(String(v||''));return u.origin+u.pathname+'?'+[...u.searchParams].filter(([k])=>['bsn','snA','sn'].includes(k)).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>k+'='+v).join('&')}catch{return ''}};
+ const applyVerifiedArticleTitles=(target,reference)=>{
+   const official=new Map(reference.filter(x=>x.type==='article'&&!genericArticleTitle(x.title)&&sourceKey(x.url)).map(x=>[sourceKey(x.url),x.title]));
+   let count=0;
+   for(const x of target){if(x.type!=='article'||!genericArticleTitle(x.title))continue;const name=official.get(sourceKey(x.url));if(name){x.title=name;count++}}
+   return count;
+ };
  const placeholderTitle=x=>/^[^｜]+｜影片攻略(?:\s*\d+)?$/.test(plain(x.title));
  const placeholderAuthor=x=>!plain(x.author)||/^(?:原作者待核對|作者待核對|未填作者)$/.test(plain(x.author));
  const needsOfficialMeta=x=>x?.type==='video'&&(placeholderTitle(x)||placeholderAuthor(x));
@@ -63,6 +71,7 @@
        if(published?.schema===1&&Array.isArray(published.entries)){
          // Cloud edits are intentionally authoritative after first publication.
          entries=published.entries.filter(validEntry);
+         applyVerifiedArticleTitles(entries,guideData.entries);
          guideVisibility=published.bossVisibility&&typeof published.bossVisibility==='object'&&!Array.isArray(published.bossVisibility)?published.bossVisibility:{};
        }
      }catch(e){console.warn('暫時使用靜態 BOSS 攻略與圖鑑資料',e)}
