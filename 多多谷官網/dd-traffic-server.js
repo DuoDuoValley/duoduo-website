@@ -78,15 +78,27 @@ function createTrafficHandlers({getAdminSession,sendJSON,fetchImpl=fetch,now=Dat
         count(PREFIX+'pv_'+day+'_*'),
         count(PREFIX+'pv_*')
       ]);
-      const firstResponse=await fetchImpl(cfg.url+SUPABASE_TABLE+'?select=id&id=like.'+encodeURIComponent(PREFIX+'pv_*')+'&order=id.asc&limit=1',{method:'GET',headers:cfg.headers});
+      // The earliest ID identifies the first recorded Taiwan calendar day,
+      // while the latest updated_at comes from an actual accepted pageview.
+      // Neither value is the administrator's dashboard refresh time.
+      const pageviewFilter='&id=like.'+encodeURIComponent(PREFIX+'pv_*');
+      const [firstResponse,lastResponse]=await Promise.all([
+        fetchImpl(cfg.url+SUPABASE_TABLE+'?select=id'+pageviewFilter+'&order=id.asc&limit=1',{method:'GET',headers:cfg.headers}),
+        fetchImpl(cfg.url+SUPABASE_TABLE+'?select=updated_at'+pageviewFilter+'&order=updated_at.desc&limit=1',{method:'GET',headers:cfg.headers})
+      ]);
+      if(!firstResponse.ok||!lastResponse.ok)throw Error('Supabase 訪問時間查詢失敗');
+      const [firstItems,lastItems]=await Promise.all([firstResponse.json(),lastResponse.json()]);
       let since=null;
-      if(firstResponse.ok){
-        const items=await firstResponse.json();
-        const id=items?.[0]?.id||'';
-        const match=id.match(/^__dd_traffic_pv_(\d{4})(\d{2})(\d{2})_/);
-        if(match)since=match[1]+'-'+match[2]+'-'+match[3];
+      const firstId=firstItems?.[0]?.id||'';
+      const match=firstId.match(/^__dd_traffic_pv_(\d{4})(\d{2})(\d{2})_/);
+      if(match)since=match[1]+'-'+match[2]+'-'+match[3];
+      const rawVisit=lastItems?.[0]?.updated_at;
+      let lastVisitAt=null;
+      if(typeof rawVisit==='string'){
+        const parsed=Date.parse(rawVisit);
+        if(Number.isFinite(parsed)&&parsed<=now()+60000)lastVisitAt=new Date(parsed).toISOString();
       }
-      return sendJSON(res,200,{ok:true,timezone:'Asia/Taipei',date:day.slice(0,4)+'-'+day.slice(4,6)+'-'+day.slice(6),since,todayVisitors,totalVisitors,todayViews,totalViews,updatedAt:new Date(now()).toISOString()});
+      return sendJSON(res,200,{ok:true,timezone:'Asia/Taipei',date:day.slice(0,4)+'-'+day.slice(4,6)+'-'+day.slice(6),since,todayVisitors,totalVisitors,todayViews,totalViews,lastVisitAt,updatedAt:new Date(now()).toISOString()});
     }catch(e){console.error('統計讀取失敗',e?.message);return sendJSON(res,503,{ok:false,error:'無法讀取流量統計，請確認 Render 和 Supabase 服務'})}
   }
   return {record,summary};
