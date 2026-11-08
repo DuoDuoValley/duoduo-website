@@ -5,7 +5,7 @@
  const api=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
  const status=root.querySelector('[data-traffic-status]');
  const numbers=Object.fromEntries(['todayVisitors','totalVisitors','todayViews','totalViews'].map(k=>[k,root.querySelector('[data-traffic-value="'+k+'"]')]));
- const start=root.querySelector('[data-traffic-since]'),updated=root.querySelector('[data-traffic-updated]');
+ const start=root.querySelector('[data-traffic-since]'),updated=root.querySelector('[data-traffic-updated]'),lastVisit=root.querySelector('[data-traffic-last-visit]');
  const refreshButton=root.querySelector('[data-traffic-refresh]');
  let busy=false,lastSuccess=0;
  const fmt=new Intl.NumberFormat('zh-TW');
@@ -28,7 +28,16 @@
        node.textContent=Number.isSafeInteger(value)&&value>=0?fmt.format(value):'—';
      }
      start.textContent=payload.since?'統計起始：'+payload.since.replaceAll('-','/'):'尚未收集到第一筆有效瀏覽紀錄';
-     updated.textContent='更新於 '+new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(payload.updatedAt));
+     const dateTime=new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',year:'numeric',month:'2-digit',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+     const formatTime=value=>{
+       if(typeof value!=='string')return null;
+       const date=new Date(value);
+       return Number.isFinite(date.getTime())?dateTime.format(date):null;
+     };
+     const lastVisitTime=formatTime(payload.lastVisitAt);
+     lastVisit.textContent=lastVisitTime?'最後訪問：'+lastVisitTime:'最後訪問：尚無有效瀏覽紀錄';
+     const refreshTime=formatTime(payload.updatedAt);
+     updated.textContent=refreshTime?'統計更新：'+refreshTime:'統計更新：尚未取得時間';
      status.textContent='統計正常 · 台灣時間 UTC+8';
      lastSuccess=Date.now();
    }catch(error){
@@ -39,6 +48,6 @@
  refreshButton.addEventListener('click',()=>refresh(true));
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&root.closest('.panel')?.classList.contains('active'))refresh()});
  window.addEventListener('duoduo-admin-authenticated',()=>refresh(true));
- setInterval(()=>{if(root.closest('.panel')?.classList.contains('active'))refresh()},60000);
+ setInterval(()=>{if(root.closest('.panel')?.classList.contains('active')&&document.visibilityState!=='hidden')refresh()},30000);
  if(canRead())refresh(true);
 })();
