@@ -30,6 +30,7 @@ const inTools=location.pathname.includes('/player-tools/');
 const inJobs=location.pathname.includes('/jobs/');
 const inLegion=location.pathname.includes('/legion-preview-6c82f4a9/');
 const inItempedia=location.pathname.endsWith('/item-encyclopedia.html');
+const inBossGuides=location.pathname.endsWith('/boss-guides-private.html');
 const prefix=(inTools||inJobs||inLegion)?'../':'';
 const defaultGroups=window.DuoDuoNavDefaults||[];
 // Each standalone page uses the same published game-version status as HOME.
@@ -168,7 +169,7 @@ header.appendChild(menu);header.classList.add('dd-nav-ready');
 prepareMainNavRoll();
 applyNavSettings(readNavSettings());
 // Standalone Jobs and Player Tools also read published settings (not app.js).
-if(inTools||inJobs||inLegion||inItempedia){
+if(inTools||inJobs||inLegion||inItempedia||inBossGuides){
  const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
  let lastPublished='';
  async function loadPublishedNav(){

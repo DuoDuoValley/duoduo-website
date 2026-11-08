@@ -7,7 +7,7 @@
 <title>多多谷｜BOSS 攻略測試版（未列入導覽）</title>
 <link rel="icon" href="favicon-64.png">
 <link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="boss-guides-private.css?v=20261108-header-link-scope-v21">
+<link rel="stylesheet" href="boss-guides-private.css?v=20261108-shared-nav-audit-v23">
 <link rel="stylesheet" href="dd-navigation.css?v=20261107-badge-timeline-v411">
 <link rel="stylesheet" href="cursor-ui/cursor.css?v=20261107-cursor-route-v417">
 </head><body>
@@ -26,7 +26,7 @@
   </nav>
   <div class="header-status"><span class="status-dot"></span><span>V282 持續更新</span></div>
   <div class="header-actions">
-    <button class="theme-toggle" id="themeBtn" type="button" aria-label="切換深色模式與淺色模式"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-label="切換深色模式與淺色模式"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button>
     <a class="btn btn-gold" data-link="topup" href="https://fd-pay.com/ARrbXO" target="_blank" rel="noopener noreferrer">儲值</a>
     <a class="btn btn-discord" data-link="discord" href="https://discord.gg/duoduovalley" target="_blank" rel="noopener noreferrer">加入 Discord</a>
   </div>
@@ -85,26 +85,9 @@
   </div>
 </footer>
 <script src="dd-nav-data.js?v=20261104-v38"></script>
-<script src="dd-navigation.js?v=20261106-version-allpages-v1"></script>
+<script src="dd-navigation.js?v=20261108-guide-cloud-v23"></script>
 <script defer src="cursor-ui/cursor.js"></script>
-<script defer src="dd-page-footer.js?v=20261106-footer-cloud-v3"></script>
-<script id="dd-guide-header-links">
-(() => {
-  const sync = () => {
-    for (const key of ['topup','discord']) {
-      const source = document.querySelector('footer.site-footer a[data-link="'+key+'"]');
-      const target = document.querySelector('header.site-header a[data-link="'+key+'"]');
-      if (!source || !target) continue;
-      const href = source.getAttribute('href');
-      if (href && /^https:\/\//i.test(href)) target.href = href;
-    }
-  };
-  document.addEventListener('DOMContentLoaded', () => {
-    const footer = document.querySelector('footer.site-footer');
-    if (footer) new MutationObserver(sync).observe(footer,{subtree:true,attributes:true,attributeFilter:['href']});
-    sync();
-  },{once:true});
-})();
-</script>
-<script defer src="boss-guides-private.js?v=20261108-cards-fan-glint-v19"></script>
+<script defer src="dd-page-footer.js?v=20261108-header-links-v23"></script>
+
+<script defer src="boss-guides-private.js?v=20261108-shared-theme-v23"></script>
 </body></html>

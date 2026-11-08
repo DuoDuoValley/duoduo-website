@@ -383,15 +383,8 @@ body{
 }
 
 
-/* V17 — official DuoDuo site header ownership.
-   The header gets its layout from styles.css + dd-navigation.css (the same CSS as boss.html).
-   Do NOT restyle site-header/brand/nav in this file again. Only align its tokens. */
-:root[data-theme="light"] header.site-header{
- --bg:#f4f7fa;--text:#172536;--muted:#586b7e;--muted2:#718296;--accent:#079bc0;--accent2:#007fa2;--line:#d7e0e8;--soft:#0b1d2d08;--header:rgba(244,247,250,.88);
-}
-:root[data-theme="dark"] header.site-header{
- --bg:#07111f;--text:#f7fbff;--muted:#9cafc2;--muted2:#7f91a5;--accent:#72e6ff;--accent2:#a9f1ff;--line:#25384b;--soft:#ffffff08;--header:rgba(7,17,31,.84);
-}
+/* Official header layout and theme tokens come exclusively from styles.css
+   and dd-navigation.css, exactly as on boss.html and the homepage. */
 /* More important than color: don't have a test-only strip ahead of sticky site navigation. */
 #privateApp{--guide-surface:var(--card)}
 /* Reference: character cards & BOSS atlas — left-aligned cinematic banner, balanced visual. */
@@ -566,47 +559,6 @@ footer.site-footer{text-align:left}
   #privateApp .guide-hero h1{font-size:clamp(34px,8vw,46px)}
   #privateApp .guide-hero-subtitle{font-size:13px}
   #privateApp .guide-hero-description{font-size:12px}
-}
-/* Small-phone safety: keep the FULL canonical header controls without overlapping
-   the logo or collapsing donation/Discord links.  Scoped to this guide page. */
-@media(max-width:520px){
-  html body header.site-header.dd-nav-ready{
-    display:grid!important;
-    grid-template-columns:minmax(0,1fr)!important;
-    grid-template-areas:"dd-brand" "dd-actions" "dd-nav"!important;
-    row-gap:5px!important;
-    padding:7px 10px 5px!important;
-    align-items:center!important;
-    overflow:visible!important;
-  }
-  html body header.site-header.dd-nav-ready .brand{
-    grid-area:dd-brand!important;justify-self:center!important;justify-content:center;
-    width:auto;max-width:100%;min-width:0;gap:5px;
-  }
-  html body header.site-header.dd-nav-ready .brand img{
-    width:105px!important;height:48px!important;max-width:38vw!important;
-  }
-  html body header.site-header.dd-nav-ready .brand span{
-    font-size:11px!important;white-space:nowrap;
-  }
-  html body header.site-header.dd-nav-ready .header-actions{
-    grid-area:dd-actions!important;justify-self:stretch!important;
-    display:flex!important;justify-content:center!important;
-    align-items:center!important;flex-wrap:nowrap!important;gap:6px!important;
-    max-width:100%;min-width:0;
-  }
-  html body header.site-header.dd-nav-ready .header-actions :is(.btn,.theme-toggle){
-    flex:0 1 auto!important;white-space:nowrap!important;
-    min-width:0!important;min-height:32px!important;
-    padding:6px 10px!important;font-size:11px!important;
-    border-radius:10px!important;
-  }
-  html body header.site-header.dd-nav-ready .theme-toggle span:last-child{font-size:11px!important}
-  html body header.site-header.dd-nav-ready nav.dd-main-nav{
-    grid-area:dd-nav!important;width:100%!important;min-width:0!important;
-    overflow-x:auto!important;scrollbar-width:none!important;
-  }
-  html body header.site-header.dd-nav-ready .header-status{display:none!important}
 }
 
 /* V19 — user-requested glossy official logo and a single anchored playing-card fan.

@@ -203,12 +203,13 @@
  $('copyUrl').onclick=async()=>{try{await navigator.clipboard.writeText(location.href);$('copyUrl').textContent='已複製';setTimeout(()=>$('copyUrl').textContent='複製此 BOSS 網址',1700)}catch(_){$('copyUrl').textContent='複製失敗'}};
  // Share the official light/dark choice across the whole DuoDuo website.
  const updateThemeButton=()=>{
-   const dark=document.documentElement.dataset.theme==='dark';
-   $('themeIcon').textContent=dark?'☾':'☼';
-   $('themeLabel').textContent=dark?'深色模式':'淺色模式';
-   $('themeBtn').setAttribute('aria-pressed',String(dark));
+   const light=document.documentElement.dataset.theme!=='dark';
+   $('themeIcon').textContent=light?'☾':'☼';
+   $('themeLabel').textContent=light?'深色模式':'淺色模式';
+   $('themeToggle').title=light?'切換深色模式':'切換淺色模式';
+   $('themeToggle').setAttribute('aria-pressed',String(!light));
  };
- $('themeBtn').onclick=()=>{
+ $('themeToggle').onclick=()=>{
    const dark=document.documentElement.dataset.theme!=='dark';
    document.documentElement.dataset.theme=dark?'dark':'light';
    try{localStorage.setItem('duoduo_theme',dark?'dark':'light')}catch(_){}

@@ -149,6 +149,16 @@
   try{const url=new URL(candidate);return url.protocol==='https:'?url.href:defaults[key]}
   catch(_){return defaults[key]}
  };
+ // Keep official header actions in step with the same published links as the footer.
+ // Restrict this to the known external actions: never rewrite internal navigation.
+ function syncHeaderLinks(pubLinks){
+  for(const a of document.querySelectorAll('header.site-header a[data-link]')){
+   const key=a.dataset.link;
+   if(key!=='topup'&&key!=='discord')continue;
+   a.href=safePublishedLink(pubLinks,key);
+   a.rel='noopener noreferrer';
+  }
+ }
  function updateFooterFromCloud(data){
   const root=document.querySelector('footer.site-footer');
   const cfg=data?.duoduo_settings?.footer||{};
@@ -168,6 +178,7 @@
    if(!Object.hasOwn(defaults,key))continue;
    a.href=safePublishedLink(pubLinks,key);
   }
+  syncHeaderLinks(pubLinks);
  }
  async function refreshCloudFooter(){
   if(busy||document.visibilityState==='hidden'||navigator.onLine===false)return;
@@ -194,8 +205,8 @@
   }finally{busy=false}
  }
  window.DuoDuoFooterRefresh=refreshCloudFooter;
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{render();refreshCloudFooter()},{once:true});
- else{render();refreshCloudFooter()}
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{render();syncHeaderLinks(links);refreshCloudFooter()},{once:true});
+ else{render();syncHeaderLinks(links);refreshCloudFooter()}
  window.setInterval(()=>{if(Date.now()-lastSuccessful>=45000)refreshCloudFooter()},60000);
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshCloudFooter()});
  window.addEventListener('online',refreshCloudFooter);
