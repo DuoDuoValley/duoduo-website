@@ -139,10 +139,16 @@
      loadedCloud=cloud?.data?.[CLOUD_KEY]||null;
      data=clone(loadedCloud?.schema===1&&Array.isArray(loadedCloud.entries)?loadedCloud:initial);
      const articleTitlesUpdated=applyVerifiedArticleTitles(data.entries,initial.entries);
+     // Old cloud records may still contain summary fields; remove them only from
+     // the local draft until an authenticated administrator explicitly publishes.
+     const summariesRemoved=data.entries.reduce((n,x)=>{
+       if(Object.prototype.hasOwnProperty.call(x,'summary')){delete x.summary;return n+1}
+       return n;
+     },0);
      verify(data);chosenBoss=bosses.some(b=>b.id===chosenBoss)?chosenBoss:bosses[0]?.id||'';
      $('bgBoss').innerHTML=bosses.map(b=>'<option value="'+esc(b.id)+'">'+esc(b.group)+' · '+esc(b.name)+'</option>').join('');
      dirty=false;selectedId='';ready=true;render();
-     if(articleTitlesUpdated)draft();
+     if(articleTitlesUpdated||summariesRemoved)draft();
      // Synchronize placeholder YouTube metadata into the administrator's local draft.
      // Cloud writes still require an authenticated publish.
      fillVideoMetadata(true).catch(e=>console.warn('影片標題同步未完成',e));
