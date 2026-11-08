@@ -198,7 +198,7 @@ function card(b,map){
   const cat=CATEGORIES.includes(it.category)?it.category:'其他';buckets.get(cat).push(node);
  }
  const dropCards=CATEGORIES.map(cat=>`<div class="dd-drop-group" data-category="${cat}" data-has-drops="${buckets.get(cat).length?'1':'0'}"><div class="dd-drop-group-title">${cat}</div><div class="dd-drop-icons">${buckets.get(cat).join('')}</div></div>`).join('');
- const img=safeImg(b.id==='boss32'&&b.image==='assets/boss-atlas/bosses/boss32.png'?'https://pub-4b401094acfa4f0386c42ae1ca36fa0b.r2.dev/images/bosses/icons/Jupiter_icon.png':b.image);
+ const img=safeImg(b.id==='boss32'&&b.image==='https://pub-4b401094acfa4f0386c42ae1ca36fa0b.r2.dev/images/bosses/icons/Jupiter_icon.png'?'assets/boss-atlas/bosses/boss32.png':b.image);
  const runeNames={arcane:'祕法符文',authentic:'真實符文'};
  const runeImages={arcane:'assets/boss-atlas/symbols/arcane-symbol.png',authentic:'assets/boss-atlas/symbols/authentic-symbol.png'};
  const runeType=runeNames[d?.runeType]?d.runeType:'';

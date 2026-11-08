@@ -101,7 +101,7 @@
      }catch(e){console.warn('暫時使用靜態 BOSS 攻略與圖鑑資料',e)}
      // Prefer the verified Yupiter-specific icon reference when legacy cloud snapshots
      // still reference the outdated player portrait. Do not change custom images.
-     for(const boss of bosses)if(boss.id==='boss32'&&boss.image==='assets/boss-atlas/bosses/boss32.png')boss.image='https://pub-4b401094acfa4f0386c42ae1ca36fa0b.r2.dev/images/bosses/icons/Jupiter_icon.png';
+     for(const boss of bosses)if(boss.id==='boss32'&&boss.image==='https://pub-4b401094acfa4f0386c42ae1ca36fa0b.r2.dev/images/bosses/icons/Jupiter_icon.png')boss.image='assets/boss-atlas/bosses/boss32.png';
      bosses=bosses.filter(isGuideBossVisible);
      const params=new URLSearchParams(location.search);
      const sharedBoss=bosses.find(x=>x.id===params.get('boss'));
@@ -165,8 +165,8 @@
   $('bossGroup').textContent=b.group+' BOSS';
   const portrait=$('bossHeadPortrait');
   // Use the exact square icon from the existing 個人傷害反推 BOSS picker.
-  // Keep the left BOSS selection gallery (large portrait artwork) unchanged.
-  const portraitUrl='assets/boss-atlas/inverse-ui/'+encodeURIComponent(b.name)+'.png';
+  // Only the detailed header uses the dedicated Yupiter icon; gallery cards retain original artwork.
+  const portraitUrl=b.id==='boss32'?'https://pub-4b401094acfa4f0386c42ae1ca36fa0b.r2.dev/images/bosses/icons/Jupiter_icon.png':'assets/boss-atlas/inverse-ui/'+encodeURIComponent(b.name)+'.png';
   if(portrait){
     portrait.hidden=false;
     portrait.alt=b.name+' 頭像';
