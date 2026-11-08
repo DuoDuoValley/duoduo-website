@@ -82,6 +82,14 @@
    Object.assign(x,newValues);delete x.summary;draft();render();
  }
  function removeItem(){const x=current();if(!x||!confirm('確定刪除此筆「'+x.title+'」？刪除會先保存在草稿，發布後才會生效。'))return;data.entries=data.entries.filter(i=>i.id!==x.id);selectedId='';normalize();draft();render()}
+ const genericArticleTitle=t=>/^[^｜]+｜圖文攻略(?:\s*\d+)?$/.test(String(t||'').trim());
+ const sourceKey=v=>{try{const u=new URL(String(v||''));return u.origin+u.pathname+'?'+[...u.searchParams].filter(([k])=>['bsn','snA','sn'].includes(k)).sort(([a],[b])=>a.localeCompare(b)).map(([k,v])=>k+'='+v).join('&')}catch{return ''}};
+ const applyVerifiedArticleTitles=(target,reference)=>{
+   const official=new Map(reference.filter(x=>x.type==='article'&&!genericArticleTitle(x.title)&&sourceKey(x.url)).map(x=>[sourceKey(x.url),x.title]));
+   let count=0;
+   for(const x of target){if(x.type!=='article'||!genericArticleTitle(x.title))continue;const name=official.get(sourceKey(x.url));if(name){x.title=name;count++}}
+   return count;
+ };
  const genericVideoTitle=t=>/^[^｜]+｜影片攻略(?:\s*\d+)?$/.test(String(t||'').trim());
  const unknownVideoAuthor=t=>!String(t||'').trim()||/^(?:原作者待核對|作者待核對|未填作者)$/.test(String(t||'').trim());
  const youtubeVideoId=url=>{try{const u=new URL(url),host=u.hostname.replace(/^www\./,'');const v=host==='youtu.be'?u.pathname.slice(1):u.searchParams.get('v');return /^[\w-]{11}$/.test(String(v||''))?v:''}catch{return ''}};
@@ -130,9 +138,11 @@
      bosses=(cloud?.data?.duoduo_boss_atlas?.bosses||atlas.bosses||[]).filter(b=>['高階','終極'].includes(b.group));
      loadedCloud=cloud?.data?.[CLOUD_KEY]||null;
      data=clone(loadedCloud?.schema===1&&Array.isArray(loadedCloud.entries)?loadedCloud:initial);
+     const articleTitlesUpdated=applyVerifiedArticleTitles(data.entries,initial.entries);
      verify(data);chosenBoss=bosses.some(b=>b.id===chosenBoss)?chosenBoss:bosses[0]?.id||'';
      $('bgBoss').innerHTML=bosses.map(b=>'<option value="'+esc(b.id)+'">'+esc(b.group)+' · '+esc(b.name)+'</option>').join('');
      dirty=false;selectedId='';ready=true;render();
+     if(articleTitlesUpdated)draft();
      // Synchronize placeholder YouTube metadata into the administrator's local draft.
      // Cloud writes still require an authenticated publish.
      fillVideoMetadata(true).catch(e=>console.warn('影片標題同步未完成',e));
