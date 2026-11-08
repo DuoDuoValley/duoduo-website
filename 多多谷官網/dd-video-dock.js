@@ -26,15 +26,19 @@
    dock.classList.remove('dd-video-expanded');
    syncToggle();updatePosition();
  }
- function measureTop(node){
+ function visibleBgmRect(node){
    if(!node||getComputedStyle(node).display==='none')return null;
    const rect=node.getBoundingClientRect();
-   return rect.width>0&&rect.height>0?rect.top:null;
+   return rect.width>0&&rect.height>0?rect:null;
  }
  function updatePosition(){
    if(dock.hidden)return;
-   const bgmTop=measureTop(document.body.classList.contains('collapsed')?document.getElementById('mini'):document.getElementById('player'));
-   const bottom=bgmTop===null?100:Math.max(88,Math.round(innerHeight-bgmTop+12));
+   const bgmRect=visibleBgmRect(document.body.classList.contains('collapsed')?document.getElementById('mini'):document.getElementById('player'));
+   const bottom=bgmRect===null?100:Math.max(88,Math.round(innerHeight-bgmRect.top+12));
+   // Align the mini video's right edge exactly with the visible BGM panel.
+   // Keep the centered expanded-video position unchanged.
+   const right=bgmRect===null?Math.max(10,innerWidth<=520?10:18):Math.max(0,Math.round(innerWidth-bgmRect.right));
+   dock.style.setProperty('--dd-video-dock-right',right+'px');
    // If the BGM panel is expanded on a short screen, reduce the dock's
    // footprint instead of letting the two players cover each other.
    const available=Math.max(130,innerHeight-bottom-12);
