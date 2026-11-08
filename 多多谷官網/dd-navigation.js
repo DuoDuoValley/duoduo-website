@@ -1,6 +1,12 @@
 /* V9 integrated navigation: native links, optional deep targets, and shared dropdown.
  * No dependencies; leaves site theme, footer, player, and route code untouched. */
 (()=>{'use strict';
+// Standalone public pages count only once; embedded inner pages are skipped.
+if(window.top===window&&!document.querySelector('#duoduo-admin-auth')){
+ const script=document.createElement('script');
+ script.src=new URL('dd-traffic-client.js?v=20261108-v1',document.currentScript?.src||location.href).href;
+ script.defer=true;document.head.appendChild(script);
+}
 const header=document.querySelector('header.site-header');
 const nav=header?.querySelector('nav.dd-main-nav');
 if(!nav||!header)return;

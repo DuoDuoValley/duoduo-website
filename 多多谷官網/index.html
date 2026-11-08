@@ -1420,6 +1420,10 @@ function changeInner(to,method='push'){
   const target=safePage(to);
   if(!target)return false;
   const current=currentInner();
+  // Count actual user navigation to another site section, not iframe refresh,
+  // anchor changes, video tabs or GitHub automatic updates.
+  if(method==='push'&&current&&target.pathname!==current.pathname)
+    window.DuoDuoTraffic?.pageview();
   if(!current||target.pathname!==current.pathname)window.DuoDuoPersistentVideo?.minimizeOnNavigation();
   updateAddress(target,method);
   if(current&&current.href===target.href){
@@ -1580,6 +1584,7 @@ window.duoduoPrepareForUpdate=()=>{try{storePlaybackPosition()}catch(_){}};
 
 })();
 </script>
+<script src="dd-traffic-client.js?v=20261108-v1"></script>
 <script>(function(){const s=document.createElement("script");s.async=false;s.src="dd-site-update.js?dd_boot="+Date.now();document.body.appendChild(s);})();</script>
 </body>
 </html>

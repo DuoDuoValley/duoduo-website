@@ -3,6 +3,7 @@ const http=require('http'),fs=require('fs'),path=require('path'),crypto=require(
 const root=__dirname,port=3000;
 const SUPABASE_BUCKET='event-images';
 const adminSessions=new Map();
+const {createTrafficHandlers}=require('./dd-traffic-server');
 // Idle expiry is extended only by real admin activity; absolute expiry limits stolen tokens.
 const ADMIN_SESSION_IDLE_TTL=12*60*60*1000;
 const ADMIN_SESSION_ABSOLUTE_TTL=24*60*60*1000;
@@ -403,6 +404,7 @@ async function handleGetEvents(req,res){
     const url=
       `${supabaseUrl}/rest/v1/events`+
       `?select=id,data,updated_at`+
+      `&id=not.like.__dd_traffic_*`+
       `&order=updated_at.desc`;
 
     const response=await fetch(url,{
@@ -480,6 +482,8 @@ async function handleSaveEvents(req,res){
         const events=Array.isArray(payload.events)
           ? payload.events
           : [];
+        if(events.some(e=>String(e?.id||'').startsWith('__dd_traffic_')))
+          return sendJSON(res,400,{ok:false,error:'活動 ID 不能使用保留識別碼'});
 
         const headers={
           'apikey':supabaseSecretKey,
@@ -489,7 +493,7 @@ async function handleSaveEvents(req,res){
         };
 
         const getUrl=
-          `${supabaseUrl}/rest/v1/events?select=id`;
+          `${supabaseUrl}/rest/v1/events?select=id&id=not.like.__dd_traffic_*`;
 
         const existingResponse=await fetch(getUrl,{
           method:'GET',
@@ -676,7 +680,7 @@ async function handleGetSiteData(req,res){
 
     const data={...(record.values||{})};
 
-    const eventsResponse=await fetch(`${supabaseUrl}/rest/v1/events?select=id,data,updated_at&order=updated_at.desc`,{method:'GET',headers});
+    const eventsResponse=await fetch(`${supabaseUrl}/rest/v1/events?select=id,data,updated_at&id=not.like.__dd_traffic_*&order=updated_at.desc`,{method:'GET',headers});
     if(eventsResponse.ok){
       const rows=await eventsResponse.json();
       const eventRows=rows.filter(row=>!['__boss_config__','__site_data__','__maintenance__'].includes(String(row.id)));
@@ -809,6 +813,7 @@ async function handleMaintenancePost(req,res){
  });
 }
 
+const trafficHandlers=createTrafficHandlers({getAdminSession,sendJSON});
 const server=http.createServer((req,res)=>{
 
   res.setHeader(
@@ -832,6 +837,8 @@ const server=http.createServer((req,res)=>{
   }
 
   const requestPath=(req.url||'').split('?')[0];
+  if(req.method==='POST' && requestPath==='/api/traffic/record')return trafficHandlers.record(req,res);
+  if(req.method==='GET' && requestPath==='/api/traffic/summary')return trafficHandlers.summary(req,res);
   if(req.method==='GET' && requestPath==='/api/maintenance')return handleMaintenanceGet(req,res);
   if(req.method==='POST' && requestPath==='/api/maintenance')return handleMaintenancePost(req,res);
 
