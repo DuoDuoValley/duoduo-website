@@ -45,8 +45,11 @@
        const box=[...$('guideBody').querySelectorAll('[data-guide-entry]')].find(el=>el.dataset.guideEntry===x.id);
        if(!box)return;
        const title=box.querySelector('.guide-original-title'),author=box.querySelector('.guide-original-author');
-       if(title&&placeholderTitle(x))title.textContent=meta.title;
-       if(author&&placeholderAuthor(x))author.textContent=meta.author;
+       if(placeholderTitle(x)){x.title=meta.title;if(title)title.textContent=meta.title}
+       if(placeholderAuthor(x)){x.author=meta.author;if(author)author.textContent=meta.author}
+       // Update an already-playing floating player title without recreating
+       // the iframe (which would interrupt the video).
+       if(typeof playingId!=='undefined'&&playingId===id&&playerTitle&&!floatingPlayer.hidden)playerTitle.textContent=x.title;
      });
    }
  }
