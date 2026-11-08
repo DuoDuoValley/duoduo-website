@@ -184,7 +184,7 @@
      for(let attempt=0;attempt<8;attempt++){
        if(attempt)await new Promise(resolve=>setTimeout(resolve,1000));
        try{
-         const check=await fetch(cloudUrl(),{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
+         const check=await fetch(cloudUrl(),{cache:'no-store'});
          if(!check.ok){lastReadError='HTTP '+check.status;continue}
          const verified=await check.json();
          if(verified?.ok!==true){lastReadError='API 回傳異常';continue}
