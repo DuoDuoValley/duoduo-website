@@ -1,0 +1,44 @@
+/* Owner-only site traffic panel. Never fetch before admin authentication. */
+(()=>{'use strict';
+ const root=document.getElementById('ddTrafficOverview');
+ if(!root)return;
+ const api=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const status=root.querySelector('[data-traffic-status]');
+ const numbers=Object.fromEntries(['todayVisitors','totalVisitors','todayViews','totalViews'].map(k=>[k,root.querySelector('[data-traffic-value="'+k+'"]')]));
+ const start=root.querySelector('[data-traffic-since]'),updated=root.querySelector('[data-traffic-updated]');
+ const refreshButton=root.querySelector('[data-traffic-refresh]');
+ let busy=false,lastSuccess=0;
+ const fmt=new Intl.NumberFormat('zh-TW');
+ function canRead(){
+   if(document.getElementById('duoduo-admin-auth'))return false;
+   try{return Boolean(sessionStorage.getItem('duoduo_admin_session'))}catch{return false}
+ }
+ async function refresh(force=false){
+   if(!canRead()||busy)return;
+   if(!force&&Date.now()-lastSuccess<30000)return;
+   busy=true;refreshButton.disabled=true;
+   status.textContent='正在讀取流量統計…';
+   try{
+     const token=sessionStorage.getItem('duoduo_admin_session');
+     const res=await fetch(api+'/api/traffic/summary?ts='+Date.now(),{cache:'no-store',headers:{Authorization:'Bearer '+token}});
+     const payload=await res.json().catch(()=>({}));
+     if(!res.ok||payload.ok!==true)throw Error(payload.error||'HTTP '+res.status);
+     for(const [key,node] of Object.entries(numbers)){
+       const value=payload[key];
+       node.textContent=Number.isSafeInteger(value)&&value>=0?fmt.format(value):'—';
+     }
+     start.textContent=payload.since?'統計起始：'+payload.since.replaceAll('-','/'):'尚未收集到第一筆有效瀏覽紀錄';
+     updated.textContent='更新於 '+new Intl.DateTimeFormat('zh-TW',{timeZone:'Asia/Taipei',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date(payload.updatedAt));
+     status.textContent='統計正常 · 台灣時間 UTC+8';
+     lastSuccess=Date.now();
+   }catch(error){
+     // Do not turn an unavailable backend into fabricated zeros.
+     status.textContent='無法讀取統計：'+String(error.message||error)+'（請確認 Render 已部署統計 API）';
+   }finally{busy=false;refreshButton.disabled=false}
+ }
+ refreshButton.addEventListener('click',()=>refresh(true));
+ document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible'&&root.closest('.panel')?.classList.contains('active'))refresh()});
+ window.addEventListener('duoduo-admin-authenticated',()=>refresh(true));
+ setInterval(()=>{if(root.closest('.panel')?.classList.contains('active'))refresh()},60000);
+ if(canRead())refresh(true);
+})();
