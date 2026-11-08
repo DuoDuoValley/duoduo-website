@@ -485,11 +485,25 @@ async function handleSaveEvents(req,res){
     req.on('end',async()=>{
       try{
         const payload=JSON.parse(body);
-        const events=Array.isArray(payload.events)
-          ? payload.events
-          : [];
-        if(events.some(e=>isInternalEventRow(e)))
-          return sendJSON(res,400,{ok:false,error:'活動 ID 不能使用內部保留識別碼'});
+        // Reject malformed or partial payloads before reading or changing any rows.
+        if(!payload || !Array.isArray(payload.events))
+          return sendJSON(res,400,{ok:false,error:'活動清單格式錯誤，已拒絕儲存'});
+        const events=payload.events;
+        const newIds=new Set();
+        for(const event of events){
+          const idType=typeof event?.id;
+          if(!event || typeof event!=='object' || Array.isArray(event) ||
+             (idType!=='string' && idType!=='number') ||
+             (idType==='number' && !Number.isFinite(event.id)) ||
+             !String(event.id??'').trim())
+            return sendJSON(res,400,{ok:false,error:'活動資料包含無效 ID，已拒絕儲存'});
+          if(isInternalEventRow(event))
+            return sendJSON(res,400,{ok:false,error:'活動 ID 不能使用內部保留識別碼'});
+          const id=String(event.id);
+          if(newIds.has(id))
+            return sendJSON(res,400,{ok:false,error:'活動清單包含重複 ID，已拒絕儲存'});
+          newIds.add(id);
+        }
 
         const headers={
           'apikey':supabaseSecretKey,
@@ -522,37 +536,12 @@ async function handleSaveEvents(req,res){
 
         const existingRows=await existingResponse.json();
 
-        const newIds=new Set(
-          events.map(e=>String(e.id))
-        );
+        // An accidental empty list must never erase all published events.
+        // A deliberate clear-all requires a separately confirmed workflow.
+        if(events.length===0 && existingRows.some(row=>!isInternalEventRow(row)))
+          return sendJSON(res,409,{ok:false,error:'為保護既有活動，暫不接受清空全部活動的同步請求'});
 
-        for(const row of existingRows){
-          if(isInternalEventRow(row))continue;
-          if(!newIds.has(String(row.id))){
-            const deleteUrl=
-              `${supabaseUrl}/rest/v1/events?id=eq.${encodeURIComponent(row.id)}`;
-
-            const deleteResponse=await fetch(deleteUrl,{
-              method:'DELETE',
-              headers
-            });
-
-            if(!deleteResponse.ok){
-              const errorText=await deleteResponse.text();
-
-              console.error(
-                'Supabase 刪除活動失敗:',
-                errorText
-              );
-
-              return sendJSON(res,500,{
-                ok:false,
-                error:'刪除活動失敗'
-              });
-            }
-          }
-        }
-
+        // Upsert first: failed saves must not delete previously published rows.
         if(events.length){
           const rows=events.map(event=>({
             id:String(event.id),
@@ -581,6 +570,33 @@ async function handleSaveEvents(req,res){
               ok:false,
               error:'儲存活動失敗'
             });
+          }
+        }
+
+        for(const row of existingRows){
+          if(isInternalEventRow(row))continue;
+          if(!newIds.has(String(row.id))){
+            const deleteUrl=
+              `${supabaseUrl}/rest/v1/events?id=eq.${encodeURIComponent(row.id)}`;
+
+            const deleteResponse=await fetch(deleteUrl,{
+              method:'DELETE',
+              headers
+            });
+
+            if(!deleteResponse.ok){
+              const errorText=await deleteResponse.text();
+
+              console.error(
+                'Supabase 刪除活動失敗:',
+                errorText
+              );
+
+              return sendJSON(res,500,{
+                ok:false,
+                error:'刪除活動失敗'
+              });
+            }
           }
         }
 
