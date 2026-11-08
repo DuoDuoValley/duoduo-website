@@ -35,6 +35,12 @@
    if(dock.hidden)return;
    const bgmTop=measureTop(document.body.classList.contains('collapsed')?document.getElementById('mini'):document.getElementById('player'));
    const bottom=bgmTop===null?100:Math.max(88,Math.round(innerHeight-bgmTop+12));
+   // If the BGM panel is expanded on a short screen, reduce the dock's
+   // footprint instead of letting the two players cover each other.
+   const available=Math.max(130,innerHeight-bottom-12);
+   const maxWidth=innerWidth<=520?300:355;
+   const compactWidth=Math.max(145,Math.floor((available-77)*16/9));
+   dock.style.setProperty('--dd-video-dock-width',Math.min(maxWidth,compactWidth)+'px');
    dock.style.setProperty('--dd-video-dock-bottom',bottom+'px');
  }
  function play(id,videoTitle){
