@@ -99,6 +99,7 @@
    if(!all.length){if(!silent)putStatus('目前沒有需要補齊的 YouTube 標題或作者。');return}
    if(!silent&&!confirm('將查詢 '+all.length+' 筆 YouTube 原始標題與頻道名稱，只更新通用占位文字，保留自行編輯資料。查詢結果只存本機草稿，仍須人工檢查後再發布。確定繼續？'))return;
    const button=$('bgVideoMeta');button.disabled=true;
+   const targetData=data;
    let changed=0,failed=0,cursor=0;
    const memo=new Map();
    const fetchMeta=id=>{
@@ -130,6 +131,8 @@
    try{
      // Four bounded workers avoid a lengthy sequential wait with many videos.
      await Promise.all(Array.from({length:Math.min(4,all.length)},worker));
+     // A reload can happen while requests are pending; never save stale results.
+     if(data!==targetData)return;
      if(changed){draft();render()}
      if(!silent||changed||failed)putStatus('YouTube 查詢完成：已補齊 '+changed+' 筆，'+failed+' 筆無法讀取。變更僅在本機草稿；需由管理員發布雲端。');
    }finally{button.disabled=false}
