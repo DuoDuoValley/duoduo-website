@@ -90,7 +90,7 @@
  function byBoss(id,type){return entries.filter(x=>x.bossId===id&&x.type===type&&x.enabled!==false).sort((a,b)=>Number(a.order||9999)-Number(b.order||9999))}
  function currentBoss(){return bosses.find(x=>x.id===current)||bosses[0]}
 
- function drawAll(){const total=entries.filter(x=>bosses.some(b=>b.id===x.bossId));$('bossStats').textContent=bosses.length+' 隻 BOSS';$('articleStats').textContent=total.filter(x=>x.type==='article').length+' 篇圖文候選';$('videoStats').textContent=total.filter(x=>x.type==='video').length+' 部影片候選';drawBossGrid();drawDetail();}
+ function drawAll(){const total=entries.filter(x=>bosses.some(b=>b.id===x.bossId));$('bossStats').textContent=bosses.length+' 隻 BOSS';$('articleStats').textContent=total.filter(x=>x.type==='article').length+' 篇圖文攻略';$('videoStats').textContent=total.filter(x=>x.type==='video').length+' 部影片攻略';drawBossGrid();drawDetail();}
  function drawBossGrid(){
    const q=$('searchBoss').value.trim().toLocaleLowerCase();
    const visible=bosses.filter(b=>(group==='全部'||b.group===group)&&b.name.toLocaleLowerCase().includes(q));
@@ -110,7 +110,7 @@
 
  function renderItem(x){
    const link=safeUrl(x.url),video=x.type==='video'?youtubeId(x.url):'',image=safeImg(x.image);
-   const badge=x.approved?'<span class="badge verified">✓ 已人工核對</span>':'<span class="badge">待核對來源／版本</span>';
+   const badge=x.approved?'<span class="badge verified">✓ 已人工核對</span>':'<span class="badge">外部攻略</span>';
    const boss=bosses.find(b=>b.id===x.bossId);
    const bossImage=boss?(safeImg(boss.image)||('assets/boss-atlas/bosses/'+boss.id+'.png')):'';
    // Use the source site's own brand asset for uncatalogued Bahamut article covers.
@@ -128,7 +128,7 @@
    const thumb=(x.type==='article'||x.type==='video')?'<'+(playableThumb?'button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'" aria-label="播放 '+esc(x.title||'BOSS 攻略影片')+'"':articleThumb?'a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" aria-label="查看原作者文章：'+esc(x.title||'圖文攻略')+'"':'div')+' class="guide-thumb '+(x.type==='video'?'guide-thumb-video':'guide-thumb-article')+(isBahaArticle?' guide-thumb-bahamut':'')+'">'+
     (photo?'<img loading="lazy" src="'+esc(photo)+'" alt="'+esc(imageLabel)+'" onload="this.parentNode.classList.add(\'logo-loaded\')" onerror="this.hidden=true;this.parentNode.classList.add(\'guide-thumb-missing\')">':'')+
     '<span class="guide-thumb-fallback" aria-hidden="true">'+(isBahaArticle?'<span class="baha-wordmark"><span class="baha-mark" aria-hidden="true">◆</span>巴哈姆特</span>':x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></'+(playableThumb?'button':articleThumb?'a':'div')+'>':'';
-   return '<article data-guide-entry="'+esc(x.id)+'" class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3 class="guide-original-title">'+esc(x.title||'未命名攻略')+'</h3><div class="by"><span class="guide-original-author">'+esc(x.author||'未填作者')+'</span>'+(x.origin?' · '+esc(x.origin):'')+'</div>' + '<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 播放影片</button>':'')+'</div></div></article>';
+   return '<article data-guide-entry="'+esc(x.id)+'" class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta">'+(x.stage||x.difficulty?'<span class="badge">'+esc(x.stage||x.difficulty)+'</span>':'')+badge+'</div><h3 class="guide-original-title">'+esc(x.title||'未命名攻略')+'</h3><div class="by"><span class="guide-original-author">'+esc(x.author||'未填作者')+'</span>'+(x.origin?' · '+esc(x.origin):'')+'</div>' + '<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 播放影片</button>':'')+'</div></div></article>';
  }
  function drawDetail(){
   const b=currentBoss();if(!b){$('guideBody').innerHTML='<div class="empty">沒有可公開的高階或終極 BOSS。</div>';return}
