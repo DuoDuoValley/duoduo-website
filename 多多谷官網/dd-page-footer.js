@@ -78,7 +78,7 @@
   const desc=document.createElement('p');desc.dataset.footer='description';desc.textContent=description===oldDescription?defaultDescription:description;
   brand.append(eyebrow,name,desc);root.append(brand);
   addColumn(root,navTitle,[
-   ['首頁','index.html'],['最新消息','news.html'],['檔期活動','events.html'],['BOSS 資訊','boss.html#ddBossAtlas']
+   ['首頁','index.html'],['最新消息','news.html'],['檔期活動','events.html'],['BOSS 資訊','boss.html#ddBossAtlas'],['BOSS 攻略','boss-guides.html']
   ],'navTitle');
   addColumn(root,'遊玩與工具',[
    ['角色卡與傳授技能','jobs/jobs.html'],['戰地拼圖模擬器','legion-preview-6c82f4a9/index.html'],

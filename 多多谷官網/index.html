@@ -1156,10 +1156,10 @@ document.addEventListener('visibilitychange',()=>{if(document.visibilityState===
 window.addEventListener('online',fetchCloud);
 if(!isChecklistEmbed){
 // V5 navigation: one persistent audio element, one shareable URL per view.
-const pageNames={'home.html':'首頁','index.html':'首頁','news.html':'最新消息','events.html':'檔期活動','event-detail.html':'活動詳情','boss.html':'BOSS 介紹','guide.html':'遊玩指南','downloads.html':'下載專區','privacy.html':'隱私政策','terms.html':'使用條款','player-tools/index.html':'玩家工具','jobs/jobs.html':'角色卡與傳授技能','legion-preview-6c82f4a9/index.html':'戰地拼圖模擬器','item-encyclopedia.html':'道具百科'};
+const pageNames={'home.html':'首頁','index.html':'首頁','news.html':'最新消息','events.html':'檔期活動','event-detail.html':'活動詳情','boss.html':'BOSS 介紹','boss-guides.html':'BOSS 攻略','guide.html':'遊玩指南','downloads.html':'下載專區','privacy.html':'隱私政策','terms.html':'使用條款','player-tools/index.html':'玩家工具','jobs/jobs.html':'角色卡與傳授技能','legion-preview-6c82f4a9/index.html':'戰地拼圖模擬器','item-encyclopedia.html':'道具百科'};
 const siteBase=new URL('./',location.href);
 const siteRoot=siteBase.pathname;
-const ROUTE_PAGES=new Set(['home.html','news.html','events.html','event-detail.html','boss.html','guide.html','downloads.html','privacy.html','terms.html','player-tools/index.html','jobs/jobs.html','legion-preview-6c82f4a9/index.html','item-encyclopedia.html']);
+const ROUTE_PAGES=new Set(['home.html','news.html','events.html','event-detail.html','boss.html','boss-guides.html','guide.html','downloads.html','privacy.html','terms.html','player-tools/index.html','jobs/jobs.html','legion-preview-6c82f4a9/index.html','item-encyclopedia.html']);
 const ROUTE_KEY='duoduo_v5_route';
 let activeFrameDocument=null;
 // Navigation guard is scoped to real iframe page changes. It never touches
@@ -1305,6 +1305,7 @@ function safePage(raw,base=siteBase){
     if(result.origin!==location.origin||!result.pathname.startsWith(siteRoot))return null;
     let relative=result.pathname.slice(siteRoot.length);
     if(!relative||relative==='index.html')relative='home.html';
+    if(relative==='boss-guides-private.html')relative='boss-guides.html'; // legacy bookmarks
     if(!ROUTE_PAGES.has(relative))return null;
     return new URL(relative+result.search+result.hash,siteBase);
   }catch{return null;}
@@ -1314,7 +1315,7 @@ function safePage(raw,base=siteBase){
 // is translated. Legacy ?page=filename.html%3F... links still work.
 const SHORT_PAGES={
   'home.html':'home','news.html':'news','events.html':'events',
-  'event-detail.html':'event','boss.html':'boss','guide.html':'guide',
+  'event-detail.html':'event','boss.html':'boss','boss-guides.html':'boss-guides','guide.html':'guide',
   'downloads.html':'downloads','privacy.html':'privacy','terms.html':'terms',
   'player-tools/index.html':'tools','jobs/jobs.html':'jobs',
   'legion-preview-6c82f4a9/index.html':'legion',
