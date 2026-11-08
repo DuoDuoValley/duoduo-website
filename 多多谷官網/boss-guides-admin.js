@@ -58,7 +58,7 @@
  }
  function drawList(){
    const items=rows();$('bgCount').textContent=items.length+' 筆 · '+(dirty?'未發布草稿':'已載入');
-   $('bgList').innerHTML=items.length?items.map((x,i)=>'<div class="bg-entry '+(x.id===selectedId?'active':'')+'"><div><button type="button" class="bg-title" data-edit="'+esc(x.id)+'">'+esc(x.title||'未命名攻略')+'</button><div class="bg-meta">'+(x.enabled===false?'⚪ 隱藏 · ':'🟢 顯示 · ')+esc(x.author||'作者待核對')+' · '+(x.approved?'已核對':'待核對')+'</div></div><div class="bg-arrows"><button type="button" aria-label="上移" title="上移" data-move="'+esc(x.id)+'" data-delta="-1" '+(i===0?'disabled':'')+'>↑</button><button type="button" aria-label="下移" title="下移" data-move="'+esc(x.id)+'" data-delta="1" '+(i===items.length-1?'disabled':'')+'>↓</button></div></div>').join(''):'<p class="bg-status">此 BOSS 尚無這類攻略，可按「＋ 新增」。</p>';
+   $('bgList').innerHTML=items.length?items.map((x,i)=>'<div class="bg-entry '+(x.id===selectedId?'active':'')+'"><div><button type="button" class="bg-title" data-edit="'+esc(x.id)+'">'+esc(x.title||'未命名攻略')+'</button><div class="bg-meta">'+(x.enabled===false?'⚪ 隱藏 · ':'🟢 顯示 · ')+esc(x.author||'作者待核對')+(x.type==='video'&&x.publishedDate?' · '+esc(x.publishedDate):'')+' · '+(x.approved?'已核對':'待核對')+'</div></div><div class="bg-arrows"><button type="button" aria-label="上移" title="上移" data-move="'+esc(x.id)+'" data-delta="-1" '+(i===0?'disabled':'')+'>↑</button><button type="button" aria-label="下移" title="下移" data-move="'+esc(x.id)+'" data-delta="1" '+(i===items.length-1?'disabled':'')+'>↓</button></div></div>').join(''):'<p class="bg-status">此 BOSS 尚無這類攻略，可按「＋ 新增」。</p>';
  }
  function drawForm(){
    const x=current();if(!x){$('bgEditor').hidden=true;$('bgEditorEmpty').hidden=false;return}
