@@ -819,6 +819,23 @@ async function handleMaintenancePost(req,res){
  });
 }
 
+// Observation-only public API read-volume monitor. Counts by endpoint,
+// not user identity; it never logs IPs, tokens or request bodies, nor blocks
+// visitors. Baseline data can inform a future, separately tested rate limit.
+const PUBLIC_API_MONITOR_ROUTES=new Set(['/api/site-data','/api/events','/api/bosses']);
+let publicApiReadMinute=Math.floor(Date.now()/60000);
+const publicApiReadCounts=new Map();
+function observePublicApiRead(route){
+  const minute=Math.floor(Date.now()/60000);
+  if(minute!==publicApiReadMinute){
+    for(const [endpoint,count] of publicApiReadCounts){
+      if(count>=300)console.warn('[DuoDuo public API volume]',endpoint,count,'GET requests in previous minute; observation only');
+    }
+    publicApiReadCounts.clear();
+    publicApiReadMinute=minute;
+  }
+  publicApiReadCounts.set(route,(publicApiReadCounts.get(route)||0)+1);
+}
 const trafficHandlers=createTrafficHandlers({getAdminSession,sendJSON});
 const server=http.createServer((req,res)=>{
 
@@ -843,6 +860,7 @@ const server=http.createServer((req,res)=>{
   }
 
   const requestPath=(req.url||'').split('?')[0];
+  if(req.method==='GET' && PUBLIC_API_MONITOR_ROUTES.has(requestPath))observePublicApiRead(requestPath);
   if(req.method==='POST' && requestPath==='/api/traffic/record')return trafficHandlers.record(req,res);
   if(req.method==='GET' && requestPath==='/api/traffic/summary')return trafficHandlers.summary(req,res);
   if(req.method==='GET' && requestPath==='/api/maintenance')return handleMaintenanceGet(req,res);
