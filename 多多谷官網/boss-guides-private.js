@@ -96,7 +96,7 @@
 
  function renderItem(x){
    const link=safeUrl(x.url),video=x.type==='video'?youtubeId(x.url):'',image=safeImg(x.image);
-   const intro=esc(x.summary||'');const badge=x.approved?'<span class="badge verified">✓ 已人工核對</span>':'<span class="badge">待核對來源／版本</span>';
+   const badge=x.approved?'<span class="badge verified">✓ 已人工核對</span>':'<span class="badge">待核對來源／版本</span>';
    const boss=bosses.find(b=>b.id===x.bossId);
    const bossImage=boss?(safeImg(boss.image)||('assets/boss-atlas/bosses/'+boss.id+'.png')):'';
    // Use the source site's own brand asset for uncatalogued Bahamut article covers.
@@ -112,7 +112,7 @@
    const thumb=(x.type==='article'||x.type==='video')?'<div class="guide-thumb '+(x.type==='video'?'guide-thumb-video':'guide-thumb-article')+(isBahaArticle?' guide-thumb-bahamut':'')+'">'+
     (photo?'<img loading="lazy" src="'+esc(photo)+'" alt="'+esc(imageLabel)+'" onload="this.parentNode.classList.add(\'logo-loaded\')" onerror="this.hidden=true;this.parentNode.classList.add(\'guide-thumb-missing\')">':'')+
     '<span class="guide-thumb-fallback" aria-hidden="true">'+(isBahaArticle?'<span class="baha-wordmark"><span class="baha-mark" aria-hidden="true">◆</span>巴哈姆特</span>':x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></div>':'';
-   return '<article data-guide-entry="'+esc(x.id)+'" class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3 class="guide-original-title">'+esc(x.title||'未命名攻略')+'</h3><div class="by"><span class="guide-original-author">'+esc(x.author||'未填作者')+'</span>'+(x.origin?' · '+esc(x.origin):'')+'</div>'+(intro?'<p>'+intro+'</p>':'')+'<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 播放影片</button>':'')+'</div></div></article>';
+   return '<article data-guide-entry="'+esc(x.id)+'" class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3 class="guide-original-title">'+esc(x.title||'未命名攻略')+'</h3><div class="by"><span class="guide-original-author">'+esc(x.author||'未填作者')+'</span>'+(x.origin?' · '+esc(x.origin):'')+'</div>' + '<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 播放影片</button>':'')+'</div></div></article>';
  }
  function drawDetail(){
   const b=currentBoss();if(!b){$('guideBody').innerHTML='<div class="empty">沒有可公開的高階或終極 BOSS。</div>';return}
@@ -141,7 +141,7 @@
   $('articleCount').textContent='('+counts.article+')';$('videoCount').textContent='('+counts.video+')';
   for(const type of ['Article','Video']){const is=(currentTab==={Article:'article',Video:'video'}[type]);const t=$('tab'+type);t.classList.toggle('active',is);t.setAttribute('aria-selected',String(is))}
   let list=byBoss(b.id,currentTab);const kindName={article:'圖文攻略',video:'影片攻略'}[currentTab];
-  $('guideBody').innerHTML='<div class="sectionline"><h2>'+kindName+'</h2><span>只提供來源與摘要，外部機制須重新核對</span></div>'+
+  $('guideBody').innerHTML='<div class="sectionline"><h2>'+kindName+'</h2><span>請依原作者攻略及目前遊戲版本核對機制</span></div>'+
   (list.length?'<div class="items">'+list.map(renderItem).join('')+'</div>':'<div class="empty">這隻 BOSS 的'+kindName+'目前尚未收錄。<br>後續將由官網管理後台新增攻略。</div>');
   if(currentTab==='video')queueMicrotask(fillVisibleOfficialMeta);
  }
