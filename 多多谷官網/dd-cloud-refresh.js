@@ -14,6 +14,7 @@
   'home.html':['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_resources','duoduo_downloads','duoduo_events','duoduo_boss_config'],
   'news.html':['duoduo_news'],'events.html':['duoduo_events'],'event-detail.html':['duoduo_events'],
   'boss.html':['duoduo_boss_config','duoduo_boss_atlas'],
+  'boss-guides.html':['duoduo_boss_guides','duoduo_boss_atlas'],
   'downloads.html':['duoduo_downloads','duoduo_resources'],
   'guide.html':['duoduo_resources','duoduo_content'],
   'item-encyclopedia.html':['duoduo_itempedia'],
