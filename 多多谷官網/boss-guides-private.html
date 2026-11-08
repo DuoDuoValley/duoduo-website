@@ -1,93 +1,19 @@
 <!doctype html>
-<html lang="zh-Hant"><head>
-<script src="dd-maintenance.js?v=20261108-guide-v18"></script>
-<script id="dd-guide-early-theme">try{document.documentElement.dataset.theme=localStorage.getItem('duoduo_theme')==='dark'?'dark':'light'}catch(_){document.documentElement.dataset.theme='light'}</script>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="robots" content="noindex,nofollow,noarchive,nosnippet"><meta name="referrer" content="strict-origin-when-cross-origin">
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>多多谷｜BOSS 攻略</title>
-<link rel="icon" href="favicon-64.png">
-<link rel="stylesheet" href="styles.css">
-<link rel="stylesheet" href="boss-guides-private.css?v=20261108-click-thumb-scroll-v26">
-<link rel="stylesheet" href="dd-navigation.css?v=20261107-badge-timeline-v411">
-<link rel="stylesheet" href="cursor-ui/cursor.css?v=20261107-cursor-route-v417">
-</head><body>
-<header class="site-header">
-  <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
-  <nav class="main-nav dd-main-nav" aria-label="官網主導覽">
-    <button class="dd-mobile-toggle" type="button" aria-expanded="false" aria-controls="dd-nav-menu" aria-label="展開全部分類選單">▾</button>
-    <a class="nav-pill dd-top-link" data-dd-nav="home" href="index.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m3 10 9-7 9 7v10a1 1 0 0 1-1 1h-5v-7H9v7H4a1 1 0 0 1-1-1z"/></svg><span class="dd-nav-label">首頁</span></a>
-    <a class="nav-pill dd-top-link" data-dd-nav="news" href="news.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h10M7 12h4M7 16h10M14 12h3"/></svg><span class="dd-nav-label">最新消息</span></a>
-    <a class="nav-pill dd-top-link" data-dd-nav="events" href="events.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><rect x="3" y="4" width="18" height="17" rx="2"/><path d="M8 2v4M16 2v4M3 10h18M8 14h2M14 14h2M8 18h2"/></svg><span class="dd-nav-label">檔期活動</span></a>
-    <a class="nav-pill dd-top-link" data-dd-nav="boss" href="boss.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="m14 4 6 6M4 14l6 6M7 17l10-10M3 21l4-4M17 7l4-4M10 4 4 10M20 14l-6 6"/><path d="m4 3 3 1 3 3M20 21l-3-1-3-3"/></svg><span class="dd-nav-label">BOSS</span></a>
-    <a class="nav-pill dd-top-link" data-dd-nav="guide" href="guide.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 7v14M3 5.5C6 4.5 9 4.6 12 7c3-2.4 6-2.5 9-1.5v14c-3-1-6-.7-9 1.5-3-2.2-6-2.5-9-1.5z"/></svg><span class="dd-nav-label">遊玩指南</span></a>
-    <a class="nav-pill dd-top-link" data-dd-nav="downloads" href="downloads.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M12 3v12M7 10l5 5 5-5M4 17v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg><span class="dd-nav-label">下載專區</span></a>
-    <a class="nav-pill dd-top-link" data-dd-nav="player-tools" href="player-tools/index.html"><svg class="dd-nav-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M14.7 6.3a5.3 5.3 0 0 0-6.9 6.9l-5.2 5.2a2 2 0 0 0 2.8 2.8l5.2-5.2a5.3 5.3 0 0 0 6.9-6.9l-3.9 3.9-3.3-.9-.9-3.3z"/></svg><span class="dd-nav-label">玩家工具</span></a>
-    
-  </nav>
-  <div class="header-status"><span class="status-dot"></span><span>V282 持續更新</span></div>
-  <div class="header-actions">
-    <button class="theme-toggle" id="themeToggle" type="button" aria-label="切換深色模式與淺色模式"><span id="themeIcon">☼</span><span id="themeLabel">淺色模式</span></button>
-    <a class="btn btn-gold" data-link="topup" href="https://fd-pay.com/ARrbXO" target="_blank" rel="noopener noreferrer">儲值</a>
-    <a class="btn btn-discord" data-link="discord" href="https://discord.gg/duoduovalley" target="_blank" rel="noopener noreferrer">加入 Discord</a>
-  </div>
-</header>
-<main>
-<div id="privateApp" hidden>
-<section class="guide-hero" aria-labelledby="guideHeroTitle">
-  <div class="guide-hero-copy">
-    <p class="guide-hero-eyebrow"><span class="guide-eyebrow-line" aria-hidden="true"></span> BOSS CHALLENGE GUIDE</p>
-    <h1 id="guideHeroTitle">BOSS<span>攻略</span></h1>
-    <p class="guide-hero-subtitle">高階・終極 BOSS｜圖文與影片攻略</p>
-    <p class="guide-hero-description">從機制到實戰，把每場挑戰的重點整理在這裡。外部教學的版本差異與實際判定，請以多多谷遊戲內為準。</p>
-    <div class="guide-hero-stats" aria-label="已收錄的攻略數量"><span id="bossStats"></span><span id="articleStats"></span><span id="videoStats"></span></div>
-  </div>
-  <div class="guide-hero-visual" aria-hidden="true">
-    <div class="guide-hero-art guide-art-blackmage" title="黑魔法師"><img src="assets/boss-atlas/bosses/boss23.png" alt="" loading="eager"></div>
-    <div class="guide-hero-art guide-art-kaling" title="凱伊"><img src="assets/boss-atlas/bosses/boss30.png" alt="" loading="lazy"></div>
-    <div class="guide-hero-art guide-art-kai" title="最初的敵對者"><img src="assets/boss-atlas/bosses/boss29.png" alt="" loading="lazy"></div>
-    <div class="guide-hero-art guide-art-first" title="燦爛的凶星"><img src="assets/boss-atlas/bosses/boss31.png" alt="" loading="lazy"></div>
-    <div class="guide-hero-art guide-art-maria" title="瑪麗西亞"><img src="assets/boss-atlas/bosses/boss22.png" alt="" loading="lazy"></div>
-    <div class="guide-hero-art guide-art-star" title="咖凌"><img src="assets/boss-atlas/bosses/boss26.png" alt="" loading="lazy"></div>
-  </div>
-</section>
-<div class="workspace">
-<section class="toolbar"><label class="searchbox"><span>搜尋 BOSS 名稱</span><input id="searchBoss" placeholder="例如：露希妲、咖凌、燦爛的凶星" type="search" autocomplete="off"></label><div class="segment" id="groupControls"><button class="active" type="button" data-group="全部">全部</button><button type="button" data-group="高階">高階</button><button type="button" data-group="終極">終極</button></div></section>
-<div class="guide-stack"><section class="catalog" id="bossCatalog"><div class="sectionline"><h2>選擇 BOSS</h2><span id="countLabel"></span></div><div class="boss-groups" id="bossGrid"></div></section>
-<section id="detail" class="detail"><div class="detailhead"><div class="boss-info"><img id="bossHeadPortrait" class="boss-head-portrait" alt="" width="54" height="54" hidden onerror="this.hidden=true"><div class="boss-heading"><span class="type" id="bossGroup" hidden></span><h2 id="bossName">—</h2><div class="boss-difficulty-tags" id="bossDifficulties" aria-label="BOSS 難度"></div></div></div><div class="detail-actions"><button type="button" id="backToBoss" class="action">↑ 返回選擇BOSS</button><button type="button" id="copyUrl" class="action">複製此 BOSS 網址</button></div></div><div class="tabs" role="tablist"><button id="tabArticle" type="button" role="tab" class="active" aria-selected="true">📖 圖文攻略 <span id="articleCount"></span></button><button id="tabVideo" type="button" role="tab" aria-selected="false">▶ 影片攻略 <span id="videoCount"></span></button></div><div class="tab-content" id="guideBody"></div></section></div>
-<div class="footnote">⚠ 外部影片與巴哈文章的機制可能不適用多多谷 V282，請以實際遊戲內容為準。本站僅提供原作者攻略來源連結，不搬運原文或圖片。</div>
-</div></div>
-</main>
-<section id="ddFloatingPlayer" class="dd-floating-player" role="region" aria-label="持續播放的 BOSS 攻略影片" hidden>
-  <div class="dd-player-toolbar"><span class="dd-player-indicator" aria-hidden="true">▶</span><span id="ddPlayerTitle" class="dd-player-title">影片攻略</span><div class="dd-player-controls"><button type="button" id="ddPlayerToggle" aria-expanded="false" title="切換影片大小">⤢ 放大播放</button><button type="button" id="ddPlayerClose" title="關閉並停止播放" aria-label="關閉並停止播放">✕</button></div></div>
-  <div class="dd-player-frame" id="ddPlayerFrame"></div>
-  <div class="dd-player-footer"><a id="ddPlayerExternal" target="_blank" rel="noopener noreferrer" href="https://www.youtube.com/">前往 YouTube 原影片 ↗</a><small>切換 BOSS／分頁不會重載影片；若無法嵌入請開啟原影片</small></div>
-</section>
-<footer class="site-footer">
-  <div class="footer-brand">
-    <b>DuoDuo Valley｜多多谷</b>
-    <p data-footer="description">一個正在慢慢變熱鬧的小小世界。遊戲資訊、檔期活動與最新公告，都在這裡整理。</p>
-  </div>
-  <div class="footer-column">
-    <strong data-footer="navTitle">網站導覽</strong>
-    <div class="footer-links">
-      <a href="index.html">首頁</a><a href="index.html#why">為什麼選多多谷</a><a href="index.html#features">特色系統</a><a href="events.html" data-nav="events">檔期活動</a><a href="boss.html">BOSS</a><a href="news.html">最新消息</a><a href="guide.html">遊玩指南</a>
-    </div>
-  </div>
-  <div class="footer-column">
-    <strong data-footer="resourceTitle">玩家資源</strong>
-    <div class="footer-links">
-      <a data-link="topup" target="_blank">儲值入口</a><a data-link="guide" target="_blank">完整遊玩指南</a><a data-link="rates" target="_blank">機率型道具說明</a><a data-link="products" target="_blank">上架商品</a><a data-link="checklist" target="_blank">每日 Checklist</a><a data-link="discord" target="_blank">加入 Discord</a>
-    </div>
-  </div>
-  <div class="footer-bottom">
-    <span data-footer="copyright">© 2026 DuoDuo Valley · 多多谷</span>
-    <span class="footer-legal"><a href="privacy.html">隱私權政策</a><a href="terms.html">使用條款</a></span>
-  </div>
-</footer>
-<script src="dd-nav-data.js?v=20261104-v38"></script>
-<script src="dd-navigation.js?v=20261108-guide-cloud-v23"></script>
-<script defer src="cursor-ui/cursor.js"></script>
-<script defer src="dd-page-footer.js?v=20261108-header-links-v23"></script>
-
-<script defer src="boss-guides-private.js?v=20261108-click-thumb-scroll-v26"></script>
+<meta name="robots" content="noindex">
+<meta http-equiv="refresh" content="0;url=boss-guides.html">
+<script>
+(function(){
+ const to=new URL('boss-guides.html',location.href);
+ to.search=location.search;to.hash=location.hash;
+ location.replace(to.href);
+})();
+</script>
+</head>
+<body>
+<p>攻略頁已移至正式網址：<a href="boss-guides.html">前往 BOSS 攻略</a></p>
 </body></html>
