@@ -121,9 +121,10 @@
    const bahaLogo='https://www.oneup.com.tw/cis/download/Brand_logo1.png';
    const photo=(x.type==='video'&&video)?'https://i.ytimg.com/vi/'+video+'/hqdefault.jpg':(isBahaArticle?bahaLogo:(image||bossImage));
    const imageLabel=x.type==='video'?'YouTube 影片縮圖':(isBahaArticle?'巴哈姆特（文章來源）':image?'攻略封面（自行提供）':'BOSS 形象圖（非原文截圖）');
-   const thumb=(x.type==='article'||x.type==='video')?'<div class="guide-thumb '+(x.type==='video'?'guide-thumb-video':'guide-thumb-article')+(isBahaArticle?' guide-thumb-bahamut':'')+'">'+
+   const playableThumb=x.type==='video'&&Boolean(video);
+   const thumb=(x.type==='article'||x.type==='video')?'<'+(playableThumb?'button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'" aria-label="播放 '+esc(x.title||'BOSS 攻略影片')+'"':'div')+' class="guide-thumb '+(x.type==='video'?'guide-thumb-video':'guide-thumb-article')+(isBahaArticle?' guide-thumb-bahamut':'')+'">'+
     (photo?'<img loading="lazy" src="'+esc(photo)+'" alt="'+esc(imageLabel)+'" onload="this.parentNode.classList.add(\'logo-loaded\')" onerror="this.hidden=true;this.parentNode.classList.add(\'guide-thumb-missing\')">':'')+
-    '<span class="guide-thumb-fallback" aria-hidden="true">'+(isBahaArticle?'<span class="baha-wordmark"><span class="baha-mark" aria-hidden="true">◆</span>巴哈姆特</span>':x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></div>':'';
+    '<span class="guide-thumb-fallback" aria-hidden="true">'+(isBahaArticle?'<span class="baha-wordmark"><span class="baha-mark" aria-hidden="true">◆</span>巴哈姆特</span>':x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></'+(playableThumb?'button':'div')+'>':'';
    return '<article data-guide-entry="'+esc(x.id)+'" class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3 class="guide-original-title">'+esc(x.title||'未命名攻略')+'</h3><div class="by"><span class="guide-original-author">'+esc(x.author||'未填作者')+'</span>'+(x.origin?' · '+esc(x.origin):'')+'</div>' + '<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 播放影片</button>':'')+'</div></div></article>';
  }
  function drawDetail(){
@@ -157,7 +158,7 @@
   (list.length?'<div class="items">'+list.map(renderItem).join('')+'</div>':'<div class="empty">這隻 BOSS 的'+kindName+'目前尚未收錄。<br>後續將由官網管理後台新增攻略。</div>');
   if(currentTab==='video')queueMicrotask(fillVisibleOfficialMeta);
  }
- $('bossGrid').addEventListener('click',e=>{const target=e.target.closest('[data-boss]');if(!target)return;current=target.dataset.boss;currentTab='article';const u=new URL(location.href);u.searchParams.set('boss',current);history.replaceState(null,'',u);drawBossGrid();drawDetail();$('detail').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'})});
+ $('bossGrid').addEventListener('click',e=>{const target=e.target.closest('[data-boss]');if(!target)return;current=target.dataset.boss;currentTab='article';const u=new URL(location.href);u.searchParams.set('boss',current);history.replaceState(null,'',u);drawBossGrid();drawDetail();window.scrollTo({top:Math.max(0,window.scrollY+$('detail').getBoundingClientRect().top-(window.innerWidth<=650?100:154)),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})});
  $('backToBoss').onclick=()=>{$('bossCatalog').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});};
  $('searchBoss').addEventListener('input',drawBossGrid);
  $('groupControls').addEventListener('click',e=>{const button=e.target.closest('[data-group]');if(!button)return;group=button.dataset.group;for(const b of $('groupControls').querySelectorAll('button'))b.classList.toggle('active',b===button);drawBossGrid()});
