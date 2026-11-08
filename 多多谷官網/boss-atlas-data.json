@@ -904,7 +904,7 @@
           "drops": [
             {
               "itemId": "item064",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -959,7 +959,7 @@
           "drops": [
             {
               "itemId": "item063",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -969,12 +969,12 @@
             },
             {
               "itemId": "item023",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item081",
-              "chance": 60.0,
+              "chance": 60,
               "quantity": "1"
             },
             {
@@ -1029,7 +1029,7 @@
           "drops": [
             {
               "itemId": "item063",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -1044,7 +1044,7 @@
             },
             {
               "itemId": "item049",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -1110,7 +1110,7 @@
           "drops": [
             {
               "itemId": "item064",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -1165,7 +1165,7 @@
           "drops": [
             {
               "itemId": "item063",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -1175,12 +1175,12 @@
             },
             {
               "itemId": "item036",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item081",
-              "chance": 60.0,
+              "chance": 60,
               "quantity": "1"
             },
             {
@@ -1246,12 +1246,12 @@
           "drops": [
             {
               "itemId": "item080",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item079",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
@@ -1317,12 +1317,12 @@
           "drops": [
             {
               "itemId": "item064",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item042",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
@@ -1377,12 +1377,12 @@
           "drops": [
             {
               "itemId": "item063",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item042",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
@@ -1392,22 +1392,22 @@
             },
             {
               "itemId": "item074",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item081",
-              "chance": 60.0,
+              "chance": 60,
               "quantity": "1"
             },
             {
               "itemId": "item059",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item060",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -1473,12 +1473,12 @@
           "drops": [
             {
               "itemId": "item064",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item042",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
@@ -1533,12 +1533,12 @@
           "drops": [
             {
               "itemId": "item063",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item042",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
@@ -1548,22 +1548,22 @@
             },
             {
               "itemId": "item026",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item081",
-              "chance": 60.0,
+              "chance": 60,
               "quantity": "1"
             },
             {
               "itemId": "item059",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item060",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -1629,12 +1629,12 @@
           "drops": [
             {
               "itemId": "item064",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item041",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
@@ -1689,12 +1689,12 @@
           "drops": [
             {
               "itemId": "item080",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item041",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
@@ -1704,17 +1704,17 @@
             },
             {
               "itemId": "item081",
-              "chance": 60.0,
+              "chance": 60,
               "quantity": "1"
             },
             {
               "itemId": "item059",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item060",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -1780,7 +1780,7 @@
           "drops": [
             {
               "itemId": "item064",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -1835,7 +1835,7 @@
           "drops": [
             {
               "itemId": "item080",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -1845,17 +1845,17 @@
             },
             {
               "itemId": "item081",
-              "chance": 60.0,
+              "chance": 60,
               "quantity": "1"
             },
             {
               "itemId": "item059",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item060",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -1921,12 +1921,12 @@
           "drops": [
             {
               "itemId": "item063",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item058",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
@@ -1981,12 +1981,12 @@
           "drops": [
             {
               "itemId": "item080",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item058",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
@@ -1996,17 +1996,17 @@
             },
             {
               "itemId": "item081",
-              "chance": 60.0,
+              "chance": 60,
               "quantity": "1"
             },
             {
               "itemId": "item059",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item060",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2072,7 +2072,7 @@
           "drops": [
             {
               "itemId": "item057",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -2082,12 +2082,12 @@
             },
             {
               "itemId": "item059",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item060",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2142,7 +2142,7 @@
           "drops": [
             {
               "itemId": "item057",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -2152,17 +2152,17 @@
             },
             {
               "itemId": "item059",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item060",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item018",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2228,17 +2228,17 @@
           "drops": [
             {
               "itemId": "item080",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item058",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
               "itemId": "item068",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2293,17 +2293,17 @@
           "drops": [
             {
               "itemId": "item057",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item058",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
               "itemId": "item068",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2363,17 +2363,17 @@
           "drops": [
             {
               "itemId": "item057",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item058",
-              "chance": 30.0,
+              "chance": 30,
               "quantity": "1"
             },
             {
               "itemId": "item068",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2383,7 +2383,7 @@
             },
             {
               "itemId": "item019",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2449,22 +2449,22 @@
           "drops": [
             {
               "itemId": "item057",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item056",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item070",
-              "chance": 50.0,
+              "chance": 50,
               "quantity": "1"
             },
             {
               "itemId": "item020",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2519,22 +2519,22 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item056",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item069",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
               "itemId": "item020",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2589,17 +2589,17 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item056",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item069",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
@@ -2614,12 +2614,12 @@
             },
             {
               "itemId": "item016",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item020",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2685,12 +2685,12 @@
           "drops": [
             {
               "itemId": "item057",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item056",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -2700,12 +2700,12 @@
             },
             {
               "itemId": "item006",
-              "chance": 50.0,
+              "chance": 50,
               "quantity": "1"
             },
             {
               "itemId": "item024",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2760,12 +2760,12 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item056",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -2775,12 +2775,12 @@
             },
             {
               "itemId": "item005",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
               "itemId": "item024",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2835,12 +2835,12 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item056",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -2850,12 +2850,12 @@
             },
             {
               "itemId": "item005",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
               "itemId": "item024",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2870,7 +2870,7 @@
             },
             {
               "itemId": "item017",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -2936,12 +2936,12 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item007",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -2951,7 +2951,7 @@
             },
             {
               "itemId": "item043",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -3006,12 +3006,12 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item007",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -3021,12 +3021,12 @@
             },
             {
               "itemId": "item043",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item037",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
@@ -3107,12 +3107,12 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item007",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -3122,7 +3122,7 @@
             },
             {
               "itemId": "item029",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -3177,12 +3177,12 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item007",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -3192,12 +3192,12 @@
             },
             {
               "itemId": "item029",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
               "itemId": "item051",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
@@ -3278,22 +3278,22 @@
           "drops": [
             {
               "itemId": "item057",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item056",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item004",
-              "chance": 50.0,
+              "chance": 50,
               "quantity": "1"
             },
             {
               "itemId": "item040",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -3348,22 +3348,22 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item056",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item003",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
               "itemId": "item040",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -3433,22 +3433,22 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item056",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item003",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
               "itemId": "item040",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -3468,7 +3468,7 @@
             },
             {
               "itemId": "item015",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -3539,7 +3539,7 @@
             },
             {
               "itemId": "item010",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
@@ -3599,12 +3599,12 @@
             },
             {
               "itemId": "item012",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
               "itemId": "item002",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
@@ -3680,22 +3680,22 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item007",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item054",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item053",
-              "chance": 5.0,
+              "chance": 5,
               "quantity": "1"
             },
             {
@@ -3771,12 +3771,12 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item007",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -3786,7 +3786,7 @@
             },
             {
               "itemId": "item031",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
@@ -3846,12 +3846,12 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item007",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -3861,7 +3861,7 @@
             },
             {
               "itemId": "item030",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
@@ -3948,7 +3948,7 @@
     {
       "id": "boss32",
       "name": "尤比太",
-      "image": "assets/boss-atlas/bosses/boss32.png",
+      "image": "https://pub-4b401094acfa4f0386c42ae1ca36fa0b.r2.dev/images/bosses/icons/Jupiter_icon.png",
       "group": "終極",
       "published": false,
       "difficulties": [
@@ -3958,12 +3958,12 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item007",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -3978,7 +3978,7 @@
             },
             {
               "itemId": "item038",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
@@ -4033,12 +4033,12 @@
           "drops": [
             {
               "itemId": "item055",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
               "itemId": "item007",
-              "chance": 10.0,
+              "chance": 10,
               "quantity": "1"
             },
             {
@@ -4053,7 +4053,7 @@
             },
             {
               "itemId": "item038",
-              "chance": 100.0,
+              "chance": 100,
               "quantity": "1"
             },
             {
