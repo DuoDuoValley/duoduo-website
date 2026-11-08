@@ -697,6 +697,14 @@ async function handleGetSiteData(req,res){
   }
 }
 
+// Serialize site-data updates within one Node process; conditional PATCH
+// independently protects against concurrent writers on another instance.
+let siteDataWriteQueue=Promise.resolve();
+function queueSiteDataWrite(operation){
+ const result=siteDataWriteQueue.then(operation,operation);
+ siteDataWriteQueue=result.catch(()=>{});
+ return result;
+}
 async function handleSaveSiteData(req,res){
   try{
     if(!getAdminSession(req))return sendJSON(res,401,{ok:false,error:'未登入'});
@@ -708,12 +716,13 @@ async function handleSaveSiteData(req,res){
     let body='';
     req.on('data',chunk=>{body+=chunk;if(body.length>10*1024*1024){res.writeHead(413);res.end('Payload Too Large');req.destroy();}});
     req.on('end',async()=>{
+      await queueSiteDataWrite(async()=>{
       try{
         const payload=JSON.parse(body||'{}');
         const incoming=payload.values&&typeof payload.values==='object'?payload.values:{};
         let values={};
         // Preserve existing website settings during partial updates such as saving only the pools.
-        const existingResponse=await fetch(`${supabaseUrl}/rest/v1/events?id=eq.__site_data__&select=data`,{method:'GET',headers:{'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json'}});
+        const existingResponse=await fetch(`${supabaseUrl}/rest/v1/events?id=eq.__site_data__&select=data,updated_at`,{method:'GET',headers:{'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json'}});
         if(!existingResponse.ok){
           const existingError=await existingResponse.text();
           console.error('Supabase 讀取既有網站資料失敗，已中止更新以避免覆蓋資料:',existingError);
@@ -721,6 +730,7 @@ async function handleSaveSiteData(req,res){
         }
         const existingRows=await existingResponse.json();
         const existingRecord=existingRows[0]?.data;
+        const expectedUpdatedAt=existingRows[0]?.updated_at||null;
         const existingValues=existingRecord?.values;
         if(existingRecord?.initialized===true&&existingValues&&typeof existingValues==='object'){
           values={...existingValues};
@@ -732,11 +742,29 @@ async function handleSaveSiteData(req,res){
           if(Object.prototype.hasOwnProperty.call(incoming,key))values[key]=incoming[key];
         }
         const row={id:'__site_data__',data:{type:'site-data',initialized:true,values},updated_at:new Date().toISOString()};
-        const url=`${supabaseUrl}/rest/v1/events`;
-        const response=await fetch(url,{method:'POST',headers:{'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([row])});
-        if(!response.ok){const text=await response.text();console.error('Supabase 儲存網站資料失敗:',text);return sendJSON(res,500,{ok:false,error:'網站資料儲存失敗'});}
+        // Conditional PATCH is atomic in PostgREST and detects competing writers.
+        const endpoint=`${supabaseUrl}/rest/v1/events`;
+        const headers={'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json'};
+        let response;
+        if(existingRows.length&&expectedUpdatedAt){
+          response=await fetch(endpoint+'?id=eq.__site_data__&updated_at=eq.'+encodeURIComponent(expectedUpdatedAt),{method:'PATCH',headers:{...headers,'Prefer':'return=representation'},body:JSON.stringify({data:row.data,updated_at:row.updated_at})});
+          if(response.ok){
+            const changed=await response.json();
+            if(!Array.isArray(changed)||changed.length!==1)return sendJSON(res,409,{ok:false,error:'設定已由其他管理員更新，請重新載入正式資料後再發布'});
+          }
+        }else if(existingRows.length){
+          return sendJSON(res,409,{ok:false,error:'既有網站資料缺少更新版本，為安全起見暫停覆蓋'});
+        }else{
+          response=await fetch(endpoint,{method:'POST',headers:{...headers,'Prefer':'resolution=ignore-duplicates,return=representation'},body:JSON.stringify([row])});
+          if(response.ok){
+            const inserted=await response.json();
+            if(!Array.isArray(inserted)||inserted.length!==1)return sendJSON(res,409,{ok:false,error:'其他管理員已建立網站資料，請重新讀取'});
+          }
+        }
+        if(!response.ok){const detail=await response.text();console.error('Supabase 儲存網站資料失敗:',detail);return sendJSON(res,500,{ok:false,error:'網站資料儲存失敗'});}
         return sendJSON(res,200,{ok:true,count:Object.keys(values).length});
       }catch(err){console.error('網站資料格式錯誤:',err);return sendJSON(res,400,{ok:false,error:'網站資料格式錯誤'});}
+      });
     });
   }catch(err){console.error('網站資料儲存 API 發生錯誤:',err);return sendJSON(res,500,{ok:false,error:'網站資料 API 發生錯誤'});}
 }

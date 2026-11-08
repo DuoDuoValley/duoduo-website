@@ -131,6 +131,7 @@ function validateLevelInput(value){
  return v;
 }
 function enrichData(value){
+ for(const boss of value.bosses||[])if(boss.id==='boss32'&&boss.image==='assets/boss-atlas/bosses/boss32.png')boss.image='https://pub-4b401094acfa4f0386c42ae1ca36fa0b.r2.dev/images/bosses/icons/Jupiter_icon.png';
  if(!Array.isArray(value.items))value.items=[];
  const known=new Map(value.items.map(it=>[it.id,it]));
  for(const it of (base?.items||[])){

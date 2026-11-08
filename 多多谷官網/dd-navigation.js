@@ -187,7 +187,9 @@ if(inTools||inJobs||inLegion||inItempedia||inBossGuides){
   }catch(_){}
  }
  loadPublishedNav();
- setInterval(loadPublishedNav,60000);
+ // Pages with a shared cloud watcher already react to published settings.
+ // Retain standalone fallback polling for pages without that watcher.
+ setInterval(()=>{if(!window.DuoDuoCloudRefresh?.active)loadPublishedNav()},60000);
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')loadPublishedNav()});
 }
 

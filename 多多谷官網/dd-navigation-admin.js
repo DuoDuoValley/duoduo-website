@@ -81,7 +81,17 @@
   try{const res=await fetch('dd-release.txt?_dd_check='+Date.now(),{cache:'no-store'});
    if(!res.ok)throw Error('HTTP '+res.status);
    const value=(await res.text()).trim();
-   versionState.textContent=/^[0-9a-f]{40}$/i.test(value)?'GitHub 版本碼：'+value+'（SHA 偵測正常）':'此站未產生 Jekyll 版本碼；官網已啟用靜態檔案更新偵測。';
+   versionState.textContent=/^[0-9a-f]{40}$/i.test(value)?'GitHub 版本碼：'+value+'（SHA 偵測正常）':'未取得 GitHub Actions 版號，請檢查部署工作流程。';
+   const url=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
+   try{
+     const cloud=await fetch(url+'?admin_diagnostic='+Date.now(),{cache:'no-store',headers:{Accept:'application/json'}});
+     if(!cloud.ok)throw Error('HTTP '+cloud.status);
+     const result=await cloud.json();
+     if(result.ok!==true||result.initialized!==true)throw Error('雲端資料尚未初始化');
+     const names=['duoduo_settings','duoduo_links','duoduo_boss_atlas','duoduo_boss_guides','duoduo_itempedia'];
+     const present=names.filter(k=>Object.hasOwn(result.data||{},k));
+     versionState.textContent+='｜雲端讀取成功（'+present.length+'/'+names.length+' 類核心資料），檢查時間：'+new Date().toLocaleString('zh-TW');
+   }catch(cloudErr){versionState.textContent+='｜雲端讀取異常：'+String(cloudErr.message||cloudErr)}
   }catch(err){versionState.textContent='讀取失敗：'+(err.message||err)}finally{checkVersion.disabled=false}
  });
  draw();

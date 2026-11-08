@@ -207,7 +207,9 @@
  window.DuoDuoFooterRefresh=refreshCloudFooter;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{render();syncHeaderLinks(links);refreshCloudFooter()},{once:true});
  else{render();syncHeaderLinks(links);refreshCloudFooter()}
- window.setInterval(()=>{if(Date.now()-lastSuccessful>=45000)refreshCloudFooter()},60000);
+ // Avoid fetching the same site-data once per module; the common watcher
+ // reloads the current page on confirmed settings or link changes.
+ window.setInterval(()=>{if(!window.DuoDuoCloudRefresh?.active&&Date.now()-lastSuccessful>=45000)refreshCloudFooter()},60000);
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')refreshCloudFooter()});
  window.addEventListener('online',refreshCloudFooter);
 })();

@@ -98,6 +98,14 @@
        debug.status='waiting for deployed assets';
        scheduleConfirmation();return;
      }
+     // A full GitHub deployment reload destroys embedded YouTube playback.
+     // Delay that reload while the persistent video dock is actively playing;
+     // keep retrying the confirmed revision and reload after the video closes.
+     if(window.DuoDuoPersistentVideo?.isPlaying){
+       debug.status='waiting for video to finish';
+       scheduleConfirmation();
+       return;
+     }
      refreshing=true;cancelConfirmation();saveSeen(confirmed.run);
      debug.status='refreshing';debug.lastChange='GitHub Pages deployment '+confirmed.run;
      // Page bootstrap requests the watcher with a unique URL on every load.
