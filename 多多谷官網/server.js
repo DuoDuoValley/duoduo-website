@@ -389,6 +389,12 @@ async function handleBgmUpload(req,res){
   req.on('error',error=>console.error('BGM 請求失敗:',error));
 }
 
+// Every "__" prefixed ID is reserved for server-managed records (settings,
+// maintenance, analytics and future internal rows). Public event IDs use "e_".
+function isInternalEventRow(row){
+  return String(row?.id??'').startsWith('__');
+}
+
 async function handleGetEvents(req,res){
   try{
     const supabaseUrl=process.env.SUPABASE_URL;
@@ -428,7 +434,7 @@ async function handleGetEvents(req,res){
     }
 
     const rows=JSON.parse(text);
-    const events=rows.filter(row=>!['__boss_config__','__site_data__','__maintenance__'].includes(String(row.id)));
+    const events=rows.filter(row=>!isInternalEventRow(row));
 
     return sendJSON(res,200,{
       ok:true,
@@ -482,8 +488,8 @@ async function handleSaveEvents(req,res){
         const events=Array.isArray(payload.events)
           ? payload.events
           : [];
-        if(events.some(e=>String(e?.id||'').startsWith('__dd_traffic_')))
-          return sendJSON(res,400,{ok:false,error:'活動 ID 不能使用保留識別碼'});
+        if(events.some(e=>isInternalEventRow(e)))
+          return sendJSON(res,400,{ok:false,error:'活動 ID 不能使用內部保留識別碼'});
 
         const headers={
           'apikey':supabaseSecretKey,
@@ -521,7 +527,7 @@ async function handleSaveEvents(req,res){
         );
 
         for(const row of existingRows){
-          if(['__boss_config__','__site_data__','__maintenance__'].includes(String(row.id)))continue;
+          if(isInternalEventRow(row))continue;
           if(!newIds.has(String(row.id))){
             const deleteUrl=
               `${supabaseUrl}/rest/v1/events?id=eq.${encodeURIComponent(row.id)}`;
@@ -683,7 +689,7 @@ async function handleGetSiteData(req,res){
     const eventsResponse=await fetch(`${supabaseUrl}/rest/v1/events?select=id,data,updated_at&id=not.like.__dd_traffic_*&order=updated_at.desc`,{method:'GET',headers});
     if(eventsResponse.ok){
       const rows=await eventsResponse.json();
-      const eventRows=rows.filter(row=>!['__boss_config__','__site_data__','__maintenance__'].includes(String(row.id)));
+      const eventRows=rows.filter(row=>!isInternalEventRow(row));
       data.duoduo_events=eventRows.map(row=>row.data).filter(Boolean);
     }
 
@@ -813,6 +819,23 @@ async function handleMaintenancePost(req,res){
  });
 }
 
+// Observation-only public API read-volume monitor. Counts by endpoint,
+// not user identity; it never logs IPs, tokens or request bodies, nor blocks
+// visitors. Baseline data can inform a future, separately tested rate limit.
+const PUBLIC_API_MONITOR_ROUTES=new Set(['/api/site-data','/api/events','/api/bosses']);
+let publicApiReadMinute=Math.floor(Date.now()/60000);
+const publicApiReadCounts=new Map();
+function observePublicApiRead(route){
+  const minute=Math.floor(Date.now()/60000);
+  if(minute!==publicApiReadMinute){
+    for(const [endpoint,count] of publicApiReadCounts){
+      if(count>=300)console.warn('[DuoDuo public API volume]',endpoint,count,'GET requests in previous minute; observation only');
+    }
+    publicApiReadCounts.clear();
+    publicApiReadMinute=minute;
+  }
+  publicApiReadCounts.set(route,(publicApiReadCounts.get(route)||0)+1);
+}
 const trafficHandlers=createTrafficHandlers({getAdminSession,sendJSON});
 const server=http.createServer((req,res)=>{
 
@@ -837,6 +860,7 @@ const server=http.createServer((req,res)=>{
   }
 
   const requestPath=(req.url||'').split('?')[0];
+  if(req.method==='GET' && PUBLIC_API_MONITOR_ROUTES.has(requestPath))observePublicApiRead(requestPath);
   if(req.method==='POST' && requestPath==='/api/traffic/record')return trafficHandlers.record(req,res);
   if(req.method==='GET' && requestPath==='/api/traffic/summary')return trafficHandlers.summary(req,res);
   if(req.method==='GET' && requestPath==='/api/maintenance')return handleMaintenanceGet(req,res);
