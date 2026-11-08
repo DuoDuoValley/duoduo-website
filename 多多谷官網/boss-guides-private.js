@@ -99,7 +99,7 @@
          guideVisibility=published.bossVisibility&&typeof published.bossVisibility==='object'&&!Array.isArray(published.bossVisibility)?published.bossVisibility:{};
        }
      }catch(e){console.warn('暫時使用靜態 BOSS 攻略與圖鑑資料',e)}
-     // Keep the verified official Yupiter BOSS icon when legacy cloud snapshots
+     // Prefer the verified Yupiter-specific icon reference when legacy cloud snapshots
      // still reference the outdated player portrait. Do not change custom images.
      for(const boss of bosses)if(boss.id==='boss32'&&boss.image==='assets/boss-atlas/bosses/boss32.png')boss.image='https://pub-4b401094acfa4f0386c42ae1ca36fa0b.r2.dev/images/bosses/icons/Jupiter_icon.png';
      bosses=bosses.filter(isGuideBossVisible);
