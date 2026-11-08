@@ -45,10 +45,32 @@ jobs:
           (root / 'dd-release.txt').write_text(sha+'\n', encoding='utf-8')
           print(f'Deploying DuoDuo release {run} ({sha[:12]})')
           PYCODE
+      # Build a public-only copy. Keep the source tree intact so Render can
+      # still deploy the backend and the admin UI retains all static assets.
+      - name: Validate and stage public site
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check "多多谷官網/server.js"
+          node --check "多多谷官網/dd-traffic-server.js"
+          node --check "多多谷官網/dd-site-update.js"
+          node --check "多多谷官網/admin.js"
+          SITE_DIST="${RUNNER_TEMP}/duoduo-site-public"
+          mkdir -p "${SITE_DIST}"
+          cp -a "多多谷官網/." "${SITE_DIST}/"
+          # Backend-only sources must not be retrievable via GitHub Pages.
+          rm -f -- "${SITE_DIST}/server.js" "${SITE_DIST}/dd-traffic-server.js" "${SITE_DIST}/package.json"
+          for public_file in index.html home.html admin.html admin.js boss.html boss-guides.html dd-site-update.js dd-release.json dd-release.txt; do
+            test -s "${SITE_DIST}/${public_file}" || { echo "Required website file missing: ${public_file}"; exit 1; }
+          done
+          for private_file in server.js dd-traffic-server.js package.json; do
+            test ! -e "${SITE_DIST}/${private_file}" || { echo "Backend source leaked into artifact: ${private_file}"; exit 1; }
+          done
+          echo "Public artifact validated; backend source excluded (GitHub repository visibility is unchanged)."
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './多多谷官網'
+          path: ${{ runner.temp }}/duoduo-site-public
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
