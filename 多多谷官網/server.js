@@ -931,7 +931,7 @@ const server=http.createServer((req,res)=>{
     return name.startsWith('.')||
       name==='node_modules'||
       privateFiles.has(name)||
-      /\\.(?:pem|p12|pfx|sqlite|db|bak|sql|key)$/i.test(name);
+      ['.pem','.p12','.pfx','.sqlite','.db','.bak','.sql','.key'].some(ext=>name.endsWith(ext));
   });
   if(blocked)return res.writeHead(404).end('Not Found');
 
