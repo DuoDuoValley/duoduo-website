@@ -59,11 +59,21 @@ jobs:
           mkdir -p "${SITE_DIST}"
           cp -a "多多谷官網/." "${SITE_DIST}/"
           # Backend-only sources must not be retrievable via GitHub Pages.
-          rm -f -- "${SITE_DIST}/server.js" "${SITE_DIST}/dd-traffic-server.js" "${SITE_DIST}/package.json"
+          rm -f -- "${SITE_DIST}/server.js" "${SITE_DIST}/dd-traffic-server.js" "${SITE_DIST}/package.json" "${SITE_DIST}/start.bat"
+          # Stop the release if a sensitive local file was accidentally staged.
+          if find "${SITE_DIST}" -type f \( \
+              -name '.env' -o -name '.env.*' -o \
+              -iname '*.pem' -o -iname '*.key' -o -iname '*.p12' -o -iname '*.pfx' -o \
+              -iname '*.sql' -o -iname '*.sqlite' -o -iname '*.db' -o -iname '*.bak' -o \
+              -iname '*credentials*.json' -o -iname '*service-account*.json' \
+            \) -print -quit | grep -q .; then
+            echo "Potential private file in public artifact; deployment stopped."
+            exit 1
+          fi
           for public_file in index.html home.html admin.html admin.js boss.html boss-guides.html dd-site-update.js dd-release.json dd-release.txt; do
             test -s "${SITE_DIST}/${public_file}" || { echo "Required website file missing: ${public_file}"; exit 1; }
           done
-          for private_file in server.js dd-traffic-server.js package.json; do
+          for private_file in server.js dd-traffic-server.js package.json start.bat; do
             test ! -e "${SITE_DIST}/${private_file}" || { echo "Backend source leaked into artifact: ${private_file}"; exit 1; }
           done
           echo "Public artifact validated; backend source excluded (GitHub repository visibility is unchanged)."

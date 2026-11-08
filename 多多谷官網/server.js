@@ -913,17 +913,35 @@ const server=http.createServer((req,res)=>{
     return handleUpload(req,res);
   }
 
-  let urlPath=decodeURIComponent(requestPath);
+  // Only the public website can be served as static files. The source tree
+  // is shared with the Render backend; never expose backend sources or secrets.
+  // API routes above are unaffected by these static-file-only checks.
+  let urlPath;
+  try{
+    urlPath=decodeURIComponent(requestPath);
+  }catch{
+    return res.writeHead(400).end('Bad Request');
+  }
+  const privateFiles=new Set([
+    'server.js','dd-traffic-server.js','package.json','package-lock.json',
+    'start.bat','.env','.env.local','credentials.json','service-account.json'
+  ]);
+  const blocked=urlPath.split(/[\\/]/).filter(Boolean).some(segment=>{
+    const name=segment.toLowerCase();
+    return name.startsWith('.')||
+      name==='node_modules'||
+      privateFiles.has(name)||
+      ['.pem','.p12','.pfx','.sqlite','.db','.bak','.sql','.key'].some(ext=>name.endsWith(ext));
+  });
+  if(blocked)return res.writeHead(404).end('Not Found');
 
   if(urlPath==='/'){
     urlPath='/index.html';
   }
 
-  const file=path.normalize(
-    path.join(root,urlPath)
-  );
-
-  if(!file.startsWith(root)){
+  const file=path.normalize(path.join(root,urlPath));
+  const relative=path.relative(root,file);
+  if(relative==='..'||relative.startsWith('..'+path.sep)||path.isAbsolute(relative)){
     return res.writeHead(403).end('Forbidden');
   }
 
