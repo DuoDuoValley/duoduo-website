@@ -57,6 +57,25 @@
  let bosses=[],entries=[],current='',currentTab='article',group='全部',guideVisibility={};
  const isGuideBossVisible=b=>guideVisibility[b.id]===true||(guideVisibility[b.id]!==false&&b.published!==false);
  async function readJson(url){const r=await fetch(url,{cache:'no-store'});if(!r.ok)throw Error('無法讀取 '+url);return r.json()}
+ // Wait until the visible detail and its primary layout have painted.
+ // The same offset as a manual BOSS selection keeps the heading and tabs visible.
+ function scrollToSharedBoss(){
+   let cancelled=false;
+   const interrupt=()=>{cancelled=true};
+   const signals=['wheel','touchstart','pointerdown','keydown'];
+   for(const name of signals)window.addEventListener(name,interrupt,{once:true,passive:true});
+   const cleanup=()=>{for(const name of signals)window.removeEventListener(name,interrupt)};
+   requestAnimationFrame(()=>requestAnimationFrame(()=>{
+     setTimeout(()=>{
+       cleanup();
+       if(cancelled)return;
+       const detail=$('detail');
+       if(!detail||detail.hidden||!detail.getClientRects().length)return;
+       const offset=window.innerWidth<=650?100:154;
+       window.scrollTo({top:Math.max(0,window.scrollY+detail.getBoundingClientRect().top-offset),behavior:'instant'});
+     },100);
+   }));
+ }
  async function openApp(){
    // The tested static JSON is the safe fallback until a matching admin cloud
    // publication exists. A visitor's old localStorage draft NEVER overrides it.
@@ -80,9 +99,14 @@
      }catch(e){console.warn('暫時使用靜態 BOSS 攻略與圖鑑資料',e)}
      bosses=bosses.filter(isGuideBossVisible);
      const params=new URLSearchParams(location.search);
-     current=bosses.find(x=>x.id===params.get('boss'))?.id||bosses[0]?.id||'';
+     const sharedBoss=bosses.find(x=>x.id===params.get('boss'));
+     current=sharedBoss?.id||bosses[0]?.id||'';
      currentTab=params.get('tab')==='video'?'video':'article';
      drawAll();$('privateApp').hidden=false;
+     // Share links land at the selected BOSS, not at the catalog or footer.
+     // Only explicit, visible BOSS IDs trigger this once on initial load.
+     // Keep generic visits at the top, and preserve manual selection scrolling.
+     if(sharedBoss)scrollToSharedBoss();
    }catch(err){$('privateApp').hidden=false;const message=document.querySelector('.guide-hero-description');if(message)message.textContent='攻略資料暫時無法載入，請稍後重新整理。（'+(err.message||'未知錯誤')+'）';console.error(err)}
  }
  function validEntry(v){return v&&typeof v==='object'&&typeof v.id==='string'&&['article','video'].includes(v.type)&&typeof v.bossId==='string'&&v.enabled!==false}
