@@ -620,3 +620,10 @@ button.guide-thumb-video[data-play]:hover img{filter:brightness(.88)}
 a.guide-thumb-article{display:block;width:100%;text-decoration:none!important;cursor:pointer}
 a.guide-thumb-article:hover img{filter:brightness(.95)}
 a.guide-thumb-article:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
+
+/* Guide source credits: visible, compact pills, same in light and dark modes. */
+#privateApp #detail .guide-byline{display:flex;align-items:center;flex-wrap:wrap;gap:7px;margin:9px 0 2px;font-size:12px;line-height:1.5}
+#privateApp #detail .guide-byline>span{display:inline-flex;align-items:center;max-width:100%;min-height:28px;padding:4px 11px;border:1px solid var(--line);border-radius:999px;overflow-wrap:anywhere}
+#privateApp #detail .guide-byline .guide-original-author{color:var(--ink);background:var(--card);border-color:color-mix(in srgb,var(--accent) 38%,var(--line));font-weight:800}
+#privateApp #detail .guide-byline .guide-video-date{color:var(--accent2);background:var(--tint);border-color:color-mix(in srgb,var(--accent) 27%,var(--line));font-weight:750;font-variant-numeric:tabular-nums}
+@media(max-width:520px){#privateApp #detail .guide-byline{gap:5px}#privateApp #detail .guide-byline>span{font-size:11px;padding:3px 9px;min-height:26px}}
