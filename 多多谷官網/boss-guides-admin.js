@@ -96,35 +96,45 @@
  async function fillVideoMetadata(silent=false){
    if(!ready||!data)return;
    const all=data.entries.filter(x=>x.type==='video'&&(genericVideoTitle(x.title)||unknownVideoAuthor(x.author))&&youtubeVideoId(x.url));
-   if(!all.length){putStatus('目前沒有需要補齊的 YouTube 標題或作者。');return}
+   if(!all.length){if(!silent)putStatus('目前沒有需要補齊的 YouTube 標題或作者。');return}
    if(!silent&&!confirm('將查詢 '+all.length+' 筆 YouTube 原始標題與頻道名稱，只更新通用占位文字，保留自行編輯資料。查詢結果只存本機草稿，仍須人工檢查後再發布。確定繼續？'))return;
    const button=$('bgVideoMeta');button.disabled=true;
-   let changed=0,failed=0;const memo=new Map();
-   try{
-     for(const x of all){
-       putStatus('正在讀取影片原始資料：'+(changed+failed+1)+'／'+all.length);
-       const id=youtubeVideoId(x.url);
-       let meta=memo.get(id);
-       if(!meta){
-         try{
-           const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),8000);
-           try{
-             const url='https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id);
-             const response=await fetch(url,{signal:ctrl.signal,credentials:'omit',referrerPolicy:'no-referrer'});
-             const data=response.ok?await response.json():null;
-             if(data?.provider_name==='YouTube'&&typeof data.title==='string'&&data.title.trim()&&data.title.length<=180&&typeof data.author_name==='string'&&data.author_name.trim()&&data.author_name.length<=120)meta={title:data.title.trim(),author:data.author_name.trim()};
-           }finally{clearTimeout(tm)}
-         }catch(_){}
-         memo.set(id,meta||null);
-       }
+   const targetData=data;
+   let changed=0,failed=0,cursor=0;
+   const memo=new Map();
+   const fetchMeta=id=>{
+     if(memo.has(id))return memo.get(id);
+     const task=(async()=>{
+       const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),7000);
+       try{
+         const url='https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id);
+         const response=await fetch(url,{signal:ctrl.signal,credentials:'omit',referrerPolicy:'no-referrer'});
+         const value=response.ok?await response.json():null;
+         if(value?.provider_name!=='YouTube'||typeof value.title!=='string'||typeof value.author_name!=='string')return null;
+         const title=value.title.trim(),author=value.author_name.trim();
+         return title&&title.length<=180&&author&&author.length<=120?{title,author}:null;
+       }catch(_){return null}finally{clearTimeout(tm)}
+     })();
+     memo.set(id,task);return task;
+   };
+   const worker=async()=>{
+     while(cursor<all.length){
+       const x=all[cursor++],id=youtubeVideoId(x.url);
+       const meta=await fetchMeta(id);
        if(!meta){failed++;continue}
-       const priorTitle=x.title,priorAuthor=x.author;
-       if(genericVideoTitle(x.title))x.title=meta.title;
-       if(unknownVideoAuthor(x.author))x.author=meta.author;
-       if(x.title!==priorTitle||x.author!==priorAuthor)changed++;
+       const title=x.title,author=x.author;
+       if(genericVideoTitle(title))x.title=meta.title;
+       if(unknownVideoAuthor(author))x.author=meta.author;
+       if(x.title!==title||x.author!==author)changed++;
      }
+   };
+   try{
+     // Four bounded workers avoid a lengthy sequential wait with many videos.
+     await Promise.all(Array.from({length:Math.min(4,all.length)},worker));
+     // A reload can happen while requests are pending; never save stale results.
+     if(data!==targetData)return;
      if(changed){draft();render()}
-     putStatus('YouTube 查詢完成：已在本機草稿補齊 '+changed+' 筆，'+failed+' 筆無法讀取。請檢查後按「儲存並發布雲端」，否則網站資料不會改變。');
+     if(!silent||changed||failed)putStatus('YouTube 查詢完成：已補齊 '+changed+' 筆，'+failed+' 筆無法讀取。變更僅在本機草稿；需由管理員發布雲端。');
    }finally{button.disabled=false}
  }
 
@@ -139,10 +149,16 @@
      loadedCloud=cloud?.data?.[CLOUD_KEY]||null;
      data=clone(loadedCloud?.schema===1&&Array.isArray(loadedCloud.entries)?loadedCloud:initial);
      const articleTitlesUpdated=applyVerifiedArticleTitles(data.entries,initial.entries);
+     // Old cloud records may still contain summary fields; remove them only from
+     // the local draft until an authenticated administrator explicitly publishes.
+     const summariesRemoved=data.entries.reduce((n,x)=>{
+       if(Object.prototype.hasOwnProperty.call(x,'summary')){delete x.summary;return n+1}
+       return n;
+     },0);
      verify(data);chosenBoss=bosses.some(b=>b.id===chosenBoss)?chosenBoss:bosses[0]?.id||'';
      $('bgBoss').innerHTML=bosses.map(b=>'<option value="'+esc(b.id)+'">'+esc(b.group)+' · '+esc(b.name)+'</option>').join('');
      dirty=false;selectedId='';ready=true;render();
-     if(articleTitlesUpdated)draft();
+     if(articleTitlesUpdated||summariesRemoved)draft();
      // Synchronize placeholder YouTube metadata into the administrator's local draft.
      // Cloud writes still require an authenticated publish.
      fillVideoMetadata(true).catch(e=>console.warn('影片標題同步未完成',e));
@@ -163,24 +179,24 @@
      const payload=clone(data);for(const x of payload.entries)delete x.summary;payload.schema=1;payload.dataRevision=14;payload.updatedAt=new Date().toISOString();
      const sent=await fetch(API+'/api/site-data',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t,'X-Admin-Activity':'1'},body:JSON.stringify({values:{[CLOUD_KEY]:payload}})});
      const saved=await sent.json().catch(()=>({}));if(!sent.ok||saved.ok!==true)throw Error(saved.error||'發布失敗：後端拒絕儲存');
-     let confirmed=false;
-     // An immediate GET can see old data briefly, even after the POST succeeds.
-     // Check a few times before deciding the read-back is still unconfirmed.
-     for(let attempt=0;attempt<3;attempt++){
-       if(attempt)await new Promise(resolve=>setTimeout(resolve,450*attempt));
+     let confirmed=false,readSucceeded=false,mismatch=false,lastReadError='';
+     // Retry read-back without re-submitting the original write.
+     for(let attempt=0;attempt<8;attempt++){
+       if(attempt)await new Promise(resolve=>setTimeout(resolve,1000));
        try{
          const check=await fetch(cloudUrl(),{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
-         const verified=check.ok?await check.json():null;
-         if(verified?.ok===true&&sameDocument(verified.data?.[CLOUD_KEY]??null,payload)){
-           confirmed=true;break;
-         }
-       }catch(error){console.warn('BOSS 攻略雲端讀回暫時失敗',error)}
+         if(!check.ok){lastReadError='HTTP '+check.status;continue}
+         const verified=await check.json();
+         if(verified?.ok!==true){lastReadError='API 回傳異常';continue}
+         readSucceeded=true;
+         if(sameDocument(verified.data?.[CLOUD_KEY]??null,payload)){confirmed=true;break}
+         mismatch=true;
+       }catch(error){lastReadError=String(error?.message||error);console.warn('BOSS 攻略雲端讀回暫時失敗',error)}
      }
      if(!confirmed){
-       // The server ACKs the write, but we cannot claim a verified publication.
-       // Keep a copy for recovery and do not encourage a second POST.
        try{localStorage.setItem(DRAFT_KEY,JSON.stringify(payload))}catch(_){}
-       putStatus('⚠ 後端已接受儲存，但暫時未完成讀回確認。請點「重新載入正式資料」確認，不要重複發布。');
+       const reason=readSucceeded&&mismatch?'讀回內容與本次發布資料不同':('讀回 API 尚未成功'+(lastReadError?'（'+lastReadError+'）':''));
+       putStatus('⚠ 後端已接受儲存，但'+reason+'。請按「重新載入正式資料」核對，勿重複發布。',true);
        return;
      }
      data=payload;loadedCloud=clone(payload);dirty=false;localStorage.removeItem(DRAFT_KEY);render();putStatus('✅ 雲端發布成功，且已讀回確認。本頁攻略將依新排序顯示。');
