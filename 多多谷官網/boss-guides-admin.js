@@ -96,35 +96,42 @@
  async function fillVideoMetadata(silent=false){
    if(!ready||!data)return;
    const all=data.entries.filter(x=>x.type==='video'&&(genericVideoTitle(x.title)||unknownVideoAuthor(x.author))&&youtubeVideoId(x.url));
-   if(!all.length){putStatus('目前沒有需要補齊的 YouTube 標題或作者。');return}
+   if(!all.length){if(!silent)putStatus('目前沒有需要補齊的 YouTube 標題或作者。');return}
    if(!silent&&!confirm('將查詢 '+all.length+' 筆 YouTube 原始標題與頻道名稱，只更新通用占位文字，保留自行編輯資料。查詢結果只存本機草稿，仍須人工檢查後再發布。確定繼續？'))return;
    const button=$('bgVideoMeta');button.disabled=true;
-   let changed=0,failed=0;const memo=new Map();
-   try{
-     for(const x of all){
-       putStatus('正在讀取影片原始資料：'+(changed+failed+1)+'／'+all.length);
-       const id=youtubeVideoId(x.url);
-       let meta=memo.get(id);
-       if(!meta){
-         try{
-           const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),8000);
-           try{
-             const url='https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id);
-             const response=await fetch(url,{signal:ctrl.signal,credentials:'omit',referrerPolicy:'no-referrer'});
-             const data=response.ok?await response.json():null;
-             if(data?.provider_name==='YouTube'&&typeof data.title==='string'&&data.title.trim()&&data.title.length<=180&&typeof data.author_name==='string'&&data.author_name.trim()&&data.author_name.length<=120)meta={title:data.title.trim(),author:data.author_name.trim()};
-           }finally{clearTimeout(tm)}
-         }catch(_){}
-         memo.set(id,meta||null);
-       }
+   let changed=0,failed=0,cursor=0;
+   const memo=new Map();
+   const fetchMeta=id=>{
+     if(memo.has(id))return memo.get(id);
+     const task=(async()=>{
+       const ctrl=new AbortController(),tm=setTimeout(()=>ctrl.abort(),7000);
+       try{
+         const url='https://www.youtube.com/oembed?format=json&url='+encodeURIComponent('https://www.youtube.com/watch?v='+id);
+         const response=await fetch(url,{signal:ctrl.signal,credentials:'omit',referrerPolicy:'no-referrer'});
+         const value=response.ok?await response.json():null;
+         if(value?.provider_name!=='YouTube'||typeof value.title!=='string'||typeof value.author_name!=='string')return null;
+         const title=value.title.trim(),author=value.author_name.trim();
+         return title&&title.length<=180&&author&&author.length<=120?{title,author}:null;
+       }catch(_){return null}finally{clearTimeout(tm)}
+     })();
+     memo.set(id,task);return task;
+   };
+   const worker=async()=>{
+     while(cursor<all.length){
+       const x=all[cursor++],id=youtubeVideoId(x.url);
+       const meta=await fetchMeta(id);
        if(!meta){failed++;continue}
-       const priorTitle=x.title,priorAuthor=x.author;
-       if(genericVideoTitle(x.title))x.title=meta.title;
-       if(unknownVideoAuthor(x.author))x.author=meta.author;
-       if(x.title!==priorTitle||x.author!==priorAuthor)changed++;
+       const title=x.title,author=x.author;
+       if(genericVideoTitle(title))x.title=meta.title;
+       if(unknownVideoAuthor(author))x.author=meta.author;
+       if(x.title!==title||x.author!==author)changed++;
      }
+   };
+   try{
+     // Four bounded workers avoid a lengthy sequential wait with many videos.
+     await Promise.all(Array.from({length:Math.min(4,all.length)},worker));
      if(changed){draft();render()}
-     putStatus('YouTube 查詢完成：已在本機草稿補齊 '+changed+' 筆，'+failed+' 筆無法讀取。請檢查後按「儲存並發布雲端」，否則網站資料不會改變。');
+     if(!silent||changed||failed)putStatus('YouTube 查詢完成：已補齊 '+changed+' 筆，'+failed+' 筆無法讀取。變更僅在本機草稿；需由管理員發布雲端。');
    }finally{button.disabled=false}
  }
 
