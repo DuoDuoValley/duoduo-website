@@ -50,6 +50,8 @@
        // Update an already-playing floating player title without recreating
        // the iframe (which would interrupt the video).
        if(typeof playingId!=='undefined'&&playingId===id&&playerTitle&&!floatingPlayer.hidden)playerTitle.textContent=x.title;
+       // When embedded in the official site, the persistent parent dock owns the playing iframe.
+       try{if(window.parent!==window)window.parent.DuoDuoPersistentVideo?.metadataFromGuide(window,id,x.title)}catch(_){}
      });
    }
  }
@@ -202,6 +204,11 @@
  let playingId='';
  function openVideo(id,entry){
    if(!/^[\w-]{11}$/.test(id))return;
+   // Keep the same iframe alive when moving between official site categories.
+   // Standalone BOSS guide URLs retain their existing local floating player.
+   try{
+     if(window.parent!==window&&window.parent.DuoDuoPersistentVideo?.playFromGuide(window,id,entry?.title||'BOSS 攻略影片')===true)return;
+   }catch(_){/* Standalone or external embedding: use the local player below. */}
    const isSame=playingId===id&&playerFrame.querySelector('iframe');
    if(!isSame){
      const frame=document.createElement('iframe');

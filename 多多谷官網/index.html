@@ -443,7 +443,7 @@ html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #modeExplanation{display:bloc
 html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #skipButtons{margin-left:0!important;}
 html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #modeRow{gap:8px!important;}
 </style>
-
+<link rel="stylesheet" href="dd-video-dock.css?v=20261108-v1">
 </head>
 <body>
 <iframe id="duoduoSite" title="多多谷官網" src="about:blank" allow="fullscreen; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
@@ -486,6 +486,7 @@ html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #modeRow{gap:8px!important;}
 <div id="coverPreview" hidden role="dialog" aria-modal="true" aria-label="歌曲封面預覽" tabindex="-1"><figure><img id="coverPreviewImage" alt="歌曲封面大圖"><button id="coverPreviewClose" type="button" aria-label="關閉封面預覽" title="關閉">×</button></figure></div>
 <button type="button" id="mini" title="展開 BGM 播放器" aria-label="展開 BGM 播放器"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><ellipse cx="6" cy="18" rx="3" ry="2"/><ellipse cx="18" cy="16" rx="3" ry="2"/></svg></button>
 <audio id="music" preload="none"></audio>
+<script src="dd-video-dock.js?v=20261108-v1"></script>
 <script>
 (()=>{
 'use strict';
@@ -1419,6 +1420,7 @@ function changeInner(to,method='push'){
   const target=safePage(to);
   if(!target)return false;
   const current=currentInner();
+  if(!current||target.pathname!==current.pathname)window.DuoDuoPersistentVideo?.minimizeOnNavigation();
   updateAddress(target,method);
   if(current&&current.href===target.href){
     // Clicking an already-open main heading must return to the page top.
@@ -1489,6 +1491,7 @@ function wirePage(){
 function handleInnerLoad(){
   const inner=currentInner();
   if(!inner)return;
+  if(!inner.pathname.endsWith('/boss-guides.html'))window.DuoDuoPersistentVideo?.minimizeOnNavigation();
   wirePage();
   synchronizeFromFrame();
   // First visit only: show the completed inner document, not the intermediate blank iframe.
