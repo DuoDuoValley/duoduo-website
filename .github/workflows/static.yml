@@ -1,4 +1,5 @@
 # Deploy the public static website and embed one monotonic release revision.
+# Fresh deployment run after GitHub Pages artifact indexing failure (2026-11-08).
 name: Deploy static content to Pages
 
 on:
