@@ -2,8 +2,8 @@
 (()=>{'use strict';
  if(document.documentElement.classList.contains('dd-bgm-embed'))return;
  if(window.DuoDuoPersistentVideo)return;
- const shell=document.getElementById('duoduoSite');
- if(!shell)return;
+ const currentShell=()=>document.getElementById('duoduoSite');
+ if(!currentShell())return;
  const dock=document.createElement('section');
  dock.id='ddPersistentVideo';dock.hidden=true;
  dock.setAttribute('role','region');dock.setAttribute('aria-label','多多谷常駐 BOSS 攻略影片');
@@ -91,16 +91,16 @@
  window.addEventListener('resize',updatePosition,{passive:true});
  // Expose only a small, same-origin API to the currently displayed guide iframe.
  function fromGuideFrame(){
-   try{return shell.contentWindow?.location?.pathname?.endsWith('/boss-guides.html')===true}
+   try{return currentShell()?.contentWindow?.location?.pathname?.endsWith('/boss-guides.html')===true}
    catch{return false}
  }
  window.DuoDuoPersistentVideo={
    playFromGuide(source,id,text){
-     if(source!==shell.contentWindow||!fromGuideFrame())return false;
+     if(source!==currentShell()?.contentWindow||!fromGuideFrame())return false;
      return play(id,text);
    },
    metadataFromGuide(source,id,text){
-     if(source!==shell.contentWindow||!fromGuideFrame())return false;
+     if(source!==currentShell()?.contentWindow||!fromGuideFrame())return false;
      updateMetadata(id,text);return true;
    },
    minimizeOnNavigation:minimize,
