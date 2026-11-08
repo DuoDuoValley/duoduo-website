@@ -1,5 +1,5 @@
-/* 多多谷 BOSS 攻略未列入導覽的測試版。
- * 本頁不需要登入，不連動正式 BOSS 圖鑑或公開導覽列。
+/* 多多谷正式 BOSS 圖文與影片攻略頁。
+ * 本頁不需要登入，不會寫入 BOSS 圖鑑或其他正式資料。
  * 注意：GitHub Pages 靜態網址可被任何知道連結的人開啟。
  * 所有編輯功能已移至既有管理後台；此頁僅唯讀展示。
  */
@@ -79,7 +79,9 @@
        }
      }catch(e){console.warn('暫時使用靜態 BOSS 攻略與圖鑑資料',e)}
      bosses=bosses.filter(isGuideBossVisible);
-     current=bosses.find(x=>x.id===new URLSearchParams(location.search).get('boss'))?.id||bosses[0]?.id||'';
+     const params=new URLSearchParams(location.search);
+     current=bosses.find(x=>x.id===params.get('boss'))?.id||bosses[0]?.id||'';
+     currentTab=params.get('tab')==='video'?'video':'article';
      drawAll();$('privateApp').hidden=false;
    }catch(err){$('privateApp').hidden=false;const message=document.querySelector('.guide-hero-description');if(message)message.textContent='攻略資料暫時無法載入，請稍後重新整理。（'+(err.message||'未知錯誤')+'）';console.error(err)}
  }
@@ -122,9 +124,10 @@
    const photo=(x.type==='video'&&video)?'https://i.ytimg.com/vi/'+video+'/hqdefault.jpg':(isBahaArticle?bahaLogo:(image||bossImage));
    const imageLabel=x.type==='video'?'YouTube 影片縮圖':(isBahaArticle?'巴哈姆特（文章來源）':image?'攻略封面（自行提供）':'BOSS 形象圖（非原文截圖）');
    const playableThumb=x.type==='video'&&Boolean(video);
-   const thumb=(x.type==='article'||x.type==='video')?'<'+(playableThumb?'button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'" aria-label="播放 '+esc(x.title||'BOSS 攻略影片')+'"':'div')+' class="guide-thumb '+(x.type==='video'?'guide-thumb-video':'guide-thumb-article')+(isBahaArticle?' guide-thumb-bahamut':'')+'">'+
+   const articleThumb=x.type==='article'&&Boolean(link);
+   const thumb=(x.type==='article'||x.type==='video')?'<'+(playableThumb?'button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'" aria-label="播放 '+esc(x.title||'BOSS 攻略影片')+'"':articleThumb?'a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" aria-label="查看原作者文章：'+esc(x.title||'圖文攻略')+'"':'div')+' class="guide-thumb '+(x.type==='video'?'guide-thumb-video':'guide-thumb-article')+(isBahaArticle?' guide-thumb-bahamut':'')+'">'+
     (photo?'<img loading="lazy" src="'+esc(photo)+'" alt="'+esc(imageLabel)+'" onload="this.parentNode.classList.add(\'logo-loaded\')" onerror="this.hidden=true;this.parentNode.classList.add(\'guide-thumb-missing\')">':'')+
-    '<span class="guide-thumb-fallback" aria-hidden="true">'+(isBahaArticle?'<span class="baha-wordmark"><span class="baha-mark" aria-hidden="true">◆</span>巴哈姆特</span>':x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></'+(playableThumb?'button':'div')+'>':'';
+    '<span class="guide-thumb-fallback" aria-hidden="true">'+(isBahaArticle?'<span class="baha-wordmark"><span class="baha-mark" aria-hidden="true">◆</span>巴哈姆特</span>':x.type==='video'?'▶':'📖')+'</span><span class="guide-thumb-tag">'+esc(imageLabel)+'</span></'+(playableThumb?'button':articleThumb?'a':'div')+'>':'';
    return '<article data-guide-entry="'+esc(x.id)+'" class="item '+(thumb?'guide-has-thumb':'')+'">'+thumb+'<div class="guide-item-body"><div class="meta"><span class="badge">'+esc(x.stage||x.difficulty||'未標註階段')+'</span>'+badge+'</div><h3 class="guide-original-title">'+esc(x.title||'未命名攻略')+'</h3><div class="by"><span class="guide-original-author">'+esc(x.author||'未填作者')+'</span>'+(x.origin?' · '+esc(x.origin):'')+'</div>' + '<div class="buttons">'+(link?'<a href="'+esc(link)+'" target="_blank" rel="noopener noreferrer" class="secondary">'+(x.type==='video'?'前往 YouTube 原影片 ↗':'查看原作者文章 ↗')+'</a>':'')+(video?'<button type="button" data-play="'+esc(video)+'" data-entry="'+esc(x.id)+'">▶ 播放影片</button>':'')+'</div></div></article>';
  }
  function drawDetail(){
@@ -158,11 +161,13 @@
   (list.length?'<div class="items">'+list.map(renderItem).join('')+'</div>':'<div class="empty">這隻 BOSS 的'+kindName+'目前尚未收錄。<br>後續將由官網管理後台新增攻略。</div>');
   if(currentTab==='video')queueMicrotask(fillVisibleOfficialMeta);
  }
- $('bossGrid').addEventListener('click',e=>{const target=e.target.closest('[data-boss]');if(!target)return;current=target.dataset.boss;currentTab='article';const u=new URL(location.href);u.searchParams.set('boss',current);history.replaceState(null,'',u);drawBossGrid();drawDetail();window.scrollTo({top:Math.max(0,window.scrollY+$('detail').getBoundingClientRect().top-(window.innerWidth<=650?100:154)),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})});
+ const updateShareUrl=()=>{const u=new URL(location.href);u.searchParams.set('boss',current);u.searchParams.set('tab',currentTab);if(u.href!==location.href)history.pushState({boss:current,tab:currentTab},'',u)};
+ window.addEventListener('popstate',()=>{const p=new URLSearchParams(location.search);current=bosses.find(b=>b.id===p.get('boss'))?.id||bosses[0]?.id||'';currentTab=p.get('tab')==='video'?'video':'article';drawBossGrid();drawDetail()});
+ $('bossGrid').addEventListener('click',e=>{const target=e.target.closest('[data-boss]');if(!target)return;current=target.dataset.boss;currentTab='article';updateShareUrl();drawBossGrid();drawDetail();window.scrollTo({top:Math.max(0,window.scrollY+$('detail').getBoundingClientRect().top-(window.innerWidth<=650?100:154)),behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth'})});
  $('backToBoss').onclick=()=>{$('bossCatalog').scrollIntoView({behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'instant':'smooth',block:'start'});};
  $('searchBoss').addEventListener('input',drawBossGrid);
  $('groupControls').addEventListener('click',e=>{const button=e.target.closest('[data-group]');if(!button)return;group=button.dataset.group;for(const b of $('groupControls').querySelectorAll('button'))b.classList.toggle('active',b===button);drawBossGrid()});
- $('tabArticle').onclick=()=>{currentTab='article';drawDetail()};$('tabVideo').onclick=()=>{currentTab='video';drawDetail()};
+ $('tabArticle').onclick=()=>{if(currentTab==='article')return;currentTab='article';updateShareUrl();drawDetail()};$('tabVideo').onclick=()=>{if(currentTab==='video')return;currentTab='video';updateShareUrl();drawDetail()};
  // Keep the iframe OUTSIDE #guideBody, which is re-rendered when tabs or BOSS change.
  // A single permanent player node preserves the same YouTube iframe and playback position.
  const floatingPlayer=$('ddFloatingPlayer');
