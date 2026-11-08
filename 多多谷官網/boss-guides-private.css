@@ -476,16 +476,6 @@ footer.site-footer{text-align:left}
 */
 :root{--guide-inner:#edf4f9;--guide-inner-line:#d0e0eb;--guide-inner-accent:rgba(12,141,180,.11)}
 :root[data-theme="dark"]{--guide-inner:#132738;--guide-inner-line:#315267;--guide-inner-accent:rgba(92,206,227,.13)}
-/* The official header has the same controls as boss.html; add requested logo halo only here. */
-header.site-header .brand img{
-  filter:drop-shadow(0 0 5px rgba(68,209,229,.24)) drop-shadow(0 0 9px rgba(67,198,228,.1));
-  animation:dd-guide-logo-glow 4.6s ease-in-out infinite;
-}
-@keyframes dd-guide-logo-glow{
-  0%,100%{filter:drop-shadow(0 0 3px rgba(83,211,234,.24)) drop-shadow(0 0 6px rgba(245,202,100,.07))}
-  50%{filter:drop-shadow(0 0 8px rgba(87,218,242,.52)) drop-shadow(0 0 12px rgba(250,203,81,.19))}
-}
-@media(prefers-reduced-motion:reduce){header.site-header .brand img{animation:none}}
 /* Banner asset is an optimized copy of the actual user-supplied illustration. */
 #privateApp .guide-hero{
   min-height:315px;
@@ -594,7 +584,7 @@ header.site-header .brand img{
     width:auto;max-width:100%;min-width:0;gap:5px;
   }
   html body header.site-header.dd-nav-ready .brand img{
-    width:106px!important;height:45px!important;max-width:38vw!important;
+    width:105px!important;height:48px!important;max-width:38vw!important;
   }
   html body header.site-header.dd-nav-ready .brand span{
     font-size:11px!important;white-space:nowrap;
@@ -621,37 +611,6 @@ header.site-header .brand img{
 
 /* V19 — user-requested glossy official logo and a single anchored playing-card fan.
    Only the private BOSS Guides page gets these effects. Canonical nav CSS still owns layout. */
-header.site-header .brand{position:relative;isolation:isolate}
-header.site-header .brand img{
-  position:relative;z-index:0;
-  filter:brightness(1.09) saturate(1.08) drop-shadow(0 0 5px rgba(66,208,242,.32));
-  animation:dd-guide-logo-breath 4s ease-in-out infinite;
-}
-/* A real specular sweep, clipped to the logo's transparent silhouette. */
-header.site-header .brand::after{
-  content:"";position:absolute;top:50%;left:0;width:132px;height:58px;
-  transform:translateY(-50%);pointer-events:none;z-index:1;
-  background:linear-gradient(112deg,transparent 0%,transparent 31%,rgba(255,255,255,.11) 42%,rgba(255,255,255,.86) 49%,rgba(255,249,187,.48) 55%,transparent 67%,transparent 100%);
-  background-size:255% 100%;background-position:160% 0;
-  -webkit-mask:url('assets/logo1-header.png') center/contain no-repeat;
-  mask:url('assets/logo1-header.png') center/contain no-repeat;
-  animation:dd-guide-logo-shine 4.6s cubic-bezier(.18,.68,.3,1) infinite;
-}
-@keyframes dd-guide-logo-breath{
-  0%,100%{filter:brightness(1.05) saturate(1.06) drop-shadow(0 0 4px rgba(61,198,228,.26))}
-  50%{filter:brightness(1.17) saturate(1.19) drop-shadow(0 0 9px rgba(78,214,242,.55))}
-}
-@keyframes dd-guide-logo-shine{
-  0%,12%{background-position:165% 0;opacity:0}
-  16%{opacity:.9}
-  47%{background-position:-165% 0;opacity:.98}
-  54%,100%{background-position:-165% 0;opacity:0}
-}
-@media(max-width:520px){header.site-header .brand::after{width:106px;height:45px}}
-@media(prefers-reduced-motion:reduce){
-  header.site-header .brand img,header.site-header .brand::after{animation:none!important}
-  header.site-header .brand::after{opacity:0}
-}
 /* Original supplied green banner continues underneath six overlapping cards. */
 #privateApp .guide-hero-visual{
   display:block;right:0;top:0;bottom:0;width:51%;overflow:hidden;

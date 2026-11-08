@@ -394,3 +394,106 @@ html:not(.dd-game-version-ready) .site-header .header-status::after{
 @media(max-width:1180px){
   .site-header .header-status{display:none!important}
 }
+
+
+/* V20: Use the actual HOME V18/V19 transparent-logo animation on standalone pages.
+   HOME keeps its own approved dd18/dd19 classes and is not changed. */
+.site-header .brand.dd-shared-brand{
+  position:relative;
+  isolation:isolate;
+  overflow:visible;
+}
+.site-header .brand.dd-shared-brand img{
+  position:relative;
+  z-index:1;
+  width:132px;
+  height:58px;
+  max-width:none;
+  object-fit:contain;
+  border-radius:0;
+  animation:none;
+  filter:none;
+  transition:transform .36s cubic-bezier(.2,1.4,.23,1),filter .3s ease;
+  transform-origin:50% 54%;
+}
+/* Exact V19 HOME glint rhythm: one transparent-pixel-masked sweep / 8.6 sec. */
+.site-header .brand.dd-shared-brand::before{
+  content:"";
+  position:absolute;
+  z-index:2;
+  pointer-events:none;
+  left:0;top:50%;
+  width:132px;height:58px;
+  border-radius:0;
+  transform:translateY(-50%);
+  -webkit-mask-image:url("assets/logo1-header.png");
+  mask-image:url("assets/logo1-header.png");
+  -webkit-mask-size:contain;mask-size:contain;
+  -webkit-mask-position:center;mask-position:center;
+  -webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;
+  background:linear-gradient(105deg,transparent 31%,rgba(255,255,255,.06) 40%,rgba(255,255,233,.93) 49%,rgba(255,255,255,.15) 55%,transparent 70%);
+  background-size:320% 100%;
+  background-position:100% 0;
+  mix-blend-mode:screen;
+  animation:dd-shared-logo-glint 8.6s linear infinite;
+}
+.site-header .brand.dd-shared-brand::after{
+  content:"";
+  position:absolute;
+  z-index:0;
+  pointer-events:none;
+  left:66px;top:50%;
+  width:132px;height:58px;
+  border:1px solid rgba(253,220,127,.60);
+  border-radius:50%;
+  background:none;
+  opacity:0;
+  transform:translate(-50%,-50%) scale(.65);
+  animation:none;
+  transition:opacity .2s ease;
+}
+.site-header .brand.dd-shared-brand:hover img,
+.site-header .brand.dd-shared-brand:focus-visible img{
+  filter:drop-shadow(0 0 10px rgba(252,217,113,.35));
+  transform:scale(1.035);
+}
+/* Keep the subtle hover border feedback the user remembers. */
+.site-header .brand.dd-shared-brand:hover::after,
+.site-header .brand.dd-shared-brand:focus-visible::after{opacity:.24}
+.site-header .brand.dd-shared-brand.dd-shared-brand-click img{
+  animation:dd-shared-logo-tap .64s cubic-bezier(.19,.94,.26,1) both;
+}
+.site-header .brand.dd-shared-brand.dd-shared-brand-click::after{
+  animation:dd-shared-logo-ring .55s ease-out both;
+}
+.site-header .brand.dd-shared-brand:focus-visible{
+  outline:2px solid #f6d084;
+  outline-offset:3px;
+  border-radius:7px;
+}
+@keyframes dd-shared-logo-glint{
+  0%,64%,100%{opacity:0;background-position:100% 0}
+  66%{opacity:0}
+  70%{opacity:.92}
+  84%{opacity:0;background-position:0 0}
+}
+@keyframes dd-shared-logo-tap{
+  0%,100%{transform:none;filter:none}
+  25%{transform:scale(.94) rotate(-2deg);filter:brightness(1.08)}
+  62%{transform:scale(1.055) rotate(1.6deg);filter:brightness(1.22) drop-shadow(0 0 7px rgba(254,223,125,.38))}
+}
+@keyframes dd-shared-logo-ring{
+  0%{opacity:.8;transform:translate(-50%,-50%) scale(.64)}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.75)}
+}
+@media(max-width:680px){
+  .site-header .brand.dd-shared-brand img{width:105px;height:48px}
+  .site-header .brand.dd-shared-brand::before{width:105px;height:48px}
+  .site-header .brand.dd-shared-brand::after{left:52px;width:105px;height:48px}
+}
+@media(prefers-reduced-motion:reduce){
+  .site-header .brand.dd-shared-brand::before,
+  .site-header .brand.dd-shared-brand.dd-shared-brand-click img,
+  .site-header .brand.dd-shared-brand.dd-shared-brand-click::after{animation:none!important}
+  .site-header .brand.dd-shared-brand::before{opacity:0!important}
+}

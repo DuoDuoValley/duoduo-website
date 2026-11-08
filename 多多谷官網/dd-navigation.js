@@ -4,6 +4,28 @@
 const header=document.querySelector('header.site-header');
 const nav=header?.querySelector('nav.dd-main-nav');
 if(!nav||!header)return;
+/* V20: Reuse HOME's original logo behavior for standalone pages.
+   HOME V18/V19 still owns its own logo; do not double-initialize it. */
+(function connectHomeBrandEffect(){
+ const brand=header.querySelector(':scope > a.brand');
+ if(!brand||!brand.querySelector('img'))return;
+ if(location.pathname.endsWith('/home.html'))return;
+ if(brand.classList.contains('dd-shared-brand'))return;
+ brand.classList.add('dd-shared-brand');
+ function pulse(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  brand.classList.remove('dd-shared-brand-click');
+  void brand.offsetWidth;
+  brand.classList.add('dd-shared-brand-click');
+ }
+ brand.addEventListener('pointerdown',e=>{if(e.button===0)pulse()});
+ brand.addEventListener('click',e=>{if(e.detail===0)pulse()});
+ brand.addEventListener('animationend',e=>{
+  if(e.animationName==='dd-shared-logo-tap'||e.animationName==='dd-shared-logo-ring')
+   brand.classList.remove('dd-shared-brand-click');
+ });
+})();
+
 const inTools=location.pathname.includes('/player-tools/');
 const inJobs=location.pathname.includes('/jobs/');
 const inLegion=location.pathname.includes('/legion-preview-6c82f4a9/');
