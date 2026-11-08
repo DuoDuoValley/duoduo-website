@@ -21,12 +21,21 @@
  let data=null,bosses=[],chosenBoss='',chosenType='article',selectedId='',dirty=false,loadedCloud=null,ready=false;
  const putStatus=(s,isError=false)=>{const p=$('bgStatus');p.textContent=s;p.classList.toggle('error',isError)};
  const validUrl=(url,type)=>{try{const u=new URL(String(url||''));if(u.protocol!=='https:')return false;if(type==='video'){const host=u.hostname.replace(/^www\./,'');const vid=host==='youtu.be'?u.pathname.slice(1):u.searchParams.get('v');return ['youtube.com','m.youtube.com','youtu.be'].includes(host)&&/^[\w-]{11}$/.test(String(vid||''))}return true}catch{return false}};
+ // The video publication date is independent of the guide's import/update time.
+ // YouTube oEmbed does not include dates; only explicitly verified dates may be saved.
+ const validPublicationDate=value=>{
+   if(value===undefined||value===null||value==='')return true;
+   if(typeof value!=='string'||!/^\d{4}-\d{2}-\d{2}$/.test(value))return false;
+   const d=new Date(value+'T00:00:00Z');
+   return Number.isFinite(d.getTime())&&d.toISOString().slice(0,10)===value&&value<='2026-11-08';
+ };
  function verifyDraft(d){
    if(!d||d.schema!==1||!Array.isArray(d.entries)||d.entries.length>500)throw Error('攻略資料格式不符或超過 500 筆');
    if(d.bossVisibility!==undefined&&(d.bossVisibility===null||Array.isArray(d.bossVisibility)||typeof d.bossVisibility!=='object'||Object.keys(d.bossVisibility).some(id=>typeof d.bossVisibility[id]!=='boolean')))throw Error('BOSS 顯示設定格式不符');
    const used=new Set();
    for(const x of d.entries){
      if(!x||typeof x.id!=='string'||!x.id||used.has(x.id)||!['article','video','note'].includes(x.type)||!bosses.some(b=>b.id===x.bossId)||typeof x.title!=='string'||x.title.length>180)throw Error('包含無效／重複的攻略條目');
+     if(x.type==='video'&&!validPublicationDate(x.publishedDate))throw Error('影片發布日期格式錯誤：'+x.title+'，請使用 YYYY-MM-DD');
      used.add(x.id);
    }
  }
@@ -55,6 +64,8 @@
    const x=current();if(!x){$('bgEditor').hidden=true;$('bgEditorEmpty').hidden=false;return}
    $('bgEditorEmpty').hidden=true;$('bgEditor').hidden=false;
    for(const key of ['title','author','url','difficulty','stage','image'])$('bg'+key[0].toUpperCase()+key.slice(1)).value=x[key]||'';
+   $('bgPublishedDate').value=x.type==='video'?(x.publishedDate||''):'';
+   $('bgPublishedDateField').hidden=x.type!=='video';
    $('bgApproved').checked=Boolean(x.approved);$('bgEnabled').checked=x.enabled!==false;
    $('bgSourceInfo').textContent='條目 ID：'+x.id+' · 類型：'+TYPES[x.type]+' · 排序：'+(x.order||1);
    $('bgUrlField').hidden=x.type==='note';
@@ -70,14 +81,16 @@
  function newItem(){
    if(!chosenBoss)return;
    const id='g-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,7);
-   const x={id,bossId:chosenBoss,type:chosenType,title:'',author:'',url:'',difficulty:'',stage:'',content:'',image:'',approved:false,enabled:false,order:rows().length+1,origin:'後台新增'};
+   const x={id,bossId:chosenBoss,type:chosenType,title:'',author:'',publishedDate:'',url:'',difficulty:'',stage:'',content:'',image:'',approved:false,enabled:false,order:rows().length+1,origin:'後台新增'};
    data.entries.push(x);selectedId=x.id;draft();render();$('bgTitle').focus();
  }
  function saveEditor(){
    const x=current();if(!x)return;
    const newValues={};for(const k of ['title','author','url','difficulty','stage','image'])newValues[k]=$('bg'+k[0].toUpperCase()+k.slice(1)).value.trim();
+   if(x.type==='video')newValues.publishedDate=$('bgPublishedDate').value.trim();
    newValues.approved=$('bgApproved').checked;newValues.enabled=$('bgEnabled').checked;
    if(!newValues.title||newValues.title.length>180)return putStatus('請填寫攻略標題（最多 180 字）。',true);
+   if(x.type==='video'&&!validPublicationDate(newValues.publishedDate))return putStatus('影片發布日期不正確，請使用 YYYY-MM-DD 或保留空白。',true);
    if(x.type!=='note'&&!validUrl(newValues.url,x.type))return putStatus('請填寫有效 HTTPS 來源網址，影片限 YouTube。',true);
    Object.assign(x,newValues);delete x.summary;draft();render();
  }
@@ -207,7 +220,7 @@
  '<div class="bg-toolbar"><button type="button" class="bg-primary" id="bgPublish">☁️ 儲存並發布雲端</button><button type="button" id="bgReload">重新載入正式資料</button><button type="button" id="bgRestore">恢復本機草稿</button><button type="button" id="bgExport">備份 JSON</button><label>匯入 JSON <input type="file" id="bgImport" hidden accept=".json,application/json"></label><a href="boss-guides.html" target="_blank" rel="noopener noreferrer">預覽攻略頁 ↗</a></div>'+
  '<p id="bgStatus" role="status" class="bg-status">等待管理員登入…</p>'+
  '<div class="bg-layout"><div class="bg-pane"><div class="bg-filters"><label class="bg-field">選擇 BOSS<select id="bgBoss"></select></label><label class="bg-field">攻略種類<select id="bgType"><option value="article">圖文攻略</option><option value="video">影片攻略</option></select></label></div><label class="bg-boss-visibility"><input type="checkbox" id="bgBossVisible"><span id="bgBossVisibleLabel">此 BOSS 在攻略頁顯示</span><small>只影響 BOSS 攻略頁，不影響 BOSS 圖鑑或傷害反推。</small></label><div class="bg-toolbar"><button type="button" id="bgAdd">＋ 新增攻略</button><button type="button" id="bgVideoMeta" title="以 YouTube 公開資訊補齊通用占位文字，只儲存後台草稿">讀取 YouTube 原始標題／作者</button><span id="bgCount" style="font-size:12px;color:#a7bfcd"></span></div><div id="bgList" class="bg-list"></div></div>'+
- '<div class="bg-pane"><p id="bgEditorEmpty" class="bg-status">選擇條目或新增攻略後即可編輯。</p><div id="bgEditor" hidden><p id="bgSourceInfo" class="bg-note"></p><div class="bg-form"><label class="bg-field full">攻略標題<input id="bgTitle" maxlength="180"></label><label class="bg-field">作者名稱<input id="bgAuthor" maxlength="120"></label><label class="bg-field">難度／適用版本<input id="bgDifficulty" maxlength="120"></label><label class="bg-field">對應階段<input id="bgStage" maxlength="120"></label><label class="bg-field full" id="bgUrlField">原始網址<input id="bgUrl" type="url"></label><label class="bg-field full">已授權封面網址（選填）<input id="bgImage"></label><label class="bg-field bg-check"><input type="checkbox" id="bgEnabled">在前台顯示</label><label class="bg-field bg-check"><input type="checkbox" id="bgApproved">已核對來源／版本</label></div><div class="bg-toolbar"><button type="button" class="bg-primary" id="bgSave">儲存草稿</button><button type="button" id="bgDelete">刪除此筆</button></div></div></div></div>';
+ '<div class="bg-pane"><p id="bgEditorEmpty" class="bg-status">選擇條目或新增攻略後即可編輯。</p><div id="bgEditor" hidden><p id="bgSourceInfo" class="bg-note"></p><div class="bg-form"><label class="bg-field full">攻略標題<input id="bgTitle" maxlength="180"></label><label class="bg-field">作者名稱<input id="bgAuthor" maxlength="120"></label><label class="bg-field" id="bgPublishedDateField" hidden>影片發布日期（YouTube 原始發布日，選填）<input id="bgPublishedDate" type="date" min="2005-01-01" max="2026-11-08"></label><label class="bg-field">難度／適用版本<input id="bgDifficulty" maxlength="120"></label><label class="bg-field">對應階段<input id="bgStage" maxlength="120"></label><label class="bg-field full" id="bgUrlField">原始網址<input id="bgUrl" type="url"></label><label class="bg-field full">已授權封面網址（選填）<input id="bgImage"></label><label class="bg-field bg-check"><input type="checkbox" id="bgEnabled">在前台顯示</label><label class="bg-field bg-check"><input type="checkbox" id="bgApproved">已核對來源／版本</label></div><div class="bg-toolbar"><button type="button" class="bg-primary" id="bgSave">儲存草稿</button><button type="button" id="bgDelete">刪除此筆</button></div></div></div></div>';
  $('bgBoss').onchange=v=>{chosenBoss=v.target.value;selectedId='';render()};
  $('bgBossVisible').onchange=e=>{if(!ready||!chosenBoss||!data)return;
    if(!data.bossVisibility||typeof data.bossVisibility!=='object'||Array.isArray(data.bossVisibility))data.bossVisibility={};
