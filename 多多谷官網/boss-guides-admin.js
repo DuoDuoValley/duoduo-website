@@ -179,24 +179,24 @@
      const payload=clone(data);for(const x of payload.entries)delete x.summary;payload.schema=1;payload.dataRevision=14;payload.updatedAt=new Date().toISOString();
      const sent=await fetch(API+'/api/site-data',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t,'X-Admin-Activity':'1'},body:JSON.stringify({values:{[CLOUD_KEY]:payload}})});
      const saved=await sent.json().catch(()=>({}));if(!sent.ok||saved.ok!==true)throw Error(saved.error||'發布失敗：後端拒絕儲存');
-     let confirmed=false;
-     // An immediate GET can see old data briefly, even after the POST succeeds.
-     // Check a few times before deciding the read-back is still unconfirmed.
-     for(let attempt=0;attempt<3;attempt++){
-       if(attempt)await new Promise(resolve=>setTimeout(resolve,450*attempt));
+     let confirmed=false,readSucceeded=false,mismatch=false,lastReadError='';
+     // Retry read-back without re-submitting the original write.
+     for(let attempt=0;attempt<8;attempt++){
+       if(attempt)await new Promise(resolve=>setTimeout(resolve,1000));
        try{
          const check=await fetch(cloudUrl(),{cache:'no-store',headers:{'Cache-Control':'no-cache'}});
-         const verified=check.ok?await check.json():null;
-         if(verified?.ok===true&&sameDocument(verified.data?.[CLOUD_KEY]??null,payload)){
-           confirmed=true;break;
-         }
-       }catch(error){console.warn('BOSS 攻略雲端讀回暫時失敗',error)}
+         if(!check.ok){lastReadError='HTTP '+check.status;continue}
+         const verified=await check.json();
+         if(verified?.ok!==true){lastReadError='API 回傳異常';continue}
+         readSucceeded=true;
+         if(sameDocument(verified.data?.[CLOUD_KEY]??null,payload)){confirmed=true;break}
+         mismatch=true;
+       }catch(error){lastReadError=String(error?.message||error);console.warn('BOSS 攻略雲端讀回暫時失敗',error)}
      }
      if(!confirmed){
-       // The server ACKs the write, but we cannot claim a verified publication.
-       // Keep a copy for recovery and do not encourage a second POST.
        try{localStorage.setItem(DRAFT_KEY,JSON.stringify(payload))}catch(_){}
-       putStatus('⚠ 後端已接受儲存，但暫時未完成讀回確認。請點「重新載入正式資料」確認，不要重複發布。');
+       const reason=readSucceeded&&mismatch?'讀回內容與本次發布資料不同':('讀回 API 尚未成功'+(lastReadError?'（'+lastReadError+'）':''));
+       putStatus('⚠ 後端已接受儲存，但'+reason+'。請按「重新載入正式資料」核對，勿重複發布。',true);
        return;
      }
      data=payload;loadedCloud=clone(payload);dirty=false;localStorage.removeItem(DRAFT_KEY);render();putStatus('✅ 雲端發布成功，且已讀回確認。本頁攻略將依新排序顯示。');
