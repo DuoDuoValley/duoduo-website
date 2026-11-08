@@ -615,3 +615,8 @@ footer.site-footer{text-align:left}
 button.guide-thumb-video[data-play]{display:block;width:100%;padding:0;appearance:none;text-align:initial;cursor:pointer;font:inherit;color:inherit}
 button.guide-thumb-video[data-play]:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
 button.guide-thumb-video[data-play]:hover img{filter:brightness(.88)}
+
+/* Guide cards: article covers are actual links, with the same keyboard focus semantics as video thumbnails. */
+a.guide-thumb-article{display:block;width:100%;text-decoration:none!important;cursor:pointer}
+a.guide-thumb-article:hover img{filter:brightness(.95)}
+a.guide-thumb-article:focus-visible{outline:3px solid var(--accent);outline-offset:3px}
