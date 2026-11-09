@@ -411,7 +411,7 @@ async function handleGetEvents(req,res){
     const url=
       `${supabaseUrl}/rest/v1/events`+
       `?select=id,data,updated_at`+
-      `&id=not.like.__dd_traffic_*`+
+      `&id=not.like.__dd_traffic_*&id=not.like.__dd_checklist_traffic_*&id=not.like.__dd_bgm_*`+
       `&order=updated_at.desc`;
 
     const response=await fetch(url,{
@@ -514,7 +514,7 @@ async function handleSaveEvents(req,res){
         };
 
         const getUrl=
-          `${supabaseUrl}/rest/v1/events?select=id&id=not.like.__dd_traffic_*`;
+          `${supabaseUrl}/rest/v1/events?select=id&id=not.like.__dd_traffic_*&id=not.like.__dd_checklist_traffic_*&id=not.like.__dd_bgm_*`;
 
         const existingResponse=await fetch(getUrl,{
           method:'GET',
@@ -703,7 +703,7 @@ async function handleGetSiteData(req,res){
 
     const data={...(record.values||{})};
 
-    const eventsResponse=await fetch(`${supabaseUrl}/rest/v1/events?select=id,data,updated_at&id=not.like.__dd_traffic_*&order=updated_at.desc`,{method:'GET',headers});
+    const eventsResponse=await fetch(`${supabaseUrl}/rest/v1/events?select=id,data,updated_at&id=not.like.__dd_traffic_*&id=not.like.__dd_checklist_traffic_*&id=not.like.__dd_bgm_*&order=updated_at.desc`,{method:'GET',headers});
     if(eventsResponse.ok){
       const rows=await eventsResponse.json();
       const eventRows=rows.filter(row=>!isInternalEventRow(row));
