@@ -4,6 +4,7 @@ const root=__dirname,port=3000;
 const SUPABASE_BUCKET='event-images';
 const adminSessions=new Map();
 const {createTrafficHandlers}=require('./dd-traffic-server');
+const {createBgmTrafficHandlers}=require('./dd-bgm-traffic-server');
 // Idle expiry is extended only by real admin activity; absolute expiry limits stolen tokens.
 const ADMIN_SESSION_IDLE_TTL=12*60*60*1000;
 const ADMIN_SESSION_ABSOLUTE_TTL=24*60*60*1000;
@@ -853,6 +854,7 @@ function observePublicApiRead(route){
   publicApiReadCounts.set(route,(publicApiReadCounts.get(route)||0)+1);
 }
 const trafficHandlers=createTrafficHandlers({getAdminSession,sendJSON});
+const bgmTrafficHandlers=createBgmTrafficHandlers({getAdminSession,sendJSON});
 const server=http.createServer((req,res)=>{
 
   res.setHeader(
@@ -879,6 +881,8 @@ const server=http.createServer((req,res)=>{
   if(req.method==='GET' && PUBLIC_API_MONITOR_ROUTES.has(requestPath))observePublicApiRead(requestPath);
   if(req.method==='POST' && requestPath==='/api/traffic/record')return trafficHandlers.record(req,res);
   if(req.method==='GET' && requestPath==='/api/traffic/summary')return trafficHandlers.summary(req,res);
+  if(req.method==='POST' && requestPath==='/api/bgm-traffic/record')return bgmTrafficHandlers.record(req,res);
+  if(req.method==='GET' && requestPath==='/api/bgm-traffic/summary')return bgmTrafficHandlers.summary(req,res);
   if(req.method==='GET' && requestPath==='/api/maintenance')return handleMaintenanceGet(req,res);
   if(req.method==='POST' && requestPath==='/api/maintenance')return handleMaintenancePost(req,res);
 
@@ -963,7 +967,7 @@ const server=http.createServer((req,res)=>{
     return res.writeHead(400).end('Bad Request');
   }
   const privateFiles=new Set([
-    'server.js','dd-traffic-server.js','package.json','package-lock.json',
+    'server.js','dd-traffic-server.js','dd-bgm-traffic-server.js','package.json','package-lock.json',
     'start.bat','.env','.env.local','credentials.json','service-account.json'
   ]);
   const blocked=urlPath.split(/[\\/]/).filter(Boolean).some(segment=>{
