@@ -21,12 +21,12 @@
   display:inline-block;box-sizing:content-box;
   width:auto;height:auto;max-width:100%;
   vertical-align:middle;object-fit:contain;
-  border:1px solid transparent;border-radius:4px;
-  padding:1px;margin:0 3px 0 0;
+  border:0;border-radius:4px;
+  padding:0;margin:0 3px 0 0;
   cursor:pointer;user-select:none;
 }
 #news .dd-news-media-wysiwyg img.dd-news-edit-image:hover{
-  border-color:#75c2f6;background:rgba(89,160,215,.12);
+  outline:1px solid #75c2f6;background:rgba(89,160,215,.12);
 }
 #news .dd-news-media-wysiwyg img.dd-news-edit-left{
   display:block;margin-right:auto;margin-left:0;
