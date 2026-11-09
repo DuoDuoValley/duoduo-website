@@ -23,7 +23,7 @@
  }
  function img(info){
    const width=info.size==='auto'?'':' style="max-width:'+info.size+'%"';
-   return '<img class="dd-news-inline-asset" loading="lazy" decoding="async" src="'+esc(info.url)+'" alt="'+esc(info.alt||'公告插圖')+'"'+width+'>';
+   return '<img class="dd-news-inline-asset dd-news-image-'+info.align+'" loading="lazy" decoding="async" src="'+esc(info.url)+'" alt="'+esc(info.alt||'公告插圖')+'"'+width+'>';
  }
  function render(info,forceInline=false){
    const image=img(info);
