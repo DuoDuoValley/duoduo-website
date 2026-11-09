@@ -14,7 +14,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 <script defer src="cursor-ui/cursor.js"></script>
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
 <link rel="stylesheet" href="dd-navigation.css?v=20261107-badge-timeline-v411"><link rel="stylesheet" href="dd-modal-ui.css?v=20261103-1">
-<link rel="stylesheet" href="dd-news-inline-media.css?v=20261109-v1"><script src="dd-news-inline-media.js?v=20261109-v1"></script></head><body>
+<link rel="stylesheet" href="dd-news-inline-media.css?v=20261109-wysiwyg-v2"><script src="dd-news-inline-media.js?v=20261109-wysiwyg-v2"></script></head><body>
 <header class="site-header">
   <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
   <nav class="main-nav dd-main-nav" aria-label="官網主導覽">
@@ -208,6 +208,8 @@ function newsLinkMarkup(label,raw,showItemIcons=true){
 // 同時支援 Discord、Markdown、直接網址和指定道具圖示；不執行公告中的 HTML。
 function newsInline(value,showItemIcons=true){
   let input=String(value??'');
+  const mixed=window.DuoDuoNewsImages?.renderInline(input,part=>newsInline(part,showItemIcons));
+  if(mixed!==null&&mixed!==undefined)return mixed;
   if((input.match(/\*\*/g)||[]).length%2===1) input=input.replace(/\*\*\s*$/,'');
   const token=/<a:([A-Za-z0-9_]{1,40}):(\d{15,22})>|<:([A-Za-z0-9_]{1,40}):(\d{15,22})>|<@&\d{15,22}>|<@!?\d{15,22}>|<#\d{15,22}>|\[([^\]\n]{1,80})\]\((https?:\/\/[^\s)<>]+)\)|\*\*([^*\n]+)\*\*|__([^_\n]+)__|~~([^~\n]+)~~|`([^`\n]+)`|((?:https?:\/\/|www\.)[^\s<>"'【】\[\]，。！？；：、（）]+)/gi;
   let result='',last=0,match;
