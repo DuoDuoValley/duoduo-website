@@ -243,6 +243,8 @@ function newsRenderedBody(raw){
   const sections=[],intro=[];
   for(const untrimmed of lines){
     const line=untrimmed.trim();
+    const image=window.DuoDuoNewsImages?.renderLine(line);
+    if(image){finishParagraph();finishList();finishGroup();finishGrouped();blocks.push(image);continue;}
     const heading=newsHeading(line);
     if(heading){finishSection();currentHeading=heading.name;continue;}
     if(!line){finishParagraph();finishList();finishGroup();finishGrouped();continue;}
@@ -287,7 +289,10 @@ function newsPlainContent(raw){
  let out=[],list=[],type='',paragraph=[];
  const flushP=()=>{if(paragraph.length){out.push(`<p class="news-paragraph">${paragraph.map(x=>newsStandaloneItemLine(x)||newsInline(x)).join('<br>')}</p>`);paragraph=[];}};
  const flushList=()=>{if(list.length){out.push(`<${type} class="news-readable-list">${list.map(x=>`<li>${newsInline(x)}</li>`).join('')}</${type}>`);list=[];type='';}};
- for(const input of lines){const x=input.trim();if(!x){flushP();flushList();continue;}
+ for(const input of lines){const x=input.trim();
+  const image=window.DuoDuoNewsImages?.renderLine(x);
+  if(image){flushP();flushList();out.push(image);continue;}
+  if(!x){flushP();flushList();continue;}
   const unordered=x.match(/^(?:[-*•·・])\s+(.+)$/),ordered=x.match(/^\d+[.、．)]\s*(.+)$/);
   if(unordered||ordered){flushP();const wanted=ordered?'ol':'ul';if(list.length&&type!==wanted)flushList();type=wanted;list.push((unordered||ordered)[1]);continue;}
   flushList();paragraph.push(x);
