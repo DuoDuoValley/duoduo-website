@@ -44,8 +44,8 @@
      status.textContent='統計正常 · 台灣時間 UTC+8';
      lastSuccess=Date.now();requestSite=requested;
    }catch(error){
-     // Do not turn an unavailable backend into fabricated zeros.
-     status.textContent='無法讀取統計：'+String(error.message||error)+'（請確認 Render 已部署統計 API）';
+     // Do not turn an unavailable backend into fabricated zeros or overwrite another site's status.
+     if(site===requested)status.textContent='無法讀取統計：'+String(error.message||error)+'（請確認 Render 已部署統計 API）';
    }finally{busy=false;refreshButton.disabled=false;if(site!==requested)void refresh(true)}
  }
  siteButtons.forEach(button=>button.addEventListener('click',()=>{
