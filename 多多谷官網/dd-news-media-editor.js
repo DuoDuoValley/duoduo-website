@@ -51,7 +51,12 @@
    textarea.hidden=true;
    textarea.setAttribute('aria-hidden','true');
    textarea.style.display='none';
-   textarea.after(editor);
+   // Keep contenteditable outside the textarea label so clicking inside never
+   // redirects focus back to the hidden textarea.
+   const fieldLabel=textarea.closest('label');
+   if(fieldLabel&&fieldLabel.classList.contains('event-section-full')){
+     editor.classList.add('event-section-full');fieldLabel.after(editor);
+   }else textarea.after(editor);
    const toolbar=document.createElement('div');toolbar.className='dd-news-media-toolbar';
    const fileInput=document.createElement('input');fileInput.type='file';
    fileInput.accept='image/png,image/jpeg,image/webp';fileInput.hidden=true;
@@ -70,9 +75,7 @@
    status.setAttribute('role','status');status.setAttribute('aria-live','polite');
    const root=document.createElement('div');root.className='dd-news-media-editor event-section-full';
    root.append(toolbar,controls,status);
-   const label=textarea.closest('label');
-   if(label&&label.classList.contains('event-section-full'))label.after(root);
-   else editor.after(root);
+   editor.after(root);
    let selectedImage=null,savedRange=null;
    function setImageStyle(image,info){
      image.dataset.newsToken=marker(info);
