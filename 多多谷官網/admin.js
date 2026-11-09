@@ -817,9 +817,9 @@ function renderNewsEditor(){
   const actions=document.createElement('div');actions.className='event-section-actions';
   [[-1,'↑ 上移'],[1,'↓ 下移']].forEach(([d,t])=>{
    const b=document.createElement('button');b.type='button';b.textContent=t;b.disabled=index+d<0||index+d>=newsSectionDraft.length;
-   b.onclick=()=>{const j=index+d;[newsSectionDraft[index],newsSectionDraft[j]]=[newsSectionDraft[j],newsSectionDraft[index]];renderNewsEditor();};actions.append(b);
+   b.onclick=()=>{if(window.DuoDuoNewsMedia?.busy())return alert('圖片上傳中，請完成後再調整段落');const j=index+d;[newsSectionDraft[index],newsSectionDraft[j]]=[newsSectionDraft[j],newsSectionDraft[index]];renderNewsEditor();};actions.append(b);
   });
-  const del=document.createElement('button');del.type='button';del.className='event-section-delete';del.textContent='刪除';del.onclick=()=>{newsSectionDraft.splice(index,1);renderNewsEditor();};actions.append(del);
+  const del=document.createElement('button');del.type='button';del.className='event-section-delete';del.textContent='刪除';del.onclick=()=>{if(window.DuoDuoNewsMedia?.busy())return alert('圖片上傳中，請完成後再刪除段落');newsSectionDraft.splice(index,1);renderNewsEditor();};actions.append(del);
   head.append(name,actions);panel.append(head);
   const fields=document.createElement('div');fields.className='event-section-row-fields';
   const makeLabel=(text,control,cls)=>{const l=document.createElement('label');l.textContent=text;if(cls)l.className=cls;l.append(control);fields.append(l);return l;};
@@ -844,7 +844,7 @@ function renderNewsEditor(){
   panel.append(fields);list.append(panel);
  });
 }
-function addNewsSection(){newsSectionDraft.push(newsNewBlock());renderNewsEditor();newsEl('newsSectionList').querySelector('.event-section-row:last-child textarea')?.focus();}
+function addNewsSection(){if(window.DuoDuoNewsMedia?.busy())return alert('圖片上傳中，請完成後再新增段落');newsSectionDraft.push(newsNewBlock());renderNewsEditor();newsEl('newsSectionList').querySelector('.event-section-row:last-child .dd-news-media-wysiwyg')?.focus();}
 newsEl('newsAddSection').onclick=addNewsSection;
 newsEl('newsAddSectionBottom').onclick=addNewsSection;
 newsEl('newsTag').addEventListener('change',newsSerialMode);
@@ -854,6 +854,7 @@ function readNewsSerial(){return {
 };}
 function showNewsSerial(obj){const s=obj||{};for(const [id,key] of [['newsSerialCode','code'],['newsSerialExpiry','expiry'],['newsSerialMethod','method'],['newsSerialRewards','rewards'],['newsSerialNotes','notes']])newsEl(id).value=String(s[key]||'');}
 function newsResetEditor(){
+ if(window.DuoDuoNewsMedia?.busy())return alert('圖片上傳中，請完成後再清空公告');
  editingNewsIndex=null;
  newsEl('newsTag').value='重要消息';newsEl('newsTitle').value='';ddSetNewsDate('');
  newsEl('newsLead').value='';newsEl('newsBody').value='';newsEl('newsIncludeLegacy').checked=false;
@@ -874,6 +875,7 @@ newsEl('addNews').onclick=()=>{
  save('duoduo_news',news);newsResetEditor();render();
 };
 window.editNews=i=>{
+ if(window.DuoDuoNewsMedia?.busy())return alert('圖片上傳中，請完成後再切換公告');
  const n=news[i];if(!n)return;editingNewsIndex=i;
  newsEl('newsTag').value=n.tag||'重要消息';newsEl('newsTitle').value=n.title||'';ddSetNewsDate(n.date||'');
  newsEl('newsBody').value=n.body||'';newsEl('newsLead').value=n.newsLead||'';
