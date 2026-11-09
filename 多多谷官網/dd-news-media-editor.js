@@ -48,7 +48,11 @@
    const previewBody=document.createElement('div');previewBody.className='dd-news-media-preview-body';
    preview.append(previewTitle,previewBody);
    root.append(toolbar,status,preview);
-   textarea.after(root);
+   // Keep interactive image controls outside the textarea label (valid focus behavior).
+   const label=textarea.closest('label');
+   if(label&&label.classList.contains('event-section-full')){
+     root.classList.add('event-section-full');label.after(root);
+   }else textarea.after(root);
    add.addEventListener('click',()=>input.click());
    function changed(){
      item.body=textarea.value;
