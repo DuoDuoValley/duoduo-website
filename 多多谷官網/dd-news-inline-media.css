@@ -32,3 +32,24 @@
  .dd-news-inline-image img{max-width:100%!important}
  .dd-news-inline-image{margin:10px 0}
 }
+
+
+/* V2: images pasted beside text preserve their own intrinsic pixel dimensions. */
+.news-body img.dd-news-inline-asset,
+.news-readable-body img.dd-news-inline-asset,
+.news-detail-body img.dd-news-inline-asset {
+  display:inline-block;
+  width:auto;
+  height:auto;
+  max-width:100%;
+  vertical-align:middle;
+  object-fit:contain;
+  border:0;
+  margin:0 4px 0 0;
+  padding:0;
+  background:transparent;
+}
+.dd-news-inline-image img.dd-news-inline-asset {
+  display:block;
+  margin:0;
+}
