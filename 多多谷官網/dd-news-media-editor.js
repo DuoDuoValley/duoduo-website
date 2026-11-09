@@ -76,11 +76,15 @@
          const controls=document.createElement('figcaption');controls.className='dd-news-media-controls';
          const controlSize=optionSelect([['25','25%'],['50','50%'],['100','100%']],info.size,'調整圖片寬度');
          const controlAlign=optionSelect([['left','靠左'],['center','置中'],['right','靠右']],info.align,'調整圖片對齊');
+         const caption=document.createElement('input');caption.type='text';caption.maxLength=100;
+         caption.placeholder='圖片說明（可留空）';caption.value=info.alt;
+         caption.setAttribute('aria-label','圖片說明');
          const del=document.createElement('button');del.type='button';del.textContent='移除圖片';del.className='dd-news-media-remove';
          controlSize.addEventListener('change',()=>replaceAt(i,marker({...info,size:Number(controlSize.value)})));
          controlAlign.addEventListener('change',()=>replaceAt(i,marker({...info,align:controlAlign.value})));
+         caption.addEventListener('change',()=>replaceAt(i,marker({...info,alt:caption.value})));
          del.addEventListener('click',()=>replaceAt(i,null));
-         controls.append(controlSize,controlAlign,del);figure.append(img,controls);previewBody.append(figure);
+         controls.append(controlSize,controlAlign,caption,del);figure.append(img,controls);previewBody.append(figure);
        }else{
          const text=document.createElement('div');text.className='dd-news-media-text';
          if(!line)text.classList.add('dd-news-media-blank');
@@ -106,7 +110,7 @@
        const url=await window.uploadImageDataURL(data,file.name||'news-image.png');
        if(!safeURL(url))throw Error('上傳後的圖片網址無法驗證');
        if(!textarea.isConnected)throw Error('編輯器已被關閉，圖片未插入');
-       const token=marker({url,size:Number(size.value),align:align.value,alt:(file.name||'公告圖片').slice(0,100)});
+       const token=marker({url,size:Number(size.value),align:align.value,alt:''});
        const original=textarea.value,head=original.slice(0,start),tail=original.slice(end);
        const before=head&&!head.endsWith('\n')?'\n':'';
        const after=tail&&!tail.startsWith('\n')?'\n':'';
