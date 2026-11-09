@@ -50,15 +50,15 @@
        {cache:'no-store',headers:{Authorization:'Bearer '+token}});
      const payload=await res.json().catch(()=>({}));
      if(!res.ok||payload.ok!==true||payload.source!==requested)throw Error(payload.error||'HTTP '+res.status);
+     if(requested!==source)return;
      for(const [key,node] of Object.entries(values))node.textContent=number(payload[key]);
      renderTracks(payload.tracks);
      previousSource=requested;lastSuccess=Date.now();
      status.textContent='統計正常 · 近 90 秒內有播放心跳 · 台灣時間 UTC+8'+
        (payload.limited?' · 數據量較大，已顯示部分歌曲':'');
    }catch(e){
-     clear();
-     status.textContent='無法讀取 BGM 統計：'+String(e.message||e);
-   }finally{busy=false;refreshButton.disabled=false}
+     if(requested===source){clear();status.textContent='無法讀取 BGM 統計：'+String(e.message||e)}
+   }finally{busy=false;refreshButton.disabled=false;if(requested!==source)void refresh(true)}
  }
  for(const btn of buttons)btn.addEventListener('click',()=>{
    const next=btn.dataset.bgmSource;if(next!=='website'&&next!=='checklist')return;
