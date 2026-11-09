@@ -14,7 +14,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 <script defer src="cursor-ui/cursor.js"></script>
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
 <link rel="stylesheet" href="dd-navigation.css?v=20261107-badge-timeline-v411"><link rel="stylesheet" href="dd-modal-ui.css?v=20261103-1">
-</head><body>
+<link rel="stylesheet" href="dd-news-inline-media.css?v=20261109-v1"><script src="dd-news-inline-media.js?v=20261109-v1"></script></head><body>
 <header class="site-header">
   <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
   <nav class="main-nav dd-main-nav" aria-label="官網主導覽">
@@ -349,6 +349,8 @@ function newsRenderedBody(raw){
   const sections=[],intro=[];
   for(const untrimmed of lines){
     const line=untrimmed.trim();
+    const image=window.DuoDuoNewsImages?.renderLine(line);
+    if(image){finishParagraph();finishList();finishGroup();finishGrouped();blocks.push(image);continue;}
     const heading=newsHeading(line);
     if(heading){finishSection();currentHeading=heading.name;continue;}
     if(!line){finishParagraph();finishList();finishGroup();finishGrouped();continue;}
@@ -393,7 +395,10 @@ function newsPlainContent(raw){
  let out=[],list=[],type='',paragraph=[];
  const flushP=()=>{if(paragraph.length){out.push(`<p class="news-paragraph">${paragraph.map(x=>newsStandaloneItemLine(x)||newsInline(x)).join('<br>')}</p>`);paragraph=[];}};
  const flushList=()=>{if(list.length){out.push(`<${type} class="news-readable-list">${list.map(x=>`<li>${newsInline(x)}</li>`).join('')}</${type}>`);list=[];type='';}};
- for(const input of lines){const x=input.trim();if(!x){flushP();flushList();continue;}
+ for(const input of lines){const x=input.trim();
+  const image=window.DuoDuoNewsImages?.renderLine(x);
+  if(image){flushP();flushList();out.push(image);continue;}
+  if(!x){flushP();flushList();continue;}
   const unordered=x.match(/^(?:[-*•·・])\s+(.+)$/),ordered=x.match(/^\d+[.、．)]\s*(.+)$/);
   if(unordered||ordered){flushP();const wanted=ordered?'ol':'ul';if(list.length&&type!==wanted)flushList();type=wanted;list.push((unordered||ordered)[1]);continue;}
   flushList();paragraph.push(x);
