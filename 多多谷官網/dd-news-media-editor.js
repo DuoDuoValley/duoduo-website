@@ -171,15 +171,15 @@
      const range=insertionRange();
      const fragment=document.createDocumentFragment();
      const segments=String(text).replace(/\r\n?/g,'\n').split('\n');
+     let last=null;
      segments.forEach((segment,i)=>{
-       if(i)fragment.append(document.createElement('br'));
-       if(segment)fragment.append(document.createTextNode(segment));
+       if(i){last=document.createElement('br');fragment.append(last)}
+       if(segment){last=document.createTextNode(segment);fragment.append(last)}
      });
-     const end=document.createTextNode('\u200B');
-     fragment.append(end);
+     if(!last)return;
      range.insertNode(fragment);
      const sel=window.getSelection?.();
-     range.setStartAfter(end);range.collapse(true);
+     range.setStartAfter(last);range.collapse(true);
      if(sel){sel.removeAllRanges();sel.addRange(range)}
      savedRange=range.cloneRange();sync();
    }
