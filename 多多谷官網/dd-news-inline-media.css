@@ -53,3 +53,17 @@
   display:block;
   margin:0;
 }
+
+/* V2: optional block alignment when changing an image from inline to centered. */
+.news-body img.dd-news-inline-asset.dd-news-image-left,
+.news-readable-body img.dd-news-inline-asset.dd-news-image-left{
+  display:block;margin-left:0;margin-right:auto;
+}
+.news-body img.dd-news-inline-asset.dd-news-image-center,
+.news-readable-body img.dd-news-inline-asset.dd-news-image-center{
+  display:block;margin-left:auto;margin-right:auto;
+}
+.news-body img.dd-news-inline-asset.dd-news-image-right,
+.news-readable-body img.dd-news-inline-asset.dd-news-image-right{
+  display:block;margin-left:auto;margin-right:0;
+}
