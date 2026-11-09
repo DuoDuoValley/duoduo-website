@@ -102,6 +102,8 @@ function newsLinkMarkup(label,raw,showItemIcons=true){
 // 同時支援 Discord、Markdown、直接網址和指定道具圖示；不執行公告中的 HTML。
 function newsInline(value,showItemIcons=true){
   let input=String(value??'');
+  const mixed=window.DuoDuoNewsImages?.renderInline(input,part=>newsInline(part,showItemIcons));
+  if(mixed!==null&&mixed!==undefined)return mixed;
   if((input.match(/\*\*/g)||[]).length%2===1) input=input.replace(/\*\*\s*$/,'');
   const token=/<a:([A-Za-z0-9_]{1,40}):(\d{15,22})>|<:([A-Za-z0-9_]{1,40}):(\d{15,22})>|<@&\d{15,22}>|<@!?\d{15,22}>|<#\d{15,22}>|\[([^\]\n]{1,80})\]\((https?:\/\/[^\s)<>]+)\)|\*\*([^*\n]+)\*\*|__([^_\n]+)__|~~([^~\n]+)~~|`([^`\n]+)`|((?:https?:\/\/|www\.)[^\s<>"'【】\[\]，。！？；：、（）]+)/gi;
   let result='',last=0,match;
