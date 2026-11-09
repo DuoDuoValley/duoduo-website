@@ -839,6 +839,8 @@ function renderNewsEditor(){
   });
   custom.addEventListener('input',()=>{item.title=custom.value;refreshIcon();});
   body.addEventListener('input',()=>{item.body=body.value;});
+  // Optional additive image support; old announcements stay ordinary text.
+  window.DuoDuoNewsMedia?.mount(body,item);
   panel.append(fields);list.append(panel);
  });
 }
@@ -860,6 +862,7 @@ function newsResetEditor(){
 }
 newsEl('cancelEditNews').onclick=()=>{newsResetEditor();};
 newsEl('addNews').onclick=()=>{
+ if(window.DuoDuoNewsMedia?.busy())return alert('公告圖片還在上傳，請完成後再儲存。');
  const title=newsEl('newsTitle').value.trim();if(!title)return alert('請先輸入公告標題');
  let validNewsDate;try{validNewsDate=ddReadNewsDate();}catch(error){return alert(error.message);}
  const items=newsSectionDraft.map(x=>({type:x.type,title:(x.type==='custom'?x.title:NEWS_SECTION_TYPES.find(t=>t[0]===x.type)?.[1]||x.title).trim(),icon:duoduoEventIconId(x.icon),body:String(x.body||'').trim()})).filter(x=>x.title&&x.body);
