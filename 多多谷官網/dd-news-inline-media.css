@@ -1,0 +1,34 @@
+/* Safely rendered inline announcement images (news page + homepage modal). */
+.news-body .dd-news-inline-image,
+.news-detail-body .dd-news-inline-image,
+.news-readable-body .dd-news-inline-image {
+  width:100%;
+  min-width:0;
+  box-sizing:border-box;
+  display:flex;
+  flex-direction:column;
+  gap:6px;
+  margin:14px 0;
+  padding:0;
+}
+.dd-news-inline-image.dd-news-image-left{align-items:flex-start;text-align:left}
+.dd-news-inline-image.dd-news-image-center{align-items:center;text-align:center}
+.dd-news-inline-image.dd-news-image-right{align-items:flex-end;text-align:right}
+.dd-news-inline-image img{
+  display:block;
+  height:auto;
+  max-width:100%;
+  object-fit:contain;
+  border-radius:8px;
+}
+.dd-news-inline-image figcaption{
+  max-width:100%;
+  color:var(--muted,#8297ac);
+  font-size:12px;
+  line-height:1.5;
+  overflow-wrap:anywhere;
+}
+@media(max-width:560px){
+ .dd-news-inline-image img{max-width:100%!important}
+ .dd-news-inline-image{margin:10px 0}
+}
