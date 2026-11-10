@@ -119,6 +119,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 }
 </style>
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
+<link rel="stylesheet" href="dd-event-richtext.css?v=20261111-event-richtext-v1"><script src="dd-news-inline-media.js?v=20261111-colorpalette-v1"></script>
 </head><body><header class="site-header">
   <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
   <nav class="main-nav dd-main-nav" aria-label="官網主導覽">
@@ -206,7 +207,7 @@ function renderDuoDuoEventSections(event) {
       return `<a href="${esc(url.href)}" target="_blank" rel="noopener noreferrer">${label?iconInline(label):esc(value)}</a>`+esc(suffix);
     }catch(_){return iconInline(label||raw);}
   };
-  const textInline=raw=>{
+  const textInlinePlain=raw=>{
     const input=String(raw??'');
     const pattern=/\[([^\]\n]{1,120})\]\((https?:\/\/[^\s)<>]+)\)|((?:https?:\/\/|www\.)[^\s<>"'【】\[\]，。！？；：、（）]+)/gi;
     let html='',start=0,match;
@@ -216,6 +217,10 @@ function renderDuoDuoEventSections(event) {
       start=pattern.lastIndex;
     }
     return html+iconInline(input.slice(start));
+  };
+  const textInline=raw=>{
+    const formatted=window.DuoDuoNewsImages?.renderInline(raw,part=>textInlinePlain(part));
+    return formatted===null||formatted===undefined?textInlinePlain(raw):formatted;
   };
   const textHtml=text=>String(text??'').replace(/\r\n?/g,'\n').split('\n').map(textInline).join('<br>');
   let parts=[];

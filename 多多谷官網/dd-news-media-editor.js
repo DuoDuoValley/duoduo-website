@@ -56,7 +56,8 @@
    for(const [value,label] of options){const opt=document.createElement('option');opt.value=value;opt.textContent=label;el.append(opt)}
    return el;
  }
- function mount(textarea,item){
+ function mount(textarea,item,options={}){
+   const textOnly=options?.textOnly===true;
    if(!textarea||textarea.dataset.newsMediaMounted==='2')return;
    textarea.dataset.newsMediaMounted='2';
    const editor=document.createElement('div');
@@ -64,17 +65,19 @@
    editor.contentEditable='true';
    editor.spellcheck=false;
    editor.setAttribute('role','textbox');
-   editor.setAttribute('aria-label','公告圖文內文，可直接輸入文字並貼上圖片');
+   editor.setAttribute('aria-label',textOnly?'活動內容文字格式編輯區':'公告圖文內文，可直接輸入文字並貼上圖片');
    editor.setAttribute('aria-multiline','true');
-   editor.dataset.placeholder='在這裡輸入公告內容，也可直接 Ctrl + V 貼上道具圖片…';
+   editor.dataset.placeholder=textOnly?'在這裡輸入活動內容，選取文字可設定顏色與格式…':'在這裡輸入公告內容，也可直接 Ctrl + V 貼上道具圖片…';
    textarea.hidden=true;
    textarea.setAttribute('aria-hidden','true');
    textarea.style.display='none';
    // Keep contenteditable outside the textarea label so clicking inside never
    // redirects focus back to the hidden textarea.
    const fieldLabel=textarea.closest('label');
-   if(fieldLabel&&fieldLabel.classList.contains('event-section-full')){
-     editor.classList.add('event-section-full');fieldLabel.after(editor);
+   const legacyFullRow=!!(textOnly&&fieldLabel?.classList.contains('full'));
+   if(fieldLabel&&(fieldLabel.classList.contains('event-section-full')||legacyFullRow)){
+     editor.classList.add(legacyFullRow?'full':'event-section-full');
+     fieldLabel.after(editor);
    }else textarea.after(editor);
    const toolbar=document.createElement('div');toolbar.className='dd-news-media-toolbar';
    const fileInput=document.createElement('input');fileInput.type='file';
@@ -154,8 +157,9 @@
    controls.append(size,align,remove);
    const status=document.createElement('div');status.className='dd-news-media-status';
    status.setAttribute('role','status');status.setAttribute('aria-live','polite');
-   const root=document.createElement('div');root.className='dd-news-media-editor event-section-full';
-   root.append(formatBar,toolbar,controls,status);
+   const root=document.createElement('div');root.className='dd-news-media-editor '+(legacyFullRow?'full':'event-section-full');
+   if(textOnly)root.append(formatBar,status);
+   else root.append(formatBar,toolbar,controls,status);
    editor.after(root);
    let selectedImage=null,savedRange=null;
    function setImageStyle(image,info){
@@ -419,14 +423,14 @@
      const files=Array.from(event.clipboardData?.items||[]);
      const image=files.find(x=>x.kind==='file'&&ACCEPT.test(x.type));
      event.preventDefault();
-     if(image){const file=image.getAsFile();if(file)void insertFile(file)}
+     if(image&&!textOnly){const file=image.getAsFile();if(file)void insertFile(file)}
      else insertPlain(event.clipboardData?.getData('text/plain')||'');
    });
    editor.addEventListener('dragover',event=>event.preventDefault());
    editor.addEventListener('drop',event=>{
      event.preventDefault();
      const file=Array.from(event.dataTransfer?.files||[]).find(f=>ACCEPT.test(f.type));
-     if(file)void insertFile(file);
+     if(file&&!textOnly)void insertFile(file);
      else insertPlain(event.dataTransfer?.getData('text/plain')||'');
    });
    editor.addEventListener('input',()=>{sync();rememberRange()});

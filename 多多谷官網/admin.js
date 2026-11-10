@@ -1113,12 +1113,13 @@ function renderEventSectionEditor(){
     customTitle.addEventListener('input',()=>{item.title=customTitle.value;refreshIconSelection();});
     content.addEventListener('input',()=>{item.body=content.value;});
     panel.appendChild(fields);container.appendChild(panel);updateVisibility();
+    window.DuoDuoNewsMedia?.mount(content,item,{textOnly:true});
   });
 }
 $('#eventAddSection').addEventListener('click',()=>{
   eventSectionDraft.push({type:'method',title:'活動方式',icon:'list-checks',body:''});
   renderEventSectionEditor();
-  $('#eventSectionList .event-section-row:last-child textarea')?.focus();
+  $('#eventSectionList .event-section-row:last-child .dd-news-media-wysiwyg')?.focus();
 });
 $('#eventAddSectionBottom').addEventListener('click',()=>$('#eventAddSection').click());
 function collectEventSectionBlocks(){
@@ -1130,6 +1131,15 @@ function collectEventSectionBlocks(){
   })).filter(item=>item.title&&item.body);
 }
 renderEventSectionEditor();
+// Keep the historical detail field as the single source of truth for legacy events.
+const eventLegacyRichItem={body:''};
+function refreshEventLegacyRich(){
+  const field=$('#eventDetail');if(!field)return;
+  eventLegacyRichItem.body=field.value;
+  window.DuoDuoNewsMedia?.mount(field,eventLegacyRichItem,{textOnly:true});
+  window.DuoDuoNewsMedia?.refresh(field);
+}
+refreshEventLegacyRich();
 
 $('#saveEvent').onclick=async()=>{
   const name=$('#eventName').value.trim();
@@ -1272,7 +1282,7 @@ window.removeEvent=async i=>{
   render();
   alert('檔期活動已刪除，並同步到雲端。');
 };
-let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';eventSectionDraft=normalizeEventSections(e);renderEventSectionEditor();setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();focusManagedForm('eventManageForm')};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});eventSectionDraft=[];renderEventSectionEditor();ddSetTimeEnabled('eventStartTime',false);ddSetTimeEnabled('eventEndTime',false);ddSetPickerValue('eventStart','');ddSetPickerValue('eventEnd','');$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
+let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';refreshEventLegacyRich();eventSectionDraft=normalizeEventSections(e);renderEventSectionEditor();setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();focusManagedForm('eventManageForm')};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});eventSectionDraft=[];renderEventSectionEditor();refreshEventLegacyRich();ddSetTimeEnabled('eventStartTime',false);ddSetTimeEnabled('eventEndTime',false);ddSetPickerValue('eventStart','');ddSetPickerValue('eventEnd','');$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
 window.saveLinks=()=>{
   const saved=read('duoduo_links',{});
   document.querySelectorAll('#linksForm input').forEach(i=>{
