@@ -6,11 +6,24 @@
  const EXACT=new RegExp('^'+TOKEN.source+'$');
  const ACCEPT=/^image\/(?:png|jpeg|webp)$/i;
  const MAX_FILE=8*1024*1024;
- const FMT_KEYS=new Set(['B','I','U','S','CRED','CORANGE','CYELLOW','CGREEN','CBLUE','CPURPLE','HYELLOW','HPINK','HGREEN','HBLUE']);
+ const FMT_KEYS=new Set(["B","I","U","S","CRED","CCORAL","CORANGE","CGOLD","CYELLOW","CLIME","CGREEN","CTEAL","CCYAN","CBLUE","CINDIGO","CPURPLE","CLAVENDER","CPINK","CMAGENTA","CBROWN","CGRAY","HYELLOW","HORANGE","HRED","HPINK","HPEACH","HGREEN","HMINT","HCYAN","HBLUE","HPURPLE","HLAVENDER","HGRAY"]);
  const FMT_RE=/\[\[DDFMT:([A-Z]+)\]\]/g;
  const LOAD_TOKENS=/\[\[DDIMG:[^\]\r\n]{1,3200}\]\]|\[\[DDFMT:[A-Z]+\]\]/g;
  const OPEN_FMT=key=>'[[DDFMT:'+key+']]';
  const CLOSE_FMT='[[DDFMT:END]]';
+ const TEXT_COLOR_PALETTE=[{"key":"CRED","name":"紅","hex":"#ff727c"},{"key":"CCORAL","name":"珊瑚","hex":"#ff9b88"},{"key":"CORANGE","name":"橘","hex":"#ffae60"},{"key":"CGOLD","name":"金","hex":"#ffcd6d"},{"key":"CYELLOW","name":"黃","hex":"#ffe081"},{"key":"CLIME","name":"嫩綠","hex":"#beed7b"},{"key":"CGREEN","name":"綠","hex":"#72dca0"},{"key":"CTEAL","name":"青綠","hex":"#66dacf"},{"key":"CCYAN","name":"青","hex":"#72dfff"},{"key":"CBLUE","name":"藍","hex":"#82c6ff"},{"key":"CINDIGO","name":"靛藍","hex":"#9eaafa"},{"key":"CPURPLE","name":"紫","hex":"#d3a8ff"},{"key":"CLAVENDER","name":"薰衣草","hex":"#cfbcff"},{"key":"CPINK","name":"粉紅","hex":"#ff9dc8"},{"key":"CMAGENTA","name":"桃紫","hex":"#f58ce8"},{"key":"CBROWN","name":"棕","hex":"#e4b58c"},{"key":"CGRAY","name":"灰","hex":"#bac8d7"}];
+ const HIGHLIGHT_PALETTE=[{"key":"HYELLOW","name":"亮黃","hex":"#ffe56e"},{"key":"HORANGE","name":"暖橘","hex":"#ffd39a"},{"key":"HRED","name":"珊瑚紅","hex":"#ffb1b8"},{"key":"HPINK","name":"柔粉","hex":"#ffc2db"},{"key":"HPEACH","name":"蜜桃","hex":"#ffcfb4"},{"key":"HGREEN","name":"嫩綠","hex":"#b0ecc2"},{"key":"HMINT","name":"薄荷","hex":"#aef1dd"},{"key":"HCYAN","name":"冰藍","hex":"#b3efff"},{"key":"HBLUE","name":"天空藍","hex":"#b9dcff"},{"key":"HPURPLE","name":"紫","hex":"#dfc2ff"},{"key":"HLAVENDER","name":"淡紫","hex":"#e9d9ff"},{"key":"HGRAY","name":"霧灰","hex":"#dbe1e9"}];
+ let activePalette=null;
+ function closePalette(){
+   if(!activePalette)return;
+   activePalette.panel.hidden=true;
+   activePalette.trigger.setAttribute('aria-expanded','false');
+   activePalette=null;
+ }
+ document.addEventListener('pointerdown',event=>{
+   if(activePalette&&!activePalette.owner.contains(event.target))closePalette();
+ });
+
  let pending=0;
  const mountedEditors=new WeakMap();
  const decode=s=>{try{return decodeURIComponent(s)}catch{return ''}};
@@ -85,14 +98,47 @@
    formatButton('I','斜體','I');
    formatButton('U','底線','U');
    formatButton('S','刪除線','S');
-   const colors=dropdown('文字顏色',[['','文字顏色'],['CRED','紅色'],['CORANGE','橘色'],['CYELLOW','黃色'],['CGREEN','綠色'],['CBLUE','藍色'],['CPURPLE','紫色']]);
-   const marks=dropdown('螢光標記',[['','螢光標記'],['HYELLOW','黃色底'],['HPINK','粉色底'],['HGREEN','綠色底'],['HBLUE','藍色底']]);
-   colors.className=marks.className='dd-news-format-select';
-   colors.addEventListener('mousedown',rememberRange);
-   marks.addEventListener('mousedown',rememberRange);
-   colors.addEventListener('change',()=>{if(colors.value)applySelectedFormat(colors.value);colors.value=''});
-   marks.addEventListener('change',()=>{if(marks.value)applySelectedFormat(marks.value);marks.value=''});
-   formatBar.append(colors,marks);
+   // Visual-only color choices. Screen readers and hover tooltips retain labels.
+   function addPalette(title,kind,items){
+     const owner=document.createElement('div');owner.className='dd-news-palette-owner';
+     const trigger=document.createElement('button');trigger.type='button';
+     trigger.className='dd-news-palette-trigger';trigger.title=title+'（選字後點色塊）';
+     trigger.setAttribute('aria-label',title);trigger.setAttribute('aria-expanded','false');
+     trigger.setAttribute('aria-haspopup','true');
+     const glyph=document.createElement('span');glyph.className='dd-news-palette-glyph';
+     glyph.textContent=kind==='text'?'A':'▰';glyph.setAttribute('aria-hidden','true');
+     const colorBar=document.createElement('span');colorBar.className='dd-news-palette-current';
+     colorBar.style.backgroundColor=items[0].hex;colorBar.setAttribute('aria-hidden','true');
+     const arrow=document.createElement('span');arrow.className='dd-news-palette-arrow';
+     arrow.textContent='⌄';arrow.setAttribute('aria-hidden','true');
+     trigger.append(glyph,colorBar,arrow);
+     const panel=document.createElement('div');panel.className='dd-news-palette-panel';panel.hidden=true;
+     panel.setAttribute('role','group');panel.setAttribute('aria-label',title+'調色盤');
+     for(const item of items){
+       const chip=document.createElement('button');chip.type='button';chip.className='dd-news-color-swatch';
+       chip.style.backgroundColor=item.hex;chip.title=title+'：'+item.name;
+       chip.setAttribute('aria-label',title+'：'+item.name);
+       chip.dataset.formatKey=item.key;
+       chip.addEventListener('mousedown',event=>event.preventDefault());
+       chip.addEventListener('click',()=>{
+         if(applySelectedFormat(item.key)){
+           colorBar.style.backgroundColor=item.hex;
+           closePalette();
+         }
+       });
+       panel.append(chip);
+     }
+     trigger.addEventListener('mousedown',event=>{event.preventDefault();rememberRange()});
+     trigger.addEventListener('click',()=>{
+       const wasOpen=activePalette?.owner===owner;closePalette();
+       if(wasOpen)return;
+       panel.hidden=false;trigger.setAttribute('aria-expanded','true');
+       activePalette={owner,trigger,panel};
+     });
+     owner.append(trigger,panel);formatBar.append(owner);
+   }
+   addPalette('文字顏色','text',TEXT_COLOR_PALETTE);
+   addPalette('螢光標記','highlight',HIGHLIGHT_PALETTE);
    const linkButton=document.createElement('button');linkButton.type='button';
    linkButton.className='dd-news-format-btn';linkButton.textContent='🔗 連結';linkButton.title='插入 HTTPS 超連結';
    linkButton.addEventListener('mousedown',event=>{event.preventDefault();rememberRange()});
@@ -212,9 +258,11 @@
    function selectionRange(){
      const sel=window.getSelection?.();
      let range=null;
-     if(sel?.rangeCount&&sel.anchorNode&&editor.contains(sel.anchorNode))
-       range=sel.getRangeAt(0).cloneRange();
-     else if(savedRange&&editor.contains(savedRange.commonAncestorContainer))
+     if(sel?.rangeCount&&sel.anchorNode&&editor.contains(sel.anchorNode)){
+       const current=sel.getRangeAt(0);
+       if(!current.collapsed)range=current.cloneRange();
+     }
+     if(!range&&savedRange&&editor.contains(savedRange.commonAncestorContainer)&&!savedRange.collapsed)
        range=savedRange.cloneRange();
      return range&&!range.collapsed&&editor.contains(range.commonAncestorContainer)?range:null;
    }
@@ -225,12 +273,13 @@
      savedRange=range.cloneRange();editor.focus();sync();
    }
    function applySelectedFormat(key){
-     if(!FMT_KEYS.has(key))return;
+     if(!FMT_KEYS.has(key))return false;
      const range=selectionRange();
-     if(!range){status.textContent='請先在公告內文反白選取要套用格式的文字。';return}
+     if(!range){status.textContent='請先在公告內文反白選取要套用格式的文字。';return false}
      const wrapper=formattedSpan(key);
      wrapper.append(range.extractContents());range.insertNode(wrapper);
      useRangeAfter(wrapper);status.textContent='已套用文字格式（儲存並同步雲端後才會公開）。';
+     return true;
    }
    function stripFormatInside(node){
      const children=Array.from(node.childNodes);

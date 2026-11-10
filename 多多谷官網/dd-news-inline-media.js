@@ -35,7 +35,7 @@
    const info=parse(line);return info?render(info):'';
  }
  // Rich text is stored as a small, explicit token grammar; never render saved HTML.
- const FMT_KEYS=new Set(['B','I','U','S','CRED','CORANGE','CYELLOW','CGREEN','CBLUE','CPURPLE','HYELLOW','HPINK','HGREEN','HBLUE','END']);
+ const FMT_KEYS=new Set(["B","I","U","S","CRED","CCORAL","CORANGE","CGOLD","CYELLOW","CLIME","CGREEN","CTEAL","CCYAN","CBLUE","CINDIGO","CPURPLE","CLAVENDER","CPINK","CMAGENTA","CBROWN","CGRAY","HYELLOW","HORANGE","HRED","HPINK","HPEACH","HGREEN","HMINT","HCYAN","HBLUE","HPURPLE","HLAVENDER","HGRAY","END"]);
  const FMT=/^\[\[DDFMT:([A-Z]+)\]\]$/;
  const MIXED=/\[\[DDIMG:[^\]\r\n]{1,3200}\]\]|\[\[DDFMT:[A-Z]+\]\]/g;
  const fmtTag=key=>key==='B'?'strong':key==='I'?'em':key==='U'?'u':key==='S'?'s':key[0]==='H'?'mark':'span';
