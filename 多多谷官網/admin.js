@@ -853,11 +853,20 @@ function readNewsSerial(){return {
  method:newsEl('newsSerialMethod').value.trim(),rewards:newsEl('newsSerialRewards').value.trim(),notes:newsEl('newsSerialNotes').value.trim()
 };}
 function showNewsSerial(obj){const s=obj||{};for(const [id,key] of [['newsSerialCode','code'],['newsSerialExpiry','expiry'],['newsSerialMethod','method'],['newsSerialRewards','rewards'],['newsSerialNotes','notes']])newsEl(id).value=String(s[key]||'');}
+// Reuse the structured editor's toolbar for legacy news content.
+const legacyNewsBodyItem={body:''};
+function refreshLegacyNewsBody(){
+ const field=newsEl('newsBody');
+ if(!field)return;
+ legacyNewsBodyItem.body=field.value;
+ window.DuoDuoNewsMedia?.mount(field,legacyNewsBodyItem);
+ window.DuoDuoNewsMedia?.refresh(field);
+}
 function newsResetEditor(){
  if(window.DuoDuoNewsMedia?.busy())return alert('圖片上傳中，請完成後再清空公告');
  editingNewsIndex=null;
  newsEl('newsTag').value='重要消息';newsEl('newsTitle').value='';ddSetNewsDate('');
- newsEl('newsLead').value='';newsEl('newsBody').value='';newsEl('newsIncludeLegacy').checked=false;
+ newsEl('newsLead').value='';newsEl('newsBody').value='';refreshLegacyNewsBody();newsEl('newsIncludeLegacy').checked=false;
  newsEl('newsLegacyEditor').open=false;newsSectionDraft=[];showNewsSerial(null);renderNewsEditor();newsSerialMode();
  newsEl('addNews').textContent='＋ 新增公告';
 }
@@ -878,7 +887,7 @@ window.editNews=i=>{
  if(window.DuoDuoNewsMedia?.busy())return alert('圖片上傳中，請完成後再切換公告');
  const n=news[i];if(!n)return;editingNewsIndex=i;
  newsEl('newsTag').value=n.tag||'重要消息';newsEl('newsTitle').value=n.title||'';ddSetNewsDate(n.date||'');
- newsEl('newsBody').value=n.body||'';newsEl('newsLead').value=n.newsLead||'';
+ newsEl('newsBody').value=n.body||'';refreshLegacyNewsBody();newsEl('newsLead').value=n.newsLead||'';
  newsEl('newsIncludeLegacy').checked=Boolean(n.newsIncludeLegacy);
  newsSectionDraft=normalizeNewsBlocks(n);showNewsSerial(n.newsSerial);renderNewsEditor();newsSerialMode();
  newsEl('addNews').textContent='儲存公告修改';
@@ -888,7 +897,7 @@ window.removeNews=i=>{if(confirm('確定刪除這則公告？')){
  news.splice(i,1);if(editingNewsIndex===i)newsResetEditor();
  save('duoduo_news',news);render();
 }};
-renderNewsEditor();newsSerialMode();
+renderNewsEditor();newsSerialMode();refreshLegacyNewsBody();
 async function fileToCompressedDataURL(file,maxW=1800,maxH=1200,quality=.86){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.naturalWidth,maxH/img.naturalHeight);const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/webp',quality));};img.onerror=reject;img.src=reader.result;};reader.onerror=reject;reader.readAsDataURL(file)});}async function uploadImageDataURL(dataUrl,originalName){
   const API_BASE=window.location.hostname.endsWith('github.io')
   ? 'https://duoduo-website.onrender.com'

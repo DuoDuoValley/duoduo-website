@@ -12,6 +12,7 @@
  const OPEN_FMT=key=>'[[DDFMT:'+key+']]';
  const CLOSE_FMT='[[DDFMT:END]]';
  let pending=0;
+ const mountedEditors=new WeakMap();
  const decode=s=>{try{return decodeURIComponent(s)}catch{return ''}};
  function safeURL(value){
    try{
@@ -399,7 +400,13 @@
      if(!selectedImage)return;
      selectedImage.remove();loadSelectedImage(null);sync();editor.focus();
    });
+   // Refresh after the admin changes the hidden input programmatically.
+   // Mount and reload are read-only to preserve previously saved body text.
+   mountedEditors.set(textarea,{reload(){
+     savedRange=null;selectedImage=null;controls.hidden=true;
+     status.textContent='';load();
+   }});
    load();
  }
- window.DuoDuoNewsMedia={mount,busy:()=>pending>0,parse,marker,safeURL};
+ window.DuoDuoNewsMedia={mount,refresh:textarea=>mountedEditors.get(textarea)?.reload(),busy:()=>pending>0,parse,marker,safeURL};
 })();
