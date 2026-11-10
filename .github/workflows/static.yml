@@ -55,6 +55,7 @@ jobs:
           node --check "多多谷官網/dd-traffic-server.js"
           node --check "多多谷官網/dd-site-update.js"
           node --check "多多谷官網/admin.js"
+          node --test tests/server-utf8.test.cjs
           SITE_DIST="${RUNNER_TEMP}/duoduo-site-public"
           mkdir -p "${SITE_DIST}"
           cp -a "多多谷官網/." "${SITE_DIST}/"
