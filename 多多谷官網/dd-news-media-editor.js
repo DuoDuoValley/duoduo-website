@@ -6,6 +6,11 @@
  const EXACT=new RegExp('^'+TOKEN.source+'$');
  const ACCEPT=/^image\/(?:png|jpeg|webp)$/i;
  const MAX_FILE=8*1024*1024;
+ const FMT_KEYS=new Set(['B','I','U','S','CRED','CORANGE','CYELLOW','CGREEN','CBLUE','CPURPLE','HYELLOW','HPINK','HGREEN','HBLUE']);
+ const FMT_RE=/\[\[DDFMT:([A-Z]+)\]\]/g;
+ const LOAD_TOKENS=/\[\[DDIMG:[^\]\r\n]{1,3200}\]\]|\[\[DDFMT:[A-Z]+\]\]/g;
+ const OPEN_FMT=key=>'[[DDFMT:'+key+']]';
+ const CLOSE_FMT='[[DDFMT:END]]';
  let pending=0;
  const decode=s=>{try{return decodeURIComponent(s)}catch{return ''}};
  function safeURL(value){
@@ -65,7 +70,36 @@
    insertButton.className='dd-news-media-upload';insertButton.textContent='＋ 插入圖片';
    const helper=document.createElement('span');helper.className='dd-news-media-tip';
    helper.textContent='圖片會直接出現在游標位置，預設顯示原始大小；可和文字排在同一行';
-   toolbar.append(insertButton,fileInput,helper);
+   const formatBar=document.createElement('div');formatBar.className='dd-news-format-tools';
+   const formatNote=document.createElement('span');formatNote.className='dd-news-format-note';
+   formatNote.textContent='先反白選取文字，再套用樣式';
+   function formatButton(label,title,key){
+     const b=document.createElement('button');b.type='button';b.textContent=label;
+     b.className='dd-news-format-btn';b.title=title;b.setAttribute('aria-label',title);
+     b.addEventListener('mousedown',event=>{event.preventDefault();rememberRange()});
+     b.addEventListener('click',()=>key==='CLEAR'?clearSelectedFormat():applySelectedFormat(key));
+     formatBar.append(b);return b;
+   }
+   formatButton('B','粗體','B');
+   formatButton('I','斜體','I');
+   formatButton('U','底線','U');
+   formatButton('S','刪除線','S');
+   const colors=dropdown('文字顏色',[['','文字顏色'],['CRED','紅色'],['CORANGE','橘色'],['CYELLOW','黃色'],['CGREEN','綠色'],['CBLUE','藍色'],['CPURPLE','紫色']]);
+   const marks=dropdown('螢光標記',[['','螢光標記'],['HYELLOW','黃色底'],['HPINK','粉色底'],['HGREEN','綠色底'],['HBLUE','藍色底']]);
+   colors.className=marks.className='dd-news-format-select';
+   colors.addEventListener('mousedown',rememberRange);
+   marks.addEventListener('mousedown',rememberRange);
+   colors.addEventListener('change',()=>{if(colors.value)applySelectedFormat(colors.value);colors.value=''});
+   marks.addEventListener('change',()=>{if(marks.value)applySelectedFormat(marks.value);marks.value=''});
+   formatBar.append(colors,marks);
+   const linkButton=document.createElement('button');linkButton.type='button';
+   linkButton.className='dd-news-format-btn';linkButton.textContent='🔗 連結';linkButton.title='插入 HTTPS 超連結';
+   linkButton.addEventListener('mousedown',event=>{event.preventDefault();rememberRange()});
+   linkButton.addEventListener('click',insertSelectedLink);
+   formatBar.append(linkButton);
+   formatButton('清除格式','只清除反白範圍內的文字格式','CLEAR');
+   toolbar.append(formatNote,insertButton,fileInput,helper);
+   // Toolbar is inserted once the editor root has been created.
    const controls=document.createElement('div');controls.className='dd-news-image-controls';controls.hidden=true;
    const size=dropdown('所選圖片大小',[['auto','原始尺寸'],['25','25%'],['50','50%'],['100','100%']]);
    const align=dropdown('所選圖片對齊',[['inline','文字行內'],['left','靠左另起行'],['center','置中另起行'],['right','靠右另起行']]);
@@ -74,7 +108,7 @@
    const status=document.createElement('div');status.className='dd-news-media-status';
    status.setAttribute('role','status');status.setAttribute('aria-live','polite');
    const root=document.createElement('div');root.className='dd-news-media-editor event-section-full';
-   root.append(toolbar,controls,status);
+   root.append(formatBar,toolbar,controls,status);
    editor.after(root);
    let selectedImage=null,savedRange=null;
    function setImageStyle(image,info){
@@ -94,21 +128,30 @@
      image.src=info.url;image.loading='lazy';
      setImageStyle(image,info);return image;
    }
+   function formattedSpan(key){
+     const span=document.createElement('span');span.className='dd-news-fmt dd-news-fmt-'+key.toLowerCase();
+     span.dataset.newsFormat=key;return span;
+   }
    function load(){
      editor.replaceChildren();
      const lines=String(textarea.value||'').replace(/\r\n?/g,'\n').split('\n');
-     lines.forEach((line,i)=>{
-       let cursor=0,m;TOKEN.lastIndex=0;
-       while((m=TOKEN.exec(line))!==null){
-         const info=parse(m[0]);if(!info)continue;
-         const before=line.slice(cursor,m.index);
-         if(before)editor.append(document.createTextNode(before));
-         editor.append(imageElement(info));cursor=m.index+m[0].length;
+     const stack=[editor];
+     for(let i=0;i<lines.length;i++){
+       if(i)stack[stack.length-1].append(document.createElement('br'));
+       let last=0;LOAD_TOKENS.lastIndex=0;let match;
+       while((match=LOAD_TOKENS.exec(lines[i]))!==null){
+         if(match.index>last)stack[stack.length-1].append(document.createTextNode(lines[i].slice(last,match.index)));
+         const token=match[0];
+         const image=token.startsWith('[[DDIMG:')?parse(token):null;
+         const key=token.match(/^\[\[DDFMT:([A-Z]+)\]\]$/)?.[1];
+         if(image)stack[stack.length-1].append(imageElement(image));
+         else if(key==='END'&&stack.length>1)stack.pop();
+         else if(FMT_KEYS.has(key)){const span=formattedSpan(key);stack[stack.length-1].append(span);stack.push(span)}
+         else stack[stack.length-1].append(document.createTextNode(token));
+         last=match.index+token.length;
        }
-       const tail=line.slice(cursor);
-       if(tail)editor.append(document.createTextNode(tail));
-       if(i<lines.length-1)editor.append(document.createElement('br'));
-     });
+       if(last<lines[i].length)stack[stack.length-1].append(document.createTextNode(lines[i].slice(last)));
+     }
    }
    function serialize(){
      let output='';
@@ -121,13 +164,30 @@
          if(parse(token))output+=token;return;
        }
        if(node.tagName==='BR'){output+='\n';return}
+       const native={'STRONG':'B','B':'B','EM':'I','I':'I','U':'U','S':'S','STRIKE':'S'};
+       const key=FMT_KEYS.has(node.dataset?.newsFormat)?node.dataset.newsFormat:native[node.tagName];
+       if(key)output+=OPEN_FMT(key);
        const isBlock=blocks.has(node.tagName);
        if(isBlock&&output&&!output.endsWith('\n'))output+='\n';
        for(const child of node.childNodes)walk(child);
        if(isBlock&&output&&!output.endsWith('\n'))output+='\n';
+       if(key)output+=CLOSE_FMT;
      }
      for(const node of editor.childNodes)walk(node);
-     return output.replace(/\n$/,'').replace(/\u00a0/g,' ');
+     // Frontend paragraph rendering is line-based. Keep each format self-contained
+     // within every line, even when selection includes a line break.
+     const normalized=output.replace(/\n$/,'').replace(/\u00a0/g,' ');
+     const active=[];let result='';
+     const pieces=normalized.split(/(\[\[DDFMT:[A-Z]+\]\]|\n)/);
+     for(const part of pieces){
+       const key=part.match(/^\[\[DDFMT:([A-Z]+)\]\]$/)?.[1];
+       if(key==='END'){if(active.length)active.pop();result+=part}
+       else if(FMT_KEYS.has(key)){active.push(key);result+=part}
+       else if(part==='\n'){
+         result+=CLOSE_FMT.repeat(active.length)+'\n'+active.map(OPEN_FMT).join('');
+       }else result+=part;
+     }
+     return result;
    }
    function sync(){
      const value=serialize();
@@ -147,6 +207,83 @@
      const sel=window.getSelection?.();
      if(sel?.rangeCount&&sel.anchorNode&&editor.contains(sel.anchorNode))
        savedRange=sel.getRangeAt(0).cloneRange();
+   }
+   function selectionRange(){
+     const sel=window.getSelection?.();
+     let range=null;
+     if(sel?.rangeCount&&sel.anchorNode&&editor.contains(sel.anchorNode))
+       range=sel.getRangeAt(0).cloneRange();
+     else if(savedRange&&editor.contains(savedRange.commonAncestorContainer))
+       range=savedRange.cloneRange();
+     return range&&!range.collapsed&&editor.contains(range.commonAncestorContainer)?range:null;
+   }
+   function useRangeAfter(node){
+     const range=document.createRange();range.selectNodeContents(node);range.collapse(false);
+     const sel=window.getSelection?.();
+     if(sel){sel.removeAllRanges();sel.addRange(range)}
+     savedRange=range.cloneRange();editor.focus();sync();
+   }
+   function applySelectedFormat(key){
+     if(!FMT_KEYS.has(key))return;
+     const range=selectionRange();
+     if(!range){status.textContent='請先在公告內文反白選取要套用格式的文字。';return}
+     const wrapper=formattedSpan(key);
+     wrapper.append(range.extractContents());range.insertNode(wrapper);
+     useRangeAfter(wrapper);status.textContent='已套用文字格式（儲存並同步雲端後才會公開）。';
+   }
+   function stripFormatInside(node){
+     const children=Array.from(node.childNodes);
+     for(const child of children){
+       if(child.nodeType!==1)continue;
+       stripFormatInside(child);
+       if(FMT_KEYS.has(child.dataset?.newsFormat)||/^(STRONG|B|EM|I|U|S|STRIKE)$/.test(child.tagName)){
+         child.replaceWith(...Array.from(child.childNodes));
+       }
+     }
+   }
+   function clearSelectedFormat(){
+     const range=selectionRange();
+     if(!range){status.textContent='請先反白選取要清除格式的文字。';return}
+     const fragment=range.extractContents();stripFormatInside(fragment);
+     const marker=document.createElement('span');marker.dataset.newsClear='1';marker.append(fragment);
+     range.insertNode(marker);
+     // Split each styled ancestor around the unformatted selection so that a
+     // partially selected phrase is not styled again by its parent.
+     let parent=marker.parentElement;
+     while(parent&&parent!==editor){
+       const styled=FMT_KEYS.has(parent.dataset?.newsFormat)||/^(STRONG|B|EM|I|U|S|STRIKE)$/.test(parent.tagName);
+       if(styled){
+         const after=parent.cloneNode(false);
+         while(marker.nextSibling)after.append(marker.nextSibling);
+         if(after.hasChildNodes())parent.after(after);
+         parent.after(marker);
+         const next=marker.parentElement;
+         if(!parent.hasChildNodes())parent.remove();
+         parent=next;
+       }else parent=parent.parentElement;
+     }
+     const last=marker.lastChild||marker;
+     marker.replaceWith(...Array.from(marker.childNodes));
+     const cursor=document.createRange();cursor.setStartAfter(last);cursor.collapse(true);
+     const sel=window.getSelection?.();if(sel){sel.removeAllRanges();sel.addRange(cursor)}
+     savedRange=cursor.cloneRange();editor.focus();sync();status.textContent='已清除選取文字的格式。';
+   }
+   function insertSelectedLink(){
+     const range=selectionRange();
+     if(!range){status.textContent='請先反白選取連結要顯示的文字。';return}
+     const label=range.toString().trim();
+     if(!label||label.length>80||/[\[\]\n\r]/.test(label)){
+       status.textContent='連結文字須在 80 字內，且不能包含換行或方括號。';return;
+     }
+     const raw=window.prompt('請輸入安全的 HTTPS 連結網址：','https://');
+     if(raw===null)return;
+     let url;
+     try{url=new URL(raw.trim());if(url.protocol!=='https:'||url.username||url.password)throw Error('invalid')}catch(_){
+       status.textContent='網址必須為有效的 HTTPS 連結。';return;
+     }
+     const text=document.createTextNode('['+label+']('+url.href+')');
+     range.deleteContents();range.insertNode(text);
+     useRangeAfter(text);status.textContent='超連結已插入；原有 Markdown 超連結功能仍可使用。';
    }
    function insertionRange(){
      const sel=window.getSelection?.();
