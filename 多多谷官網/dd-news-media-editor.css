@@ -173,3 +173,13 @@
 :is(#news,#events) .dd-news-media-wysiwyg .dd-news-fmt-hpurple{background:#dfc2ff;color:#462b60}
 :is(#news,#events) .dd-news-media-wysiwyg .dd-news-fmt-hlavender{background:#e9d9ff;color:#554267}
 :is(#news,#events) .dd-news-media-wysiwyg .dd-news-fmt-hgray{background:#dbe1e9;color:#354253}
+
+/* Serial announcements: standalone text-only toolbars inside stable grid cells. */
+#news .dd-news-rich-field{display:grid;gap:7px;min-width:0;align-content:start}
+#news .dd-news-rich-field>label{display:block;color:#c9d8eb;font-size:13px;font-weight:600;line-height:1.5}
+#news .news-serial-grid>.dd-news-rich-field.news-serial-wide{grid-column:1/-1}
+#news .dd-news-rich-field>.dd-news-media-wysiwyg{min-height:112px;max-width:100%}
+#news .dd-news-rich-field>#newsSerialRewards+.dd-news-media-wysiwyg{min-height:165px}
+#news .dd-news-rich-field>.dd-news-media-editor{margin-top:0}
+#news .dd-news-rich-field .dd-news-format-tools{margin-top:0}
+@media(max-width:560px){#news .dd-news-rich-field>.dd-news-media-wysiwyg{min-height:100px}}

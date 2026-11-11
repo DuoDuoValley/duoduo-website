@@ -332,10 +332,10 @@ function newsGroupedRewardLine(line){
 }
 function newsGroupedRewardCards(groups){
   if(!groups.length)return '';
-  return `<div class="news-ranked-rewards">${groups.map(group=>`<div class="news-rank-row"><div class="news-rank-label">${pageEsc(group.label)}</div><div class="news-rank-items">${group.rewards.map(item=>`<div class="news-rank-item"><span class="news-reward-description">${newsItemThumb(item.label)}<span class="news-reward-name">${newsInline(newsDisplayItemName(item.label),false)}</span></span><strong>×${pageEsc(item.quantity)}</strong></div>`).join('')}</div></div>`).join('')}</div>`;
+  return `<div class="news-ranked-rewards">${groups.map(group=>`<div class="news-rank-row"><div class="news-rank-label">${pageEsc(group.label)}</div><div class="news-rank-items">${group.rewards.map(item=>`<div class="news-rank-item"><span class="news-reward-description">${newsItemThumb(item.label)}<span class="news-reward-name">${newsInline(item.richLabel||newsDisplayItemName(item.label),false)}</span></span><strong>×${newsInline(item.richQuantity||item.quantity,false)}</strong></div>`).join('')}</div></div>`).join('')}</div>`;
 }
 function newsRewardGrid(items){
-  return `<div class="news-reward-grid">${items.map(x=>`<div class="news-reward-item"><span class="news-reward-description">${newsItemThumb(x.label)}<span class="news-reward-name">${newsInline(newsDisplayItemName(x.label),false)}</span></span>${x.quantity?`<strong>×${pageEsc(x.quantity)}</strong>`:''}</div>`).join('')}</div>`;
+  return `<div class="news-reward-grid">${items.map(x=>`<div class="news-reward-item"><span class="news-reward-description">${newsItemThumb(x.label)}<span class="news-reward-name">${newsInline(x.richLabel||newsDisplayItemName(x.label),false)}</span></span>${x.quantity?`<strong>×${newsInline(x.richQuantity||x.quantity,false)}</strong>`:''}</div>`).join('')}</div>`;
 }
 function newsStandaloneItemLine(raw){
   const text=String(raw||'').trim();
@@ -413,6 +413,53 @@ function newsPlainContent(raw){
   flushList();paragraph.push(x);
  }flushP();flushList();return out.join('');
 }
+
+/* Reward recognition ignores allowlisted rich-text markers, then restores
+   per-item styles without changing the existing name/quantity grammar. */
+const NEWS_REWARD_FORMAT_KEYS=new Set(["B","I","U","S","CRED","CCORAL","CORANGE","CGOLD","CYELLOW","CLIME","CGREEN","CTEAL","CCYAN","CBLUE","CINDIGO","CPURPLE","CLAVENDER","CPINK","CMAGENTA","CBROWN","CGRAY","HYELLOW","HORANGE","HRED","HPINK","HPEACH","HGREEN","HMINT","HCYAN","HBLUE","HPURPLE","HLAVENDER","HGRAY"]);
+function newsRewardRichLine(source){
+ const raw=String(source||'');let plain='',styles=[],stack=[],last=0,m;
+ const tokens=/\[\[DDFMT:([A-Z]+)\]\]/g;
+ const add=text=>{plain+=text;for(let i=0;i<text.length;i++)styles.push(stack.slice())};
+ while((m=tokens.exec(raw))!==null){
+  add(raw.slice(last,m.index));
+  if(m[1]==='END'&&stack.length)stack.pop();
+  else if(NEWS_REWARD_FORMAT_KEYS.has(m[1]))stack.push(m[1]);
+  else add(m[0]);
+  last=tokens.lastIndex;
+ }
+ add(raw.slice(last));
+ return {text:plain,formatted(start,end){
+  let output='',opened=[];
+  for(let i=start;i<end;i++){
+   const desired=styles[i]||[];let shared=0;
+   while(shared<opened.length&&shared<desired.length&&opened[shared]===desired[shared])shared++;
+   output+='[[DDFMT:END]]'.repeat(opened.length-shared);
+   for(let j=shared;j<desired.length;j++)output+='[[DDFMT:'+desired[j]+']]';
+   output+=plain[i];opened=desired;
+  }
+  return output+'[[DDFMT:END]]'.repeat(opened.length);
+ }};
+}
+function newsRestoreRewardFormats(rewards,rich){
+ let offset=0;
+ for(const reward of rewards){
+  const at=rich.text.indexOf(reward.label,offset);
+  if(at<0)continue;
+  const label=rich.formatted(at,at+reward.label.length);
+  if(label.includes('[[DDFMT:'))reward.richLabel=label;
+  offset=at+reward.label.length;
+  if(reward.quantity){
+   const q=rich.text.indexOf(reward.quantity,offset);
+   if(q>=0){
+    const value=rich.formatted(q,q+reward.quantity.length);
+    if(value.includes('[[DDFMT:'))reward.richQuantity=value;
+    offset=q+reward.quantity.length;
+   }
+  }
+ }
+}
+
 function newsRewardCards(raw){
  const lines=String(raw||'').replace(/\r\n?/g,'\n').split('\n');
  if(!lines.some(s=>s.trim()))return '';
@@ -421,15 +468,16 @@ function newsRewardCards(raw){
  const flushCards=()=>{if(collected.length){out.push(newsRewardGrid(collected));collected=[];}};
  const flushFree=()=>{if(freeLines.some(s=>s.trim()))out.push(newsPlainContent(freeLines.join('\n')));freeLines=[];};
  for(const original of lines){
-  const line=original.trim();
+  const rich=newsRewardRichLine(original);
+  const line=rich.text.trim();
   if(!line){flushCards();flushTiers();freeLines.push('');continue;}
   const tier=newsGroupedRewardLine(line);
-  if(tier){flushCards();flushFree();tierGroups.push(tier);continue;}
+  if(tier){newsRestoreRewardFormats(tier.rewards,rich);flushCards();flushFree();tierGroups.push(tier);continue;}
   flushTiers();
   const multiple=newsRewardItems(line);
   const one=line.match(/^(.+?)\s*[×xX*＊]\s*(\d[\d,]*(?:\.\d+)?(?:千|萬|億|[Ee])?)\s*$/);
   const result=multiple||(one?[{label:one[1].trim(),quantity:one[2]}]:(newsItemAsset(line)?[{label:line,quantity:''}]:null));
-  if(result){flushFree();collected.push(...result);}
+  if(result){newsRestoreRewardFormats(result,rich);flushFree();collected.push(...result);}
   else{flushCards();freeLines.push(original);}
  }
  flushCards();flushTiers();flushFree();return `<div class="news-rewards-content">${out.join('')}</div>`;
