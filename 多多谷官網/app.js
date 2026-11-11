@@ -512,7 +512,7 @@ initHeroCarousel();
   if(!document.querySelector('footer.site-footer'))return;
   const existing=document.querySelector('script[data-dd-footer-loader]');if(existing)return;
   const script=document.createElement('script');
-  script.src='dd-page-footer.js?v=20261108-cloud-sync-v2';
+  script.src='dd-page-footer.js?v=20261111-monsters-footer-v1';
   script.dataset.ddFooterLoader='true';
   document.head.appendChild(script);
 })();

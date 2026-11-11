@@ -222,3 +222,41 @@
     column-gap:10px;
   }
 }
+
+
+/* Footer monster decoration — shared by every official public page.
+   It is a sibling above the existing gradient top border, not a new footer row. */
+.dd-footer-monsters{
+  display:flex;
+  justify-content:center;
+  align-items:flex-end;
+  width:100%;
+  box-sizing:border-box;
+  margin:0;
+  padding:0 5vw;
+  border:0;
+  background:var(--bg2,#eaf0f5);
+  overflow:visible;
+  pointer-events:none;
+}
+.dd-footer-monsters .dd-footer-monsters-art{
+  display:block;
+  width:min(100%,1050px);
+  max-width:1050px;
+  height:auto;
+  aspect-ratio:1178 / 221;
+  object-fit:contain;
+  object-position:center bottom;
+  margin:0 auto;
+  padding:0;
+  border:0;
+  filter:none;
+  opacity:1;
+  transform:none;
+}
+:root[data-theme="light"] .dd-footer-monsters{background:#f4f8fb}
+:root[data-theme="dark"] .dd-footer-monsters{background:#0b1726}
+@media(max-width:520px){
+  .dd-footer-monsters{padding:0 3vw}
+  .dd-footer-monsters .dd-footer-monsters-art{width:100%;max-width:100%}
+}

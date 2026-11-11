@@ -4,7 +4,7 @@
  if(!source)return;
  const rootBase=new URL('./',source);
  const asset=(path)=>new URL(path,rootBase).href;
- const styleHref=asset('dd-page-footer.css?v=20261105-footer-v2');
+ const styleHref=asset('dd-page-footer.css?v=20261111-monsters-footer-v1');
  if(![...document.querySelectorAll('link[rel="stylesheet"]')].some(el=>{try{return new URL(el.href).pathname===new URL(styleHref).pathname}catch(_){return false}})){
   const style=document.createElement('link');style.rel='stylesheet';style.href=styleHref;style.dataset.ddFooterStyle='true';document.head.appendChild(style);
  }
@@ -71,6 +71,26 @@
  function render(){
   const root=document.querySelector('footer.site-footer');if(!root||root.dataset.ddFooterVersion==='2')return;
   root.dataset.ddFooterVersion='2';root.classList.add('dd-unified-footer','dd-footer-v2');
+  // Decorative monster silhouettes sit OUTSIDE the footer, just above its
+  // existing gradient border. One shared component covers all public routes
+  // including nested tools; no existing footer content is altered.
+  if(!root.previousElementSibling?.classList.contains('dd-footer-monsters')){
+   const strip=document.createElement('div');
+   strip.className='dd-footer-monsters';
+   strip.setAttribute('aria-hidden','true');
+   const art=document.createElement('img');
+   art.className='dd-footer-monsters-art';
+   art.src=asset('assets/bg_monters.webp');
+   art.alt='';
+   art.width=1178;
+   art.height=221;
+   art.loading='lazy';
+   art.decoding='async';
+   art.addEventListener('error',()=>strip.remove(),{once:true});
+   strip.append(art);
+   root.before(strip);
+  }
+
   root.replaceChildren();
   const brand=document.createElement('div');brand.className='footer-brand';
   const eyebrow=document.createElement('span');eyebrow.className='dd-footer-eyebrow';eyebrow.textContent='DUODUO VALLEY · OFFICIAL';
