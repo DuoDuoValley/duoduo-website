@@ -454,3 +454,46 @@ footer{padding:35px 5vw;border-top:1px solid var(--line);display:flex;justify-co
 .guide-embed-deferred{display:grid;place-items:center;height:210px;min-height:210px;background:var(--panel2)}
 .guide-embed-load{border:1px solid var(--accent);border-radius:12px;padding:13px 19px;background:var(--soft);color:var(--accent2);font:inherit;font-weight:800;cursor:pointer;max-width:calc(100% - 32px);overflow-wrap:anywhere}
 .guide-embed-load:hover,.guide-embed-load:focus-visible{background:var(--panel);outline-offset:3px}
+
+
+/* Download center CTA icon: preserve the original button and its right arrow.
+   Only the official download-card CTA uses these new rules. */
+.download-card-top .btn.dd-download-action{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+  gap:5px;
+  min-height:43px;
+  padding:7px 15px;
+  white-space:nowrap;
+}
+.download-card-top .dd-download-leaf{
+  position:relative;
+  display:block;
+  flex:0 0 21px;
+  width:21px;
+  height:23px;
+  pointer-events:none;
+}
+.download-card-top .dd-download-leaf img{
+  position:absolute;
+  inset:0;
+  display:block;
+  width:21px;
+  height:23px;
+  object-fit:contain;
+  pointer-events:none;
+}
+.download-card-top .dd-download-leaf-normal{opacity:1}
+.download-card-top .dd-download-leaf-hover{opacity:0;transition:opacity 150ms ease}
+@media(hover:hover){
+  .download-card-top .dd-download-action:hover .dd-download-leaf-hover{opacity:1}
+}
+.download-card-top .dd-download-action:focus-visible .dd-download-leaf-hover{opacity:1}
+.download-card-top .dd-download-action-label,
+.download-card-top .dd-download-action-arrow{display:inline-block;line-height:1.4}
+.download-card-top .dd-download-action-arrow{margin-left:2px}
+@media(prefers-reduced-motion:reduce){
+  .download-card-top .dd-download-leaf-hover{transition:none}
+}
