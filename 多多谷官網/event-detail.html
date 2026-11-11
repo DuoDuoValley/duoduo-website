@@ -70,6 +70,13 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
   border-top: 0;
   padding-top: 0;
 }
+/* Optional closing: a single thin separator; no heading or extra card. */
+.event-detail-copy .detail-body .duoduo-detail-closing{
+  border-top:1px solid var(--line);
+  padding-top:20px;
+  margin-top:16px;
+  overflow-wrap:anywhere;
+}
 .event-detail-copy .detail-body .duoduo-detail-heading {
   display: flex;
   align-items: center;
@@ -238,12 +245,15 @@ function renderDuoDuoEventSections(event) {
       body:typeof old[key]==='string'?old[key].trim():''
     })).filter(x=>x.body);
   }
-  if(!parts.length) return textHtml(event?.detail||event?.desc||'');
+  const closing=String(event?.closing||'').trim();
+  const closingHtml=closing?
+    `<div class="duoduo-detail-closing"><div class="duoduo-detail-section-text">${textHtml(closing)}</div></div>`:'';
+  if(!parts.length) return textHtml(event?.detail||event?.desc||'')+closingHtml;
   return parts.map(({title,icon,body})=>
     `<section class="duoduo-detail-section" aria-label="${esc(title)}">`+
     `<h3 class="duoduo-detail-heading"><span class="duoduo-detail-heading-icon" aria-hidden="true">${duoduoEventIconSvg(icon)}</span><span>${esc(title)}</span></h3>`+
     `<div class="duoduo-detail-section-text">${textHtml(body)}</div></section>`
-  ).join('');
+  ).join('')+closingHtml;
 }
 </script>
 <script>(async function(){const q=new URLSearchParams(location.search),id=q.get('id');const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';let e=null;try{const res=await fetch(`${API_BASE}/api/events`,{method:'GET',headers:{'Accept':'application/json'},cache:'no-store'});if(!res.ok)throw new Error(`HTTP ${res.status}`);const data=await res.json();const events=Array.isArray(data.events)?data.events.map(row=>row?.data||row).filter(x=>x&&x.published!==false):[];e=events.find(x=>String(x.id||x.name)===String(id))||null;}catch(error){console.warn('雲端活動詳細資料讀取失敗。',error)}if(!e){document.getElementById('detailTitle').textContent='找不到活動';document.getElementById('detailSummary').textContent='這筆活動目前不存在或已下架。';const detailCard=document.querySelector('.event-detail');if(detailCard)detailCard.style.display='none';const backButton=document.querySelector('main.content-wrap > .btn.btn-outline');if(backButton)backButton.style.display='none';return;}document.title=`${e.name}｜DuoDuo Valley`;document.getElementById('detailTitle').textContent=e.name;document.getElementById('detailSummary').textContent=e.desc||'';document.getElementById('detailName').textContent=e.name;document.getElementById('detailCarousel').innerHTML=eventCarouselHTML(e,'detail-carousel');document.getElementById('detailDate').textContent=formatEventDateRange(e);document.getElementById('detailBody').innerHTML=renderDuoDuoEventSections(e);if(e.url)document.getElementById('detailActions').innerHTML=`<a class="btn btn-gold" href="${esc(e.url)}" target="_blank">前往活動連結 →</a>`;initEventCarousels(document.getElementById('detailCarousel'));const dc=document.getElementById('detailCarousel');if(dc){dc.addEventListener('click',ev=>{const img=ev.target.closest('.event-slide');if(!img)return;const src=img.currentSrc||img.src;if(!src)return;const layer=document.createElement('div');layer.className='event-image-lightbox';layer.innerHTML=`<button type="button" class="event-image-lightbox-close" aria-label="關閉">×</button><img src="${esc(src)}" alt="">`;document.body.appendChild(layer);requestAnimationFrame(()=>layer.classList.add('show'));const close=()=>{layer.classList.remove('show');setTimeout(()=>layer.remove(),180)};layer.addEventListener('click',ev=>{if(ev.target===layer||ev.target.closest('.event-image-lightbox-close'))close()});document.addEventListener('keydown',function onKey(ev){if(ev.key==='Escape'){close();document.removeEventListener('keydown',onKey)}})});}})();</script>

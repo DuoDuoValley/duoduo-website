@@ -376,12 +376,18 @@ function newsRewardCards(raw){
  }
  flushCards();flushTiers();flushFree();return `<div class="news-rewards-content">${out.join('')}</div>`;
 }
+function newsSerialCopyValue(value){
+ return String(value||'').replace(/\[\[DDFMT:([A-Z]+)\]\]/g,(token,key)=>
+  key==='END'||NEWS_REWARD_FORMAT_KEYS.has(key)?'':token).trim();
+}
 function newsStructuredBody(n){
  const blocks=Array.isArray(n.newsSections)?n.newsSections.filter(x=>x&&typeof x==='object'&&String(x.body||'').trim()):[];
  const serial=n.tag==='序號發放'&&n.newsSerial&&typeof n.newsSerial==='object'?n.newsSerial:null;
  const hasCode=serial&&Object.values(serial).some(x=>typeof x==='string'&&x.trim());
  const lead=String(n.newsLead||'').trim();
- if(!lead&&!blocks.length&&!hasCode)return newsRenderedBody(n.body||'');
+ const closing=String(n.newsClosing||'').trim();
+ const closingHtml=closing?`<section class="news-detail-block news-closing">${newsPlainContent(closing)}</section>`:'';
+ if(!lead&&!blocks.length&&!hasCode)return newsRenderedBody(n.body||'')+closingHtml;
  let out='<div class="news-readable-body news-structured">';
  if(lead)out+=`<div class="news-structured-intro">${newsPlainContent(lead)}</div>`;
  for(const item of blocks){
@@ -393,13 +399,13 @@ function newsStructuredBody(n){
  if(hasCode){
   const s=serial;
   if(s.rewards){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('gift')}<span>序號獎勵</span></h3>${newsRewardCards(s.rewards)}</section>`;}
-  if(s.code){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('ticket')}<span>兌換序號</span></h3><div class="news-code-box"><code>${pageEsc(s.code)}</code><button type="button" class="news-code-copy" data-copy-code="${pageEsc(s.code)}" aria-label="複製兌換序號">${newsIcon('ticket')}<span>複製序號</span></button></div></section>`;}
+  if(s.code){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('ticket')}<span>兌換序號</span></h3><div class="news-code-box"><code>${newsInline(s.code,false)}</code><button type="button" class="news-code-copy" data-copy-code="${pageEsc(newsSerialCopyValue(s.code))}" aria-label="複製兌換序號">${newsIcon('ticket')}<span>複製序號</span></button></div></section>`;}
   if(s.expiry){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('clock')}<span>兌換期限</span></h3>${newsPlainContent(s.expiry)}</section>`;}
   if(s.method){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('list-checks')}<span>使用方式</span></h3>${newsPlainContent(s.method)}</section>`;}
   if(s.notes){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('info')}<span>兌換注意事項</span></h3>${newsPlainContent(s.notes)}</section>`;}
  }
  if(n.newsIncludeLegacy&&n.body){out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg('file-text')}<span>補充說明</span></h3>${newsRenderedBody(n.body)}</section>`;}
- return out+'</div>';
+ return out+closingHtml+'</div>';
 }
 
 let modal=document.getElementById('home-news-detail');

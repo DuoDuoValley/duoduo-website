@@ -855,7 +855,7 @@ function readNewsSerial(){return {
 // The serial fields and opening paragraph use the existing safe text-only editor.
 // Original textarea values remain authoritative for saving and cloud sync.
 const newsRichFields={
- newsLead:{body:''},newsSerialRewards:{body:''},newsSerialMethod:{body:''},newsSerialNotes:{body:''}
+ newsLead:{body:''},newsSerialCode:{body:''},newsSerialExpiry:{body:''},newsSerialRewards:{body:''},newsSerialMethod:{body:''},newsSerialNotes:{body:''},newsClosing:{body:''}
 };
 function refreshNewsRichField(id){
  const field=newsEl(id),item=newsRichFields[id];
@@ -873,7 +873,7 @@ function showNewsSerial(obj){
  const s=obj||{};
  for(const [id,key] of [['newsSerialCode','code'],['newsSerialExpiry','expiry'],['newsSerialMethod','method'],['newsSerialRewards','rewards'],['newsSerialNotes','notes']])
   newsEl(id).value=String(s[key]||'');
- for(const id of ['newsSerialMethod','newsSerialRewards','newsSerialNotes'])refreshNewsRichField(id);
+ for(const id of ['newsSerialCode','newsSerialExpiry','newsSerialMethod','newsSerialRewards','newsSerialNotes'])refreshNewsRichField(id);
 }
 // Reuse the structured editor's toolbar for legacy news content.
 const legacyNewsBodyItem={body:''};
@@ -888,7 +888,7 @@ function newsResetEditor(){
  if(window.DuoDuoNewsMedia?.busy())return alert('圖片上傳中，請完成後再清空公告');
  editingNewsIndex=null;
  newsEl('newsTag').value='重要消息';newsEl('newsTitle').value='';ddSetNewsDate('');
- newsEl('newsLead').value='';refreshNewsRichField('newsLead');newsEl('newsBody').value='';refreshLegacyNewsBody();newsEl('newsIncludeLegacy').checked=false;
+ newsEl('newsLead').value='';refreshNewsRichField('newsLead');newsEl('newsClosing').value='';refreshNewsRichField('newsClosing');newsEl('newsBody').value='';refreshLegacyNewsBody();newsEl('newsIncludeLegacy').checked=false;
  newsEl('newsLegacyEditor').open=false;newsSectionDraft=[];showNewsSerial(null);renderNewsEditor();newsSerialMode();
  newsEl('addNews').textContent='＋ 新增公告';
 }
@@ -900,7 +900,7 @@ newsEl('addNews').onclick=()=>{
  const items=newsSectionDraft.map(x=>({type:x.type,title:(x.type==='custom'?x.title:NEWS_SECTION_TYPES.find(t=>t[0]===x.type)?.[1]||x.title).trim(),icon:duoduoEventIconId(x.icon),body:String(x.body||'').trim()})).filter(x=>x.title&&x.body);
  const tag=newsEl('newsTag').value;
  const data={tag,title,date:validNewsDate,body:newsEl('newsBody').value.trim(),
- newsLead:newsEl('newsLead').value.trim(),newsSections:items,newsIncludeLegacy:newsEl('newsIncludeLegacy').checked,newsSerial:readNewsSerial()};
+ newsLead:newsEl('newsLead').value.trim(),newsClosing:newsEl('newsClosing').value.trim(),newsSections:items,newsIncludeLegacy:newsEl('newsIncludeLegacy').checked,newsSerial:readNewsSerial()};
  if(editingNewsIndex!==null&&news[editingNewsIndex]){news[editingNewsIndex]=Object.assign({},news[editingNewsIndex],data);alert('公告已更新（目前瀏覽器）。');}
  else{news.unshift(data);alert('公告已新增（目前瀏覽器）。');}
  save('duoduo_news',news);newsResetEditor();render();
@@ -909,7 +909,7 @@ window.editNews=i=>{
  if(window.DuoDuoNewsMedia?.busy())return alert('圖片上傳中，請完成後再切換公告');
  const n=news[i];if(!n)return;editingNewsIndex=i;
  newsEl('newsTag').value=n.tag||'重要消息';newsEl('newsTitle').value=n.title||'';ddSetNewsDate(n.date||'');
- newsEl('newsBody').value=n.body||'';refreshLegacyNewsBody();newsEl('newsLead').value=n.newsLead||'';refreshNewsRichField('newsLead');
+ newsEl('newsBody').value=n.body||'';refreshLegacyNewsBody();newsEl('newsLead').value=n.newsLead||'';refreshNewsRichField('newsLead');newsEl('newsClosing').value=n.newsClosing||'';refreshNewsRichField('newsClosing');
  newsEl('newsIncludeLegacy').checked=Boolean(n.newsIncludeLegacy);
  newsSectionDraft=normalizeNewsBlocks(n);showNewsSerial(n.newsSerial);renderNewsEditor();newsSerialMode();
  newsEl('addNews').textContent='儲存公告修改';
@@ -919,7 +919,7 @@ window.removeNews=i=>{if(confirm('確定刪除這則公告？')){
  news.splice(i,1);if(editingNewsIndex===i)newsResetEditor();
  save('duoduo_news',news);render();
 }};
-renderNewsEditor();newsSerialMode();refreshLegacyNewsBody();refreshNewsRichField('newsLead');showNewsSerial(null);
+renderNewsEditor();newsSerialMode();refreshLegacyNewsBody();refreshNewsRichField('newsLead');refreshNewsRichField('newsClosing');showNewsSerial(null);
 async function fileToCompressedDataURL(file,maxW=1800,maxH=1200,quality=.86){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.naturalWidth,maxH/img.naturalHeight);const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/webp',quality));};img.onerror=reject;img.src=reader.result;};reader.onerror=reject;reader.readAsDataURL(file)});}async function uploadImageDataURL(dataUrl,originalName){
   const API_BASE=window.location.hostname.endsWith('github.io')
   ? 'https://duoduo-website.onrender.com'
@@ -1155,6 +1155,13 @@ function collectEventSectionBlocks(){
 renderEventSectionEditor();
 // Keep the historical detail field as the single source of truth for legacy events.
 const eventLegacyRichItem={body:''};
+const eventClosingRichItem={body:''};
+function refreshEventClosingRich(){
+ const field=$('#eventClosing');if(!field)return;
+ eventClosingRichItem.body=field.value;
+ window.DuoDuoNewsMedia?.mount(field,eventClosingRichItem,{textOnly:true});
+ window.DuoDuoNewsMedia?.refresh(field);
+}
 function refreshEventLegacyRich(){
   const field=$('#eventDetail');if(!field)return;
   eventLegacyRichItem.body=field.value;
@@ -1162,6 +1169,7 @@ function refreshEventLegacyRich(){
   window.DuoDuoNewsMedia?.refresh(field);
 }
 refreshEventLegacyRich();
+refreshEventClosingRich();
 
 $('#saveEvent').onclick=async()=>{
   const name=$('#eventName').value.trim();
@@ -1233,6 +1241,7 @@ $('#saveEvent').onclick=async()=>{
     interval:Math.max(2000,Number($('#eventInterval').value||5)*1000),
     desc:$('#eventDesc').value.trim(),
     detail:$('#eventDetail').value.trim(),
+    closing:$('#eventClosing').value.trim(),
     sections:{},
     sectionBlocks:collectEventSectionBlocks(),
     start:validEventStart,
@@ -1304,7 +1313,7 @@ window.removeEvent=async i=>{
   render();
   alert('檔期活動已刪除，並同步到雲端。');
 };
-let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';refreshEventLegacyRich();eventSectionDraft=normalizeEventSections(e);renderEventSectionEditor();setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();focusManagedForm('eventManageForm')};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});eventSectionDraft=[];renderEventSectionEditor();refreshEventLegacyRich();ddSetTimeEnabled('eventStartTime',false);ddSetTimeEnabled('eventEndTime',false);ddSetPickerValue('eventStart','');ddSetPickerValue('eventEnd','');$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
+let editingEventId=null;window.editEvent=i=>{const e=sortEventsByStart(events)[i];if(!e)return;editingEventId=e.id;pendingEventCoverImage='';pendingEventCarouselImages=[];$('#eventImageFile').value='';$('#eventImagesFiles').value='';$('#eventName').value=e.name||'';$('#eventImage').value=e.image||(e.images&&e.images[0])||'';$('#eventImages').value=(Array.isArray(e.images)&&e.images.length?e.images:[e.image||'']).join('\n');$('#eventInterval').value=Math.max(2,Math.round((Number(e.interval)||5000)/1000));$('#eventDesc').value=e.desc||'';$('#eventDetail').value=e.detail||e.desc||'';refreshEventLegacyRich();$('#eventClosing').value=e.closing||'';refreshEventClosingRich();eventSectionDraft=normalizeEventSections(e);renderEventSectionEditor();setEventDateTime('eventStart','eventStartTime',e.start);setEventDateTime('eventEnd','eventEndTime',e.end);$('#eventUrl').value=e.url||'';$('#eventPublished').checked=e.published!==false;renderEventUploadPreviews();$('#saveEvent').textContent='儲存檔期活動修改';document.querySelector('[data-panel="events"]')?.click();focusManagedForm('eventManageForm')};function clearEventForm(){editingEventId=null;pendingEventCoverImage='';pendingEventCarouselImages=[];['eventName','eventImage','eventImages','eventDesc','eventDetail','eventClosing','eventStart','eventStartTime','eventEnd','eventEndTime','eventUrl','eventImageFile','eventImagesFiles'].forEach(id=>{const el=$('#'+id);if(el)el.value=''});eventSectionDraft=[];renderEventSectionEditor();refreshEventLegacyRich();refreshEventClosingRich();ddSetTimeEnabled('eventStartTime',false);ddSetTimeEnabled('eventEndTime',false);ddSetPickerValue('eventStart','');ddSetPickerValue('eventEnd','');$('#eventInterval').value='5';$('#eventPublished').checked=true;renderEventUploadPreviews();$('#saveEvent').textContent='＋ 新增檔期活動'}
 window.saveLinks=()=>{
   const saved=read('duoduo_links',{});
   document.querySelectorAll('#linksForm input').forEach(i=>{

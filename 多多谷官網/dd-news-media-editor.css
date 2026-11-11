@@ -183,3 +183,11 @@
 #news .dd-news-rich-field>.dd-news-media-editor{margin-top:0}
 #news .dd-news-rich-field .dd-news-format-tools{margin-top:0}
 @media(max-width:560px){#news .dd-news-rich-field>.dd-news-media-wysiwyg{min-height:100px}}
+
+/* Optional closings and rich serial code/expiry: no new panel or card chrome. */
+#news .news-serial-grid>.dd-news-rich-field:not(.news-serial-wide){min-width:0}
+#news .news-serial-grid>.dd-news-rich-field:not(.news-serial-wide)>.dd-news-media-wysiwyg{min-height:90px}
+#news .dd-closing-editor,#events .dd-closing-editor{box-sizing:border-box;min-width:0;width:100%;margin-top:6px}
+:is(#news,#events) .dd-closing-editor>.dd-news-media-wysiwyg{min-height:105px}
+#events .dd-closing-editor>label{display:block;font-size:13px;color:var(--muted,#b8cada);line-height:1.6}
+@media(max-width:700px){#news .news-serial-grid>.dd-news-rich-field:not(.news-serial-wide){grid-column:1/-1}}
