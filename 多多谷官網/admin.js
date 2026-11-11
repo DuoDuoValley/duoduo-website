@@ -548,6 +548,14 @@ function manageEventStatus(e){
  return start===Number.MIN_SAFE_INTEGER&&end===null?'未設定時間':'進行中';
 }
 function managePreviewText(text){return String(text||'').replace(/\r\n?/g,'\n').slice(0,1000)}
+// Show the separately saved ending in admin previews without affecting stored data.
+function managePreviewWithClosing(body,closing,emptyMessage){
+ const main=managePreviewText(body);
+ const ending=managePreviewText(closing).trim();
+ if(!main&&!ending)return esc(emptyMessage);
+ return (main?`<div class="manage-preview-main">${esc(main)}</div>`:'')
+  +(ending?`<div class="manage-preview-closing">${esc(ending)}</div>`:'');
+}
 function manageFilterButtons(container,options,state,fn){
  if(!container)return;
  container.innerHTML=options.map(option=>`<button type="button" class="${state.filter===option?'is-active':''}" data-manage-filter="${esc(option)}" aria-pressed="${state.filter===option?'true':'false'}">${esc(option)}</button>`).join('');
@@ -574,13 +582,13 @@ function renderManagedNews(){
  manageFilterButtons($('#manageNewsFilters'),manageNewsOptions,s,renderManagedNews);
  const indexed=news.map((n,i)=>({n,i})).filter(({n})=>
   (s.filter==='全部'||newsTagShort(n.tag)===s.filter)&&
-  (!q||[n.title,n.date,n.tag,n.body,n.newsLead,(n.newsSections||[]).map(v=>`${v.title||''} ${v.body||''}`).join(' ')].join(' ').toLowerCase().includes(q)));
+  (!q||[n.title,n.date,n.tag,n.body,n.newsLead,(n.newsSections||[]).map(v=>`${v.title||''} ${v.body||''}`).join(' '),n.newsClosing].join(' ').toLowerCase().includes(q)));
  indexed.sort((a,b)=>(s.sort==='new'?1:-1)*(manageListDate(b.n.date)-manageListDate(a.n.date)||a.i-b.i));
  const total=indexed.length,pages=Math.max(1,Math.ceil(total/s.size));s.page=Math.min(Math.max(1,s.page),pages);
  const offset=(s.page-1)*s.size;
  list.innerHTML=indexed.slice(offset,offset+s.size).map(({n,i})=>{
-  const preview=managePreviewText([n.newsLead,n.newsSections?.map(x=>`${x.title||''}\n${x.body||''}`).join('\n\n'),n.body].filter(Boolean).join('\n\n'));
-  return `<article class="manage-entry" data-managed-index="${i}"><div class="manage-entry-main"><div class="manage-entry-body"><div class="manage-entry-title">${esc(n.title||'未命名公告')}</div><div class="manage-entry-info"><span class="manage-tag">${esc(newsTagShort(n.tag)||'未分類')}</span><span>${esc(n.date||'未設定日期')}</span></div></div><div class="manage-entry-actions"><button type="button" class="manage-preview-toggle" aria-expanded="false" onclick="toggleManagedPreview('news',${i})">預覽</button><button type="button" class="manage-edit" onclick="editNews(${i})">編輯</button><button type="button" class="manage-delete" onclick="removeNews(${i})">刪除</button></div></div><div class="manage-entry-preview" hidden>${esc(preview||'沒有可預覽的公告內容')}</div></article>`;
+  const preview=managePreviewWithClosing([n.newsLead,n.newsSections?.map(x=>`${x.title||''}\n${x.body||''}`).join('\n\n'),n.body].filter(Boolean).join('\n\n'),n.newsClosing,'沒有可預覽的公告內容');
+  return `<article class="manage-entry" data-managed-index="${i}"><div class="manage-entry-main"><div class="manage-entry-body"><div class="manage-entry-title">${esc(n.title||'未命名公告')}</div><div class="manage-entry-info"><span class="manage-tag">${esc(newsTagShort(n.tag)||'未分類')}</span><span>${esc(n.date||'未設定日期')}</span></div></div><div class="manage-entry-actions"><button type="button" class="manage-preview-toggle" aria-expanded="false" onclick="toggleManagedPreview('news',${i})">預覽</button><button type="button" class="manage-edit" onclick="editNews(${i})">編輯</button><button type="button" class="manage-delete" onclick="removeNews(${i})">刪除</button></div></div><div class="manage-entry-preview" hidden>${preview}</div></article>`;
  }).join('')||'<div class="manage-empty">沒有符合條件的公告</div>';
  $('#manageNewsCount').textContent=`符合 ${total} 篇／總共 ${news.length} 篇公告`;
  managePagination($('#manageNewsPagination'),s,total,pages,renderManagedNews);
@@ -592,15 +600,15 @@ function renderManagedEvents(){
  const sorted=sortEventsByStart(events).map((e,i)=>({e,i}));
  const indexed=sorted.filter(({e})=>
   (s.filter==='全部'||manageEventStatus(e)===s.filter)&&
-  (!q||[e.name,e.start,e.end,e.desc,e.detail,(e.sectionBlocks||[]).map(x=>`${x.title||''} ${x.body||''}`).join(' ')].join(' ').toLowerCase().includes(q)));
+  (!q||[e.name,e.start,e.end,e.desc,e.detail,(e.sectionBlocks||[]).map(x=>`${x.title||''} ${x.body||''}`).join(' '),e.closing].join(' ').toLowerCase().includes(q)));
  if(s.sort==='old')indexed.reverse();
  const total=indexed.length,pages=Math.max(1,Math.ceil(total/s.size));s.page=Math.min(Math.max(1,s.page),pages);
  const offset=(s.page-1)*s.size;
  list.innerHTML=indexed.slice(offset,offset+s.size).map(({e,i})=>{
   const status=manageEventStatus(e),cls=status==='進行中'?'status-active':status==='已結束'?'status-done':status==='未公開'?'status-hidden':'';
   const cover=e.image||(Array.isArray(e.images)?e.images[0]:'');
-  const preview=managePreviewText([e.desc,e.sectionBlocks?.map(x=>`${x.title||''}\n${x.body||''}`).join('\n\n'),e.detail].filter(Boolean).join('\n\n'));
-  return `<article class="manage-entry" data-managed-index="${i}"><div class="manage-entry-main">${cover?`<img class="manage-thumb" src="${esc(cover)}" alt="" loading="lazy" onerror="this.hidden=true">`:''}<div class="manage-entry-body"><div class="manage-entry-title">${esc(e.name||'未命名活動')}</div><div class="manage-entry-info"><span class="manage-tag ${cls}">${esc(status)}</span><span>${esc(formatEventDateRange(e))}</span><span>${e.published===false?'未公開':'公開'}</span></div></div><div class="manage-entry-actions"><button type="button" class="manage-preview-toggle" aria-expanded="false" onclick="toggleManagedPreview('events',${i})">預覽</button><button type="button" class="manage-edit" onclick="editEvent(${i})">編輯</button><button type="button" class="manage-delete" onclick="removeEvent(${i})">刪除</button></div></div><div class="manage-entry-preview" hidden>${esc(preview||'沒有可預覽的活動內容')}</div></article>`;
+  const preview=managePreviewWithClosing([e.desc,e.sectionBlocks?.map(x=>`${x.title||''}\n${x.body||''}`).join('\n\n'),e.detail].filter(Boolean).join('\n\n'),e.closing,'沒有可預覽的活動內容');
+  return `<article class="manage-entry" data-managed-index="${i}"><div class="manage-entry-main">${cover?`<img class="manage-thumb" src="${esc(cover)}" alt="" loading="lazy" onerror="this.hidden=true">`:''}<div class="manage-entry-body"><div class="manage-entry-title">${esc(e.name||'未命名活動')}</div><div class="manage-entry-info"><span class="manage-tag ${cls}">${esc(status)}</span><span>${esc(formatEventDateRange(e))}</span><span>${e.published===false?'未公開':'公開'}</span></div></div><div class="manage-entry-actions"><button type="button" class="manage-preview-toggle" aria-expanded="false" onclick="toggleManagedPreview('events',${i})">預覽</button><button type="button" class="manage-edit" onclick="editEvent(${i})">編輯</button><button type="button" class="manage-delete" onclick="removeEvent(${i})">刪除</button></div></div><div class="manage-entry-preview" hidden>${preview}</div></article>`;
  }).join('')||'<div class="manage-empty">沒有符合條件的檔期活動</div>';
  $('#manageEventCount').textContent=`符合 ${total} 筆／總共 ${events.length} 筆活動`;
  managePagination($('#manageEventPagination'),s,total,pages,renderManagedEvents);
