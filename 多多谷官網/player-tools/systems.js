@@ -9,7 +9,7 @@ function expandedAttrs(names,values){return names.flatMap((n,i)=>n==='攻魔'?[[
 function step(){return steps()[level]||null}
 function luckAllowed(){return kind==='astra'}
 function chance(){return Math.min(1,(step()?.prob||0)+(luckAllowed()?Number($('systemLuck').value)*.05:0))}
-function needs(s=step()){if(!s)return{};let m={...(s.materials||{})};if(kind==='totem'||kind==='liner')m['楓幣']=Number(s.mesosM||0)*1000000;if(luckAllowed()&&Number($('systemLuck').value)>0)m['幸運石']=Number($('systemLuck').value);return m}
+function needs(s=step()){if(!s)return{};let m={...(s.materials||{})};if(kind==='totem'||kind==='liner')m['楓幣']=Number(s.mesosM||0)*100000000;if(luckAllowed()&&Number($('systemLuck').value)>0)m['幸運石']=Number($('systemLuck').value);return m}
 function iconFor(n){return kind==='totem'&&window.DUODUO_TOTEM_MATERIAL_ICONS?.[n]?window.DUODUO_TOTEM_MATERIAL_ICONS[n]:(icons[n]||'assets/material-1.png')}
 function renderItems(obj){let entries=Object.entries(obj||{});return entries.length?entries.map(([n,q])=>`<div class="material-item"><img src="${iconFor(n)}" alt=""><div><span>${n}</span><strong>${fmt(q)} ${n==='楓幣'?'楓幣':n==='楓葉點數'?'點':'個'}</strong></div></div>`).join(''):'<div class="empty-state">目前無需材料。</div>'}
 function sums(to=level){let a=Array(attrs().length).fill(0);for(let i=0;i<to;i++)steps()[i].attrs.forEach((v,j)=>a[j]=(a[j]||0)+Number(v||0));return a}
