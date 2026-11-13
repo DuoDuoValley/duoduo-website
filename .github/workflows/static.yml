@@ -82,6 +82,11 @@ jobs:
         uses: actions/upload-pages-artifact@v3
         with:
           path: ${{ runner.temp }}/duoduo-site-public
+      # Artifact metadata can take a short time to appear in the Pages API.
+      # Avoid a false "No artifacts named github-pages" deployment failure.
+      - name: Wait for Pages artifact indexing
+        shell: bash
+        run: sleep 35
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
