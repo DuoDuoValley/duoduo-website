@@ -344,6 +344,11 @@ function newsStandaloneItemLine(raw){
   return `<span class="news-inline-item">${newsItemThumb(text)}<span>${newsInline(newsDisplayItemName(text),false)}</span></span>`;
 }
 
+function newsListItemsHtml(list){
+  // Honor the administrator's literal list numbers, including a list
+  // broken by empty lines or example paragraphs.
+  return list.map(item=>`<li${item.ordinal===null?'':` value="${item.ordinal}"`}>${newsInline(item.text)}</li>`).join('');
+}
 function newsRenderedBody(raw){
   const text=String(raw??'').replace(/\r\n?/g,'\n').replace(/\u00a0/g,' ');
   const lines=text.split('\n');
@@ -351,7 +356,7 @@ function newsRenderedBody(raw){
   let buffer=[],list=[],listType='',group=[],grouped=[];
   let currentHeading='',section=[];
   function finishParagraph(){if(buffer.length){blocks.push(`<p class="news-paragraph">${buffer.map(x=>newsInline(x)).join('<br>')}</p>`);buffer=[];}}
-  function finishList(){if(list.length){blocks.push(`<${listType} class="news-readable-list">${list.map(x=>`<li>${newsInline(x)}</li>`).join('')}</${listType}>`);list=[];listType='';}}
+  function finishList(){if(list.length){blocks.push(`<${listType} class="news-readable-list">${newsListItemsHtml(list)}</${listType}>`);list=[];listType='';}}
   function finishGroup(){if(group.length){blocks.push(newsRewardGrid(group));group=[];}}
    function finishGrouped(){if(grouped.length){blocks.push(newsGroupedRewardCards(grouped));grouped=[];}}
   function finishSection(){finishParagraph();finishList();finishGroup();finishGrouped();if(currentHeading){section.push(...blocks);blocks.length=0;const icon=NEWS_HEADINGS[currentHeading];const headingHtml=`<h3 class="news-section-heading">${newsIcon(icon)}<span>${pageEsc(currentHeading)}</span></h3>`;const contentHtml=section.join('');section=[];sections.push(`<section class="news-detail-block">${headingHtml}${contentHtml}</section>`);}else{intro.push(...blocks);blocks.length=0;}}
@@ -374,7 +379,7 @@ function newsRenderedBody(raw){
       finishParagraph();finishList();blocks.push(`<div class="news-code-box"><code>${pageEsc(line)}</code><button type="button" class="news-code-copy" data-copy-code="${pageEsc(line)}" aria-label="複製兌換序號">${newsIcon('ticket')}<span>複製序號</span></button></div>`);continue;
     }
     const unordered=line.match(/^(?:[-*•·・])\s+(.+)$/),ordered=line.match(/^\d+[.、．)]\s*(.+)$/);
-    if(unordered||ordered){finishParagraph();const wanted=ordered?'ol':'ul';if(list.length&&listType!==wanted)finishList();listType=wanted;list.push((ordered||unordered)[1]);continue;}
+    if(unordered||ordered){finishParagraph();const wanted=ordered?'ol':'ul';if(list.length&&listType!==wanted)finishList();listType=wanted;list.push({text:(ordered||unordered)[1],ordinal:ordered?line.match(/^\d+/)[0]:null});continue;}
     finishList();buffer.push(line);
   }
   finishSection();
@@ -403,13 +408,13 @@ function newsPlainContent(raw){
  const lines=String(raw||'').replace(/\r\n?/g,'\n').split('\n');
  let out=[],list=[],type='',paragraph=[];
  const flushP=()=>{if(paragraph.length){out.push(`<p class="news-paragraph">${paragraph.map(x=>newsStandaloneItemLine(x)||newsInline(x)).join('<br>')}</p>`);paragraph=[];}};
- const flushList=()=>{if(list.length){out.push(`<${type} class="news-readable-list">${list.map(x=>`<li>${newsInline(x)}</li>`).join('')}</${type}>`);list=[];type='';}};
+ const flushList=()=>{if(list.length){out.push(`<${type} class="news-readable-list">${newsListItemsHtml(list)}</${type}>`);list=[];type='';}};
  for(const input of lines){const x=input.trim();
   const image=window.DuoDuoNewsImages?.renderLine(x);
   if(image){flushP();flushList();out.push(image);continue;}
   if(!x){flushP();flushList();continue;}
   const unordered=x.match(/^(?:[-*•·・])\s+(.+)$/),ordered=x.match(/^\d+[.、．)]\s*(.+)$/);
-  if(unordered||ordered){flushP();const wanted=ordered?'ol':'ul';if(list.length&&type!==wanted)flushList();type=wanted;list.push((unordered||ordered)[1]);continue;}
+  if(unordered||ordered){flushP();const wanted=ordered?'ol':'ul';if(list.length&&type!==wanted)flushList();type=wanted;list.push({text:(unordered||ordered)[1],ordinal:ordered?x.match(/^\d+/)[0]:null});continue;}
   flushList();paragraph.push(x);
  }flushP();flushList();return out.join('');
 }

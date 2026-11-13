@@ -576,6 +576,26 @@ function toggleManagedPreview(kind,index){
  button.textContent=preview.hidden?'預覽':'收合';
  button.setAttribute('aria-expanded',String(!preview.hidden));
 }
+function newsPreviewMain(n){
+  const blocks=Array.isArray(n.newsSections)?n.newsSections.filter(x=>x&&typeof x==='object'&&String(x.body||'').trim()):[];
+  const serial=n.tag==='序號發放'&&n.newsSerial&&typeof n.newsSerial==='object'?n.newsSerial:null;
+  const hasSerial=!!serial&&Object.values(serial).some(x=>typeof x==='string'&&x.trim());
+  const lead=String(n.newsLead||'').trim();
+  const structured=!!(lead||blocks.length||hasSerial);
+  const parts=[];
+  if(lead)parts.push(lead);
+  for(const b of blocks)parts.push([String(b.title||'').trim(),String(b.body||'').trim()].filter(Boolean).join('\n'));
+  if(hasSerial){
+    for(const [field,label] of [['rewards','序號獎勵'],['code','兌換序號'],['expiry','兌換期限'],['method','使用方式'],['notes','兌換注意事項']]){
+      const value=String(serial[field]||'').trim();
+      if(value)parts.push(label+'\n'+value);
+    }
+  }
+  // Match the public renderer: show legacy text only if it is the sole
+  // content, or the administrator explicitly included it.
+  if((!structured||n.newsIncludeLegacy===true)&&String(n.body||'').trim())parts.push(String(n.body).trim());
+  return parts.join('\n\n');
+}
 function renderManagedNews(){
  const list=$('#newsAdmin');if(!list)return;
  const s=manageNewsState,q=s.query.trim().toLowerCase();
@@ -587,7 +607,7 @@ function renderManagedNews(){
  const total=indexed.length,pages=Math.max(1,Math.ceil(total/s.size));s.page=Math.min(Math.max(1,s.page),pages);
  const offset=(s.page-1)*s.size;
  list.innerHTML=indexed.slice(offset,offset+s.size).map(({n,i})=>{
-  const preview=managePreviewWithClosing([n.newsLead,n.newsSections?.map(x=>`${x.title||''}\n${x.body||''}`).join('\n\n'),n.body].filter(Boolean).join('\n\n'),n.newsClosing,'沒有可預覽的公告內容');
+  const preview=managePreviewWithClosing(newsPreviewMain(n),n.newsClosing,'沒有可預覽的公告內容');
   return `<article class="manage-entry" data-managed-index="${i}"><div class="manage-entry-main"><div class="manage-entry-body"><div class="manage-entry-title">${esc(n.title||'未命名公告')}</div><div class="manage-entry-info"><span class="manage-tag">${esc(newsTagShort(n.tag)||'未分類')}</span><span>${esc(n.date||'未設定日期')}</span></div></div><div class="manage-entry-actions"><button type="button" class="manage-preview-toggle" aria-expanded="false" onclick="toggleManagedPreview('news',${i})">預覽</button><button type="button" class="manage-edit" onclick="editNews(${i})">編輯</button><button type="button" class="manage-delete" onclick="removeNews(${i})">刪除</button></div></div><div class="manage-entry-preview" hidden>${preview}</div></article>`;
  }).join('')||'<div class="manage-empty">沒有符合條件的公告</div>';
  $('#manageNewsCount').textContent=`符合 ${total} 篇／總共 ${news.length} 篇公告`;
@@ -909,9 +929,13 @@ newsEl('addNews').onclick=()=>{
  const tag=newsEl('newsTag').value;
  const data={tag,title,date:validNewsDate,body:newsEl('newsBody').value.trim(),
  newsLead:newsEl('newsLead').value.trim(),newsClosing:newsEl('newsClosing').value.trim(),newsSections:items,newsIncludeLegacy:newsEl('newsIncludeLegacy').checked,newsSerial:readNewsSerial()};
- if(editingNewsIndex!==null&&news[editingNewsIndex]){news[editingNewsIndex]=Object.assign({},news[editingNewsIndex],data);alert('公告已更新（目前瀏覽器）。');}
- else{news.unshift(data);alert('公告已新增（目前瀏覽器）。');}
- save('duoduo_news',news);newsResetEditor();render();
+  const isEdit=editingNewsIndex!==null&&!!news[editingNewsIndex];
+  const nextNews=isEdit?news.map((n,i)=>i===editingNewsIndex?Object.assign({},n,data):n):[data,...news];
+  // Persist first; never clear a draft or announce success on a storage error.
+  try{save('duoduo_news',nextNews);}
+  catch(error){console.error('公告儲存失敗',error);alert('公告無法儲存到此瀏覽器，編輯內容仍保留，請勿關閉頁面。');return;}
+  news=nextNews;newsResetEditor();render();
+  alert((isEdit?'公告已更新':'公告已新增')+'並儲存於此瀏覽器。\n若要讓玩家看到正式版本，請確認預覽後按「將目前資料同步到雲端」。');
 };
 window.editNews=i=>{
  if(window.DuoDuoNewsMedia?.busy())return alert('圖片上傳中，請完成後再切換公告');

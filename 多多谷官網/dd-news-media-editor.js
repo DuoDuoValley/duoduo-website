@@ -339,7 +339,7 @@
      range.deleteContents();range.insertNode(text);
      useRangeAfter(text);status.textContent='超連結已插入；原有 Markdown 超連結功能仍可使用。';
    }
-   function insertionRange(){
+   function insertionRange(replaceSelection=false){
      const sel=window.getSelection?.();
      let range=null;
      if(sel?.rangeCount&&sel.anchorNode&&editor.contains(sel.anchorNode))
@@ -347,8 +347,8 @@
      else if(savedRange&&editor.contains(savedRange.commonAncestorContainer))
        range=savedRange.cloneRange();
      if(!range){range=document.createRange();range.selectNodeContents(editor);range.collapse(false)}
-     // Adding an image never deletes highlighted text. Failed uploads cannot lose any text.
-     range.collapse(false);
+     // Image insertions keep selected text; plain text paste replaces it.
+     if(!replaceSelection)range.collapse(false);
      return range;
    }
    function insertAtCaret(node,range){
@@ -362,7 +362,7 @@
    }
    function insertPlain(text){
      if(!text)return;
-     const range=insertionRange();
+     const range=insertionRange(true);
      const fragment=document.createDocumentFragment();
      const segments=String(text).replace(/\r\n?/g,'\n').split('\n');
      let last=null;
@@ -371,6 +371,7 @@
        if(segment){last=document.createTextNode(segment);fragment.append(last)}
      });
      if(!last)return;
+     range.deleteContents();
      range.insertNode(fragment);
      const sel=window.getSelection?.();
      range.setStartAfter(last);range.collapse(true);
