@@ -159,6 +159,18 @@ function syncForwardMultiplierOptions(){
  const mobileHint=$('bc-mobile-multiplier-hint');if(mobileHint)mobileHint.textContent=`此 BOSS 目前開放最高 ${max} 倍`;
 }
 
+// Only correct the previously published First Adversary/Extreme typo.
+// Preserve all other BOSS values and any later administrator edits.
+function reconcileAdversaryExtremeHp(value){
+ const boss=value?.bosses?.find(b=>b&&(b.id==='boss29'||b.name==='最初的敵對者'));
+ const extreme=boss?.difficulties?.find(d=>d.name==='終極');
+ if(!extreme)return false;
+ const previous=String(extreme.hp??'').replace(/[\s,，]/g,'').replace(/[＊*]/g,'×').replace(/＋/g,'+');
+ if(previous!=='(1)6355兆×2+1京2870兆'&&previous!=='6355兆×2+1京2870兆')return false;
+ extreme.hp='(1)1京2710兆×2＋1京2870兆';
+ return true;
+}
+
 // Atlas and reverse calculator must use the same published, normalized HP.
 // Cache the most recent atlas event in case the scripts finish in either order.
 let hasSharedAtlasSnapshot=false;
@@ -393,7 +405,8 @@ function bossDisplayOrder(records){
 function accept(data){
  if(!data||!Array.isArray(data.bosses))return;
  // Same published JSON, but these tools have different opt-in filters.
- const items=data.bosses.filter(b=>b&&Array.isArray(b.difficulties)&&b.difficulties.length);
+ const normalized=structuredClone(data);reconcileAdversaryExtremeHp(normalized);
+ const items=normalized.bosses.filter(b=>b&&Array.isArray(b.difficulties)&&b.difficulties.length);
  const order=list=>bossDisplayOrder(list.sort((a,b)=>publicGroups.indexOf(a.group)-publicGroups.indexOf(b.group)));
  bosses=order(items.filter(b=>inTool(b,'showInHpCalculator')));
  inverseBosses=order(items.filter(b=>inTool(b,'showInDamageInverse')));

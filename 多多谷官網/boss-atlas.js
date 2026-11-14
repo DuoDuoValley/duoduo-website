@@ -10,6 +10,18 @@ const escapeAttr=escapeHTML;
 const CATEGORIES=['裝備','強化','素材','箱子','其他'];
 let staticCatalog=[],staticBossCatalog=[];
 
+// Only correct the previously published First Adversary/Extreme typo.
+// Preserve all other BOSS values and any later administrator edits.
+function reconcileAdversaryExtremeHp(value){
+ const boss=value?.bosses?.find(b=>b&&(b.id==='boss29'||b.name==='最初的敵對者'));
+ const extreme=boss?.difficulties?.find(d=>d.name==='終極');
+ if(!extreme)return false;
+ const previous=String(extreme.hp??'').replace(/[\s,，]/g,'').replace(/[＊*]/g,'×').replace(/＋/g,'+');
+ if(previous!=='(1)6355兆×2+1京2870兆'&&previous!=='6355兆×2+1京2870兆')return false;
+ extreme.hp='(1)1京2710兆×2＋1京2870兆';
+ return true;
+}
+
 // Atlas v2 one-time data correction. Older cloud snapshots may override the updated JSON.
 // Only apply corrections to v1 snapshots; never overwrite subsequent admin edits.
 function migrateAtlasV2(value){
@@ -270,11 +282,11 @@ root.addEventListener('input',event=>{
  renderResults();
 });
 (async()=>{
- try{const r=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||Date.now().toString(36)),{cache:'no-store'});if(!r.ok)throw Error('無法讀取圖鑑預設資料');data=await r.json();staticCatalog=Array.isArray(data.items)?data.items:[];staticBossCatalog=structuredClone(data.bosses||[]);data=hydrateCatalog(data);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);render();sharePublicAtlasData();}
+ try{const r=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||Date.now().toString(36)),{cache:'no-store'});if(!r.ok)throw Error('無法讀取圖鑑預設資料');data=await r.json();staticCatalog=Array.isArray(data.items)?data.items:[];staticBossCatalog=structuredClone(data.bosses||[]);data=hydrateCatalog(data);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);reconcileAdversaryExtremeHp(data);render();sharePublicAtlasData();}
  catch(e){root.textContent='BOSS 圖鑑目前無法載入，請稍後再試。';console.warn(e);return}
  try{const r=await fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const p=await r.json();if(p?.ok&&p?.data?.duoduo_boss_atlas?.schema===1){
   const incoming=hydrateCatalog(p.data.duoduo_boss_atlas);
-  migrateAtlasV2(incoming);reconcileOldPublicSnapshot(incoming);
+  migrateAtlasV2(incoming);reconcileOldPublicSnapshot(incoming);reconcileAdversaryExtremeHp(incoming);
   // Identical cloud data must not recreate dozens of cards or restart lazy images.
   if(JSON.stringify(incoming)!==JSON.stringify(data)){
    const anchor=captureViewportAnchor();
