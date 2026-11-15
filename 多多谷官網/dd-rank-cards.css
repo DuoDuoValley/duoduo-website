@@ -1,0 +1,27 @@
+/* Only the opt-in ranking card type inside an event detail. */
+.event-detail-copy .dd-rank-module{line-height:1.55;max-width:100%}
+.event-detail-copy .dd-rank-intro{margin-bottom:15px;color:var(--text);opacity:.82}
+.event-detail-copy .dd-rank-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.event-detail-copy .dd-rank-card{border:1px solid var(--line);border-radius:14px;padding:14px;background:color-mix(in srgb,var(--accent) 3%,transparent);min-width:0}
+.event-detail-copy .dd-rank-card-heading{display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);padding-bottom:10px;margin-bottom:10px}
+.event-detail-copy .dd-rank-card-medal{font-size:24px;line-height:1}
+.event-detail-copy .dd-rank-card-heading strong{font-size:15px;color:var(--text)}
+.event-detail-copy .dd-rank-card-heading small{font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap}
+.event-detail-copy .dd-rank-card-notes{font-size:12px;color:var(--muted);margin:0 0 9px;line-height:1.6;overflow-wrap:anywhere}
+.event-detail-copy .dd-rank-reward-list{display:grid;gap:5px}
+.event-detail-copy .dd-rank-reward{display:flex;align-items:center;justify-content:space-between;min-height:27px;gap:7px;padding:3px 0;font-size:13px;min-width:0}
+.event-detail-copy .dd-rank-reward-name{min-width:0;overflow-wrap:anywhere;display:inline-flex;align-items:center;gap:4px}
+.event-detail-copy .dd-rank-reward-name .dd-item-inline{white-space:normal}
+.event-detail-copy .dd-rank-reward-name .dd-item-inline img{width:22px;height:22px}
+.event-detail-copy .dd-rank-reward-qty{font-weight:750;font-size:13px;color:var(--text);white-space:nowrap;flex:none}
+.event-detail-copy .dd-rank-more{border-top:1px solid var(--line);margin-top:9px;padding-top:6px}
+.event-detail-copy .dd-rank-more summary{cursor:pointer;color:var(--accent);font-weight:750;font-size:12px;padding:5px 0;list-style:none}
+.event-detail-copy .dd-rank-more summary::-webkit-details-marker{display:none}
+.event-detail-copy .dd-rank-more summary::after{content:"⌄";margin-left:5px}
+.event-detail-copy .dd-rank-more[open] summary::after{content:"⌃"}
+.event-detail-copy .dd-rank-more summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.event-detail-copy .dd-rank-more .dd-rank-reward-list{margin-top:5px}
+.event-detail-copy .dd-rank-common{border:1px solid var(--line);border-radius:12px;padding:11px 13px;margin-top:12px;background:color-mix(in srgb,var(--accent) 5%,transparent);font-size:13px}
+.event-detail-copy .dd-rank-common strong{display:block;color:var(--text);margin-bottom:5px}
+.event-detail-copy .dd-rank-common div{color:var(--muted);overflow-wrap:anywhere}
+@media(max-width:760px){.event-detail-copy .dd-rank-grid{grid-template-columns:minmax(0,1fr)}.event-detail-copy .dd-rank-card{padding:12px}}
