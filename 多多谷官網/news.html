@@ -597,9 +597,10 @@ pageLoadNews().then(loaded=>{
 .news-item-thumb{width:36px;height:36px;flex:0 0 36px;display:inline-flex;align-items:center;justify-content:center;background:rgba(95,148,190,.08);border:1px solid var(--line);border-radius:8px}
 .news-item-thumb img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated}
 .news-inline-item{display:inline-flex;align-items:center;gap:8px;vertical-align:middle}
-.news-exp-inline{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;white-space:normal;max-width:100%;margin-inline:4px}
-.news-exp-inline .news-item-thumb{width:24px;height:24px;flex:0 0 24px;border-radius:6px}
-.news-exp-inline .news-item-thumb img{width:21px;height:21px}
+/* Inline item graphics are icons inside prose, not mini reward cards. */
+.news-exp-inline{display:inline-flex;align-items:center;gap:3px;vertical-align:-.2em;white-space:nowrap;max-width:100%;margin-inline:2px;line-height:1.3}
+.news-exp-inline .news-item-thumb{width:20px;height:20px;flex:0 0 20px;min-width:20px;border:0;border-radius:0;background:transparent;box-shadow:none;padding:0;overflow:visible}
+.news-exp-inline .news-item-thumb img{display:block;width:20px;height:20px;max-width:100%;max-height:100%;object-fit:contain;image-rendering:pixelated}
 .news-inline-item .news-item-thumb{width:28px;height:28px;flex-basis:28px;border-radius:6px}
 .news-inline-item .news-item-thumb img{width:24px;height:24px}
 @media(max-width:700px){.news-structured-intro{gap:16px}.news-item-thumb{width:32px;height:32px;flex-basis:32px}.news-item-thumb img{width:28px;height:28px}}
