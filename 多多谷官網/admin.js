@@ -1026,7 +1026,7 @@ function normalizeEventSections(event){
     return event.sectionBlocks.filter(x=>x&&typeof x==='object').map(x=>{
       const known=EVENT_SECTION_TYPES.find(t=>t[0]===x.type);
       const type=known?x.type:'custom';
-      return {type,title:String(x.title||known?.[1]||''),icon:duoduoEventIconId(x.icon||known?.[2]),body:String(x.body||'')};
+      return {type,title:type==='ranking-cards'?'排名獎勵':String(x.title||known?.[1]||''),icon:duoduoEventIconId(x.icon||known?.[2]),body:String(x.body||'')};
     });
   }
   const old=event?.sections;
@@ -1165,7 +1165,7 @@ function renderEventSectionEditor(){
       item.type=typeSelect.value;
       const preset=EVENT_SECTION_TYPES.find(t=>t[0]===item.type);
       if(preset&&item.type!=='custom'){
-        item.title=preset[1];item.icon=preset[2];
+        item.title=item.type==='ranking-cards'?'排名獎勵':preset[1];item.icon=preset[2];
         customTitle.value=item.title;
       }else{item.title='';customTitle.value='';item.icon='file-text';}
       updateVisibility();
@@ -1186,7 +1186,7 @@ $('#eventAddSectionBottom').addEventListener('click',()=>$('#eventAddSection').c
 function collectEventSectionBlocks(){
   return eventSectionDraft.map(item=>({
     type:item.type==='custom'?'custom':item.type,
-    title:(item.type==='custom'?item.title:EVENT_SECTION_TYPES.find(t=>t[0]===item.type)?.[1]||item.title).trim(),
+    title:(item.type==='ranking-cards'?'排名獎勵':item.type==='custom'?item.title:EVENT_SECTION_TYPES.find(t=>t[0]===item.type)?.[1]||item.title).trim(),
     icon:duoduoEventIconId(item.icon),
     body:String(item.body||'').trim()
   })).filter(item=>item.title&&item.body);

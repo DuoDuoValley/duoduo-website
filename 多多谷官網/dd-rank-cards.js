@@ -1,7 +1,10 @@
 /* Compact, opt-in ranking cards for event detail only. No event data mutations. */
 (()=>{'use strict';
+ function plainTokens(value){
+  return String(value||'').replace(/\[\[DDIMG:[^\]\r\n]{1,3200}\]\]/g,'').replace(/\[\[DDFMT:[A-Z]+\]\]/g,'').trim();
+ }
  function header(line){
-  let text=String(line||'').trim(),medal='';
+  let text=plainTokens(line),medal='';
   const symbol=text.match(/^([🥇🥈🥉🏅🏆])\s*/u);
   if(symbol){medal=symbol[1];text=text.slice(symbol[0].length).trim()}
   const range=text.match(/^第\s*(\d+)\s*名\s*[～~－—-]\s*(?:第\s*)?(\d+)\s*名$/u)||
@@ -14,7 +17,10 @@
   return {medal,label:range?'第 '+first+'～'+last+' 名':'第 '+first+' 名'};
  }
  function items(line){
-  const text=String(line||'').trim();
+  // Keep the original content if a reward row contains manually inserted pictures.
+  // This prevents dropping custom item artwork during compact conversion.
+  if(/\[\[DDIMG:/.test(line))return null;
+  const text=plainTokens(line);
   if(!text)return null;
   const re=/(?:^|[\s　,，、;；|｜])([^\s　×＊*，,、；;|｜]+)\s*[×＊*]\s*([0-9][0-9,]*)/gu;
   let match,last=0,out=[];
@@ -29,8 +35,7 @@
  }
  function parse(source){
   const text=String(source||'').replace(/\r\n?/g,'\n');
-  // Rich format and image tokens remain rendered by the original safe editor path.
-  if(/\[\[(?:DDIMG|DDFMT):/i.test(text))return null;
+  // Rich image tokens in award descriptions are supported and rendered safely.
   const lines=text.split('\n'),groups=[],intro=[];
   let current=null;
   for(const raw of lines){
@@ -41,7 +46,10 @@
    if(!current){intro.push(line);continue}
    const found=items(line);
    if(found)current.rewards.push(...found);
-   else current.notes.push(line);
+   else{
+    if(/\[\[DDIMG:/.test(line)&&/[×＊*]\s*\d/.test(plainTokens(line)))return null;
+    current.notes.push(line);
+   }
   }
   if(groups.length<2||groups.some(g=>!g.rewards.length))return null;
   const common=groups[0].notes.filter((line,i,arr)=>arr.indexOf(line)===i&&groups.every(g=>g.notes.includes(line)));
@@ -52,15 +60,21 @@
   const data=parse(source);
   if(!data||typeof escapeText!=='function')return '';
   const esc=x=>escapeText(String(x??''));
+  const rich=x=>{
+   const text=String(x??'');
+   // Uses the existing validated DDIMG/DDFMT renderer; never outputs raw HTML.
+   const result=window.DuoDuoNewsImages?.renderInline(text,part=>esc(part));
+   return result===null||result===undefined?esc(text):result;
+  };
   const reward=item=>'<div class="dd-rank-reward"><span class="dd-rank-reward-name">'+esc(item.name)+'</span><strong class="dd-rank-reward-qty">×'+esc(item.amount)+'</strong></div>';
   const cards=data.groups.map(group=>{
    const initial=group.rewards.slice(0,4),remaining=group.rewards.slice(4);
-   const description=group.notes.length?'<div class="dd-rank-card-notes">'+group.notes.map(x=>'<div>'+esc(x)+'</div>').join('')+'</div>':'';
+   const description=group.notes.length?'<div class="dd-rank-card-notes">'+group.notes.map(x=>'<div>'+rich(x)+'</div>').join('')+'</div>':'';
    const more=remaining.length?'<details class="dd-rank-more"><summary>查看其餘 '+remaining.length+' 項獎勵</summary><div class="dd-rank-reward-list">'+remaining.map(reward).join('')+'</div></details>':'';
    return '<article class="dd-rank-card"><div class="dd-rank-card-heading"><span class="dd-rank-card-medal" aria-hidden="true">'+esc(group.medal)+'</span><strong>'+esc(group.label)+'</strong><small>'+group.rewards.length+' 項</small></div>'+description+'<div class="dd-rank-reward-list">'+initial.map(reward).join('')+'</div>'+more+'</article>';
   }).join('');
-  const intro=data.intro.length?'<div class="dd-rank-intro">'+data.intro.map(esc).join('<br>')+'</div>':'';
-  const common=data.common.length?'<aside class="dd-rank-common"><strong>所有上述名次共同獲得</strong><div>'+data.common.map(esc).join('<br>')+'</div></aside>':'';
+  const intro=data.intro.length?'<div class="dd-rank-intro">'+data.intro.map(rich).join('<br>')+'</div>':'';
+  const common=data.common.length?'<aside class="dd-rank-common"><strong>所有上述名次共同獲得</strong><div>'+data.common.map(rich).join('<br>')+'</div></aside>':'';
   return '<div class="dd-rank-module">'+intro+'<div class="dd-rank-grid">'+cards+'</div>'+common+'</div>';
  }
  window.DuoDuoRankCards={parse,render};

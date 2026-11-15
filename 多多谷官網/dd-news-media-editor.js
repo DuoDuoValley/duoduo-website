@@ -184,10 +184,11 @@
      const span=document.createElement('span');span.className='dd-news-fmt dd-news-fmt-'+key.toLowerCase();
      span.dataset.newsFormat=key;return span;
    }
-   function load(){
-     editor.replaceChildren();
-     const lines=String(textarea.value||'').replace(/\r\n?/g,'\n').split('\n');
-     const stack=[editor];
+   // Shared decoder for reloading or pasting previously uploaded, validated images.
+   function richFragment(value){
+     const fragment=document.createDocumentFragment();
+     const lines=String(value||'').replace(/\r\n?/g,'\n').split('\n');
+     const stack=[fragment];
      for(let i=0;i<lines.length;i++){
        if(i)stack[stack.length-1].append(document.createElement('br'));
        let last=0;LOAD_TOKENS.lastIndex=0;let match;
@@ -204,8 +205,10 @@
        }
        if(last<lines[i].length)stack[stack.length-1].append(document.createTextNode(lines[i].slice(last)));
      }
+     return fragment;
    }
-   function serialize(){
+   function load(){editor.replaceChildren(richFragment(textarea.value||''));}
+   function serialize(root=editor){
      let output='';
      const blocks=new Set(['DIV','P','LI']);
      function walk(node){
@@ -225,7 +228,7 @@
        if(isBlock&&output&&!output.endsWith('\n'))output+='\n';
        if(key)output+=CLOSE_FMT;
      }
-     for(const node of editor.childNodes)walk(node);
+     for(const node of root.childNodes)walk(node);
      // Frontend paragraph rendering is line-based. Keep each format self-contained
      // within every line, even when selection includes a line break.
      const normalized=output.replace(/\n$/,'').replace(/\u00a0/g,' ');
@@ -379,6 +382,17 @@
      if(sel){sel.removeAllRanges();sel.addRange(range)}
      savedRange=range.cloneRange();sync();
    }
+   function insertSerialized(text){
+     if(!text)return;
+     const fragment=richFragment(text),last=fragment.lastChild;
+     if(!last)return;
+     const range=insertionRange(true);
+     range.deleteContents();range.insertNode(fragment);
+     const sel=window.getSelection?.();
+     range.setStartAfter(last);range.collapse(true);
+     if(sel){sel.removeAllRanges();sel.addRange(range)}
+     savedRange=range.cloneRange();sync();
+   }
    async function insertFile(file){
      if(!file||!ACCEPT.test(file.type)){status.textContent='僅支援 PNG／JPG／WebP';return}
      if(!file.size||file.size>MAX_FILE){status.textContent='單張圖片須小於 8 MB';return}
@@ -421,12 +435,39 @@
    }
    insertButton.addEventListener('click',()=>{rememberRange();fileInput.click()});
    fileInput.addEventListener('change',()=>{if(fileInput.files?.[0])void insertFile(fileInput.files[0])});
-   editor.addEventListener('paste',event=>{
-     const files=Array.from(event.clipboardData?.items||[]);
-     const image=files.find(x=>x.kind==='file'&&ACCEPT.test(x.type));
+   const INTERNAL_CLIPBOARD='application/x-duoduo-richtext';
+   function preserveSelectionOnClipboard(event,isCut){
+     const range=selectionRange();
+     if(!range)return;
+     if(pending){event.preventDefault();status.textContent='圖片上傳尚未完成，完成後才能複製或剪下。';return}
+     const rich=serialize(range.cloneContents());
+     if(!rich)return;
+     if(!event.clipboardData){event.preventDefault();status.textContent='剪貼簿無法讀取，請使用一般瀏覽器的 Ctrl+C／Ctrl+X。';return}
+     try{event.clipboardData.setData('text/plain',rich)}
+     catch(_){event.preventDefault();status.textContent='剪貼簿寫入失敗，原內容已保留。';return}
+     // Extra MIME helps other mounted editors recognize an internal rich transfer.
+     try{event.clipboardData.setData(INTERNAL_CLIPBOARD,rich)}catch(_){}
      event.preventDefault();
-     if(image&&!textOnly){const file=image.getAsFile();if(file)void insertFile(file)}
-     else insertPlain(event.clipboardData?.getData('text/plain')||'');
+     if(isCut){
+       range.deleteContents();range.collapse(true);
+       const sel=window.getSelection?.();
+       if(sel){sel.removeAllRanges();sel.addRange(range)}
+       savedRange=range.cloneRange();loadSelectedImage(null);sync();
+     }
+   }
+   editor.addEventListener('copy',event=>preserveSelectionOnClipboard(event,false));
+   editor.addEventListener('cut',event=>preserveSelectionOnClipboard(event,true));
+   editor.addEventListener('paste',event=>{
+     const clipboard=event.clipboardData;
+     const internal=clipboard?.getData(INTERNAL_CLIPBOARD)||'';
+     event.preventDefault();
+     if(internal&&!textOnly){insertSerialized(internal);return}
+     const files=Array.from(clipboard?.items||[]);
+     const image=files.find(x=>x.kind==='file'&&ACCEPT.test(x.type));
+     if(image&&!textOnly){const file=image.getAsFile();if(file)void insertFile(file);return}
+     const plain=clipboard?.getData('text/plain')||'';
+     if(!textOnly&&/\[\[(?:DDIMG|DDFMT):/.test(plain))insertSerialized(plain);
+     else insertPlain(plain);
    });
    editor.addEventListener('dragover',event=>event.preventDefault());
    editor.addEventListener('drop',event=>{
