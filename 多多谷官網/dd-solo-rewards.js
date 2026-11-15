@@ -25,8 +25,9 @@
   const notes=data.notes.length?'<div class="dd-rank-card-notes dd-solo-notes">'+data.notes.map(line=>'<div>'+textInline(normalize(line))+'</div>').join('')+'</div>':'';
   const first=data.rewards.slice(0,4),extra=data.rewards.slice(4);
   const more=extra.length?'<details class="dd-rank-more"><summary>查看其餘 '+extra.length+' 項獎勵</summary><div class="dd-rank-reward-list">'+extra.map(itemHTML).join('')+'</div></details>':'';
-  return '<div class="dd-rank-module dd-solo-module"><article class="dd-rank-card dd-solo-card">'+notes+
-   '<div class="dd-rank-reward-list">'+first.map(itemHTML).join('')+'</div>'+more+'</article></div>';
+  const heading='<div class="dd-rank-card-heading"><span class="dd-rank-card-medal" aria-hidden="true">🎁</span><strong>擊破獎勵</strong><small>'+data.rewards.length+' 項</small></div>';
+  return '<div class="dd-rank-module dd-solo-module"><div class="dd-rank-grid"><article class="dd-rank-card dd-solo-card">'+heading+notes+
+   '<div class="dd-rank-reward-list">'+first.map(itemHTML).join('')+'</div>'+more+'</article></div></div>';
  }
  window.DuoDuoSoloRewards={parse,render};
 })();

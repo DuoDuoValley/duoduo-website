@@ -1,17 +1,6 @@
-/* Same ranking card presentation for single-player clear rewards.
-   No second layer of boxed item tiles. */
-.event-detail-copy .detail-body .dd-solo-module{width:100%;max-width:100%}
-.event-detail-copy .detail-body .dd-solo-card{width:100%;min-width:0}
-.event-detail-copy .detail-body .dd-solo-notes{
- font-family:inherit;font-size:14px;line-height:1.7;color:var(--text);
- font-weight:600;margin:0 0 10px;padding:0 0 10px;
- border-bottom:1px solid var(--line);overflow-wrap:anywhere;
-}
-.event-detail-copy .detail-body .dd-solo-notes>div+div{margin-top:5px}
+/* Solo clear rewards reuse the original ranking card grid and typography.
+   Only uploaded special-reward image sizing is scoped to solo cards. */
 .event-detail-copy .detail-body .dd-solo-notes img.dd-news-inline-asset{
  display:inline-block;vertical-align:middle;width:auto;
  max-height:34px;max-width:40px;object-fit:contain;
 }
-.event-detail-copy .detail-body .dd-solo-card .dd-rank-reward-list{gap:5px}
-.event-detail-copy .detail-body .dd-solo-card .dd-rank-reward-name{min-width:0}
-@media(max-width:760px){.event-detail-copy .detail-body .dd-solo-card{padding:12px}}
