@@ -9,9 +9,9 @@ const escapeHTML=value=>String(value??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','
 const label=['','一階段','二階段','三階段','四階段'];
 const baseUrl='assets/boss-atlas/calculator-ui/';
 const nameImage=name=>assetNames.has(name)?baseUrl+encodeURIComponent(name)+'.png':'';
-const inversePortraitUrl=name=>assetNames.has(name)?'assets/boss-atlas/inverse-ui/'+encodeURIComponent(name)+'.png':'';
+const inversePortraitUrl=name=>name==='尤比太'?'assets/boss-atlas/inverse-ui/'+encodeURIComponent('尤比太')+'.png':assetNames.has(name)?'assets/boss-atlas/inverse-ui/'+encodeURIComponent(name)+'.png':'';
 const atlasImage=b=>{const src=String(b?.image||'').trim();return /^assets\/boss-atlas\/bosses\/[\w.%()\/-]+$/i.test(src)||/^https:\/\//i.test(src)?src:''};
-const calculatorImage=b=>b?.name==='尤比太'?'assets/boss-atlas/calculator-ui/'+encodeURIComponent('尤比太')+'.webp':nameImage(b.name)||atlasImage(b);
+const calculatorImage=b=>b?.name==='尤比太'?'assets/boss-atlas/calculator-ui/'+encodeURIComponent('尤比太')+'.png':nameImage(b.name)||atlasImage(b);
 const inverseBossImage=b=>inversePortraitUrl(b.name)||atlasImage(b);
 // Existing records without tool flags retain previous visibility on rollout.
 const inTool=(b,key)=>typeof b[key]==='boolean'?b[key]:(b.published!==false&&b.name!=='尤比太');
