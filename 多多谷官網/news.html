@@ -268,6 +268,7 @@ const NEWS_EXTRA_ITEM_ASSETS={
   '閃炫附加方塊':'boss-atlas/items/item072.png',
   '萌獸方塊':'boss-atlas/items/item066.png',
   '萌獸閃炫方塊':'boss-atlas/items/item067.png',
+  'DC推廣禮交換券':'itempedia/assets/DC推廣禮交換券.png',
   '五星推廣禮交換券':'news-rewards/五星推廣禮交換券.png',
   '特權點數':'news-rewards/特權點數.png',
   '經驗值5倍券(1分)':'news-rewards/經驗值5倍券(1分).png',
@@ -310,7 +311,8 @@ function newsDisplayItemName(name){
 function newsItemThumb(name){
   const path=newsItemAsset(name);
   if(!path)return '';
-  const url=NEWS_INLINE_ITEM_PNG[path]||(path.startsWith('boss-atlas/items/')?'assets/':'player-tools/assets/')+path.split('/').map(encodeURIComponent).join('/');
+  const encoded=path.split('/').map(encodeURIComponent).join('/');
+  const url=NEWS_INLINE_ITEM_PNG[path]||(path.startsWith('itempedia/assets/')?encoded:(path.startsWith('boss-atlas/items/')?'assets/':'player-tools/assets/')+encoded);
   return `<span class="news-item-thumb"><img src="${pageEsc(url)}" alt="" loading="lazy" decoding="async"></span>`;
 }
 // 團康獎勵：只有明確的「名次／積分區間｜獎勵」才分組，不猜測普通道具名稱。
