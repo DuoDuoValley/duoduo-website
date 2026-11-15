@@ -170,7 +170,7 @@ function newsIcon(name){
   return `<svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${NEWS_ICON_PATHS[name]||NEWS_ICON_PATHS.file}</svg>`;
 }
 // 公告內文的指定道具名稱：精確匹配；原本 30 分鐘道具和其他圖示維持原樣。
-const NEWS_EXP_MINUTE_NAMES=['經驗值5倍券(1分)','MVP加倍EXP天氣效果(1分)','YuYu的應援(1分)','五星推廣禮交換券','特權點數'];
+const NEWS_EXP_MINUTE_NAMES=['經驗值5倍券(1分)','MVP加倍EXP天氣效果(1分)','YuYu的應援(1分)','五星推廣禮交換券','DC推廣禮交換券','特權點數'];
 const NEWS_EXP_MINUTE_PATTERN=new RegExp(NEWS_EXP_MINUTE_NAMES.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
 function newsExpInlineText(text,showImage=true){
   const source=String(text||'');
@@ -597,9 +597,9 @@ pageLoadNews().then(loaded=>{
 .news-item-thumb{width:36px;height:36px;flex:0 0 36px;display:inline-flex;align-items:center;justify-content:center;background:rgba(95,148,190,.08);border:1px solid var(--line);border-radius:8px}
 .news-item-thumb img{width:30px;height:30px;object-fit:contain;image-rendering:pixelated}
 .news-inline-item{display:inline-flex;align-items:center;gap:8px;vertical-align:middle}
-.news-exp-inline{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;white-space:normal}
-.news-exp-inline .news-item-thumb{width:25px;height:25px;flex:0 0 25px;border-radius:6px}
-.news-exp-inline .news-item-thumb img{width:23px;height:23px}
+.news-exp-inline{display:inline-flex;align-items:center;gap:5px;vertical-align:middle;white-space:normal;max-width:100%;margin-inline:4px}
+.news-exp-inline .news-item-thumb{width:24px;height:24px;flex:0 0 24px;border-radius:6px}
+.news-exp-inline .news-item-thumb img{width:21px;height:21px}
 .news-inline-item .news-item-thumb{width:28px;height:28px;flex-basis:28px;border-radius:6px}
 .news-inline-item .news-item-thumb img{width:24px;height:24px}
 @media(max-width:700px){.news-structured-intro{gap:16px}.news-item-thumb{width:32px;height:32px;flex-basis:32px}.news-item-thumb img{width:28px;height:28px}}

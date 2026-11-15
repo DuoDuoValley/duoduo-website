@@ -64,7 +64,7 @@ function newsIcon(name){
   return `<svg aria-hidden="true" viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">${NEWS_ICON_PATHS[name]||NEWS_ICON_PATHS.file}</svg>`;
 }
 // 公告內文的指定道具名稱：精確匹配；原本 30 分鐘道具和其他圖示維持原樣。
-const NEWS_EXP_MINUTE_NAMES=['經驗值5倍券(1分)','MVP加倍EXP天氣效果(1分)','YuYu的應援(1分)','五星推廣禮交換券','特權點數'];
+const NEWS_EXP_MINUTE_NAMES=['經驗值5倍券(1分)','MVP加倍EXP天氣效果(1分)','YuYu的應援(1分)','五星推廣禮交換券','DC推廣禮交換券','特權點數'];
 const NEWS_EXP_MINUTE_PATTERN=new RegExp(NEWS_EXP_MINUTE_NAMES.map(x=>x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join('|'),'g');
 function newsExpInlineText(text,showImage=true){
   const source=String(text||'');
