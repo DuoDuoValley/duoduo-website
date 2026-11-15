@@ -1,0 +1,50 @@
+/* DuoDuo events: one readable type scale for legacy, sectioned and ranking details.
+   Scope is strictly the event-detail page; admin/news/sitewide styling is unchanged.
+   Explicit text colors, highlights, links and inline image styles stay untouched. */
+.event-detail-copy .detail-body{
+  font-family:"Noto Sans TC",system-ui,sans-serif;
+  font-size:16px;
+  font-weight:400;
+  line-height:1.95;
+  color:var(--text);
+}
+.event-detail-copy .detail-body .duoduo-detail-intro,
+.event-detail-copy .detail-body .duoduo-detail-section-text,
+.event-detail-copy .detail-body .duoduo-detail-closing{
+  font-family:inherit;
+  font-size:inherit;
+  font-weight:inherit;
+  color:inherit;
+}
+.event-detail-copy .detail-body .dd-rank-module{
+  font-family:inherit;
+  font-size:14px;
+  font-weight:400;
+  line-height:1.7;
+  color:var(--text);
+}
+.event-detail-copy .detail-body .dd-rank-intro{
+  font-family:inherit;
+  font-size:16px;
+  font-weight:400;
+  line-height:1.95;
+  color:var(--text);
+  opacity:1;
+}
+.event-detail-copy .detail-body .dd-rank-card-notes,
+.event-detail-copy .detail-body .dd-rank-reward,
+.event-detail-copy .detail-body .dd-rank-reward-name,
+.event-detail-copy .detail-body .dd-rank-reward-qty,
+.event-detail-copy .detail-body .dd-rank-common,
+.event-detail-copy .detail-body .dd-rank-common div{
+  font-family:inherit;
+  font-size:14px;
+  line-height:1.7;
+  color:var(--text);
+}
+.event-detail-copy .detail-body .dd-rank-more summary{
+  font-family:inherit;
+  font-size:14px;
+  line-height:1.65;
+  /* Keep the accent color reserved for the expand/collapse action. */
+}
