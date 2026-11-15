@@ -47,7 +47,13 @@
    const found=items(line);
    if(found)current.rewards.push(...found);
    else{
-    if(/\[\[DDIMG:/.test(line)&&/[×xX＊*]\s*\d/.test(plainTokens(line)))return null;
+    // Image-backed medal and title bonuses may have X1 counts.
+    // Keep these as descriptions inside the ranking cards. Unrecognized
+    // image-backed item quantities still safely use the original text.
+    const plain=plainTokens(line);
+    const imageWithCount=/\[\[DDIMG:/.test(line)&&/[×xX＊*]\s*\d/.test(plain);
+    const appearanceNote=/(?:專屬勳章|專屬稱號)/u.test(plain);
+    if(imageWithCount&&!appearanceNote)return null;
     current.notes.push(line);
    }
   }
