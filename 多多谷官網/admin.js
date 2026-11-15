@@ -1154,7 +1154,7 @@ function renderEventSectionEditor(){
     makeLabel('段落內容',content,'event-section-full');
     const rankTip=document.createElement('div');rankTip.className='event-section-rank-tip';
     rankTip.style.cssText='font-size:12px;line-height:1.65;opacity:.75;margin:4px 0 10px;';
-    rankTip.textContent='排名卡片：名次獨立一行，例如「🥇 第 1 名」。獎勵可同一行多項（白金蘋果X80 黃金蘋果X100），也可以一行一項；貼上的道具圖片會保留，前台自動統一 X。「排名獎勵」的一般段落符合格式時也能自動顯示卡片。';
+    rankTip.textContent='建議每項獎勵各輸入一行；名次各自分組，例如「🥇 第 1 名」→ 白金蘋果X80 → 黃金蘋果X100，再接「🥈 第 2 名」。舊資料同一行多項也會拆為單獨獎勵列；各名次勳章與稱號不會合併到共同獎勵。';
     fields.appendChild(rankTip);
     const soloTip=document.createElement('div');soloTip.className='event-section-solo-tip';
     soloTip.style.cssText='font-size:12px;line-height:1.65;opacity:.75;margin:4px 0 10px;';

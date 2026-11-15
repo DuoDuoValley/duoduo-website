@@ -31,8 +31,8 @@
    const rank=header(line);
    if(rank){current={...rank,rewards:[],notes:[]};groups.push(current);continue}
    if(!current){intro.push(line);continue}
-   // Preserve medal/title descriptions as notes, even when marked X1.
-   if(/(?:專屬勳章|專屬稱號)/u.test(plainTokens(line))){current.notes.push(line);continue}
+   // Every numbered prize stays inside its own rank, including appearance
+   // medals/titles and image-backed prizes. One or many per input line works.
    const found=items(line);
    if(found)current.rewards.push(...found);
    else{
@@ -42,9 +42,8 @@
    }
   }
   if(groups.length<2||groups.some(g=>!g.rewards.length))return null;
-  const common=groups[0].notes.filter((line,i,arr)=>arr.indexOf(line)===i&&groups.every(g=>g.notes.includes(line)));
-  for(const g of groups)g.notes=g.notes.filter(line=>!common.includes(line));
-  return {intro,groups,common};
+  // All ranks keep their own rewards. Never create a shared-award panel.
+  return {intro,groups};
  }
  function render(source,escapeText){
   const data=parse(source);
@@ -65,8 +64,7 @@
    return '<article class="dd-rank-card"><div class="dd-rank-card-heading"><span class="dd-rank-card-medal" aria-hidden="true">'+esc(group.medal)+'</span><strong>'+esc(group.label)+'</strong><small>'+group.rewards.length+' 項</small></div>'+description+'<div class="dd-rank-reward-list">'+initial.map(reward).join('')+'</div>'+more+'</article>';
   }).join('');
   const intro=data.intro.length?'<div class="dd-rank-intro">'+data.intro.map(rich).join('<br>')+'</div>':'';
-  const common=data.common.length?'<aside class="dd-rank-common"><strong>所有上述名次共同獲得</strong><div>'+data.common.map(rich).join('<br>')+'</div></aside>':'';
-  return '<div class="dd-rank-module">'+intro+'<div class="dd-rank-grid">'+cards+'</div>'+common+'</div>';
+  return '<div class="dd-rank-module">'+intro+'<div class="dd-rank-grid">'+cards+'</div></div>';
  }
  window.DuoDuoRankCards={parse,render};
 })();
