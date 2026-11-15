@@ -17,21 +17,8 @@
   return {medal,label:range?'第 '+first+'～'+last+' 名':'第 '+first+' 名'};
  }
  function items(line){
-  // Keep the original content if a reward row contains manually inserted pictures.
-  // This prevents dropping custom item artwork during compact conversion.
-  if(/\[\[DDIMG:/.test(line))return null;
-  const text=plainTokens(line);
-  if(!text)return null;
-  const re=/(?:^|[\s　,，、;；|｜])([^\s　×＊*，,、；;|｜]+)\s*[×xX＊*]\s*([0-9][0-9,]*)/gu;
-  let match,last=0,out=[];
-  while((match=re.exec(text))!==null){
-   if(text.slice(last,match.index).replace(/[\s　,，、;；|｜]/g,''))return null;
-   const amount=match[2].replace(/,/g,'');
-   if(!/^[0-9]+$/.test(amount))return null;
-   out.push({name:match[1],amount});last=re.lastIndex;
-  }
-  if(!out.length||text.slice(last).replace(/[\s　,，、;；|｜]/g,''))return null;
-  return out;
+  const parsed=window.DuoDuoEventRewardQty?.parseLineRich(line);
+  return parsed?.map(({name,count})=>({name,amount:count}))||null;
  }
  function parse(source){
   const text=String(source||'').replace(/\r\n?/g,'\n');
@@ -44,16 +31,13 @@
    const rank=header(line);
    if(rank){current={...rank,rewards:[],notes:[]};groups.push(current);continue}
    if(!current){intro.push(line);continue}
+   // Preserve medal/title descriptions as notes, even when marked X1.
+   if(/(?:專屬勳章|專屬稱號)/u.test(plainTokens(line))){current.notes.push(line);continue}
    const found=items(line);
    if(found)current.rewards.push(...found);
    else{
-    // Image-backed medal and title bonuses may have X1 counts.
-    // Keep these as descriptions inside the ranking cards. Unrecognized
-    // image-backed item quantities still safely use the original text.
-    const plain=plainTokens(line);
-    const imageWithCount=/\[\[DDIMG:/.test(line)&&/[×xX＊*]\s*\d/.test(plain);
-    const appearanceNote=/(?:專屬勳章|專屬稱號)/u.test(plain);
-    if(imageWithCount&&!appearanceNote)return null;
+    // Never silently drop arbitrary pasted images from other item rows.
+    if(/\[\[DDIMG:/.test(line)&&/[×xX＊*]\s*\d/.test(plainTokens(line)))return null;
     current.notes.push(line);
    }
   }
@@ -72,7 +56,8 @@
    const result=window.DuoDuoNewsImages?.renderInline(text,part=>esc(part));
    return result===null||result===undefined?esc(text):result;
   };
-  const reward=item=>'<div class="dd-rank-reward"><span class="dd-rank-reward-name">'+esc(item.name)+'</span><strong class="dd-rank-reward-qty">X'+esc(item.amount)+'</strong></div>';
+  // Manual images use dd-item-inline to avoid duplicating an automatic icon.
+  const reward=item=>'<div class="dd-rank-reward"><span class="dd-rank-reward-name'+(/\[\[DDIMG:/.test(item.name)?' dd-item-inline':'')+'">'+rich(item.name)+'</span><strong class="dd-rank-reward-qty">X'+esc(item.amount)+'</strong></div>';
   const cards=data.groups.map(group=>{
    const initial=group.rewards.slice(0,4),remaining=group.rewards.slice(4);
    const description=group.notes.length?'<div class="dd-rank-card-notes">'+group.notes.map(x=>'<div>'+rich(x)+'</div>').join('')+'</div>':'';

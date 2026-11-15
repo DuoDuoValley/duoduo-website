@@ -1154,11 +1154,11 @@ function renderEventSectionEditor(){
     makeLabel('段落內容',content,'event-section-full');
     const rankTip=document.createElement('div');rankTip.className='event-section-rank-tip';
     rankTip.style.cssText='font-size:12px;line-height:1.65;opacity:.75;margin:4px 0 10px;';
-    rankTip.textContent='排名卡片格式：每個名次獨立一行（例如「🥇 第 1 名」），下方獎勵使用「白金蘋果×80 黃金蘋果×100」。重複的共同獎勵文字會合併顯示。原有活動資料不會自動轉換。';
+    rankTip.textContent='排名卡片：名次獨立一行，例如「🥇 第 1 名」。獎勵可同一行多項（白金蘋果X80 黃金蘋果X100），也可以一行一項；貼上的道具圖片會保留，前台自動統一 X。「排名獎勵」的一般段落符合格式時也能自動顯示卡片。';
     fields.appendChild(rankTip);
     const soloTip=document.createElement('div');soloTip.className='event-section-solo-tip';
     soloTip.style.cssText='font-size:12px;line-height:1.65;opacity:.75;margin:4px 0 10px;';
-    soloTip.textContent='單人擊破任務獎勵卡片：特殊道具可直接貼圖片與名稱，其餘道具輸入「白金蘋果×20 黃金蘋果×30」即可。保留原本內容，前台自動排成卡片。';
+    soloTip.textContent='單人擊破獎勵：特殊選擇券圖片與名稱放最上方；其他獎勵可同一行多項或每行一項，例如「白金蘋果X20」。圖片固定 26px 顯示區域，不會拉伸原圖。';
     fields.appendChild(soloTip);
     const updateVisibility=()=>{
       titleLabel.hidden=item.type!=='custom';

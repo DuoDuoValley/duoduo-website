@@ -24,5 +24,31 @@
   if(!items.length||input.slice(last).replace(/[\s　,，、;；|｜]/g,''))return null;
   return items;
  }
- window.DuoDuoEventRewardQty={normalize,parseLine};
+ // Parse previously uploaded item icons without confusing image URLs
+ // (e.g. IMGX10.webp) with reward quantities.
+ const RICH_TOKENS=/\[\[DDIMG:[^\]\r\n]{1,3200}\]\]|\[\[DDFMT:[A-Z]+\]\]/g;
+ const RICH_QTY=/[×xX＊*]\s*(\d[\d,]*(?:\.\d+)?(?:千|萬|億)?)(?=$|[\s　,，、;；|｜])/gu;
+ function parseLineRich(raw){
+  const input=String(raw??'').trim();
+  if(!input||input.length>15000)return null;
+  const tokens=[];let invalid=false;
+  const protectedText=input.replace(RICH_TOKENS,token=>{
+   if(token.startsWith('[[DDIMG:')&&!window.DuoDuoNewsImages?.parse(token))invalid=true;
+   if(tokens.length>=1000){invalid=true;return ''}
+   return String.fromCharCode(0xe000+tokens.push(token)-1);
+  });
+  if(invalid||/\[\[(?:DDIMG|DDFMT):/i.test(protectedText))return null;
+  const restore=value=>value.replace(/[\ue000-\ue3e7]/g,x=>tokens[x.charCodeAt(0)-0xe000]||'');
+  const items=[];let last=0,match;RICH_QTY.lastIndex=0;
+  while((match=RICH_QTY.exec(protectedText))!==null){
+   const field=protectedText.slice(last,match.index).replace(/^[\s　,，、;；|｜]+|[\s　,，、;；|｜]+$/g,'');
+   const name=restore(field);
+   const plain=name.replace(RICH_TOKENS,'').trim();
+   if(!name||!(/[\p{L}]/u.test(plain)))return null;
+   items.push({name,count:match[1]});last=RICH_QTY.lastIndex;
+  }
+  if(!items.length||protectedText.slice(last).replace(/[\s　,，、;；|｜]/g,''))return null;
+  return items;
+ }
+ window.DuoDuoEventRewardQty={normalize,parseLine,parseLineRich};
 })();

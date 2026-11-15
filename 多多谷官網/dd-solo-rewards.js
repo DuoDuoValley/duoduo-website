@@ -7,7 +7,9 @@
   const notes=[],rewards=[];let sawReward=false;
   for(const raw of lines){
    const line=raw.trim();if(!line)continue;
-   const parsed=helper.parseLine(line);
+   // Featured selection ticket stays above the list as before.
+   const special=/\[\[DDIMG:/.test(line)&&/(?:特效選擇券|專屬勳章|專屬稱號)/u.test(line);
+   const parsed=(!sawReward&&special)?null:helper.parseLineRich(line);
    if(parsed){rewards.push(...parsed);sawReward=true}
    else {
     if(sawReward)return null; // preserve atypical ordering via original renderer
@@ -21,7 +23,7 @@
   const data=parse(source);
   if(!data||typeof textInline!=='function')return '';
   const normalize=window.DuoDuoEventRewardQty.normalize;
-  const itemHTML=item=>'<div class="dd-rank-reward"><span class="dd-rank-reward-name">'+textInline(item.name)+'</span><strong class="dd-rank-reward-qty">X'+item.count+'</strong></div>';
+  const itemHTML=item=>'<div class="dd-rank-reward"><span class="dd-rank-reward-name'+(/\[\[DDIMG:/.test(item.name)?' dd-item-inline':'')+'">'+textInline(item.name)+'</span><strong class="dd-rank-reward-qty">X'+item.count+'</strong></div>';
   const notes=data.notes.length?'<div class="dd-rank-card-notes dd-solo-notes">'+data.notes.map(line=>'<div>'+textInline(normalize(line))+'</div>').join('')+'</div>':'';
   const first=data.rewards.slice(0,4),extra=data.rewards.slice(4);
   const more=extra.length?'<details class="dd-rank-more"><summary>查看其餘 '+extra.length+' 項獎勵</summary><div class="dd-rank-reward-list">'+extra.map(itemHTML).join('')+'</div></details>':'';

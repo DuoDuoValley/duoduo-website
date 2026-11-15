@@ -25,3 +25,20 @@
 .event-detail-copy .dd-rank-common strong{display:block;color:var(--text);margin-bottom:5px}
 .event-detail-copy .dd-rank-common div{color:var(--muted);overflow-wrap:anywhere}
 @media(max-width:760px){.event-detail-copy .dd-rank-grid{grid-template-columns:minmax(0,1fr)}.event-detail-copy .dd-rank-card{padding:12px}}
+
+/* Consistent 26 × 26 px icon frame in both reward card types.
+   Existing images retain aspect ratio; activity banners are unaffected. */
+.event-detail-copy .detail-body .dd-rank-module .dd-rank-card-notes img.dd-news-inline-asset,
+.event-detail-copy .detail-body .dd-rank-module .dd-rank-reward-name img.dd-news-inline-asset,
+.event-detail-copy .detail-body .dd-rank-module .dd-rank-common img.dd-news-inline-asset,
+.event-detail-copy .detail-body .dd-rank-module .dd-rank-card-notes .dd-item-inline img,
+.event-detail-copy .detail-body .dd-rank-module .dd-rank-reward-name .dd-item-inline img,
+.event-detail-copy .detail-body .dd-rank-module .dd-rank-common .dd-item-inline img{
+ width:26px!important;height:26px!important;
+ max-width:26px!important;max-height:26px!important;
+ min-width:26px;min-height:26px;object-fit:contain;flex:none;
+ display:inline-block;vertical-align:middle;
+}
+.event-detail-copy .detail-body .dd-rank-module .dd-rank-card-notes img.dd-news-inline-asset{
+ margin-right:4px;
+}
