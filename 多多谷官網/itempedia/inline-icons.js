@@ -16,7 +16,15 @@
   for(const buff of buffs||[]){if(buff?.enabled===false)continue;add(buff.name,buff.image);for(const k of buff.keywords||[])add(k,buff.image)}
   return [...map].sort((a,b)=>b[0].length-a[0].length);
  }
- let entries=iconEntries(defaults.items,buffDefaults.buffs);
+ // Existing verified assets used on the event-detail page only.
+ const eventRewardAssets={"白金蘋果":"player-tools/assets/platinum-apple.png","黃金蘋果":"player-tools/assets/golden-apple.png","魔法畫框":"player-tools/assets/magic-frame.png","星光錦囊":"player-tools/assets/starlight-pouch.png","漆黑的BOSS飾品碎片":"player-tools/assets/gacha/apple/漆黑的BOSS飾品碎片.png"};
+ function includeEventRewardImages(rows){
+  if(!document.getElementById('detailBody'))return rows;
+  const map=new Map(rows);
+  for(const [name,src] of Object.entries(eventRewardAssets))if(isSafeImage(src))map.set(name,src);
+  return [...map].sort((a,b)=>b[0].length-a[0].length);
+ }
+ let entries=includeEventRewardImages(iconEntries(defaults.items,buffDefaults.buffs));
  const allowedRoot=()=>document.querySelector('#pageDetail')||document.querySelector('#detailBody');
  function safeMatch(text,start){for(const [key,src] of entries){if(text.startsWith(key,start))return {key,src}}return null}
  const SKIP='a,button,code,pre,h1,h2,h3,h4,script,style,textarea,input,select,option,.news-inline-item,.news-exp-inline,.duoduo-exp-inline,.dd-item-inline,.news-reward-name,.news-item-thumb,[contenteditable]';
@@ -57,7 +65,7 @@
    }
   }finally{painting=false}
  }
- const sty=document.createElement('style');sty.textContent='.dd-item-inline{display:inline-flex;gap:4px;align-items:center;vertical-align:middle;white-space:normal}.dd-item-inline img{width:23px;height:23px;object-fit:contain;image-rendering:pixelated;flex:none}.dd-item-auto-thumb{flex:none}';document.head.append(sty);
+ const sty=document.createElement('style');sty.textContent='.dd-item-inline{display:inline-flex;gap:4px;align-items:center;vertical-align:middle;white-space:normal}.dd-item-inline img{width:23px;height:23px;object-fit:contain;image-rendering:pixelated;flex:none}.dd-item-auto-thumb{flex:none}#detailBody .dd-item-inline{white-space:nowrap}';document.head.append(sty);
  const watch=()=>{const host=document.querySelector('#pageDetail')||document.querySelector('#detailBody');if(!host)return false;
   let scheduled=false;new MutationObserver(()=>{if(scheduled)return;scheduled=true;queueMicrotask(()=>{scheduled=false;paint()})}).observe(host,{subtree:true,childList:true,characterData:true});paint();return true};
  if(!watch())document.addEventListener('DOMContentLoaded',watch,{once:true});
@@ -65,6 +73,6 @@
  fetch(endpoint,{cache:'no-store',signal:controller.signal}).then(x=>x.ok?x.json():null).then(payload=>{
   const data=payload?.data?.duoduo_itempedia;
   if(payload?.initialized!==true||!Array.isArray(data?.items)||!Array.isArray(data?.buffs))return;
-  entries=iconEntries(data.items,data.buffs);paint();
+  entries=includeEventRewardImages(iconEntries(data.items,data.buffs));paint();
  }).catch(()=>{}).finally(()=>clearTimeout(timeout));
 })();

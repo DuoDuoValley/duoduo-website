@@ -58,6 +58,7 @@
  }
  function mount(textarea,item,options={}){
    const textOnly=options?.textOnly===true;
+    const eventEditor=options?.context==='event';
    if(!textarea||textarea.dataset.newsMediaMounted==='2')return;
    textarea.dataset.newsMediaMounted='2';
    const editor=document.createElement('div');
@@ -65,9 +66,9 @@
    editor.contentEditable='true';
    editor.spellcheck=false;
    editor.setAttribute('role','textbox');
-   editor.setAttribute('aria-label',textOnly?'活動內容文字格式編輯區':'公告圖文內文，可直接輸入文字並貼上圖片');
+   editor.setAttribute('aria-label',textOnly?'活動內容文字格式編輯區':eventEditor?'檔期活動圖文編輯區，可直接輸入文字並貼上圖片':'公告圖文內文，可直接輸入文字並貼上圖片');
    editor.setAttribute('aria-multiline','true');
-   editor.dataset.placeholder=textOnly?'在這裡輸入活動內容，選取文字可設定顏色與格式…':'在這裡輸入公告內容，也可直接 Ctrl + V 貼上道具圖片…';
+   editor.dataset.placeholder=textOnly?'在這裡輸入活動內容，選取文字可設定顏色與格式…':eventEditor?'在這裡輸入活動內容，也可直接 Ctrl + V 貼上圖片…':'在這裡輸入公告內容，也可直接 Ctrl + V 貼上道具圖片…';
    textarea.hidden=true;
    textarea.setAttribute('aria-hidden','true');
    textarea.style.display='none';
@@ -82,7 +83,7 @@
    const toolbar=document.createElement('div');toolbar.className='dd-news-media-toolbar';
    const fileInput=document.createElement('input');fileInput.type='file';
    fileInput.accept='image/png,image/jpeg,image/webp';fileInput.hidden=true;
-   fileInput.setAttribute('aria-label','上傳公告圖片');
+   fileInput.setAttribute('aria-label',eventEditor?'上傳檔期活動圖片':'上傳公告圖片');
    const insertButton=document.createElement('button');insertButton.type='button';
    insertButton.className='dd-news-media-upload';insertButton.textContent='＋ 插入圖片';
    const helper=document.createElement('span');helper.className='dd-news-media-tip';
@@ -397,7 +398,7 @@
        status.textContent='無法顯示貼上的圖片：'+String(err.message||err);return;
      }
      pending++;insertButton.disabled=true;fileInput.disabled=true;
-     status.textContent='圖片顯示中，正在安全上傳…儲存公告前會確認完成。';
+     status.textContent='圖片顯示中，正在安全上傳…儲存前請確認已完成。';
      try{
        if(typeof window.fileToCompressedDataURL!=='function'||typeof window.uploadImageDataURL!=='function')
          throw Error('圖片上傳服務未就緒，請重新開啟後台');
@@ -409,7 +410,7 @@
        if(!editor.isConnected||!temporary.isConnected)throw Error('編輯器或圖片已被關閉');
        setImageStyle(temporary,{url,size:'auto',align:'inline',alt:''});
        temporary.src=url;sync();
-       status.textContent='圖片已插入。預設原始尺寸，請依原本流程儲存並發布公告。';
+       status.textContent=eventEditor?'圖片已插入，請儲存檔期活動才會同步到前台。':'圖片已插入。預設原始尺寸，請依原本流程儲存並發布公告。';
      }catch(err){
        if(temporary?.isConnected){temporary.remove();sync()}
        status.textContent='圖片上傳未完成，原本文字已保留：'+String(err.message||err);
