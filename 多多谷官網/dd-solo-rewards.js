@@ -1,51 +1,32 @@
-/* Opt-in compact solo mission reward cards.
-   No changes to published activity data or other section renderers. */
+/* Solo clear uses existing ranking card layout/expand behavior.
+   Never mutates published event content or original pasted images. */
 (()=>{'use strict';
- const RICH_TOKEN=/\[\[(?:DDIMG|DDFMT):/i;
- function parseItems(raw){
-  const text=String(raw||'').trim();
-  // Keep manually attached item artwork and custom formatting intact.
-  if(!text||RICH_TOKEN.test(text))return null;
-  const pattern=/(?:^|[\s　,，、;；|｜])([^\s　×＊*，,、；;|｜]+)\s*[×＊*]\s*([0-9][0-9,]*)/gu;
-  let match,last=0,result=[];
-  while((match=pattern.exec(text))!==null){
-   if(text.slice(last,match.index).replace(/[\s　,，、;；|｜]/g,''))return null;
-   const count=match[2].replace(/,/g,'');
-   if(!/^\d+$/.test(count))return null;
-   result.push({name:match[1],count});last=pattern.lastIndex;
-  }
-  if(!result.length||text.slice(last).replace(/[\s　,，、;；|｜]/g,''))return null;
-  return result;
- }
  function parse(source){
+  const helper=window.DuoDuoEventRewardQty;if(!helper)return null;
   const lines=String(source??'').replace(/\r\n?/g,'\n').split('\n');
-  const rows=[];let awardCount=0;
+  const notes=[],rewards=[];let sawReward=false;
   for(const raw of lines){
    const line=raw.trim();if(!line)continue;
-   const found=parseItems(line);
-   if(found){
-    awardCount+=found.length;
-    if(rows.length&&rows[rows.length-1].kind==='items')rows[rows.length-1].items.push(...found);
-    else rows.push({kind:'items',items:found});
-   }else rows.push({kind:'feature',text:line});
+   const parsed=helper.parseLine(line);
+   if(parsed){rewards.push(...parsed);sawReward=true}
+   else {
+    if(sawReward)return null; // preserve atypical ordering via original renderer
+    notes.push(line);
+   }
   }
-  // Unrecognized or purely prose content must always use the original renderer.
-  if(!awardCount||rows.length>100)return null;
-  return {rows,awardCount};
+  if(!rewards.length||rewards.length>150||notes.length>30)return null;
+  return {notes,rewards};
  }
  function render(source,textInline){
-  const parsed=parse(source);
-  if(!parsed||typeof textInline!=='function')return '';
-  const rows=parsed.rows.map(row=>{
-   if(row.kind==='feature'){
-    return '<div class="dd-solo-feature">'+textInline(row.text)+'</div>';
-   }
-   return '<div class="dd-solo-grid">'+row.items.map(item=>
-    '<div class="dd-solo-reward"><span class="dd-solo-reward-name">'+textInline(item.name)+
-    '</span><strong class="dd-solo-reward-qty">×'+item.count+'</strong></div>'
-   ).join('')+'</div>';
-  }).join('');
-  return '<div class="dd-solo-awards">'+rows+'</div>';
+  const data=parse(source);
+  if(!data||typeof textInline!=='function')return '';
+  const normalize=window.DuoDuoEventRewardQty.normalize;
+  const itemHTML=item=>'<div class="dd-rank-reward"><span class="dd-rank-reward-name">'+textInline(item.name)+'</span><strong class="dd-rank-reward-qty">X'+item.count+'</strong></div>';
+  const notes=data.notes.length?'<div class="dd-rank-card-notes dd-solo-notes">'+data.notes.map(line=>'<div>'+textInline(normalize(line))+'</div>').join('')+'</div>':'';
+  const first=data.rewards.slice(0,4),extra=data.rewards.slice(4);
+  const more=extra.length?'<details class="dd-rank-more"><summary>查看其餘 '+extra.length+' 項獎勵</summary><div class="dd-rank-reward-list">'+extra.map(itemHTML).join('')+'</div></details>':'';
+  return '<div class="dd-rank-module dd-solo-module"><article class="dd-rank-card dd-solo-card">'+notes+
+   '<div class="dd-rank-reward-list">'+first.map(itemHTML).join('')+'</div>'+more+'</article></div>';
  }
  window.DuoDuoSoloRewards={parse,render};
 })();

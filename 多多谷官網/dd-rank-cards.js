@@ -22,7 +22,7 @@
   if(/\[\[DDIMG:/.test(line))return null;
   const text=plainTokens(line);
   if(!text)return null;
-  const re=/(?:^|[\s　,，、;；|｜])([^\s　×＊*，,、；;|｜]+)\s*[×＊*]\s*([0-9][0-9,]*)/gu;
+  const re=/(?:^|[\s　,，、;；|｜])([^\s　×＊*，,、；;|｜]+)\s*[×xX＊*]\s*([0-9][0-9,]*)/gu;
   let match,last=0,out=[];
   while((match=re.exec(text))!==null){
    if(text.slice(last,match.index).replace(/[\s　,，、;；|｜]/g,''))return null;
@@ -47,7 +47,7 @@
    const found=items(line);
    if(found)current.rewards.push(...found);
    else{
-    if(/\[\[DDIMG:/.test(line)&&/[×＊*]\s*\d/.test(plainTokens(line)))return null;
+    if(/\[\[DDIMG:/.test(line)&&/[×xX＊*]\s*\d/.test(plainTokens(line)))return null;
     current.notes.push(line);
    }
   }
@@ -61,12 +61,12 @@
   if(!data||typeof escapeText!=='function')return '';
   const esc=x=>escapeText(String(x??''));
   const rich=x=>{
-   const text=String(x??'');
+   const text=window.DuoDuoEventRewardQty?.normalize(String(x??''))??String(x??'');
    // Uses the existing validated DDIMG/DDFMT renderer; never outputs raw HTML.
    const result=window.DuoDuoNewsImages?.renderInline(text,part=>esc(part));
    return result===null||result===undefined?esc(text):result;
   };
-  const reward=item=>'<div class="dd-rank-reward"><span class="dd-rank-reward-name">'+esc(item.name)+'</span><strong class="dd-rank-reward-qty">×'+esc(item.amount)+'</strong></div>';
+  const reward=item=>'<div class="dd-rank-reward"><span class="dd-rank-reward-name">'+esc(item.name)+'</span><strong class="dd-rank-reward-qty">X'+esc(item.amount)+'</strong></div>';
   const cards=data.groups.map(group=>{
    const initial=group.rewards.slice(0,4),remaining=group.rewards.slice(4);
    const description=group.notes.length?'<div class="dd-rank-card-notes">'+group.notes.map(x=>'<div>'+rich(x)+'</div>').join('')+'</div>':'';

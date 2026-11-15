@@ -1,51 +1,17 @@
-/* Opt-in solo mission reward section only; keeps all other events unchanged. */
-.event-detail-copy .detail-body .dd-solo-awards{
-  font-family:"Noto Sans TC",system-ui,sans-serif;
-  font-size:14px;line-height:1.7;color:var(--text);
-  padding:14px;border:1px solid var(--line);border-radius:16px;
-  background:color-mix(in srgb,var(--panel2) 38%,var(--panel));
+/* Same ranking card presentation for single-player clear rewards.
+   No second layer of boxed item tiles. */
+.event-detail-copy .detail-body .dd-solo-module{width:100%;max-width:100%}
+.event-detail-copy .detail-body .dd-solo-card{width:100%;min-width:0}
+.event-detail-copy .detail-body .dd-solo-notes{
+ font-family:inherit;font-size:14px;line-height:1.7;color:var(--text);
+ font-weight:600;margin:0 0 10px;padding:0 0 10px;
+ border-bottom:1px solid var(--line);overflow-wrap:anywhere;
 }
-.event-detail-copy .detail-body .dd-solo-feature{
-  display:flex;align-items:center;flex-wrap:wrap;gap:5px;
-  min-width:0;padding:11px 13px;margin:0 0 10px;
-  border:1px solid var(--line);border-radius:12px;
-  background:color-mix(in srgb,var(--accent) 6%,var(--panel));
-  color:var(--text);font-size:14px;line-height:1.65;font-weight:600;
-  overflow-wrap:anywhere;
+.event-detail-copy .detail-body .dd-solo-notes>div+div{margin-top:5px}
+.event-detail-copy .detail-body .dd-solo-notes img.dd-news-inline-asset{
+ display:inline-block;vertical-align:middle;width:auto;
+ max-height:34px;max-width:40px;object-fit:contain;
 }
-.event-detail-copy .detail-body .dd-solo-feature:last-child{margin-bottom:0}
-.event-detail-copy .detail-body .dd-solo-feature img.dd-news-inline-asset{
-  max-width:40px;max-height:40px;object-fit:contain;vertical-align:middle;
-}
-.event-detail-copy .detail-body .dd-solo-grid{
-  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
-}
-.event-detail-copy .detail-body .dd-solo-grid+.dd-solo-feature,
-.event-detail-copy .detail-body .dd-solo-feature+.dd-solo-grid,
-.event-detail-copy .detail-body .dd-solo-grid+.dd-solo-grid{margin-top:10px}
-.event-detail-copy .detail-body .dd-solo-reward{
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  min-width:0;min-height:48px;padding:9px 10px;border:1px solid var(--line);
-  border-radius:11px;background:var(--panel);
-  color:var(--text);font-size:14px;line-height:1.55;
-}
-.event-detail-copy .detail-body .dd-solo-reward-name{
-  display:inline-flex;align-items:center;gap:5px;min-width:0;
-  color:var(--text);overflow-wrap:anywhere;
-}
-#detailBody .dd-solo-reward-name .dd-item-inline{white-space:normal}
-.event-detail-copy .detail-body .dd-solo-reward-name .dd-item-inline img{
-  width:23px;height:23px;object-fit:contain;flex:none;
-}
-.event-detail-copy .detail-body .dd-solo-reward-qty{
-  flex:none;white-space:nowrap;color:var(--text);
-  font-size:14px;line-height:1.55;font-weight:750;
-}
-@media(max-width:800px){
-  .event-detail-copy .detail-body .dd-solo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .event-detail-copy .detail-body .dd-solo-awards{padding:11px}
-  .event-detail-copy .detail-body .dd-solo-reward{padding:9px 8px}
-}
-@media(max-width:360px){
-  .event-detail-copy .detail-body .dd-solo-grid{grid-template-columns:minmax(0,1fr)}
-}
+.event-detail-copy .detail-body .dd-solo-card .dd-rank-reward-list{gap:5px}
+.event-detail-copy .detail-body .dd-solo-card .dd-rank-reward-name{min-width:0}
+@media(max-width:760px){.event-detail-copy .detail-body .dd-solo-card{padding:12px}}
