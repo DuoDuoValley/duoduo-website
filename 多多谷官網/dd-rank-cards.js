@@ -7,14 +7,18 @@
   let text=plainTokens(line),medal='';
   const symbol=text.match(/^([🥇🥈🥉🏅🏆])\s*/u);
   if(symbol){medal=symbol[1];text=text.slice(symbol[0].length).trim()}
-  const range=text.match(/^第\s*(\d+)\s*名\s*[～~－—-]\s*(?:第\s*)?(\d+)\s*名$/u)||
-              text.match(/^第\s*(\d+)\s*[～~－—-]\s*(\d+)\s*名$/u);
-  const single=text.match(/^第\s*(\d+)\s*名$/u);
+  // Solo and team placements use the same compact card layout.
+  // Require a complete rank heading to avoid interpreting arbitrary prose as a rank.
+  const suffix='(?:\\s*(?:隊伍|隊|組別|組))?';
+  const range=text.match(new RegExp('^第\\s*(\\d+)\\s*名\\s*[～~－—-]\\s*(?:第\\s*)?(\\d+)\\s*名'+suffix+'$','u'))||
+              text.match(new RegExp('^第\\s*(\\d+)\\s*[～~－—-]\\s*(\\d+)\\s*名'+suffix+'$','u'));
+  const single=text.match(new RegExp('^第\\s*(\\d+)\\s*名'+suffix+'$','u'));
+  const team=/\s*(?:隊伍|隊|組別|組)$/u.test(text);
   if(!range&&!single)return null;
   const first=Number((range||single)[1]),last=range?Number(range[2]):first;
   if(first<1||last<first||last>100000)return null;
   if(!medal)medal=first===1?'🥇':first===2?'🥈':first===3?'🥉':'🏅';
-  return {medal,label:range?'第 '+first+'～'+last+' 名':'第 '+first+' 名'};
+  return {medal,label:(range?'第 '+first+'～'+last+' 名':'第 '+first+' 名')+(team?'隊伍':'')};
  }
  function items(line){
   const parsed=window.DuoDuoEventRewardQty?.parseLineRich(line);
