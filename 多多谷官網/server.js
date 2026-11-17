@@ -26,6 +26,36 @@ const types={
   '.txt':'text/plain; charset=utf-8'
 };
 
+// Shared server-side read cache: only published Supabase GET responses.
+// A short TTL and in-flight coalescing prevent identical public reads from
+// repeatedly transferring full site data from PostgREST.
+// Admin writes invalidate these entries; failures are never cached.
+const PUBLIC_READ_CACHE_TTL_MS=60000;
+const publicReadCache=new Map();
+function invalidatePublicReadCache(){publicReadCache.clear()}
+async function readPublicSupabase(url,headers){
+  const now=Date.now(),existing=publicReadCache.get(url);
+  if(existing?.body!==undefined&&existing.expires>now)return {ok:true,body:existing.body};
+  if(existing?.pending)return existing.pending;
+  const entry={pending:null,expires:0};
+  const pending=(async()=>{
+    const response=await fetch(url,{method:'GET',headers});
+    const body=await response.text();
+    // Limit retained bytes to prevent unbounded in-process memory use.
+    if(response.ok&&body.length<=12*1024*1024&&publicReadCache.get(url)===entry){
+      entry.body=body;
+      entry.expires=Date.now()+PUBLIC_READ_CACHE_TTL_MS;
+    }else if(publicReadCache.get(url)===entry){
+      publicReadCache.delete(url);
+    }
+    return {ok:response.ok,body};
+  })();
+  entry.pending=pending;
+  publicReadCache.set(url,entry);
+  try{return await pending}
+  finally{if(publicReadCache.get(url)===entry)entry.pending=null}
+}
+
 const uploadDir=path.join(root,'assets','uploads');
 
 if(!fs.existsSync(uploadDir)){
@@ -415,20 +445,16 @@ async function handleGetEvents(req,res){
       `${supabaseUrl}/rest/v1/events`+
       `?select=id,data,updated_at`+
       `&id=not.like.__dd_traffic_*&id=not.like.__dd_checklist_traffic_*&id=not.like.__dd_bgm_*`+
+      `&id=not.in.(__site_data__,__boss_config__,__maintenance__)`+
       `&order=updated_at.desc`;
 
-    const response=await fetch(url,{
-      method:'GET',
-      headers:{
-        'apikey':supabaseSecretKey,
-        'Authorization':`Bearer ${supabaseSecretKey}`,
-        'Content-Type':'application/json'
-      }
+    const {ok,body:text}=await readPublicSupabase(url,{
+      'apikey':supabaseSecretKey,
+      'Authorization':`Bearer ${supabaseSecretKey}`,
+      'Content-Type':'application/json'
     });
 
-    const text=await response.text();
-
-    if(!response.ok){
+    if(!ok){
       console.error('Supabase 讀取活動失敗:',text);
 
       return sendJSON(res,500,{
@@ -606,6 +632,7 @@ async function handleSaveEvents(req,res){
           }
         }
 
+        invalidatePublicReadCache();
         return sendJSON(res,200,{
           ok:true,
           count:events.length
@@ -639,9 +666,8 @@ async function handleGetBosses(req,res){
       return sendJSON(res,500,{ok:false,error:'Supabase 環境變數尚未設定'});
     }
     const url=`${supabaseUrl}/rest/v1/events?id=eq.__boss_config__&select=data`;
-    const response=await fetch(url,{method:'GET',headers:{'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json'}});
-    const text=await response.text();
-    if(!response.ok){
+    const {ok,body:text}=await readPublicSupabase(url,{'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json'});
+    if(!ok){
       console.error('Supabase 讀取 BOSS 設定失敗:',text);
       return sendJSON(res,500,{ok:false,error:'BOSS 設定讀取失敗'});
     }
@@ -672,6 +698,7 @@ async function handleSaveBosses(req,res){
         const url=`${supabaseUrl}/rest/v1/events`;
         const response=await fetch(url,{method:'POST',headers:{'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json','Prefer':'resolution=merge-duplicates,return=minimal'},body:JSON.stringify([row])});
         if(!response.ok){const text=await response.text();console.error('Supabase 儲存 BOSS 設定失敗:',text);return sendJSON(res,500,{ok:false,error:'BOSS 設定儲存失敗'});}
+        invalidatePublicReadCache();
         return sendJSON(res,200,{ok:true,count:bosses.length});
       }catch(err){
         console.error('BOSS 設定格式錯誤:',err);
@@ -700,25 +727,24 @@ async function handleGetSiteData(req,res){
     const supabaseSecretKey=process.env.SUPABASE_SECRET_KEY;
     if(!supabaseUrl||!supabaseSecretKey)return sendJSON(res,500,{ok:false,error:'Supabase 環境變數尚未設定'});
     const headers={'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json'};
-    const siteResponse=await fetch(`${supabaseUrl}/rest/v1/events?id=eq.__site_data__&select=data`,{method:'GET',headers});
-    const siteText=await siteResponse.text();
-    if(!siteResponse.ok){console.error('Supabase 讀取網站資料失敗:',siteText);return sendJSON(res,500,{ok:false,error:'網站資料讀取失敗'});}
+    const {ok:siteOk,body:siteText}=await readPublicSupabase(`${supabaseUrl}/rest/v1/events?id=eq.__site_data__&select=data`,headers);
+    if(!siteOk){console.error('Supabase 讀取網站資料失敗:',siteText);return sendJSON(res,500,{ok:false,error:'網站資料讀取失敗'});}
     const siteRows=JSON.parse(siteText);
     const record=siteRows[0]?.data;
     if(record?.initialized!==true)return sendJSON(res,200,{ok:true,initialized:false,data:{}});
 
     const data={...(record.values||{})};
 
-    const eventsResponse=await fetch(`${supabaseUrl}/rest/v1/events?select=id,data,updated_at&id=not.like.__dd_traffic_*&id=not.like.__dd_checklist_traffic_*&id=not.like.__dd_bgm_*&order=updated_at.desc`,{method:'GET',headers});
-    if(eventsResponse.ok){
-      const rows=await eventsResponse.json();
+    const eventsResult=await readPublicSupabase(`${supabaseUrl}/rest/v1/events?select=id,data,updated_at&id=not.like.__dd_traffic_*&id=not.like.__dd_checklist_traffic_*&id=not.like.__dd_bgm_*&id=not.in.(__site_data__,__boss_config__,__maintenance__)&order=updated_at.desc`,headers);
+    if(eventsResult.ok){
+      const rows=JSON.parse(eventsResult.body);
       const eventRows=rows.filter(row=>!isInternalEventRow(row));
       data.duoduo_events=eventRows.map(row=>row.data).filter(Boolean);
     }
 
-    const bossResponse=await fetch(`${supabaseUrl}/rest/v1/events?id=eq.__boss_config__&select=data`,{method:'GET',headers});
-    if(bossResponse.ok){
-      const rows=await bossResponse.json();
+    const bossResult=await readPublicSupabase(`${supabaseUrl}/rest/v1/events?id=eq.__boss_config__&select=data`,headers);
+    if(bossResult.ok){
+      const rows=JSON.parse(bossResult.body);
       const boss=rows[0]?.data;
       if(boss)data.duoduo_boss_config={interval:Number(boss.interval)||5000,slides:Array.isArray(boss.bosses)?boss.bosses:[]};
     }
@@ -795,6 +821,7 @@ async function handleSaveSiteData(req,res){
           }
         }
         if(!response.ok){const detail=await response.text();console.error('Supabase 儲存網站資料失敗:',detail);return sendJSON(res,500,{ok:false,error:'網站資料儲存失敗'});}
+        invalidatePublicReadCache();
         return sendJSON(res,200,{ok:true,count:Object.keys(values).length});
       }catch(err){console.error('網站資料格式錯誤:',err);return sendJSON(res,400,{ok:false,error:'網站資料格式錯誤'});}
       });
