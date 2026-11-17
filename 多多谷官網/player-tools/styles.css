@@ -201,6 +201,9 @@
 .gacha-item-icon{width:30px;height:30px;object-fit:contain;flex:0 0 30px}
 .draw-item{display:flex;align-items:center;gap:10px}
 .gacha-draw-icon{width:42px;height:42px;object-fit:contain;flex:0 0 42px}
+/* The 37px oracle ring source has more transparent padding than 32px prizes. */
+/* Keep the same 30px/42px icon slots and uniformly enlarge only its artwork. */
+.gacha-item-icon.gacha-optical-oracle,.gacha-draw-icon.gacha-optical-oracle{transform:scale(1.10);transform-origin:center center}
 .draw-item>div{min-width:0}
 
 .weekly-prize-admin{margin:14px 0;padding:14px;border:1px solid #d8e8ef;border-radius:12px;background:#f5fbfd}.weekly-prize-admin h4{margin:0 0 7px;font-size:13px;color:#21465a}.weekly-prize-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0}.weekly-prize-grid label{display:grid;gap:5px;font-size:12px;font-weight:700;color:#607487;min-width:0}.weekly-prize-grid input{width:100%;min-width:0;border:1px solid #dbe4ec;border-radius:8px;padding:9px;background:#fff;color:#24364b;font:inherit;font-size:12px}.weekly-period{margin-top:8px;font-size:11px;color:#5d788a;line-height:1.6}@media(max-width:620px){.weekly-prize-grid{grid-template-columns:1fr}}
