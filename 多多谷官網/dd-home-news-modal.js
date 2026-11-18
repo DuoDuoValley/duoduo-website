@@ -43,7 +43,7 @@ const NEWS_HEADINGS = {
   '調整項目':'file', '相關說明':'file', '補充說明':'file', '公告說明':'file',
   '活動介紹':'file', '活動期間':'calendar', '活動日期':'calendar',
   // 舊版「更新公告」常見獨立小標題：只有整行相符才會辨識成段落。
-  '新增內容':'file', '新增功能':'file', '系統調整':'file', '商城更新':'file',
+  '新增內容':'file', '新增功能':'file', '系統調整':'file', '開發進度':'file', '商城更新':'file',
   '已修正問題':'shield', '已修復問題':'shield', '問題修復':'shield', '問題修正':'shield',
   '錯誤修正':'shield', 'BUG修復':'shield', 'BUG 修復':'shield',
   '功能優化':'file', '優化內容':'file', '優化調整':'file', '平衡調整':'file',
