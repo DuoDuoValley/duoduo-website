@@ -773,6 +773,10 @@ const NEWS_SECTION_TYPES=[
  ['shop_updates','商城更新','shopping-cart'],['bug_fixes','已修正問題','check-circle'],
  ['features_optimized','功能優化','list-checks'],['balance_changes','平衡調整','shield-check'],
  ['skill_changes','技能調整','swords'],['update_reminders','更新提醒','info'],
+ // 違規處分公告專屬段落；維持舊公告欄位與自訂段落相容。
+ ['penalty_info','違規處分資訊','shield-alert'],
+ ['incident_details','事件說明','clipboard-list'],
+ ['official_stance','官方立場','shield-check'],
  ['custom','自訂標題','file-text']
 ];
 let editingNewsIndex=null,newsSectionDraft=[];
