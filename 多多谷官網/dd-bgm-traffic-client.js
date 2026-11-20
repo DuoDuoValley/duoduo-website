@@ -7,7 +7,7 @@
  const audio=document.getElementById('music');
  const select=document.getElementById('trackList');
  if(!audio||!select)return;
- const endpoint=location.hostname.endsWith('github.io')?
+ const endpoint=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?
    'https://duoduo-website.onrender.com/api/bgm-traffic/record':'/api/bgm-traffic/record';
  const hex=()=>Array.from(crypto.getRandomValues(new Uint8Array(16)),v=>v.toString(16).padStart(2,'0')).join('');
  function identifier(key,storage){

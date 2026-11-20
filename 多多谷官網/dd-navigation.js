@@ -176,7 +176,7 @@ prepareMainNavRoll();
 applyNavSettings(readNavSettings());
 // Standalone Jobs and Player Tools also read published settings (not app.js).
 if(inTools||inJobs||inLegion||inItempedia||inBossGuides){
- const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
+ const endpoint=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
  let lastPublished='';
  async function loadPublishedNav(){
   if(document.visibilityState==='hidden'||!navigator.onLine)return;

@@ -161,7 +161,7 @@
  }
  // Cloud-published footer values are authoritative. Cached settings are only a
  // first-paint fallback; do not leave first-time visitors with stale links.
- const cloudEndpoint=(location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'')+'/api/site-data';
+ const cloudEndpoint=((location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'')+'/api/site-data';
  let busy=false,lastPublished='',lastSuccessful=0;
  const safePublishedLink=(record,key)=>{
   const candidate=record?.[key]??record?.[legacy[key]];

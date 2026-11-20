@@ -2,7 +2,7 @@
  * Does not modify BOSS atlas, drops, navigation, itempedia or any other site data key. */
 (()=>{'use strict';
  const panel=document.getElementById('bossGuidesPanel');if(!panel)return;
- const API=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const API=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
  const CLOUD_KEY='duoduo_boss_guides',DRAFT_KEY='duoduo_boss_guides_admin_v13_draft';
  const $=id=>panel.querySelector('#'+id);
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

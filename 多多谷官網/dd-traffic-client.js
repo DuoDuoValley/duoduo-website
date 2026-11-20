@@ -4,7 +4,7 @@
  if(window.DuoDuoTraffic)return;
  if(window.top!==window)return; // Never count embedded official subpages or BGM.
  if(location.pathname.includes('/ops-')||location.pathname.endsWith('/admin.html'))return;
- const API=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const API=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
  const KEY='duoduo_anonymous_visitor_v1';
  const hex=()=>Array.from(crypto.getRandomValues(new Uint8Array(16)),n=>n.toString(16).padStart(2,'0')).join('');
  function getVisitor(){

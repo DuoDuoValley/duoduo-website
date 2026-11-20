@@ -4,7 +4,7 @@
  * 所有編輯功能已移至既有管理後台；此頁僅唯讀展示。
  */
 (()=>{'use strict';
- const API=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const API=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
  const DATA_KEY='duoduo_boss_guides';
  const $=id=>document.getElementById(id);
  const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));

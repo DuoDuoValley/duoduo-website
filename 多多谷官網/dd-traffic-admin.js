@@ -4,7 +4,7 @@
  if(!root)return;
  const siteButtons=[...root.querySelectorAll('[data-traffic-site]')];
  let site='website';
- const api=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const api=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
  const status=root.querySelector('[data-traffic-status]');
  const numbers=Object.fromEntries(['todayVisitors','totalVisitors','todayViews','totalViews'].map(k=>[k,root.querySelector('[data-traffic-value="'+k+'"]')]));
  const start=root.querySelector('[data-traffic-since]'),updated=root.querySelector('[data-traffic-updated]'),lastVisit=root.querySelector('[data-traffic-last-visit]');

@@ -82,7 +82,7 @@
    if(!res.ok)throw Error('HTTP '+res.status);
    const value=(await res.text()).trim();
    versionState.textContent=/^[0-9a-f]{40}$/i.test(value)?'GitHub 版本碼：'+value+'（SHA 偵測正常）':'未取得 GitHub Actions 版號，請檢查部署工作流程。';
-   const url=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
+   const url=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
    try{
      const cloud=await fetch(url+'?admin_diagnostic='+Date.now(),{cache:'no-store',headers:{Accept:'application/json'}});
      if(!cloud.ok)throw Error('HTTP '+cloud.status);

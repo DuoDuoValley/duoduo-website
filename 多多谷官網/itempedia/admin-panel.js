@@ -3,7 +3,7 @@
 (()=>{'use strict';
  const mount=document.getElementById('ipAdminMount');if(!mount)return;
  const $=id=>document.getElementById(id);
- const api=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const api=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
  const draftKey='duoduo_itempedia_official_draft_v1';
  const defaults=()=>({version:3,categories:structuredClone(window.DuoDuoItemCatalogDefault?.categories||[]),
   items:structuredClone(window.DuoDuoItemCatalogDefault?.items||[]),

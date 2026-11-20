@@ -1,6 +1,6 @@
 /* Official item encyclopedia: publicly readable; authoritative edits via authenticated backend. */
 (()=>{'use strict';
- const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
+ const endpoint=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
  const defaults={version:1,items:window.DuoDuoItemCatalogDefault,buffs:window.DuoDuoBuffCatalogDefault};
  window.DuoDuoItempedia={data:defaults,loaded:false,loadError:null};
  const valid=x=>x&&Array.isArray(x.items?.items)&&Array.isArray(x.items?.categories)&&Array.isArray(x.buffs?.buffs)&&Array.isArray(x.buffs?.tiers);

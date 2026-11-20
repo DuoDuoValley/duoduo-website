@@ -2,7 +2,7 @@
 (()=>{'use strict';
 const host=document.getElementById('pediaAdminRoot');if(!host)return;
 const $=id=>document.getElementById(id);
-const api=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+const api=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
 const endpoint=api+'/api/site-data';
 const defaultState={version:3,items:structuredClone(window.DuoDuoItemCatalogDefault),buffs:structuredClone(window.DuoDuoBuffCatalogDefault)};
 const draftKey='duoduo_itempedia_admin_draft_v3';

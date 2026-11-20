@@ -1,7 +1,7 @@
 /* DuoDuo Valley - BOSS entry rules, reward thresholds & exact HP calculator. */
 (()=>{'use strict';
 const anchor=document.getElementById('ddBossAtlas');if(!anchor)return;
-const API=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+const API=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
 const publicGroups=['初階','中階','高階','終極'];
 const assetNames=new Set(['凡雷恩','凱伊','卡翁','受選的賽蓮','史烏','咖凌','威爾','守護天使綠水靈','巴德利斯','希拉','戴斯克','戴米安','拉圖斯','斑斑','最初的敵對者','林波','梅格耐斯','森蘭丸','比艾樂','燦爛的凶星','瑪麗西亞','監視者卡洛斯','真希拉','粉豆','血腥皇后','西格諾斯','貝倫','阿卡伊農','露希妲','頓凱爾','黑魔法師']);
 const diffNames=new Set(['簡單','普通','困難','混沌','終極']);

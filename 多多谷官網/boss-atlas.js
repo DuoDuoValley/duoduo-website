@@ -1,7 +1,7 @@
 /* BOSS Atlas public reader; separate from the home-page BOSS carousel. */
 (()=>{'use strict';
 const root=document.querySelector('#ddBossAtlas');if(!root)return;
-const API=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+const API=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
 const escapeHTML=v=>String(v??'').replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
 const safeImg=v=>{const s=String(v||'').trim();return /^assets\/boss-atlas\/[\w./%()\-]+$/i.test(s)||/^https:\/\//i.test(s)?s:''};
 let data=null,group='全部',search='',selected={};

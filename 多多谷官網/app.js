@@ -271,7 +271,7 @@ function renderPublicEvents(){
 renderPublicEvents();
 
 async function loadCloudEvents(){
-  const API_BASE=window.location.hostname.endsWith("github.io")
+  const API_BASE=(window.location.hostname.endsWith("github.io")||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')
     ? "https://duoduo-website.onrender.com"
     : "";
 
@@ -348,7 +348,7 @@ function renderBossPage(){
 renderBossCarousel();
 renderBossPage();
 async function loadCloudBosses(){
-  const API_BASE=window.location.hostname.endsWith("github.io")?"https://duoduo-website.onrender.com":"";
+  const API_BASE=(window.location.hostname.endsWith("github.io")||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?"https://duoduo-website.onrender.com":"";
   try{const res=await fetch(`${API_BASE}/api/bosses`,{headers:{Accept:"application/json"},cache:"no-store"});if(!res.ok)throw new Error(`HTTP ${res.status}`);const data=await res.json();if(Array.isArray(data.bosses)&&data.bosses.length){BOSS_CONFIG={interval:Math.max(2000,Number(data.interval)||5000),slides:data.bosses};try{sessionStorage.setItem("duoduo_cloud_duoduo_boss_config",JSON.stringify(BOSS_CONFIG));}catch{}renderBossCarousel();renderBossPage();}}catch(error){console.warn("雲端 BOSS 設定讀取失敗，使用本機 BOSS 設定。",error);}
 }
 loadCloudBosses();

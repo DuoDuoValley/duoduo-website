@@ -1,7 +1,7 @@
 /* Admin-only BGM telemetry: source-separated song leaderboard and live listeners. */
 (()=>{'use strict';
  const root=document.getElementById('ddBgmTrafficOverview');if(!root)return;
- const api=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const api=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
  const status=root.querySelector('[data-bgm-status]');
  const buttons=[...root.querySelectorAll('[data-bgm-source]')];
  const refreshButton=root.querySelector('[data-bgm-refresh]');

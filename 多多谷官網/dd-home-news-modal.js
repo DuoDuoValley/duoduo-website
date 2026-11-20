@@ -10,7 +10,7 @@ const pageEsc=v=>String(v??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>
 const pageTagShort=t=>({'重要消息':'重要','維護通知':'維護','更新說明':'更新','活動資訊':'活動','序號發放':'序號','處分名單':'處分'}[t]||t);
 const pageDefaultNews=[]; // Do not invent content if neither cloud nor cache is available.
 async function pageLoadNews(){
-  const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+  const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
   try{
     const res=await fetch(`${API_BASE}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
     if(!res.ok)throw new Error(`HTTP ${res.status}`);

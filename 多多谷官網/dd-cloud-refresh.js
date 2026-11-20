@@ -21,7 +21,7 @@
   'player-tools':['duoduo_pools','duoduo_weekly_prizes']
  };
  const keys=[...new Set([...(inTools?['duoduo_settings']:['duoduo_settings','duoduo_links']),...(byPage[route]||[])])];
- const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
+ const endpoint=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
  const debug={active:true,revision:'v4.4',status:'initializing',lastCheck:null,lastError:null,lastChangedKeys:[]};
  window.DuoDuoCloudRefresh=debug;
  let baseline=null, busy=false, refreshPending=false, backgroundSince=null, returnedAfterLongPause=false;

@@ -4,7 +4,7 @@
 (()=>{'use strict';
  const root=document.getElementById('gameVersionPanel');if(!root)return;
  const get=id=>document.getElementById(id);
- const api=(location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'')+'/api/site-data';
+ const api=((location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'')+'/api/site-data';
  const fallback={number:'282',phase:'active',customText:'',showBadge:true};
  // Legacy 'active' continues to display 持續更新; 'official' is an explicit new choice.
  const phrase={active:'持續更新',official:'正式開放',preparing:'即將更新',maintenance:'版本維護中',custom:'自訂文字'};

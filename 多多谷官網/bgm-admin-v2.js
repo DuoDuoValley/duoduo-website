@@ -2,7 +2,7 @@
 (()=>{
 'use strict';
 const by=id=>document.getElementById(id);
-const base=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+const base=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
 let tracks=[],defaultId='',editingId='',busy=false;
 const ids=()=>`bgm_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,8)}`;
 const token=()=>{try{return sessionStorage.getItem('duoduo_admin_session')||'';}catch{return ''}};

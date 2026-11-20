@@ -1,6 +1,6 @@
 /* ===== 管理後台登入保護 ===== */
 (function(){
-  const API_BASE=window.location.hostname.endsWith('github.io')
+  const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')
     ? 'https://duoduo-website.onrender.com'
     : '';
   const TOKEN_KEY='duoduo_admin_session';
@@ -189,7 +189,7 @@ function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 const CLOUD_SITE_KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_links','duoduo_pools'];
 function getAdminToken(){try{return sessionStorage.getItem('duoduo_admin_session')||''}catch{return ''}}
 async function pushSiteDataToCloud(keys=CLOUD_SITE_KEYS){
-  const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+  const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
   const token=getAdminToken();
   if(!token)throw new Error('未登入');
   const values={};
@@ -257,7 +257,7 @@ function addCloudMigrationButton(){
   let pools=[];
   let weeklyPrizes=[{name:'天上的氣息',prob:0.0005,image:'assets/gacha/apple/天上的氣息.png'}];
   let weeklyImageCatalog=[];
-  const apiBase=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+  const apiBase=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
   const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
   function status(msg,bad=false){$('poolAdminStatus').textContent=msg;$('poolAdminStatus').style.color=bad?'#d9534f':'';}
   function selected(){return pools.find(p=>p.key===sel.value)||null;}
@@ -661,7 +661,7 @@ function renderBossSlides(){
 }
 window.removeBossSlide=i=>{bossConfig.slides.splice(i,1);renderBossSlides()};
 async function saveBossesToServer(){
-  const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+  const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
   const token=sessionStorage.getItem('duoduo_admin_session')||'';
   if(!token)throw new Error('未登入');
   const slides=[];
@@ -703,7 +703,7 @@ $('#saveBosses').onclick=async()=>{
 };
 $('#resetBosses').onclick=()=>{if(confirm('恢復預設 BOSS 輪播？')){bossConfig=structuredClone(defaultBossConfig);save('duoduo_boss_config',bossConfig);renderBossSlides();}};
 async function loadCloudBosses(){
-  const API_BASE=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+  const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
   try{
     const res=await fetch(`${API_BASE}/api/bosses`,{headers:{Accept:'application/json'},cache:'no-store'});
     if(!res.ok)throw new Error(`HTTP ${res.status}`);
@@ -957,7 +957,7 @@ window.removeNews=i=>{if(confirm('確定刪除這則公告？')){
 }};
 renderNewsEditor();newsSerialMode();refreshLegacyNewsBody();refreshNewsRichField('newsLead');refreshNewsRichField('newsClosing');showNewsSerial(null);
 async function fileToCompressedDataURL(file,maxW=1800,maxH=1200,quality=.86){return new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxW/img.naturalWidth,maxH/img.naturalHeight);const canvas=document.createElement('canvas');canvas.width=Math.max(1,Math.round(img.naturalWidth*scale));canvas.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=canvas.getContext('2d');ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL('image/webp',quality));};img.onerror=reject;img.src=reader.result;};reader.onerror=reject;reader.readAsDataURL(file)});}async function uploadImageDataURL(dataUrl,originalName){
-  const API_BASE=window.location.hostname.endsWith('github.io')
+  const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')
   ? 'https://duoduo-website.onrender.com'
   : '';
 
@@ -969,7 +969,7 @@ const res=await fetch(`${API_BASE}/api/upload-image`,{method:'POST',headers:{'Co
   return data.path;
 }
 async function syncEventsToServer(){
-  const API_BASE=window.location.hostname.endsWith('github.io')
+  const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')
     ? 'https://duoduo-website.onrender.com'
     : '';
 

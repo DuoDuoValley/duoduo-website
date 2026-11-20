@@ -16,7 +16,7 @@ function createBgmTrafficHandlers({getAdminSession,sendJSON,fetchImpl=fetch,now=
     const secret=env.SUPABASE_SECRET_KEY;
     return {url:env.SUPABASE_URL,secret,headers:{apikey:secret,Authorization:'Bearer '+secret,'Content-Type':'application/json'}};
   };
-  const allowedOrigin=origin=>!origin||origin==='https://duoduovalley.github.io'||/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(origin);
+  const allowedOrigin=origin=>!origin||origin==='https://duoduovalley.github.io'||origin==='https://www.duoduovalley.com'||origin==='https://duoduovalley.com'||/^http:\/\/(?:localhost|127\.0\.0\.1):\d+$/.test(origin);
   function readBody(req,cb){
     let size=0,body='',oversize=false;
     req.setEncoding('utf8');

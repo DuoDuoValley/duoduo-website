@@ -11,7 +11,7 @@
  d.head.appendChild(hide);
  const DEFAULT={number:'282',phase:'active',showBadge:true};
  const PHASES={active:'持續更新',official:'正式開放',preparing:'即將更新',maintenance:'版本維護中',custom:'自訂文字'};
- const endpoint=(location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'')+'/api/site-data';
+ const endpoint=((location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'')+'/api/site-data';
  let current=null,loaded=false,serverError=null;
  let cloudData=null;
  function hydratePublishedDownloads(){

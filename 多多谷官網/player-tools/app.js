@@ -112,7 +112,7 @@
   selectTool(new URLSearchParams(location.search).get('ddnav'),false);
 
   async function loadSharedWebsiteSettings(){
-    const apiBase=window.location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+    const apiBase=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
     try{
       const response=await fetch(`${apiBase}/api/site-data`,{cache:'no-store'});
       if(!response.ok)return;

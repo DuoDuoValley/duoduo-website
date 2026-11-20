@@ -24,7 +24,7 @@
  document.documentElement.classList.add('dd-maintenance-checking');
  const own=document.currentScript;
  const base=own?.src?new URL('./',own.src):new URL('./',location.href);
- const api=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const api=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
  const MAINT_MUSIC_NAME='Kerning Square Field';
  const MAINT_MUSIC_URL=new URL('assets/maintenance-bgm.mp3?v=4',base).href;
  // A nested site iframe can also check maintenance; only the top-level page may play audio.

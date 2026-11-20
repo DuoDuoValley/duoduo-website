@@ -890,10 +890,17 @@ const trafficHandlers=createTrafficHandlers({getAdminSession,sendJSON});
 const bgmTrafficHandlers=createBgmTrafficHandlers({getAdminSession,sendJSON});
 const server=http.createServer((req,res)=>{
 
-  res.setHeader(
-    'Access-Control-Allow-Origin',
-    'https://duoduovalley.github.io'
-  );
+  // Permit only official browser origins; do not weaken API authentication.
+  const browserOrigin=String(req.headers.origin||'');
+  const permittedBrowserOrigins=new Set([
+    'https://duoduovalley.github.io',
+    'https://www.duoduovalley.com',
+    'https://duoduovalley.com'
+  ]);
+  res.setHeader('Vary','Origin');
+  if(permittedBrowserOrigins.has(browserOrigin)){
+    res.setHeader('Access-Control-Allow-Origin',browserOrigin);
+  }
 
   res.setHeader(
     'Access-Control-Allow-Methods',

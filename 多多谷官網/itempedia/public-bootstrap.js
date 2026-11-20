@@ -2,7 +2,7 @@
 (async()=>{'use strict';
  const originalItems=window.DuoDuoItemCatalogDefault||{items:[],categories:[]};
  const originalBuffs=window.DuoDuoBuffCatalogDefault||{tiers:[],buffs:[]};
- const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
+ const endpoint=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
  let initialized=false,busy=false,lastPublished='';
  async function readPublished(timeout=5500){
   const controller=new AbortController();const deadline=setTimeout(()=>controller.abort(),timeout);

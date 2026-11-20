@@ -23,7 +23,7 @@ function createTrafficHandlers({getAdminSession,sendJSON,fetchImpl=fetch,now=Dat
   async function record(req,res){
     const origin=String(req.headers.origin||'');
     // Same-origin Render local/testing is allowed; public pages use the official GitHub Pages origin.
-    if(origin&&origin!=='https://duoduovalley.github.io'&&!origin.startsWith('http://localhost:')&&!origin.startsWith('http://127.0.0.1:'))
+    if(origin&&origin!=='https://duoduovalley.github.io'&&origin!=='https://www.duoduovalley.com'&&origin!=='https://duoduovalley.com'&&!origin.startsWith('http://localhost:')&&!origin.startsWith('http://127.0.0.1:'))
       return sendJSON(res,403,{ok:false,error:'來源不允許'});
     if(/bot|crawler|spider|headless|lighthouse|uptime|monitor/i.test(String(req.headers['user-agent']||'')))
       return sendJSON(res,200,{ok:true,ignored:true});

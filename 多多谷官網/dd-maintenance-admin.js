@@ -1,6 +1,6 @@
 /* DuoDuo maintenance administration. Requires valid Render admin session. */
 (()=>{'use strict';
- const base=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+ const base=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
  const $=id=>document.getElementById(id);
  const status=$('ddMaintStatus'),enable=$('ddMaintEnable'),disable=$('ddMaintDisable'),reload=$('ddMaintReload');
  if(!status||!enable||!disable||!reload)return;

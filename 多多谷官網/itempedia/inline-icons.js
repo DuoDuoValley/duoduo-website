@@ -4,7 +4,7 @@
 (()=>{'use strict';
  const defaults=window.DuoDuoItemCatalogDefault||{items:[]};
  const buffDefaults=window.DuoDuoBuffCatalogDefault||{buffs:[]};
- const endpoint=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
+ const endpoint=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
  const isSafeImage=src=>{if(typeof src!=='string'||!src||src.length>1400)return false;
   if(/^https:\/\//i.test(src))return true;
   return !/^(?:\/|\\|data:|blob:|javascript:|http:)/i.test(src)&&!src.includes('..')&&!/[<>"']/.test(src);
