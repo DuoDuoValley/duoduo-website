@@ -1,10 +1,11 @@
 /* Dedicated, admin-authenticated BOSS Atlas manager. Independent of BOSS carousel. */
 (()=>{'use strict';
 const p=document.getElementById('bossAtlasPanel');if(!p)return;
-const API=location.hostname.endsWith('github.io')?'https://duoduo-website.onrender.com':'';
+const API=(location.hostname.endsWith('github.io')||location.hostname==='www.duoduovalley.com'||location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
 const KEY='duoduo_boss_atlas',DRAFT='duoduo_boss_atlas_draft';
 const by=id=>p.querySelector('#'+id);const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let base=null,data=null,chosen='',q='',itemQuery='',chosenItem='',dirty=false,loading=false;
+let cloudRevision=null,cloudBaseline=null;
 const CATEGORIES=['裝備','強化','素材','箱子','其他'];
 const defaultBossMultiplier=name=>['瑪麗西亞','巴德利斯'].includes(name)?1:70;
 const validBossMultiplier=v=>Number.isSafeInteger(Number(v))&&(Number(v)===1||(Number(v)>=10&&Number(v)<=10000&&Number(v)%10===0));
@@ -238,11 +239,24 @@ async function uploadIcon(file,done){if(!file)return;
  }catch(e){status('圖片上傳失敗：'+e.message,true)}
 }
 async function fetchBase(){const r=await fetch('boss-atlas-data.json',{cache:'no-store'});if(!r.ok)throw Error('找不到 boss-atlas-data.json');const j=await r.json();validate(j);return j}
-async function fetchCloud(){const r=await fetch(`${API}/api/site-data`,{cache:'no-store'});const j=await r.json().catch(()=>({}));if(!r.ok||!j.ok)throw Error(j.error||'雲端讀取失敗');return j.data?.[KEY]}
-async function initialize(){if(loading)return;loading=true;
- try{base=await fetchBase();let cloud=null;try{cloud=await fetchCloud()}catch(e){console.warn('雲端圖鑑尚未連線，使用靜態版本',e)}
-  data=enrichData(cloud?.schema===1?cloud:clone(base));
-  const saved=localStorage.getItem(DRAFT);
+async function fetchCloudSnapshot(){
+ const r=await fetch(`${API}/api/site-data?boss_atlas_check=${Date.now()}`,{cache:'no-store'});
+ const j=await r.json().catch(()=>({}));
+ if(!r.ok||j.ok!==true)throw Error(j.error||'雲端讀取失敗');
+ if(j.initialized!==true||typeof j.revision!=='string'||!j.revision||j.data?.[KEY]?.schema!==1)
+  throw Error('無法確認已發布的 BOSS 圖鑑及雲端版本，已禁止以靜態資料覆蓋正式資料');
+ validate(j.data[KEY]);
+ return {atlas:j.data[KEY],revision:j.revision};
+}
+async function fetchCloud(){return (await fetchCloudSnapshot()).atlas;}
+async function initialize({discardDraft=false}={}){if(loading)return;loading=true;
+ cloudRevision=null;cloudBaseline=null;
+ try{base=await fetchBase();
+  const cloud=await fetchCloudSnapshot();
+  cloudRevision=cloud.revision;cloudBaseline=canonicalJSON(cloud.atlas);
+  data=enrichData(clone(cloud.atlas));
+  if(discardDraft)localStorage.removeItem(DRAFT);
+  const saved=discardDraft?null:localStorage.getItem(DRAFT);
   if(saved){try{const draftValue=JSON.parse(saved);validate(draftValue);if(confirm('偵測到這台瀏覽器尚未發布的 BOSS 圖鑑草稿，是否恢復？')){data=enrichData(draftValue);dirty=true;}}catch(e){console.warn('無法恢復 BOSS 草稿',e)}}
   const migratedV2=migrateAtlasV2(data);
   const migratedV3=migrateAtlasV3(data);
@@ -253,7 +267,7 @@ async function initialize(){if(loading)return;loading=true;
   const migrated=migratedV2||migratedV3||migratedV4||visibilityAdded||reordered||correctedHp;
   if(migrated){draft();}
   chosen=data.bosses[0]?.id||'';renderList();renderEditor();renderItemList();
-  status(migrated?'已補齊舊資料相容設定、BOSS 順序及獨立顯示開關（如有缺漏）；僅修正已確認的終極難度血量誤植，其他血量、倍率與掉落設定均保留。這是未發布草稿，請先備份 JSON，再發布雲端。':dirty?'已恢復這台瀏覽器的未發布草稿。':cloud?'已載入雲端圖鑑。':'已載入隨更新包提供的初始資料；尚未發布到雲端。');
+  status(migrated?'已補齊舊資料相容設定、BOSS 順序及獨立顯示開關（如有缺漏）；僅修正已確認的終極難度血量誤植，其他血量、倍率與掉落設定均保留。這是未發布草稿，請先備份 JSON，再發布雲端。':dirty?'已恢復這台瀏覽器的未發布草稿。':'已載入雲端正式圖鑑。');
  }catch(e){status('無法載入圖鑑：'+e.message,true)}finally{loading=false}
 }
 // Supabase JSONB can reorder object keys. Compare normalized structure, not raw JSON.stringify order.
@@ -262,16 +276,21 @@ function canonicalJSON(value){
   ?Object.fromEntries(Object.keys(v).sort().map(k=>[k,v[k]])):v);
 }
 async function publish(){if(!data)return;let body;
- try{validate(data);if(!token())throw Error('管理員登入已失效');if(!confirm(`確定發布 BOSS 圖鑑？\n公開 ${data.bosses.filter(b=>b.published!==false).length} 隻 BOSS。\n\n這會同步更新 BOSS 資訊、血量倍率計算機與個人傷害反推的顯示清單；不影響首頁 BOSS 輪播。`))return;
- by('atPublish').disabled=true;status('正在發布雲端 BOSS 圖鑑…');
- const r=await fetch(`${API}/api/site-data`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token()}`},body:JSON.stringify({values:{[KEY]:data}})});body=await r.json().catch(()=>({}));if(!r.ok||!body.ok)throw Error(body.error||'雲端發布失敗');
+ try{validate(data);if(!token())throw Error('管理員登入已失效');if(!cloudRevision||!cloudBaseline)throw Error('雲端正式資料尚未完成核對，已停止發布');if(!confirm(`確定發布 BOSS 圖鑑？\n公開 ${data.bosses.filter(b=>b.published!==false).length} 隻 BOSS。\n\n這會同步更新 BOSS 資訊、血量倍率計算機與個人傷害反推的顯示清單；不影響首頁 BOSS 輪播。`))return;
+ by('atPublish').disabled=true;status('正在核對雲端版本並發布 BOSS 圖鑑…');
+ const latest=await fetchCloudSnapshot();
+ if(latest.revision!==cloudRevision||canonicalJSON(latest.atlas)!==cloudBaseline)
+  throw Error('雲端圖鑑或其他網站資料已被更新，為避免舊資料覆蓋，請先備份草稿並重新載入雲端正式資料');
+ const r=await fetch(`${API}/api/site-data`,{method:'POST',headers:{'Content-Type':'application/json',Authorization:`Bearer ${token()}`},body:JSON.stringify({values:{[KEY]:data},expectedRevision:cloudRevision})});body=await r.json().catch(()=>({}));if(!r.ok||!body.ok)throw Error(body.error||'雲端發布失敗');
  // POST succeeded, but public reads can briefly return the previous row.
  // Retry before showing a failure, and never claim success without equality.
  let verified=null,confirmed=false,lastReadError=null;
  for(let attempt=0;attempt<5;attempt++){
   if(attempt)await new Promise(resolve=>setTimeout(resolve,350*attempt));
-  try{verified=await fetchCloud();lastReadError=null;
-   if(verified?.schema===1&&canonicalJSON(verified)===canonicalJSON(data)){confirmed=true;break;}
+  try{const snapshot=await fetchCloudSnapshot();verified=snapshot.atlas;lastReadError=null;
+   if(canonicalJSON(verified)===canonicalJSON(data)){
+    cloudRevision=snapshot.revision;cloudBaseline=canonicalJSON(snapshot.atlas);confirmed=true;break;
+   }
   }catch(err){lastReadError=err;}
  }
  if(!confirmed){
@@ -287,7 +306,7 @@ by('atBossSearch').oninput=e=>{q=e.target.value;renderList()};by('atItemSearch')
 by('atAddBoss').onclick=()=>{const name=prompt('新 BOSS 名稱');if(!name)return;const b={id:uid('boss'),name:name.trim(),image:'',group:'高階',published:false,showInHpCalculator:false,showInDamageInverse:false,difficulties:[],note:'',maxMultiplier:70};data.bosses.push(b);chosen=b.id;draft();renderList();renderEditor()};
 by('atNewItem').onclick=()=>{chosenItem='';by('atItemName').value='';by('atItemImage').value='';by('atItemCategory').value='素材';by('atItemCurrent').removeAttribute('src')};by('atSaveItem').onclick=saveItem;by('atItemImageUpload').onchange=e=>uploadIcon(e.target.files?.[0],url=>{by('atItemImage').value=url;by('atItemCurrent').src=url});
 by('atPublish').onclick=publish;
-by('atReload').onclick=async()=>{if(dirty&&!confirm('將捨棄未發布草稿，重新載入雲端或初始資料，確定嗎？'))return;localStorage.removeItem(DRAFT);dirty=false;data=null;initialize()};
+by('atReload').onclick=async()=>{if(dirty&&!confirm('將捨棄未發布草稿，重新載入雲端正式資料，確定嗎？'))return;dirty=false;data=null;initialize({discardDraft:true})};
 by('atExport').onclick=()=>{if(!data)return;const blob=new Blob([JSON.stringify(data,null,2)],{type:'application/json'}),url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='duoduo-boss-atlas-backup.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
 by('atImport').onchange=async e=>{const file=e.target.files?.[0];if(!file)return;try{const j=JSON.parse(await file.text());validate(j);if(!confirm('確定用匯入資料取代目前的圖鑑草稿？（不會直接發布）'))return;data=enrichData(j);migrateAtlasV2(data);migrateAtlasV3(data);migrateAtlasV4(data);reconcileAdversaryExtremeHp(data);establishToolVisibility(data);alignMariaBossOrder(data);chosen=data.bosses[0]?.id||'';draft();renderList();renderEditor();renderItemList();status('JSON 已匯入草稿，尚未發布。')}catch(error){status('匯入失敗：'+error.message,true)}finally{e.target.value=''}};
 let begun=false;const nav=document.querySelector('[data-panel="bossAtlasPanel"]');nav?.addEventListener('click',()=>{if(!begun){begun=true;initialize()}});
