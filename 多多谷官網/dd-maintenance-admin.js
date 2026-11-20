@@ -16,7 +16,7 @@
  function token(){try{return sessionStorage.getItem('duoduo_admin_session')||''}catch{return ''}}
  async function request(url,opts={}){const res=await fetch(base+url,{cache:'no-store',...opts});const data=await res.json().catch(()=>({}));if(!res.ok||!data.ok)throw new Error(data.error||'HTTP '+res.status);return data}
  async function load(){if(busy)return;lock(true);try{
-   const result=await request('/api/maintenance');current=!!result.enabled;
+   const result=await request('/api/maintenance',{signal:AbortSignal.timeout(12000)});current=!!result.enabled;
    $('ddMaintTitle').value=String(result.title||'多多谷官方網站維護中');$('ddMaintMessage').value=String(result.message||'親愛的多多谷玩家您好：\n\n為提供更穩定、完善的網站服務，多多谷官方網站目前正在進行系統維護與功能調整，相關頁面將暫時停止開放。\n\n維護完成後，網站將恢復正常使用。造成不便，敬請見諒，感謝您的耐心等候與支持。\n\n最新維護進度及相關消息，請留意多多谷官方 Discord 公告。');
    enable.textContent=current?'儲存並更新維護公告':'啟用維護模式';
    setStatus(current?'網站目前正在維護｜訪客只看到維護畫面':'網站目前正常開放｜玩家可瀏覽官網',current?'on':'off');

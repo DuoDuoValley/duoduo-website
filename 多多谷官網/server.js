@@ -921,7 +921,9 @@ const server=http.createServer((req,res)=>{
     'https://duoduovalley.com'
   ]);
   res.setHeader('Vary','Origin');
-  if(permittedBrowserOrigins.has(browserOrigin)){
+  const checklistTraffic=browserOrigin==='https://checklist.duoduovalley.com'&&
+    (req.url||'').split('?')[0]==='/api/traffic/record';
+  if(checklistTraffic||permittedBrowserOrigins.has(browserOrigin)){
     res.setHeader('Access-Control-Allow-Origin',browserOrigin);
   }
 
@@ -1074,7 +1076,56 @@ const server=http.createServer((req,res)=>{
   });
 });
 
+// Update only the published fields that still contain the retired URLs.
+// Work on the latest revision and preserve every unrelated site setting.
+function migrateDomainFields(values){
+ const oldChecklist='https://duoduovalley.github.io/duoduo-checklist/';
+ const checklist='https://checklist.duoduovalley.com/';
+ const oldRates='https://duoduovalley.github.io/duoduo-website/?page=guide.html%23dd-resource-rates';
+ const rates='https://www.duoduovalley.com/?page=guide&section=rates';
+ let changed=false;
+ function replaceField(record,key,oldValue,newValue){
+   if(record?.[key]===oldValue){record[key]=newValue;changed=true}
+ }
+ for(const key of ['checklist','每日 Checklist'])replaceField(values.duoduo_links,key,oldChecklist,checklist);
+ for(const item of values.duoduo_resources||[]){
+   if(item?.id==='checklist')for(const key of ['url','embedUrl'])replaceField(item,key,oldChecklist,checklist);
+ }
+ for(const news of values.duoduo_news||[]){
+   for(const field of ['newsClosing','body']){
+     if(typeof news?.[field]==='string'&&news[field].includes(oldRates)){
+       news[field]=news[field].replaceAll(oldRates,rates);changed=true;
+     }
+   }
+ }
+ for(const entry of values.duoduo_downloads||[]){
+   if(entry?.id==='patch2824'&&entry.title==='V283 ～ V283.2 手動更新檔')
+     replaceField(entry,'desc','需要從 V283 更新至 V282.2 時使用的手動更新檔。','需要從 V283 更新至 V283.2 時使用的手動更新檔。');
+ }
+ return changed;
+}
+async function migratePublishedDomain(){
+ const base=process.env.SUPABASE_URL,secret=process.env.SUPABASE_SECRET_KEY;
+ if(!base||!secret)return;
+ const url=base+'/rest/v1/events?id=eq.__site_data__';
+ const headers={apikey:secret,Authorization:'Bearer '+secret,'Content-Type':'application/json'};
+ for(let attempt=0;attempt<3;attempt++){
+   const read=await fetch(url+'&select=data,updated_at',{headers,signal:AbortSignal.timeout(15000)});
+   if(!read.ok)throw Error('Domain migration read HTTP '+read.status);
+   const [row]=await read.json();
+   if(!row?.data?.initialized||!row.updated_at||!row.data.values||!migrateDomainFields(row.data.values))return;
+   const save=await fetch(url+'&updated_at=eq.'+encodeURIComponent(row.updated_at)+'&select=updated_at',{
+     method:'PATCH',headers:{...headers,Prefer:'return=representation'},signal:AbortSignal.timeout(15000),
+     body:JSON.stringify({data:row.data,updated_at:new Date().toISOString()})
+   });
+   if(!save.ok)throw Error('Domain migration write HTTP '+save.status);
+   if((await save.json()).length===1){invalidatePublicReadCache();return}
+ }
+ throw Error('Domain migration postponed after concurrent edits');
+}
+
 server.listen(port,()=>{
+  migratePublishedDomain().catch(error=>console.error('正式網址遷移未完成',error.message));
   console.log(
     `DuoDuo Valley 官網已啟動：http://localhost:${port}`
   );

@@ -36,6 +36,8 @@ jobs:
           root = Path('多多谷官網')
           run = int(os.environ['GITHUB_RUN_NUMBER'])
           sha = os.environ['GITHUB_SHA']
+          boss_page = root / 'boss.html'
+          boss_page.write_text(boss_page.read_text(encoding='utf-8').replace('__DD_BOSS_BUILD__', sha), encoding='utf-8')
           watcher = root / 'dd-site-update.js'
           src = watcher.read_text(encoding='utf-8')
           assert '__DD_BUILD_RUN__' in src and '__DD_BUILD_SHA__' in src, 'Deployment watcher placeholder missing'

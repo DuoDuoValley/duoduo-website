@@ -1,19 +1,41 @@
 /* DuoDuo public maintenance screen. This is a visual gate for static GitHub Pages,
    not security/access control. Server-side publishing must use authenticated APIs. */
 (()=>{'use strict';
- // The official Checklist embeds the existing BGM-only player from this site.
- // This narrow exception must run BEFORE the maintenance checking class is set,
- // otherwise the iframe would be hidden even though it should keep playing.
- // A URL query alone is insufficient: it must be an iframe hosted directly by
- // the official same-origin Checklist project, not a direct visit to the site.
+ // Share the public snapshot within this shell. Authenticated editors use their own reads.
+ let pending=null,lastText=null,expires=0;
+ const publicEndpoint=(location.hostname.endsWith('github.io')||['www.duoduovalley.com','duoduovalley.com'].includes(location.hostname))
+   ?'https://duoduo-website.onrender.com/api/site-data':'/api/site-data';
+ async function publicSnapshot(){
+   if(lastText===null||Date.now()>=expires){
+     if(!pending)pending=(async()=>{
+       const response=await fetch(publicEndpoint,{cache:'no-store',headers:{Accept:'application/json'},signal:AbortSignal.timeout(12000)});
+       if(!response.ok)throw Error('網站資料 HTTP '+response.status);
+       const body=await response.text(),value=JSON.parse(body);
+       if(value.ok!==true||value.initialized!==true||!value.data)throw Error('正式網站資料尚未就緒');
+       lastText=body;expires=Date.now()+4000;
+     })().finally(()=>{pending=null});
+     await pending;
+   }
+   return new Response(lastText,{headers:{'Content-Type':'application/json'}});
+ }
+ window.DuoDuoPublicSnapshot=publicSnapshot;
+ // The persistent same-origin shell already gates the entire view and monitors maintenance.
+ // An independently opened page still performs its own check.
+ try{
+   const host=window.parent;
+   if(host!==window&&host.location.origin===location.origin&&host.DuoDuoPublicSnapshot&&
+      host.document.getElementById('duoduoSite')&&host.document.documentElement.hasAttribute('data-dd-maintenance-guard')){
+     window.DuoDuoPublicSnapshot=host.DuoDuoPublicSnapshot;
+     return;
+   }
+ }catch(_){}
  function isOfficialChecklistPlayer(){
-  try{
-   if(new URLSearchParams(location.search).get('bgm_embed')!=='checklist')return false;
-   if(window.self===window.top||window.parent!==window.top)return false;
-   if(window.parent.location.origin!==location.origin)return false;
-   const path=window.parent.location.pathname.replace(/\/+$/,'');
-   return path==='/duoduo-checklist'||path.startsWith('/duoduo-checklist/');
-  }catch(_){return false;}
+   if(new URLSearchParams(location.search).get('bgm_embed')!=='checklist'||window.self===window.top||window.parent!==window.top)return false;
+   try{
+     const source=new URL(document.referrer);
+     return source.origin==='https://checklist.duoduovalley.com'||
+       (source.origin==='https://duoduovalley.github.io'&&source.pathname.startsWith('/duoduo-checklist/'));
+   }catch(_){return false}
  }
  if(isOfficialChecklistPlayer()){
   document.documentElement.setAttribute('data-dd-maintenance-checklist-bgm','1');

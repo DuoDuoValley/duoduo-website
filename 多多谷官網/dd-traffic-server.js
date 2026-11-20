@@ -23,7 +23,7 @@ function createTrafficHandlers({getAdminSession,sendJSON,fetchImpl=fetch,now=Dat
   async function record(req,res){
     const origin=String(req.headers.origin||'');
     // Same-origin Render local/testing is allowed; public pages use the official GitHub Pages origin.
-    if(origin&&origin!=='https://duoduovalley.github.io'&&origin!=='https://www.duoduovalley.com'&&origin!=='https://duoduovalley.com'&&!origin.startsWith('http://localhost:')&&!origin.startsWith('http://127.0.0.1:'))
+    if(origin&&origin!=='https://checklist.duoduovalley.com'&&origin!=='https://duoduovalley.github.io'&&origin!=='https://www.duoduovalley.com'&&origin!=='https://duoduovalley.com'&&!origin.startsWith('http://localhost:')&&!origin.startsWith('http://127.0.0.1:'))
       return sendJSON(res,403,{ok:false,error:'來源不允許'});
     if(/bot|crawler|spider|headless|lighthouse|uptime|monitor/i.test(String(req.headers['user-agent']||'')))
       return sendJSON(res,200,{ok:true,ignored:true});
@@ -36,6 +36,7 @@ function createTrafficHandlers({getAdminSession,sendJSON,fetchImpl=fetch,now=Dat
       try{payload=JSON.parse(body)}catch{return sendJSON(res,400,{ok:false,error:'統計格式錯誤'})}
       if(payload.site!==undefined&&!['website','checklist'].includes(payload.site))
         return sendJSON(res,400,{ok:false,error:'統計來源無效'});
+      if(origin==='https://checklist.duoduovalley.com'&&payload.site!=='checklist')return sendJSON(res,403,{ok:false,error:'統計來源不符'});
       const prefix=payload.site==='checklist'?CHECKLIST_PREFIX:PREFIX;
       if(!VISITOR_RE.test(String(payload.visitorId||''))||!VIEW_RE.test(String(payload.viewId||'')))
         return sendJSON(res,400,{ok:false,error:'統計識別碼格式錯誤'});

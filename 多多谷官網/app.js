@@ -31,7 +31,7 @@
 })();
 /* ===== 雲端資料由 dd-cloud-refresh.js 負責同步與確認 ===== */
 
-const DEFAULT_LINKS={discord:"https://discord.gg/duoduovalley",topup:"https://fd-pay.com/ARrbXO",guide:"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing",rates:"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing",products:"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing",checklist:"https://duoduovalley.github.io/duoduo-checklist/",launcher:"https://mega.nz/file/d3IVHYZY#iIv2y93Y2tPy2zORnDUUEWY-q4wO6Pkd8TqNZG3cYlM",pack:"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing"};
+const DEFAULT_LINKS={discord:"https://discord.gg/duoduovalley",topup:"https://fd-pay.com/ARrbXO",guide:"https://docs.google.com/document/d/13Ok02E9A_sS7LWrrFXw4S9jsPU6JWdTu6INpwuMlDdo/edit?usp=sharing",rates:"https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing",products:"https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing",checklist:"https://checklist.duoduovalley.com/",launcher:"https://mega.nz/file/d3IVHYZY#iIv2y93Y2tPy2zORnDUUEWY-q4wO6Pkd8TqNZG3cYlM",pack:"https://drive.google.com/file/d/1qohiBEHnrrAxIBPvSZ-MUerbp8xLD3tl/view?usp=sharing"};
 function getJSONSafe(key,fallback){try{const cloud=sessionStorage.getItem("duoduo_cloud_"+key);if(cloud!==null)return JSON.parse(cloud);return JSON.parse(localStorage.getItem(key)||"null")??fallback}catch{return fallback}}
 function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
 function eventImages(e){const list=Array.isArray(e?.images)?e.images.filter(Boolean):[];return list.length?list:(e?.image?[e.image]:["assets/ad3.png"])}
@@ -150,7 +150,7 @@ if(guideResources){
     const iframe=document.createElement('iframe');
     iframe.src=frame.href;
     iframe.title=button.dataset.embedTitle||'官方文件預覽';
-    iframe.loading='lazy';
+    iframe.loading='eager';
     iframe.referrerPolicy='strict-origin-when-cross-origin';
     iframe.tabIndex=-1;
     area.classList.remove('guide-embed-deferred');
@@ -301,7 +301,7 @@ async function loadCloudEvents(){
   }
 }
 
-loadCloudEvents();
+if(document.getElementById('event-grid'))loadCloudEvents();
 function renderBossCarousel(){
   let root=document.getElementById("boss-home-carousel");
   if(!root){
@@ -351,7 +351,7 @@ async function loadCloudBosses(){
   const API_BASE=(window.location.hostname.endsWith("github.io")||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?"https://duoduo-website.onrender.com":"";
   try{const res=await fetch(`${API_BASE}/api/bosses`,{headers:{Accept:"application/json"},cache:"no-store"});if(!res.ok)throw new Error(`HTTP ${res.status}`);const data=await res.json();if(Array.isArray(data.bosses)&&data.bosses.length){BOSS_CONFIG={interval:Math.max(2000,Number(data.interval)||5000),slides:data.bosses};try{sessionStorage.setItem("duoduo_cloud_duoduo_boss_config",JSON.stringify(BOSS_CONFIG));}catch{}renderBossCarousel();renderBossPage();}}catch(error){console.warn("雲端 BOSS 設定讀取失敗，使用本機 BOSS 設定。",error);}
 }
-loadCloudBosses();
+if(document.querySelector('#boss-home-carousel,#boss-home-image,#boss-page'))loadCloudBosses();
 const reviewGrid=document.getElementById("review-grid");
 if(reviewGrid){
   const orderedReviews=[...reviews].sort((a,b)=>{if(Boolean(b.featured)!==Boolean(a.featured))return b.featured?1:-1;return (Number(a.order)||0)-(Number(b.order)||0) || (Number(b.createdAt)||0)-(Number(a.createdAt)||0);});

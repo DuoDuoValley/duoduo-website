@@ -68,7 +68,7 @@ body { background:#07111f; }
 #duoduoSite { width:100%; height:100%; height:100dvh; border:0; display:block; background:#07111f; visibility:hidden; cursor:url('cursor-ui/cursor-default.png') 2 2, auto; }
 html.duoduo-site-ready #duoduoSite { visibility:visible; }
 /* The BGM shell keeps the Maple cursor during an iframe document switch. */
-#duoduoRouteCursorGuard { position:fixed; inset:0; z-index:2; background:transparent;
+#duoduoRouteCursorGuard { position:fixed; inset:0; z-index:2; pointer-events:none; background:transparent;
   cursor:url('cursor-ui/cursor-default.png') 2 2, auto !important; }
 #duoduoRouteCursorGuard[hidden] { display:none !important; }
 #player { position:fixed; bottom:max(18px,env(safe-area-inset-bottom)); right:max(18px,env(safe-area-inset-right)); z-index:2147483000; width:min(355px,calc(100vw - 36px)); color:var(--text); background:linear-gradient(145deg,rgba(23,39,61,.98),rgba(11,23,39,.98)); border:1px solid var(--line); box-shadow:0 12px 45px rgba(0,0,0,.48); border-radius:19px; padding:15px; backdrop-filter:blur(16px); }
@@ -1133,7 +1133,7 @@ async function fetchCloud(){
   if(cloudLoading||document.visibilityState==='hidden'||!navigator.onLine)return;
   cloudLoading=true;
   try{
-    const response=await fetch(`${apiBase}/api/site-data`,{cache:'no-store',headers:{Accept:'application/json'}});
+    const response=await (window.DuoDuoPublicSnapshot?.() || fetch(`${apiBase}/api/site-data`,{cache:'no-store',headers:{Accept:'application/json'}}));
     if(!response.ok)throw new Error(`HTTP ${response.status}`);
     const json=await response.json();
     if(!json.ok)throw new Error('雲端資料格式錯誤');
@@ -1245,6 +1245,7 @@ function holdRouteCursorUntilReady(destination=null){
 // crossfade only when the new document's CSS and header logo are ready.
 // The persistent BGM <audio> lives in this outer shell and is never replaced.
 let cloudFrameRefreshing=false;
+let navigationGeneration=0;
 window.duoduoRefreshCloudFrame=function(requestingWindow){
   try{if(sessionStorage.getItem('duoduo_maintenance_admin_preview_v1')==='1' && sessionStorage.getItem('duoduo_admin_session'))return true;}catch(_){}
   if(!frame || requestingWindow!==frame.contentWindow)return false;
@@ -1253,6 +1254,7 @@ window.duoduoRefreshCloudFrame=function(requestingWindow){
   if(!current)return false;
   cloudFrameRefreshing=true;
   const oldFrame=frame;
+  const generation=navigationGeneration;
   const candidate=document.createElement('iframe');
   candidate.title=oldFrame.title;
   candidate.allow=oldFrame.allow;
@@ -1277,7 +1279,7 @@ window.duoduoRefreshCloudFrame=function(requestingWindow){
     // Another navigation will use it; never blank the visible homepage.
   }
   async function revealWhenReady(){
-    if(finished || frame!==oldFrame)return cancel();
+    if(finished || frame!==oldFrame || generation!==navigationGeneration)return cancel();
     let doc;
     try{doc=candidate.contentDocument;}catch{return;}
     if(!doc||doc.readyState==='loading')return;
@@ -1293,11 +1295,11 @@ window.duoduoRefreshCloudFrame=function(requestingWindow){
     // Two animation frames allow the replacement to be rasterized before
     // fading it in; the old page stays fully visible underneath.
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
-      if(frame!==oldFrame){candidate.remove();cloudFrameRefreshing=false;return;}
+      if(frame!==oldFrame||generation!==navigationGeneration){candidate.remove();cloudFrameRefreshing=false;return;}
       holdRouteCursorUntilReady();
       candidate.style.opacity='1';
       setTimeout(()=>{
-        if(frame!==oldFrame){candidate.remove();cloudFrameRefreshing=false;return;}
+        if(frame!==oldFrame||generation!==navigationGeneration){candidate.remove();cloudFrameRefreshing=false;return;}
         oldFrame.removeAttribute('id');
         candidate.id='duoduoSite';
         candidate.removeAttribute('aria-hidden');
@@ -1440,6 +1442,7 @@ function showCurrentPage(inner){
 function changeInner(to,method='push'){
   const target=safePage(to);
   if(!target)return false;
+  ++navigationGeneration;
   const current=currentInner();
   // Count actual user navigation to another site section, not iframe refresh,
   // anchor changes, video tabs or GitHub automatic updates.
@@ -1527,6 +1530,7 @@ function handleInnerLoad(){
     }));
   }
 }
+window.duoduoWireVisiblePage=source=>{if(source===frame.contentWindow)wirePage()};
 frame.addEventListener('load',handleInnerLoad);
 window.addEventListener('popstate',()=>{
   const want=fromLocation();
@@ -1550,9 +1554,9 @@ async function primePublishedCloudBeforeFirstPage(){
   const controller=new AbortController();
   const timer=setTimeout(()=>controller.abort(),2200);
   try{
-    const response=await fetch(endpoint,{
-      cache:'no-store',headers:{Accept:'application/json'},signal:controller.signal
-    });
+    const response=await (window.DuoDuoPublicSnapshot
+      ? Promise.race([window.DuoDuoPublicSnapshot(),new Promise((_,reject)=>controller.signal.addEventListener('abort',()=>reject(Error('startup deadline')),{once:true}))])
+      : fetch(endpoint,{cache:'no-store',headers:{Accept:'application/json'},signal:controller.signal}));
     if(!response.ok)return;
     const payload=await response.json();
     if(payload?.ok!==true||payload.initialized!==true||

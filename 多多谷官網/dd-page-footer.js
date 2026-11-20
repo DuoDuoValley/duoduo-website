@@ -18,7 +18,7 @@
   topup:'https://fd-pay.com/ARrbXO',discord:'https://discord.gg/duoduovalley',
   rates:'https://docs.google.com/spreadsheets/d/1rAv38Kniphusog1CYCZQWkGW4OdDGRmeLUeHBfCi1BQ/edit?usp=sharing',
   products:'https://docs.google.com/spreadsheets/d/1jvi3pVe9q0EjeMbTruptmLlT5eYNXMvr2glVt0-uxhs/edit?usp=sharing',
-  checklist:'https://duoduovalley.github.io/duoduo-checklist/'
+  checklist:'https://checklist.duoduovalley.com/'
  };
  const oldDescription='一個正在慢慢變熱鬧的小小世界。遊戲資訊、檔期活動與最新公告，都在這裡整理。';
  const defaultDescription='每一次冒險，都有新的故事。最新活動、遊玩攻略與實用工具，都在這裡陪你一起探索。';
@@ -204,7 +204,7 @@
   if(busy||document.visibilityState==='hidden'||navigator.onLine===false)return;
   busy=true;
   try{
-   const response=await fetch(cloudEndpoint,{cache:'no-store',headers:{Accept:'application/json'}});
+   const response=await (window.DuoDuoPublicSnapshot?.() || fetch(cloudEndpoint,{cache:'no-store',headers:{Accept:'application/json'}}));
    if(!response.ok)throw Error('HTTP '+response.status);
    const payload=await response.json();
    if(payload?.ok!==true||payload.initialized!==true||!payload.data||typeof payload.data!=='object')throw Error('incomplete site-data');

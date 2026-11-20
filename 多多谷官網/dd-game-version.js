@@ -112,7 +112,7 @@
   if(busy||document.visibilityState==='hidden')return;
   busy=true;
   try{
-   const res=await fetch(endpoint,{cache:'no-store',headers:{Accept:'application/json'}});
+   const res=await (window.DuoDuoPublicSnapshot?.() || fetch(endpoint,{cache:'no-store',headers:{Accept:'application/json'}}));
    if(!res.ok)throw Error('HTTP '+res.status);
    const data=await res.json();
    if(data?.ok!==true)throw Error('site-data not confirmed');

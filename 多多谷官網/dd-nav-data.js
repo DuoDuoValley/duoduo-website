@@ -152,3 +152,30 @@ window.DuoDuoNavEnsureBossGuides=function(items){
  result.splice(after<0?result.length:after+1,0,{...entry,id:'boss-guides',label:title,href,enabled:true});
  return result;
 };
+
+// The admin and the public navigation load this file after their HTML is parsed.
+(()=>{
+ const atlas=document.getElementById('bossAtlasPanel');
+ if(!atlas)return;
+ const header=document.querySelector('header > span');
+ if(header?.textContent==='目前為前端原型，資料儲存在此瀏覽器')header.textContent='正式網站管理中心';
+ const overview=document.querySelector('#overview .cards + .note');
+ if(overview)overview.textContent='公告與活動的雲端比對結果顯示於上方。各管理頁可查看目前載入或發布狀態。';
+ const note=atlas.querySelector('.at-note');
+ if(note){
+   const marker=[...note.querySelectorAll('b')].find(el=>el.textContent==='尤比太');
+   if(marker?.nextSibling?.nodeType===Node.TEXT_NODE){
+     marker.nextSibling.textContent=marker.nextSibling.textContent.replace('預設不公開；在你確認前不要勾選。','與其他 BOSS 的公開位置皆依目前勾選設定。');
+   }
+ }
+ const reload=document.getElementById('atReload');
+ if(reload)reload.textContent='重新載入正式圖鑑';
+ const state=document.getElementById('atDraftState'),status=document.getElementById('atStatus');
+ if(state&&status)new MutationObserver(()=>{
+   if(status.textContent==='已載入雲端正式圖鑑。')state.textContent='與雲端一致';
+   else if(status.textContent.includes('已恢復這台瀏覽器的未發布草稿'))state.textContent='草稿尚未發布';
+ }).observe(status,{subtree:true,childList:true,characterData:true});
+})();
+
+// Allow navigation as soon as the header is ready, before optional media finishes loading.
+try{if(parent!==window&&parent.location.origin===location.origin)parent.duoduoWireVisiblePage?.(window)}catch(_){}

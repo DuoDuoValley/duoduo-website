@@ -37,8 +37,8 @@
   for(let i=0;i<s.length;i++){a=Math.imul(a^s.charCodeAt(i),16777619);b=(Math.imul(b,33)^s.charCodeAt(i))>>>0;}
   return s.length+':'+(a>>>0).toString(16)+':'+(b>>>0).toString(16);
  }
- async function read(){
-  const res=await fetch(endpoint,{headers:{Accept:'application/json'},cache:'no-store'});
+ async function read(independent=false){
+  const res=await (!independent&&window.DuoDuoPublicSnapshot ? window.DuoDuoPublicSnapshot() : fetch(endpoint,{headers:{Accept:'application/json'},cache:'no-store'}));
   if(!res.ok)throw Error('HTTP '+res.status);
   const payload=await res.json();
   if(payload?.ok!==true||payload.initialized!==true||!payload.data||typeof payload.data!=='object')throw Error('incomplete cloud payload');
@@ -148,7 +148,7 @@
    if(Date.now()-candidate.firstSeen<10000){
      scheduleConfirmation();debug.status='confirming cloud publication';return;
    }
-   const confirm=await read();
+   const confirm=await read(true);
    if(differences.some(k=>confirm.hashes[k]!==next.hashes[k])){
      resetCandidate();debug.status='waiting for stable cloud data';return;
    }

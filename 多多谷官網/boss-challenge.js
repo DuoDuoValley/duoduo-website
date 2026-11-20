@@ -427,11 +427,11 @@ function accept(data){
 }
 (async()=>{
  try{
-  const response=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||Date.now().toString(36)),{cache:'no-store'});if(!response.ok)throw Error('預設資料無法取得');
+  const response=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||'atlas-v4'));if(!response.ok)throw Error('預設資料無法取得');
   const fallback=await response.json();baselineBosses=Array.isArray(fallback.bosses)?fallback.bosses:[];if(!hasSharedAtlasSnapshot)accept(fallback);
  }catch(e){if(!hasSharedAtlasSnapshot)$('bc-picked').textContent='BOSS 資料載入失敗';console.warn('BOSS Calculator',e);}
  try{
-  const response=await fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
+  const response=await (window.DuoDuoPublicSnapshot?.() || fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'}));
   if(!response.ok)return;const json=await response.json();
   if(!hasSharedAtlasSnapshot&&json?.ok&&json.data?.duoduo_boss_atlas?.schema===1)accept(reconcileKnownHp(json.data.duoduo_boss_atlas));
  }catch(e){console.warn('BOSS Calculator cloud fallback',e);}

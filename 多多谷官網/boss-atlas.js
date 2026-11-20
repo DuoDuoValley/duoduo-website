@@ -282,9 +282,14 @@ root.addEventListener('input',event=>{
  renderResults();
 });
 (async()=>{
- try{const r=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||Date.now().toString(36)),{cache:'no-store'});if(!r.ok)throw Error('無法讀取圖鑑預設資料');data=await r.json();staticCatalog=Array.isArray(data.items)?data.items:[];staticBossCatalog=structuredClone(data.bosses||[]);data=hydrateCatalog(data);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);reconcileAdversaryExtremeHp(data);render();sharePublicAtlasData();}
+ try{const r=await fetch('boss-atlas-data.json?_ddv_boss='+encodeURIComponent(window.__ddBossAssetVersion||'atlas-v4'));if(!r.ok)throw Error('無法讀取圖鑑預設資料');data=await r.json();staticCatalog=Array.isArray(data.items)?data.items:[];staticBossCatalog=structuredClone(data.bosses||[]);try{
+   const cached=JSON.parse(sessionStorage.getItem('duoduo_cloud_duoduo_boss_atlas')||'null');
+   if(cached?.schema===1&&Array.isArray(cached.bosses)&&Array.isArray(cached.items))data=cached;
+  }catch(_){}
+  data=hydrateCatalog(data);migrateAtlasV2(data);reconcileOldPublicSnapshot(data);reconcileAdversaryExtremeHp(data);render();sharePublicAtlasData();}
  catch(e){root.textContent='BOSS 圖鑑目前無法載入，請稍後再試。';console.warn(e);return}
- try{const r=await fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});if(!r.ok)return;const p=await r.json();if(p?.ok&&p?.data?.duoduo_boss_atlas?.schema===1){
+ try{const r=await (window.DuoDuoPublicSnapshot?.() || fetch(`${API}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'}));if(!r.ok)return;const p=await r.json();if(p?.ok&&p?.data?.duoduo_boss_atlas?.schema===1){
+  try{sessionStorage.setItem('duoduo_cloud_duoduo_boss_atlas',JSON.stringify(p.data.duoduo_boss_atlas))}catch(_){}
   const incoming=hydrateCatalog(p.data.duoduo_boss_atlas);
   migrateAtlasV2(incoming);reconcileOldPublicSnapshot(incoming);reconcileAdversaryExtremeHp(incoming);
   // Identical cloud data must not recreate dozens of cards or restart lazy images.

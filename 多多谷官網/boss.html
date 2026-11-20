@@ -15,7 +15,7 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 /* BOSS-only cache busting: always load the deployed atlas assets, not old cached copies. */
 (() => {
   'use strict';
-  const token = Date.now().toString(36);
+  const token = '__DD_BOSS_BUILD__';
   window.__ddBossAssetVersion = token;
   const base = new URL('./', location.href);
   const freshAsset = file => {
