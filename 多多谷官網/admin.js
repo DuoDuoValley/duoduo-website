@@ -188,7 +188,56 @@ function save(k,v){localStorage.setItem(k,JSON.stringify(v))}
 
 const CLOUD_SITE_KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_links','duoduo_pools'];
 function getAdminToken(){try{return sessionStorage.getItem('duoduo_admin_session')||''}catch{return ''}}
+
+const DD_CLOUD_EDITOR_READY='duoduo_cloud_editor_ready_custom_v1';
+function assertPublishedEditorLoaded(){
+  if(['www.duoduovalley.com','duoduovalley.com'].includes(location.hostname)&&localStorage.getItem(DD_CLOUD_EDITOR_READY)!=='1')
+    throw new Error('新網域的後台尚未載入正式資料；請先使用「載入雲端正式資料」再發布，避免覆蓋舊公告或活動。');
+}
+function parseOfficialEditorSnapshot(site,eventResult,bossResult){
+  if(site?.ok!==true||site.initialized!==true||!site.data||!Array.isArray(site.data.duoduo_news))
+    throw new Error('尚無可核實的雲端公告，已停止載入');
+  if(eventResult?.ok!==true||!Array.isArray(eventResult.events)||!eventResult.events.every(row=>row&&row.data&&typeof row.data==='object'&&!Array.isArray(row.data)))
+    throw new Error('雲端活動回應不完整，已停止載入');
+  if(bossResult?.ok!==true||!Array.isArray(bossResult.bosses))
+    throw new Error('雲端 BOSS 回應不完整，已停止載入');
+  const snapshot={};
+  for(const key of [...CLOUD_SITE_KEYS,'duoduo_items','duoduo_weekly_prizes','duoduo_bgm','duoduo_boss_atlas','duoduo_itempedia','duoduo_boss_guides'])
+    if(Object.prototype.hasOwnProperty.call(site.data,key))snapshot[key]=site.data[key];
+  snapshot.duoduo_events=eventResult.events.map(row=>row.data);
+  snapshot.duoduo_boss_config={slides:bossResult.bosses,interval:Number(bossResult.interval)||5000};
+  return snapshot;
+}
+async function loadPublishedEditorSnapshot(){
+  const base=(location.hostname.endsWith('github.io')||['www.duoduovalley.com','duoduovalley.com'].includes(location.hostname))?'https://duoduo-website.onrender.com':'';
+  const paths=['/api/site-data','/api/events','/api/bosses'];
+  const responses=await Promise.all(paths.map(p=>fetch(base+p,{headers:{Accept:'application/json'},cache:'no-store'})));
+  if(!responses.every(r=>r.ok))throw new Error('雲端連線異常，無法完整取得正式資料，已取消操作');
+  const [site,events,bosses]=await Promise.all(responses.map(r=>r.json()));
+  const snapshot=parseOfficialEditorSnapshot(site,events,bosses);
+  const previous={};
+  for(const key of Object.keys(snapshot))previous[key]=localStorage.getItem(key);
+  if(Object.values(previous).some(v=>v!==null)){
+    const blob=new Blob([JSON.stringify({format:'duoduo-admin-local-drafts-v1',savedAt:new Date().toISOString(),records:previous})],{type:'application/json;charset=utf-8'});
+    const objectUrl=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=objectUrl;a.download='DuoDuo_Admin_Local_Drafts_'+Date.now()+'.json';
+    document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(objectUrl),60000);
+  }
+  try{
+    for(const [key,value] of Object.entries(snapshot))localStorage.setItem(key,JSON.stringify(value));
+    localStorage.setItem(DD_CLOUD_EDITOR_READY,'1');
+  }catch(err){
+    for(const [key,raw] of Object.entries(previous)){
+      try{if(raw===null)localStorage.removeItem(key);else localStorage.setItem(key,raw)}catch(_){}
+    }
+    try{localStorage.removeItem(DD_CLOUD_EDITOR_READY)}catch(_){}
+    throw new Error('瀏覽器儲存空間不足，已取消匯入；請保留下載的本機草稿備份');
+  }
+  return {news:snapshot.duoduo_news.length,events:snapshot.duoduo_events.length};
+}
+
 async function pushSiteDataToCloud(keys=CLOUD_SITE_KEYS){
+  assertPublishedEditorLoaded();
   const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
   const token=getAdminToken();
   if(!token)throw new Error('未登入');
@@ -246,6 +295,23 @@ function addCloudMigrationButton(){
     finally{btn.disabled=false;btn.textContent=old}
   });
   document.body.appendChild(btn);
+
+  const loadBtn=document.createElement('button');
+  loadBtn.id='duoduo-load-published-cloud';
+  loadBtn.type='button';
+  loadBtn.textContent='⬇️ 載入雲端正式資料';
+  loadBtn.style.cssText='position:fixed;right:22px;bottom:77px;z-index:99990;padding:11px 16px;border:1px solid #39536d;border-radius:999px;background:#173747;color:#fff;font:600 14px/1.2 inherit;cursor:pointer;box-shadow:0 10px 30px rgba(0,0,0,.23)';
+  loadBtn.addEventListener('click',async()=>{
+    if(!confirm('將從雲端讀取目前正式的公告、檔期活動與 BOSS 等資料，取代本瀏覽器的本機草稿。\\n如有原本草稿，會先下載 JSON 備份。\\n這個操作只會讀取雲端，不會改寫或刪除正式資料。確定繼續？'))return;
+    const label=loadBtn.textContent;loadBtn.disabled=true;loadBtn.textContent='⬇️ 載入中…';
+    try{
+      const result=await loadPublishedEditorSnapshot();
+      alert('已讀取正式公告 '+result.news+' 則、活動 '+result.events+' 檔。將重新載入後台使用最新資料。');
+      location.reload();
+    }catch(e){console.error('雲端資料載入失敗',e);alert('沒有修改雲端資料：'+String(e.message||'載入失敗'))}
+    finally{loadBtn.disabled=false;loadBtn.textContent=label}
+  });
+  document.body.appendChild(loadBtn);
 }
 
 // 抽獎獎池管理：以共用網站資料 API 儲存，玩家工具端讀取同一份資料。
@@ -661,6 +727,7 @@ function renderBossSlides(){
 }
 window.removeBossSlide=i=>{bossConfig.slides.splice(i,1);renderBossSlides()};
 async function saveBossesToServer(){
+  assertPublishedEditorLoaded();
   const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
   const token=sessionStorage.getItem('duoduo_admin_session')||'';
   if(!token)throw new Error('未登入');
@@ -969,6 +1036,7 @@ const res=await fetch(`${API_BASE}/api/upload-image`,{method:'POST',headers:{'Co
   return data.path;
 }
 async function syncEventsToServer(deletedIds=[]){
+  assertPublishedEditorLoaded();
   const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')
     ? 'https://duoduo-website.onrender.com'
     : '';
@@ -1221,6 +1289,7 @@ refreshEventLegacyRich();
 refreshEventClosingRich();
 
 $('#saveEvent').onclick=async()=>{
+  try{assertPublishedEditorLoaded()}catch(error){return alert(error.message)}
   if(window.DuoDuoNewsMedia?.busy())return alert('活動圖片尚在上傳，完成後再儲存。');
   const name=$('#eventName').value.trim();
   if(!name)return alert('請輸入活動名稱');
