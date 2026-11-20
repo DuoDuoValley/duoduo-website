@@ -968,7 +968,7 @@ const res=await fetch(`${API_BASE}/api/upload-image`,{method:'POST',headers:{'Co
   if(!data.ok||!data.path) throw new Error('upload_failed');
   return data.path;
 }
-async function syncEventsToServer(){
+async function syncEventsToServer(deletedIds=[]){
   const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')
     ? 'https://duoduo-website.onrender.com'
     : '';
@@ -986,7 +986,8 @@ async function syncEventsToServer(){
       'Authorization':`Bearer ${token}`
     },
     body:JSON.stringify({
-      events
+      events,
+      deletedIds
     })
   });
 
@@ -1345,7 +1346,7 @@ window.removeEvent=async i=>{
   save('duoduo_events',events);
 
   try{
-    await syncEventsToServer();
+    await syncEventsToServer([target.id]);
   }catch(error){
     console.error(error);
     events=previous;

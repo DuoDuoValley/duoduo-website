@@ -5,21 +5,36 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#0c1320">
 <title>多多谷｜官方網站｜活動、攻略、BOSS、下載與最新消息</title>
-<link rel="canonical" href="https://duoduovalley.github.io/duoduo-website/">
-<meta property="og:url" content="https://duoduovalley.github.io/duoduo-website/">
+<link rel="canonical" href="https://www.duoduovalley.com/">
+<meta property="og:url" content="https://www.duoduovalley.com/">
 <meta property="og:site_name" content="多多谷 DuoDuo Valley｜官方網站">
 
 <meta name="description" content="多多谷官方網站，提供最新活動、遊戲公告、BOSS 資訊、遊玩攻略、下載資源與玩家資訊。">
 <meta name="duoduo-shell-version" content="BGM-2.1.7-mobile-composited-glass-20261027">
 <script>
-/* Checklist reuses the OFFICIAL player source. Other nested uses remain blocked. */
+/* Only the two official Checklist origins can embed the shared BGM player.
+   Cross-origin parent access is forbidden; use the referrer origin and a
+   pinned targetOrigin for the explicit player postMessage protocol. */
 (function(){
   const requested=new URLSearchParams(location.search).get('bgm_embed')==='checklist';
-  let sameOriginHost=false;
-  try{sameOriginHost=window.self!==window.top && window.parent.location.origin===location.origin;}catch(_){}
-  if(requested&&sameOriginHost){
-    document.documentElement.classList.add('dd-bgm-embed');
-    document.documentElement.classList.toggle('dd-bgm-host-mobile',window.parent.innerWidth<=600);
+  const trusted=new Set(['https://duoduovalley.github.io','https://checklist.duoduovalley.com']);
+  let hostOrigin='';
+  try{
+    if(window.self!==window.top){
+      const source=new URL(document.referrer);
+      if(trusted.has(source.origin))hostOrigin=source.origin;
+    }
+  }catch(_){}
+  if(requested&&hostOrigin){
+    window.DuoDuoChecklistTrustedHostOrigin=hostOrigin;
+    document.documentElement.classList.add('dd-bgm-embed','dd-bgm-checklist-cursor');
+    document.documentElement.classList.toggle('dd-bgm-host-mobile',window.innerWidth<=600);
+    // The parent can no longer inject CSS across origins. Set the stable
+    // Checklist glove cursor inside this official player document instead.
+    const css=document.createElement('style');
+    css.id='dd-checklist-player-cursor-style';
+    css.textContent='@media (hover:hover) and (pointer:fine){html.dd-bgm-checklist-cursor,html.dd-bgm-checklist-cursor body,html.dd-bgm-checklist-cursor #player,html.dd-bgm-checklist-cursor #player *{cursor:url("cursor-ui/cursor-default.png") 2 2,auto!important}html.dd-bgm-checklist-cursor #player :is(button,a,select,summary,label,input[type="range"]):hover,html.dd-bgm-checklist-cursor #mini:hover{cursor:url("cursor-ui/cursor-hover-1.png") 3 2,pointer!important}html.dd-bgm-checklist-cursor #player :is(button,a,select,summary,label,input[type="range"]):active{cursor:url("cursor-ui/cursor-pressed.png") 3 2,grabbing!important}}';
+    document.head.appendChild(css);
   }else if(window.self!==window.top){
     location.replace(new URL('home.html'+location.search+location.hash,location.href).href);
   }
@@ -498,6 +513,7 @@ html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #modeRow{gap:8px!important;}
 // Static update verification is provided exclusively by dd-site-update.js.
 const isChecklistEmbed=document.documentElement.classList.contains('dd-bgm-embed');
 const checklistEmbedChannel='duoduo-checklist-bgm-217';
+const checklistHostOrigin=window.DuoDuoChecklistTrustedHostOrigin||'';
 const byId=id=>document.getElementById(id);
 function reportChecklistPlayerSize(){
   if(!isChecklistEmbed)return;
@@ -506,7 +522,7 @@ function reportChecklistPlayerSize(){
     const panel=byId('player');
     const height=Math.ceil(panel.getBoundingClientRect().height);
     try{window.parent.postMessage({channel:checklistEmbedChannel,
-      mode:collapsed?'collapsed':'expanded',height:collapsed?100:height},location.origin);}catch(_){}
+      mode:collapsed?'collapsed':'expanded',height:collapsed?100:height},checklistHostOrigin);}catch(_){}
   });
 }
 function syncChecklistHostLayout(hostWidth){
@@ -518,7 +534,7 @@ if(isChecklistEmbed){
   byId('pageTitle').textContent='目前：Checklist';
   byId('hint').textContent='多多谷雲端背景音樂與官網同步。若瀏覽器阻擋自動播放，點一下播放鍵即可。';
   window.addEventListener('message',event=>{
-    if(event.origin!==location.origin||event.source!==window.parent)return;
+    if(event.origin!==checklistHostOrigin||event.source!==window.parent)return;
     if(event.data?.channel!==checklistEmbedChannel)return;
     if(event.data.action==='host-size'){
       syncChecklistHostLayout(event.data.width);
@@ -548,7 +564,7 @@ const closeCoverPreview=()=>{if(coverPreview.hidden)return;coverPreview.hidden=t
 coverNode.addEventListener('click',()=>{
   if(coverNode.disabled||!coverImage.dataset.loaded)return;
   if(isChecklistEmbed){
-    try{window.parent.postMessage({channel:checklistEmbedChannel,action:'cover-open',src:coverImage.dataset.loaded},location.origin);}catch(_){}
+    try{window.parent.postMessage({channel:checklistEmbedChannel,action:'cover-open',src:coverImage.dataset.loaded},checklistHostOrigin);}catch(_){}
     return;
   }
   coverPreviewImage.src=coverImage.dataset.loaded;coverPreview.hidden=false;coverPreviewClose.focus({preventScroll:true});
@@ -871,7 +887,7 @@ function applyCollapsed(collapsed){
     if(checklistExpandPending)return;
     checklistExpandPending=true;
     try{
-      window.parent.postMessage({channel:checklistEmbedChannel,action:'prepare-expand'},location.origin);
+      window.parent.postMessage({channel:checklistEmbedChannel,action:'prepare-expand'},checklistHostOrigin);
     }catch(_){finishChecklistExpand();return;}
     // Compatibility with an older Checklist host before the companion update.
     checklistExpandFallback=setTimeout(finishChecklistExpand,400);

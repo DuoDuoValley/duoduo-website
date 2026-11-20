@@ -568,6 +568,23 @@ async function handleSaveEvents(req,res){
 
         const existingRows=await existingResponse.json();
 
+        // Reject partial/old browser snapshots BEFORE any upserts or deletions.
+        // Every removed ID must have been explicitly confirmed in this request.
+        // The new custom domain uses a separate localStorage origin, so a
+        // partial event list must never erase historical Supabase events.
+        if(payload.deletedIds!==undefined&&!Array.isArray(payload.deletedIds))
+          return sendJSON(res,400,{ok:false,error:'刪除清單格式錯誤'});
+        const deletedIds=Array.isArray(payload.deletedIds)?payload.deletedIds.map(String):[];
+        const allowedDeletedIds=new Set(deletedIds);
+        if(allowedDeletedIds.size!==deletedIds.length ||
+           deletedIds.some(id=>!id.trim()||newIds.has(id)))
+          return sendJSON(res,400,{ok:false,error:'活動刪除清單包含無效或重複的識別碼'});
+        const missingPublicIds=existingRows.filter(row=>!isInternalEventRow(row)&&!newIds.has(String(row.id))).map(row=>String(row.id));
+        if(missingPublicIds.some(id=>!allowedDeletedIds.has(id)) ||
+           allowedDeletedIds.size!==missingPublicIds.length){
+          return sendJSON(res,409,{ok:false,error:'目前瀏覽器的活動資料與雲端不一致，已阻止覆蓋正式活動。請先取得完整最新活動資料'});
+        }
+
         // An accidental empty list must never erase all published events.
         // A deliberate clear-all requires a separately confirmed workflow.
         if(events.length===0 && existingRows.some(row=>!isInternalEventRow(row)))
