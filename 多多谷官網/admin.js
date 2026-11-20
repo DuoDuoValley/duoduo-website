@@ -190,8 +190,74 @@ const CLOUD_SITE_KEYS=['duoduo_news','duoduo_reviews','duoduo_content','duoduo_h
 function getAdminToken(){try{return sessionStorage.getItem('duoduo_admin_session')||''}catch{return ''}}
 
 const DD_CLOUD_EDITOR_READY='duoduo_cloud_editor_ready_custom_v1';
+
+const DD_CLOUD_EDITOR_REVISION='duoduo_cloud_editor_revision_custom_v1';
+const DD_CLOUD_EDITOR_BASELINE='duoduo_cloud_editor_baseline_custom_v1';
+function ddCloudCanonical(value){
+  if(value===undefined)return 'undefined';
+  if(value===null)return 'null';
+  if(Array.isArray(value))return '['+value.map(ddCloudCanonical).join(',')+']';
+  if(typeof value==='object')return '{'+Object.keys(value).sort().map(k=>JSON.stringify(k)+':'+ddCloudCanonical(value[k])).join(',')+'}';
+  return JSON.stringify(value);
+}
+async function ddCloudDigest(value){
+  const bytes=new TextEncoder().encode(ddCloudCanonical(value));
+  const digest=await crypto.subtle.digest('SHA-256',bytes);
+  return Array.from(new Uint8Array(digest),x=>x.toString(16).padStart(2,'0')).join('');
+}
+function ddEditorCloudCredentials(){
+  const revision=localStorage.getItem(DD_CLOUD_EDITOR_REVISION);
+  let baseline;
+  try{baseline=JSON.parse(localStorage.getItem(DD_CLOUD_EDITOR_BASELINE)||'null')}catch(_){}
+  if(!revision||!baseline||typeof baseline!=='object')
+    throw new Error('目前後台尚未有已確認的雲端版本，請先使用「載入雲端正式資料」');
+  return {revision,baseline};
+}
+async function ddCloudChanged(key){
+  const {baseline}=ddEditorCloudCredentials();
+  const raw=localStorage.getItem(key);
+  if(raw===null)return false;
+  return (await ddCloudDigestKey(key,JSON.parse(raw)))!==baseline[key];
+}
+async function ddCloudDigestKey(key,value){
+  if(key==='duoduo_events'&&Array.isArray(value))
+    return ddCloudDigest([...value].sort((a,b)=>String(a?.id||'').localeCompare(String(b?.id||''))));
+  return ddCloudDigest(value);
+}
+async function ddMarkCloudSynced(key,value){
+  // The legacy github.io editor has no new-domain baseline. Preserve old
+  // behavior there rather than reporting a failure after a successful write.
+  if(!['www.duoduovalley.com','duoduovalley.com'].includes(location.hostname))return;
+  const {baseline}=ddEditorCloudCredentials();
+  baseline[key]=await ddCloudDigestKey(key,value);
+  localStorage.setItem(DD_CLOUD_EDITOR_BASELINE,JSON.stringify(baseline));
+}
+function ddAdminCloudStatus(message,error=false){
+  let node=document.getElementById('dd-admin-cloud-status');
+  if(!node){
+    node=document.createElement('div');node.id='dd-admin-cloud-status';node.setAttribute('role','status');
+    node.style.cssText='margin:12px 0;padding:12px 16px;border:1px solid #477087;border-radius:12px;background:#132536;color:#d7ebf5;line-height:1.6;font-size:14px';
+    const target=document.querySelector('main');
+    if(target)target.prepend(node);else document.body.appendChild(node);
+  }
+  node.style.borderColor=error?'#c7874a':'#477087';
+  node.textContent=message;
+  if(error){
+    const button=document.createElement('button');
+    button.type='button';
+    button.textContent='⬇️ 安全載入雲端正式資料';
+    button.style.cssText='display:inline-block;margin:8px 0 0 14px;padding:6px 12px;border:1px solid #6b9eb2;border-radius:8px;background:#16445d;color:#fff;cursor:pointer;font-weight:700';
+    button.addEventListener('click',()=>{
+      const target=document.getElementById('duoduo-load-published-cloud');
+      if(target)target.click();
+      else alert('請先完成管理員登入，再載入正式雲端資料');
+    });
+    node.appendChild(button);
+  }
+}
+
 function assertPublishedEditorLoaded(){
-  if(['www.duoduovalley.com','duoduovalley.com'].includes(location.hostname)&&localStorage.getItem(DD_CLOUD_EDITOR_READY)!=='1')
+  if(['www.duoduovalley.com','duoduovalley.com'].includes(location.hostname)&&(localStorage.getItem(DD_CLOUD_EDITOR_READY)!=='1'||!localStorage.getItem(DD_CLOUD_EDITOR_REVISION)||!localStorage.getItem(DD_CLOUD_EDITOR_BASELINE)))
     throw new Error('新網域的後台尚未載入正式資料；請先使用「載入雲端正式資料」再發布，避免覆蓋舊公告或活動。');
 }
 function parseOfficialEditorSnapshot(site,eventResult,bossResult){
@@ -208,16 +274,26 @@ function parseOfficialEditorSnapshot(site,eventResult,bossResult){
   snapshot.duoduo_boss_config={slides:bossResult.bosses,interval:Number(bossResult.interval)||5000};
   return snapshot;
 }
-async function loadPublishedEditorSnapshot(){
+async function loadPublishedEditorSnapshot({automatic=false}={}){
   const base=(location.hostname.endsWith('github.io')||['www.duoduovalley.com','duoduovalley.com'].includes(location.hostname))?'https://duoduo-website.onrender.com':'';
   const paths=['/api/site-data','/api/events','/api/bosses'];
   const responses=await Promise.all(paths.map(p=>fetch(base+p,{headers:{Accept:'application/json'},cache:'no-store'})));
   if(!responses.every(r=>r.ok))throw new Error('雲端連線異常，無法完整取得正式資料，已取消操作');
   const [site,events,bosses]=await Promise.all(responses.map(r=>r.json()));
   const snapshot=parseOfficialEditorSnapshot(site,events,bosses);
+  if(typeof site.revision!=='string'||!site.revision)throw new Error('雲端正式版本未能驗證，已停止載入');
+  const baseline={};
+  for(const key of CLOUD_SITE_KEYS)baseline[key]=await ddCloudDigest(site.data[key]);
+  baseline.duoduo_events=await ddCloudDigestKey('duoduo_events',snapshot.duoduo_events);
+  baseline.duoduo_boss_config=await ddCloudDigest(snapshot.duoduo_boss_config);
   const previous={};
   for(const key of Object.keys(snapshot))previous[key]=localStorage.getItem(key);
-  if(Object.values(previous).some(v=>v!==null)){
+  for(const key of [DD_CLOUD_EDITOR_READY,DD_CLOUD_EDITOR_REVISION,DD_CLOUD_EDITOR_BASELINE])
+    previous[key]=localStorage.getItem(key);
+  const draftKeys=['duoduo_news','duoduo_events','duoduo_reviews','duoduo_content','duoduo_hero','duoduo_layout','duoduo_settings','duoduo_resources','duoduo_downloads','duoduo_links'];
+  if(automatic&&draftKeys.some(k=>previous[k]!=null))
+    throw new Error('偵測到本機資料，未自動覆蓋。請按「載入雲端正式資料」，確認並備份草稿後再讀取');
+  if(!automatic&&Object.entries(previous).some(([key,v])=>v!==null&&!key.startsWith('duoduo_cloud_editor_'))){
     const blob=new Blob([JSON.stringify({format:'duoduo-admin-local-drafts-v1',savedAt:new Date().toISOString(),records:previous})],{type:'application/json;charset=utf-8'});
     const objectUrl=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=objectUrl;a.download='DuoDuo_Admin_Local_Drafts_'+Date.now()+'.json';
@@ -225,6 +301,8 @@ async function loadPublishedEditorSnapshot(){
   }
   try{
     for(const [key,value] of Object.entries(snapshot))localStorage.setItem(key,JSON.stringify(value));
+    localStorage.setItem(DD_CLOUD_EDITOR_BASELINE,JSON.stringify(baseline));
+    localStorage.setItem(DD_CLOUD_EDITOR_REVISION,site.revision);
     localStorage.setItem(DD_CLOUD_EDITOR_READY,'1');
   }catch(err){
     for(const [key,raw] of Object.entries(previous)){
@@ -236,42 +314,52 @@ async function loadPublishedEditorSnapshot(){
   return {news:snapshot.duoduo_news.length,events:snapshot.duoduo_events.length};
 }
 
+
 async function pushSiteDataToCloud(keys=CLOUD_SITE_KEYS){
   assertPublishedEditorLoaded();
-  const API_BASE=(window.location.hostname.endsWith('github.io')||window.location.hostname==='www.duoduovalley.com'||window.location.hostname==='duoduovalley.com')?'https://duoduo-website.onrender.com':'';
+  const base=(location.hostname.endsWith('github.io')||['www.duoduovalley.com','duoduovalley.com'].includes(location.hostname))?'https://duoduo-website.onrender.com':'';
   const token=getAdminToken();
   if(!token)throw new Error('未登入');
+  const {revision,baseline}=ddEditorCloudCredentials();
+  const requested=[...new Set(keys)].filter(k=>CLOUD_SITE_KEYS.includes(k));
   const values={};
-  for(const key of keys){
+  for(const key of requested){
     const raw=localStorage.getItem(key);
     if(raw===null)continue;
-    try{values[key]=JSON.parse(raw)}catch{values[key]=raw}
+    const data=JSON.parse(raw);
+    if((await ddCloudDigest(data))!==baseline[key])values[key]=data;
   }
-  // Normal settings/nav/footer saves must preserve the latest published game
-  // version, even when this admin browser holds older localStorage settings.
+  const changed=Object.keys(values);
+  if(!changed.length)return {ok:true,unchanged:true};
+  const response=await fetch(base+'/api/site-data?admin_preflight='+Date.now(),{cache:'no-store',headers:{Accept:'application/json'}});
+  const live=await response.json().catch(()=>({}));
+  if(!response.ok||live.ok!==true||live.initialized!==true||live.revision!==revision)
+    throw new Error('雲端資料已變動或無法讀取，為防止覆蓋其他管理員的更新，本次發布已停止。請先備份草稿並重新載入雲端');
   if(Object.prototype.hasOwnProperty.call(values,'duoduo_settings')){
-    const current=await fetch(`${API_BASE}/api/site-data`,{headers:{Accept:'application/json'},cache:'no-store'});
-    if(!current.ok)throw new Error('無法讀取目前雲端版本；為避免覆蓋遊戲版本，網站設定同步已中止');
-    const payload=await current.json();
-    if(payload?.ok!==true||payload?.initialized!==true)throw new Error('雲端網站設定狀態未確認，為避免覆蓋版本設定，已停止儲存');
-    const published=payload.data?.duoduo_settings;
-    if(published?.gameVersion){
-      values.duoduo_settings={...values.duoduo_settings,gameVersion:published.gameVersion};
+    const officialVersion=live.data?.duoduo_settings?.gameVersion;
+    if(officialVersion){
+      values.duoduo_settings={...values.duoduo_settings,gameVersion:officialVersion};
       const local=read('duoduo_settings',defaultSettings);
-      local.gameVersion=published.gameVersion;
-      save('duoduo_settings',local);
-      settings.gameVersion=published.gameVersion;
-    }else if(values.duoduo_settings?.gameVersion){
-      // Do not invent a current published version from a local draft.
-      const {...withoutUnpublishedVersion}=values.duoduo_settings;
-      delete withoutUnpublishedVersion.gameVersion;
-      values.duoduo_settings=withoutUnpublishedVersion;
+      local.gameVersion=officialVersion;save('duoduo_settings',local);
+      settings.gameVersion=officialVersion;
     }
   }
-  const res=await fetch(`${API_BASE}/api/site-data`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${token}`},body:JSON.stringify({values})});
-  const data=await res.json().catch(()=>({}));
-  if(!res.ok||!data.ok)throw new Error(res.status===401?'登入已失效':(data.error||'網站資料同步失敗'));
-  return data;
+  const saveResponse=await fetch(base+'/api/site-data',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},body:JSON.stringify({values,expectedRevision:revision})});
+  const saved=await saveResponse.json().catch(()=>({}));
+  if(!saveResponse.ok||saved.ok!==true)
+    throw new Error(saved.error||(saveResponse.status===401?'登入已失效':'雲端同步失敗'));
+  const check=await fetch(base+'/api/site-data?admin_verify='+Date.now(),{cache:'no-store'});
+  const verified=await check.json().catch(()=>({}));
+  if(!check.ok||verified.ok!==true||!verified.revision)
+    throw new Error('雲端已收到更新，但尚未完成讀回核實。請勿連續發布');
+  for(const key of changed){
+    if((await ddCloudDigest(verified.data?.[key]))!==(await ddCloudDigest(values[key])))
+      throw new Error('雲端讀回內容與送出的 '+key+' 不一致。請停止發布並檢查');
+  }
+  for(const key of changed)baseline[key]=await ddCloudDigest(verified.data[key]);
+  localStorage.setItem(DD_CLOUD_EDITOR_BASELINE,JSON.stringify(baseline));
+  localStorage.setItem(DD_CLOUD_EDITOR_REVISION,verified.revision);
+  return saved;
 }
 // 雲端同步改為「手動」：平常所有編輯只寫入目前瀏覽器。
 function queueSiteDataCloudSave(key){/* 保留函式名稱以避免其他舊程式碼出錯，但不再自動同步。 */}
@@ -284,8 +372,8 @@ function addCloudMigrationButton(){
     const old=btn.textContent;btn.disabled=true;btn.textContent='☁️ 同步中…';
     try{
       await pushSiteDataToCloud();
-      await syncEventsToServer();
-      await saveBossesToServer();
+      if(await ddCloudChanged('duoduo_events'))await syncEventsToServer();
+      if(await ddCloudChanged('duoduo_boss_config'))await saveBossesToServer();
       alert('目前瀏覽器資料已成功同步到雲端。之後玩家即可讀取這份資料。');
     }
     catch(error){
@@ -468,6 +556,55 @@ function addCloudMigrationButton(){
 })();
 
 window.addEventListener('duoduo-admin-authenticated',addCloudMigrationButton);
+
+let ddAdminCloudAutoStarted=false;
+async function ddAdminCheckOnLogin(){
+  if(!['www.duoduovalley.com','duoduovalley.com'].includes(location.hostname))return;
+  if(ddAdminCloudAutoStarted)return;
+  ddAdminCloudAutoStarted=true;
+  ddAdminCloudStatus('正在核對後台與 Supabase 正式資料…');
+  try{
+    if(localStorage.getItem(DD_CLOUD_EDITOR_READY)!=='1'){
+      await loadPublishedEditorSnapshot({automatic:true});
+      ddAdminCloudStatus('已載入正式雲端資料，正在更新後台列表…');
+      location.reload();return;
+    }
+    const {revision}=ddEditorCloudCredentials();
+    const base='https://duoduo-website.onrender.com';
+    const requests=await Promise.all(['/api/site-data','/api/events'].map(p=>fetch(base+p+'?admin_status='+Date.now(),{cache:'no-store'})));
+    if(requests.some(r=>!r.ok))throw new Error('無法連接完整的雲端資料');
+    const [site,ev]=await Promise.all(requests.map(r=>r.json()));
+    if(site.ok!==true||site.initialized!==true||!Array.isArray(site.data?.duoduo_news)||!Array.isArray(ev.events))
+      throw new Error('雲端回應異常');
+    const remoteNews=site.data.duoduo_news.length,remoteEvents=ev.events.length;
+    if(site.revision!==revision){
+      ddAdminCloudStatus('⚠️ 雲端正式資料已有更新：公告 '+remoteNews+' 則、活動 '+remoteEvents+' 檔。目前後台可能有未發布草稿，請按「載入雲端正式資料」先備份再更新。',true);
+      return;
+    }
+    const {baseline}=ddEditorCloudCredentials();
+    const locallyChanged=[];
+    for(const key of CLOUD_SITE_KEYS){
+      const raw=localStorage.getItem(key);
+      if(raw===null)continue;
+      try{if((await ddCloudDigest(JSON.parse(raw)))!==baseline[key])locallyChanged.push(key);}
+      catch(_){locallyChanged.push(key);}
+    }
+    if(await ddCloudDigestKey('duoduo_events',events)!==await ddCloudDigestKey('duoduo_events',ev.events.map(x=>x.data)))
+      locallyChanged.push('duoduo_events');
+    if(await ddCloudDigest(news)!==await ddCloudDigest(site.data.duoduo_news))
+      if(!locallyChanged.includes('duoduo_news'))locallyChanged.push('duoduo_news');
+    const localNews=news.length,localEvents=events.length;
+    const countsMatch=remoteNews===localNews&&remoteEvents===localEvents;
+    const notice='雲端公告 '+remoteNews+' 則、活動 '+remoteEvents+' 檔；本機後台公告 '+localNews+' 則、活動 '+localEvents+' 檔。';
+    const inconsistent=!countsMatch||locallyChanged.length>0;
+    ddAdminCloudStatus(notice+(inconsistent?' ⚠️ 偵測到 '+locallyChanged.length+' 類本機內容與雲端不同，可能是未發布草稿。請確認後再發布；需要重取正式資料可使用「載入雲端正式資料」。':' 已核對公告及活動內容與雲端一致。'),inconsistent);
+  }catch(error){
+    ddAdminCloudStatus('⚠️ 尚未確認正式雲端資料：'+String(error.message||'連線失敗')+'。目前不要發布或覆蓋資料。',true);
+  }
+}
+window.addEventListener('duoduo-admin-authenticated',ddAdminCheckOnLogin);
+setTimeout(()=>{if(document.getElementById('duoduo-admin-auth')===null)ddAdminCheckOnLogin()},1200);
+
 setTimeout(()=>{if(document.getElementById('duoduo-admin-auth')===null)addCloudMigrationButton()},1000);
 function eventStartTimestamp(e){const raw=String(e?.start??'').trim();if(!raw)return Number.MIN_SAFE_INTEGER;const m=raw.match(/^(\d{4})[-\/](\d{1,2})[-\/](\d{1,2})(?:[T ]+(\d{1,2})(?::(\d{1,2}))?)?/);if(m){const d=new Date(Number(m[1]),Number(m[2])-1,Number(m[3]),Number(m[4]||0),Number(m[5]||0));if(Number.isFinite(d.getTime()))return d.getTime();}const t=Date.parse(raw);return Number.isFinite(t)?t:Number.MIN_SAFE_INTEGER}
 function sortEventsByStart(list){return [...list].sort((a,b)=>eventStartTimestamp(b)-eventStartTimestamp(a))}
@@ -747,6 +884,7 @@ async function saveBossesToServer(){
   if(!res.ok||!data.ok){if(res.status===401)throw new Error('登入已失效');throw new Error(data.error||'BOSS 儲存失敗');}
   bossConfig={interval,slides};
   save('duoduo_boss_config',bossConfig);
+  await ddMarkCloudSynced('duoduo_boss_config',bossConfig);
 }
 $('#bossImagesFiles').onchange=async e=>{
   const files=[...(e.target.files||[])];
@@ -1070,6 +1208,7 @@ async function syncEventsToServer(deletedIds=[]){
     throw new Error(data.error||'活動同步失敗');
   }
 
+  await ddMarkCloudSynced('duoduo_events',events);
   return true;
 }
 function renderEventUploadPreviews(){const cover=$('#eventImagePreview');if(cover)cover.innerHTML=pendingEventCoverImage?`<img src="${pendingEventCoverImage}" alt="">`:'<span>尚未選擇新圖片</span>';const box=$('#eventImagesPreview');if(box)box.innerHTML=pendingEventCarouselImages.length?pendingEventCarouselImages.map((src,i)=>`<div><img src="${src}" alt="輪播圖片 ${i+1}"><small>第 ${i+1} 張</small></div>`).join(''):'<span>尚未選擇新輪播圖片</span>';}

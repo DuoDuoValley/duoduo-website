@@ -744,11 +744,12 @@ async function handleGetSiteData(req,res){
     const supabaseSecretKey=process.env.SUPABASE_SECRET_KEY;
     if(!supabaseUrl||!supabaseSecretKey)return sendJSON(res,500,{ok:false,error:'Supabase 環境變數尚未設定'});
     const headers={'apikey':supabaseSecretKey,'Authorization':`Bearer ${supabaseSecretKey}`,'Content-Type':'application/json'};
-    const {ok:siteOk,body:siteText}=await readPublicSupabase(`${supabaseUrl}/rest/v1/events?id=eq.__site_data__&select=data`,headers);
+    const {ok:siteOk,body:siteText}=await readPublicSupabase(`${supabaseUrl}/rest/v1/events?id=eq.__site_data__&select=data,updated_at`,headers);
     if(!siteOk){console.error('Supabase 讀取網站資料失敗:',siteText);return sendJSON(res,500,{ok:false,error:'網站資料讀取失敗'});}
     const siteRows=JSON.parse(siteText);
     const record=siteRows[0]?.data;
-    if(record?.initialized!==true)return sendJSON(res,200,{ok:true,initialized:false,data:{}});
+    const revision=siteRows[0]?.updated_at||null;
+    if(record?.initialized!==true)return sendJSON(res,200,{ok:true,initialized:false,revision,data:{}});
 
     const data={...(record.values||{})};
 
@@ -766,7 +767,7 @@ async function handleGetSiteData(req,res){
       if(boss)data.duoduo_boss_config={interval:Number(boss.interval)||5000,slides:Array.isArray(boss.bosses)?boss.bosses:[]};
     }
 
-    return sendJSON(res,200,{ok:true,initialized:true,data});
+    return sendJSON(res,200,{ok:true,initialized:true,revision,data});
   }catch(err){
     console.error('網站資料 API 讀取失敗:',err);
     return sendJSON(res,500,{ok:false,error:'網站資料 API 發生錯誤'});
@@ -807,6 +808,11 @@ async function handleSaveSiteData(req,res){
         const existingRows=await existingResponse.json();
         const existingRecord=existingRows[0]?.data;
         const expectedUpdatedAt=existingRows[0]?.updated_at||null;
+        // The main admin supplies the exact published revision it originally read.
+        // Independent editors can still use their established guarded endpoints.
+        if(Object.prototype.hasOwnProperty.call(payload,'expectedRevision')&&
+           payload.expectedRevision!==expectedUpdatedAt)
+          return sendJSON(res,409,{ok:false,error:'正式雲端資料已變動，為避免舊後台資料覆蓋新內容，本次發布已取消。請重新載入正式資料'});
         const existingValues=existingRecord?.values;
         if(existingRecord?.initialized===true&&existingValues&&typeof existingValues==='object'){
           values={...existingValues};
