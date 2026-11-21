@@ -134,6 +134,27 @@ catch (_) { document.documentElement.dataset.theme = 'light'; }
 </style>
 <link rel="preload" as="image" href="assets/logo1-header.png" fetchpriority="high">
 <link rel="stylesheet" href="dd-event-richtext.css?v=20261111-event-richtext-v1"><link rel="stylesheet" href="dd-rank-cards.css?v=20261115-unified-icons-26-v2"><link rel="stylesheet" href="dd-event-typography.css?v=20261115-typography-unify-v1"><link rel="stylesheet" href="dd-solo-rewards.css?v=20261115-solo-match-rank-v3"><script src="dd-news-inline-media.js?v=20261111-colorpalette-v1"></script>
+<style id="dd-event-special-reward-cards-v1">
+/* Activity rewards: scoped to event detail, respects existing dark mode variables. */
+.event-detail-copy .dd-event-prize-module,.event-detail-copy .dd-event-claim-module{width:100%;min-width:0}
+.event-detail-copy .dd-event-prize-row{border:1px solid var(--line);border-radius:12px;padding:10px 12px;display:grid;grid-template-columns:150px minmax(0,1fr);align-items:center;gap:12px;margin-bottom:10px}
+.event-detail-copy .dd-event-prize-label{color:var(--text);font-size:14px}
+.event-detail-copy .dd-event-prize-items{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.event-detail-copy .dd-event-prize{min-width:0;display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:color-mix(in srgb,var(--accent) 5%,transparent);font-size:14px;line-height:1.4}
+.event-detail-copy .dd-event-prize-icon{width:34px;height:34px;flex:none;display:flex;align-items:center;justify-content:center;border:1px solid var(--line);border-radius:8px;background:color-mix(in srgb,var(--accent) 4%,transparent)}
+.event-detail-copy .dd-event-prize-icon img{width:28px;height:28px;max-width:28px;max-height:28px;object-fit:contain}
+.event-detail-copy .dd-event-prize-icon span{font-size:23px;line-height:1}
+.event-detail-copy .dd-event-prize-name{min-width:0;overflow-wrap:anywhere;color:var(--muted)}
+.event-detail-copy .dd-event-prize-count{margin-left:auto;white-space:nowrap;color:var(--text);font-size:14px;font-weight:750}
+.event-detail-copy .dd-event-prize-bonus{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.event-detail-copy .dd-event-bonus-card{border:1px solid var(--line);border-radius:12px;padding:12px;min-width:0;background:color-mix(in srgb,var(--accent) 3%,transparent)}
+.event-detail-copy .dd-event-bonus-label{display:block;margin-bottom:8px;color:var(--muted);font-weight:600;line-height:1.6}
+.event-detail-copy .dd-event-bonus-items{display:grid;gap:6px}
+.event-detail-copy .dd-event-claim-copy{line-height:1.85;overflow-wrap:anywhere;color:var(--muted)}
+.event-detail-copy .dd-event-claim-title{font-size:14px;font-weight:700;color:var(--muted);margin:22px 0 10px}
+.event-detail-copy .dd-event-claim-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}
+@media(max-width:760px){.event-detail-copy .dd-event-prize-row{grid-template-columns:minmax(0,1fr);gap:7px}.event-detail-copy .dd-event-prize-items,.event-detail-copy .dd-event-prize-bonus,.event-detail-copy .dd-event-claim-grid{grid-template-columns:minmax(0,1fr)}}
+</style>
 </head><body><header class="site-header">
   <a class="brand" href="index.html"><img src="assets/logo1-header.png" fetchpriority="high" decoding="sync" alt="多多谷"><span>DuoDuo Valley</span></a>
   <nav class="main-nav dd-main-nav" aria-label="官網主導覽">
@@ -191,6 +212,58 @@ function duoduoEventIconSvg(id){
   return `<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${path}</svg>`;
 }
 /* Render admin-defined sections with consistent outline icons, including legacy data. */
+
+/* Opt-in rendering for activity prizes and cumulative rewards. */
+function ddEventSpecialCards(title,body,textHtml){
+ const escText=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const prizeNames=['YuYu的真終極成長祕藥','黃金蘋果','白金蘋果','楓葉點數','楓幣'];
+ const imgPaths={
+  '楓幣':'player-tools/assets/gacha/apple/楓幣.png',
+  '楓葉點數':'player-tools/assets/gacha/apple/楓葉點數.png',
+  'YuYu的真終極成長祕藥':'itempedia/assets/YuYu的真終極成長祕藥.png'
+ };
+ function parsePrizes(raw){
+  const input=String(raw||'').trim();
+  if(!input||input.length>3000||/\[\[(DDIMG|DDFMT):/.test(input))return null;
+  const re=new RegExp('('+prizeNames.join('|')+')\\s*[×xX＊*]\\s*([0-9][0-9,，]*(?:\\.[0-9]+)?(?:千|萬|億)?)','gu');
+  const result=[];let found,last=0;
+  while((found=re.exec(input))!==null){
+   if(input.slice(last,found.index).replace(/[\s　,，、;；|｜・。]/g,''))return null;
+   result.push({name:found[1],count:found[2]});last=re.lastIndex;
+  }
+  return result.length&&result.length<=16&&!input.slice(last).replace(/[\s　,，、;；|｜・。]/g,'')?result:null;
+ }
+ function reward(it){
+  const src=imgPaths[it.name];
+  const icon=src?'<img src="'+escText(src)+'" alt="" loading="lazy" decoding="async">':'<span aria-hidden="true">🍎</span>';
+  return '<span class="dd-event-prize"><span class="dd-event-prize-icon">'+icon+'</span><span class="dd-event-prize-name">'+escText(it.name)+'</span><strong class="dd-event-prize-count">×'+escText(it.count)+'</strong></span>';
+ }
+ const lines=String(body||'').replace(/\r\n?/g,'\n').split('\n').map(x=>x.trim()).filter(Boolean);
+ if(title==='活動獎勵'&&lines.length&&lines.length<=30){
+  const regular=[],bonus=[];
+  for(const line of lines){
+   let match=line.match(/^參與獎\s*[｜|:：]\s*(.+)$/u);
+   if(match){const items=parsePrizes(match[1]);if(!items)return '';regular.push({label:'參與獎',items});continue;}
+   match=line.match(/^每答對\s*1\s*題\s*[，,]?\s*額外獲得\s*(.+)$/u);
+   if(match){const items=parsePrizes(match[1]);if(!items)return '';regular.push({label:'每答對 1 題',items});continue;}
+   match=line.match(/^累積答對\s*(\d+)\s*題\s*[，,]?\s*額外獲得\s*(.+)$/u);
+   if(match){const items=parsePrizes(match[2]);if(!items)return '';bonus.push({label:'累積答對 '+match[1]+' 題，額外獲得',items});continue;}
+   return '';
+  }
+  if(!regular.length&&!bonus.length)return '';
+  return '<div class="dd-event-prize-module">'+regular.map(row=>'<div class="dd-event-prize-row"><strong class="dd-event-prize-label">'+escText(row.label)+'</strong><div class="dd-event-prize-items">'+row.items.map(reward).join('')+'</div></div>').join('')+
+    (bonus.length?'<div class="dd-event-prize-bonus">'+bonus.map(row=>'<div class="dd-event-bonus-card"><span class="dd-event-bonus-label">'+escText(row.label)+'</span><div class="dd-event-bonus-items">'+row.items.map(reward).join('')+'</div></div>').join('')+'</div>':'')+'</div>';
+ }
+ const ix=lines.indexOf('最高累積獎勵');
+ if(ix>=0&&lines.filter(s=>s==='最高累積獎勵').length===1&&ix>0&&ix===lines.length-2){
+  const prizes=parsePrizes(lines[ix+1]);
+  if(!prizes)return '';
+  const before=lines.slice(0,ix).join('\n');
+  return '<div class="dd-event-claim-module"><div class="dd-event-claim-copy">'+textHtml(before)+'</div><h4 class="dd-event-claim-title">最高累積獎勵</h4><div class="dd-event-claim-grid">'+prizes.map(reward).join('')+'</div></div>';
+ }
+ return '';
+}
+
 function renderDuoDuoEventSections(event) {
   const labels={intro:['活動介紹','book-open'],method:['活動方式','list-checks'],rules:['活動規則','scroll-text'],rewards:['活動獎勵','gift'],notes:['注意事項','info'],extra:['補充說明','file-text']};
   // 所有已確認的公告圖示都能在檔期活動的說明文字內顯示。
@@ -263,7 +336,7 @@ function renderDuoDuoEventSections(event) {
     // Unrecognized formats safely retain the original body.
     const wantRank=type==='ranking-cards'||type==='ranking'||title==='排名獎勵';
     const wantSolo=type==='solo-rewards-card'||title==='單人擊破任務獎勵';
-    const cards=wantRank?window.DuoDuoRankCards?.render(body,esc):wantSolo?window.DuoDuoSoloRewards?.render(body,textInline):'';
+    const cards=wantRank?window.DuoDuoRankCards?.render(body,esc):wantSolo?window.DuoDuoSoloRewards?.render(body,textInline):ddEventSpecialCards(title,body,textHtml);
     const rewardSection=/^(?:ranking|rewards|ranking-cards|solo-rewards-card)$/.test(type)||/(?:獎勵|排名)/.test(title);
     const displayedBody=rewardSection?(window.DuoDuoEventRewardQty?.normalize(body)??body):body;
     return `<section class="duoduo-detail-section" aria-label="${esc(title)}">`+
