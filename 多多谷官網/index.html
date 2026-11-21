@@ -1629,6 +1629,15 @@ function wirePage(){
     if(!a||a.hasAttribute('download')||a.target==='_blank'||a.target==='_top'||a.target==='_parent')return;
     const url=safePage(a.getAttribute('href'),doc.baseURI);
     if(!url)return;
+    // Download submenu links to another card on the current Downloads page
+    // are section selections, not page navigations. Keep this iframe and
+    // its open menu; the child performs the smooth in-page scroll.
+    const current=currentInner();
+    if(current?.pathname===url.pathname&&url.pathname.endsWith('/downloads.html')&&
+       url.searchParams.has('ddnav')&&typeof win.DuoDuoNavSelectDownload==='function'){
+      event.preventDefault();
+      if(win.DuoDuoNavSelectDownload(url.href))return;
+    }
     event.preventDefault();
     changeInner(url,'push',event);
   },true);
