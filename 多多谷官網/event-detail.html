@@ -216,16 +216,18 @@ function duoduoEventIconSvg(id){
 /* Opt-in rendering for activity prizes and cumulative rewards. */
 function ddEventSpecialCards(title,body,textHtml){
  const escText=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
- const prizeNames=['YuYu的真終極成長祕藥','黃金蘋果','白金蘋果','楓葉點數','楓幣'];
  const imgPaths={
-  '楓幣':'player-tools/assets/gacha/apple/楓幣.png',
-  '楓葉點數':'player-tools/assets/gacha/apple/楓葉點數.png',
+  '黃金蘋果':'player-tools/assets/golden-apple.png',
+  '白金蘋果':'player-tools/assets/platinum-apple.png',
+  '楓幣':'player-tools/assets/mesos.png',
+  '楓葉點數':'player-tools/assets/maple-points.png',
   'YuYu的真終極成長祕藥':'itempedia/assets/YuYu的真終極成長祕藥.png'
  };
+ const stripFmt=s=>String(s??'').replace(/\[\[DDFMT:[A-Z]+\]\]/g,'').trim();
  function parsePrizes(raw){
-  const input=String(raw||'').trim();
-  if(!input||input.length>3000||/\[\[(DDIMG|DDFMT):/.test(input))return null;
-  const re=new RegExp('('+prizeNames.join('|')+')\\s*[×xX＊*]\\s*([0-9][0-9,，]*(?:\\.[0-9]+)?(?:千|萬|億)?)','gu');
+  const input=stripFmt(raw);
+  if(!input||input.length>3000||/\[\[(?:DDIMG|DDFMT):/.test(input))return null;
+  const re=/(YuYu的真終極成長祕藥|黃金蘋果|白金蘋果|楓葉點數|楓幣)\s*[×xX＊*]\s*([0-9][0-9,，]*(?:\.[0-9]+)?(?:千|萬|億)?)/gu;
   const result=[];let found,last=0;
   while((found=re.exec(input))!==null){
    if(input.slice(last,found.index).replace(/[\s　,，、;；|｜・。]/g,''))return null;
@@ -233,37 +235,67 @@ function ddEventSpecialCards(title,body,textHtml){
   }
   return result.length&&result.length<=16&&!input.slice(last).replace(/[\s　,，、;；|｜・。]/g,'')?result:null;
  }
- function reward(it){
-  const src=imgPaths[it.name];
-  const icon=src?'<img src="'+escText(src)+'" alt="" loading="lazy" decoding="async">':'<span aria-hidden="true">🍎</span>';
-  return '<span class="dd-event-prize"><span class="dd-event-prize-icon">'+icon+'</span><span class="dd-event-prize-name">'+escText(it.name)+'</span><strong class="dd-event-prize-count">×'+escText(it.count)+'</strong></span>';
+ function prize(item){
+  const src=imgPaths[item.name];
+  return '<span class="dd-event-prize"><span class="dd-event-prize-icon"><img src="'+escText(src)+'" alt="" loading="lazy" decoding="async"></span><span class="dd-event-prize-name">'+escText(item.name)+'</span><strong class="dd-event-prize-count">×'+escText(item.count)+'</strong></span>';
  }
- const lines=String(body||'').replace(/\r\n?/g,'\n').split('\n').map(x=>x.trim()).filter(Boolean);
- if(title==='活動獎勵'&&lines.length&&lines.length<=30){
-  const regular=[],bonus=[];
-  for(const line of lines){
-   let match=line.match(/^參與獎\s*[｜|:：]\s*(.+)$/u);
-   if(match){const items=parsePrizes(match[1]);if(!items)return '';regular.push({label:'參與獎',items});continue;}
-   match=line.match(/^每答對\s*1\s*題\s*[，,]?\s*額外獲得\s*(.+)$/u);
-   if(match){const items=parsePrizes(match[1]);if(!items)return '';regular.push({label:'每答對 1 題',items});continue;}
-   match=line.match(/^累積答對\s*(\d+)\s*題\s*[，,]?\s*額外獲得\s*(.+)$/u);
-   if(match){const items=parsePrizes(match[2]);if(!items)return '';bonus.push({label:'累積答對 '+match[1]+' 題，額外獲得',items});continue;}
-   return '';
+ function rowInfo(line){
+  let m=stripFmt(line).match(/^(?:參與獎|參加獎)\s*[｜|:：]\s*(.+)$/u);
+  if(m)return {label:'參與獎',items:parsePrizes(m[1]),kind:'regular'};
+  m=stripFmt(line).match(/^每\s*答對\s*1\s*題\s*[，,、:：]?\s*額外獲得\s*(.+)$/u);
+  if(m)return {label:'每答對 1 題',items:parsePrizes(m[1]),kind:'regular'};
+  m=stripFmt(line).match(/^累積答對\s*(\d+)\s*題\s*[，,、:：]?\s*額外獲得\s*(.+)$/u);
+  if(m)return {label:'累積答對 '+m[1]+' 題，額外獲得',items:parsePrizes(m[2]),kind:'bonus'};
+  return null;
+ }
+ const lines=String(body??'').replace(/\r\n?/g,'\n').split('\n');
+ if(lines.length>300)return '';
+ const out=[],pending=[];
+ let changed=false;
+ const flush=()=>{if(pending.length){out.push('<div class="dd-event-ordinary-copy">'+textHtml(pending.join('\n'))+'</div>');pending.length=0;}};
+ let i=0;
+ while(i<lines.length){
+  const line=stripFmt(lines[i]);
+  // Either a dedicated activity-reward section or a reward heading pasted
+  // inside an older general-purpose section / legacy event.detail field.
+  const heading=line==='活動獎勵';
+  if(heading||rowInfo(lines[i])){
+   let cursor=heading?i+1:i;
+   const regular=[],bonus=[];let count=0;
+   while(cursor<lines.length){
+    if(!stripFmt(lines[cursor])){cursor++;continue;}
+    const item=rowInfo(lines[cursor]);
+    if(!item||!item.items||!item.items.length)break;
+    (item.kind==='bonus'?bonus:regular).push(item);count++;cursor++;
+    if(count>24)break;
+   }
+   if(count){
+    flush();changed=true;
+    if(heading&&title!=='活動獎勵')out.push('<h4 class="dd-event-claim-title">活動獎勵</h4>');
+    const normal=regular.map(r=>'<div class="dd-event-prize-row"><strong class="dd-event-prize-label">'+escText(r.label)+'</strong><div class="dd-event-prize-items">'+r.items.map(prize).join('')+'</div></div>').join('');
+    const extra=bonus.length?'<div class="dd-event-prize-bonus">'+bonus.map(r=>'<div class="dd-event-bonus-card"><span class="dd-event-bonus-label">'+escText(r.label)+'</span><div class="dd-event-bonus-items">'+r.items.map(prize).join('')+'</div></div>').join('')+'</div>':'';
+    out.push('<div class="dd-event-prize-module">'+normal+extra+'</div>');
+    i=cursor;continue;
+   }
   }
-  if(!regular.length&&!bonus.length)return '';
-  return '<div class="dd-event-prize-module">'+regular.map(row=>'<div class="dd-event-prize-row"><strong class="dd-event-prize-label">'+escText(row.label)+'</strong><div class="dd-event-prize-items">'+row.items.map(reward).join('')+'</div></div>').join('')+
-    (bonus.length?'<div class="dd-event-prize-bonus">'+bonus.map(row=>'<div class="dd-event-bonus-card"><span class="dd-event-bonus-label">'+escText(row.label)+'</span><div class="dd-event-bonus-items">'+row.items.map(reward).join('')+'</div></div>').join('')+'</div>':'')+'</div>';
+  // Preserve all cumulative-claim instructions and examples. Convert only
+  // the explicitly labelled final totals; later notes are left unchanged.
+  if(line==='最高累積獎勵'){
+   let cursor=i+1;
+   while(cursor<lines.length&&!stripFmt(lines[cursor]))cursor++;
+   const items=cursor<lines.length?parsePrizes(lines[cursor]):null;
+   if(items){
+    flush();changed=true;
+    out.push('<div class="dd-event-claim-module"><h4 class="dd-event-claim-title">最高累積獎勵</h4><div class="dd-event-claim-grid">'+items.map(prize).join('')+'</div></div>');
+    i=cursor+1;continue;
+   }
+  }
+  pending.push(lines[i]);i++;
  }
- const ix=lines.indexOf('最高累積獎勵');
- if(ix>=0&&lines.filter(s=>s==='最高累積獎勵').length===1&&ix>0&&ix===lines.length-2){
-  const prizes=parsePrizes(lines[ix+1]);
-  if(!prizes)return '';
-  const before=lines.slice(0,ix).join('\n');
-  return '<div class="dd-event-claim-module"><div class="dd-event-claim-copy">'+textHtml(before)+'</div><h4 class="dd-event-claim-title">最高累積獎勵</h4><div class="dd-event-claim-grid">'+prizes.map(reward).join('')+'</div></div>';
- }
- return '';
+ if(!changed)return '';
+ flush();
+ return out.join('');
 }
-
 function renderDuoDuoEventSections(event) {
   const labels={intro:['活動介紹','book-open'],method:['活動方式','list-checks'],rules:['活動規則','scroll-text'],rewards:['活動獎勵','gift'],notes:['注意事項','info'],extra:['補充說明','file-text']};
   // 所有已確認的公告圖示都能在檔期活動的說明文字內顯示。
@@ -330,7 +362,7 @@ function renderDuoDuoEventSections(event) {
   const closing=String(event?.closing||'').trim();
   const closingHtml=closing?
     `<div class="duoduo-detail-closing"><div class="duoduo-detail-section-text">${textHtml(closing)}</div></div>`:'';
-  if(!parts.length) return textHtml(event?.detail||event?.desc||'')+closingHtml;
+  if(!parts.length){const raw=event?.detail||event?.desc||'';return (ddEventSpecialCards('',raw,textHtml)||textHtml(raw))+closingHtml;}
   return parts.map(({title,icon,body,type})=>{
     // Existing ranking sections also use cards when their content is parseable.
     // Unrecognized formats safely retain the original body.
