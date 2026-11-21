@@ -231,8 +231,11 @@ for(const a of hoverLinks){
  // Main headings are real links to the top of the destination page, never to first submenu item.
 }
 mobileToggle?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(menu.hidden)open(true);else close()});
-header.addEventListener('mouseleave',()=>{
- suppressArrivalHover=false;arrivalPointerDistance=0;scheduleClose();
+header.addEventListener('mouseleave',event=>{
+ // An iframe/document handoff can emit a synthetic leave with no target.
+ // Do not release the arrival guard until the pointer really exits the header.
+ if(event.relatedTarget){suppressArrivalHover=false;arrivalPointerDistance=0;}
+ scheduleClose();
 });
 header.addEventListener('pointermove',event=>{
  if(!suppressArrivalHover||!event.isTrusted)return;
