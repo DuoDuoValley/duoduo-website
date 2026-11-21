@@ -1234,6 +1234,13 @@ let cloudFrameRefreshing=false;
 let navigationGeneration=0;
 let cancelPendingPage=null;
 let releasePaintedGlove=null;
+const routeCursorImages=window.matchMedia('(hover: hover) and (pointer: fine)').matches
+  ? ['cursor-default.png','cursor-hover-1.png','cursor-hover-2.png','cursor-pressed.png'].map(file=>{
+      const image=new Image();
+      image.src=new URL('cursor-ui/'+file,siteBase).href;
+      return image;
+    }) : [];
+const routeCursorImagesReady=Promise.allSettled(routeCursorImages.map(image=>image.decode()));
 
 // Paint the real 24x28 glove in the persistent shell across a mouse-initiated
 // navigation. The transparent image never takes a click away from either page.
@@ -1251,6 +1258,7 @@ function paintRouteGlove(click,oldDoc){
     overrides.push(style);
   }
   function draw(event){
+    if(event.type==='pointermove' && !event.movementX && !event.movementY)return;
     x=event.clientX;y=event.clientY;
     routeCursorGlove.style.transform='translate3d('+(x-2)+'px,'+(y-2)+'px,0)';
     routeCursorGlove.hidden=false;
@@ -1262,7 +1270,8 @@ function paintRouteGlove(click,oldDoc){
     if(releasePaintedGlove===release)releasePaintedGlove=null;
   }
   function leave(event){
-    if(!event.relatedTarget && (event.clientX<=0 || event.clientY<=0 ||
+    if(!event.relatedTarget && Math.abs(event.clientX-x)<=2 && Math.abs(event.clientY-y)<=2 &&
+       (event.clientX<=0 || event.clientY<=0 ||
        event.clientX>=window.innerWidth-1 || event.clientY>=window.innerHeight-1))release();
   }
   // A document swap itself emits pointerout and blur at the old coordinates.
@@ -1282,7 +1291,8 @@ function paintRouteGlove(click,oldDoc){
     oldDoc.removeEventListener('pointerout',leave,true);
     suppressNative(doc);
     doc.addEventListener('pointermove',event=>{
-      if(Math.abs(event.clientX-x)>1 || Math.abs(event.clientY-y)>1)release();
+      if((event.movementX||event.movementY) && (event.clientX!==x || event.clientY!==y))release();
+
     },options);
     doc.addEventListener('pointerout',leave,options);
     for(const name of ['pointerdown','keydown','wheel'])doc.addEventListener(name,release,options);
@@ -1335,12 +1345,7 @@ function stageDesktopPage(target,click){
     synchronizeFromFrame();
   }
   async function prepare(doc){
-    const cursorFiles=['cursor-default.png','cursor-hover-1.png','cursor-hover-2.png','cursor-pressed.png'];
-    await Promise.allSettled(cursorFiles.map(file=>{
-      const image=new doc.defaultView.Image();
-      image.src=new URL('cursor-ui/'+file,siteBase).href;
-      return image.decode();
-    }));
+    await routeCursorImagesReady;
     if(cancelPendingPage!==cancel)return;
     if(next.contentDocument!==doc){tick=requestAnimationFrame(check);return;}
     next.style.opacity='1';
