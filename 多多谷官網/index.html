@@ -70,6 +70,9 @@ html.duoduo-site-ready #duoduoSite { visibility:visible; }
 /* The BGM shell keeps the Maple cursor during an iframe document switch. */
 #duoduoRouteCursorGuard { position:fixed; inset:0; z-index:2; pointer-events:auto; background:transparent;
   cursor:url('cursor-ui/cursor-default.png') 2 2, auto !important; }
+#duoduoPendingPage {position:fixed;inset:0;width:100%;height:100%;height:100dvh;border:0;
+  z-index:1;opacity:0;pointer-events:none;}
+#duoduoRouteGlove {position:fixed;left:0;top:0;z-index:3;width:24px;height:28px;pointer-events:none;}
 #duoduoRouteCursorGuard[hidden] { display:none !important; }
 #player { position:fixed; bottom:max(18px,env(safe-area-inset-bottom)); right:max(18px,env(safe-area-inset-right)); z-index:2147483000; width:min(355px,calc(100vw - 36px)); color:var(--text); background:linear-gradient(145deg,rgba(23,39,61,.98),rgba(11,23,39,.98)); border:1px solid var(--line); box-shadow:0 12px 45px rgba(0,0,0,.48); border-radius:19px; padding:15px; backdrop-filter:blur(16px); }
 /* 2.1.3: adjustable frosted glass. The dark glass itself stays opaque enough
@@ -471,6 +474,7 @@ html.dd-bgm-embed:not(.dd-bgm-host-mobile) #player #modeRow{gap:8px!important;}
 <body>
 <iframe id="duoduoSite" title="多多谷官網" src="about:blank" allow="fullscreen; clipboard-write" referrerpolicy="strict-origin-when-cross-origin"></iframe>
 <div id="duoduoRouteCursorGuard" hidden aria-hidden="true"></div>
+<img id="duoduoRouteGlove" src="cursor-ui/cursor-default.png" hidden aria-hidden="true" alt="">
 <div id="player" role="region" aria-label="多多谷常駐背景音樂播放器">
   <div id="bgmGlassLayers" aria-hidden="true"><div id="bgmGlassBase"></div><div id="bgmGlassIncoming"></div></div>
   <div id="topline">
@@ -1191,8 +1195,7 @@ let activeFrameDocument=null;
 // Navigation guard is scoped to real iframe page changes. It never touches
 // the BGM audio element, existing route handling, or mobile touch inputs.
 const routeCursorGuard=byId('duoduoRouteCursorGuard');
-const routeCursorGlove=new Image();
-routeCursorGlove.src=new URL('cursor-ui/cursor-default.png',siteBase).href;
+const routeCursorGlove=byId('duoduoRouteGlove');
 // The outgoing document keeps its own cursor and links until pagehide.
 let routeCursorFrame=0, routeCursorLimit=0;
 function clearRouteCursorGuard(){
@@ -1229,10 +1232,134 @@ function holdRouteCursorUntilReady(outgoing){
 // The persistent BGM <audio> lives in this outer shell and is never replaced.
 let cloudFrameRefreshing=false;
 let navigationGeneration=0;
+let cancelPendingPage=null;
+let releasePaintedGlove=null;
+
+// Paint the real 24x28 glove in the persistent shell across a mouse-initiated
+// navigation. The transparent image never takes a click away from either page.
+function paintRouteGlove(click,oldDoc){
+  if(!click?.detail || click.pointerType==='touch' || !routeCursorGlove.naturalWidth)return null;
+  let x=click.clientX,y=click.clientY;
+  const listeners=new AbortController();
+  const options={capture:true,passive:true,signal:listeners.signal};
+  const overrides=[];
+  function suppressNative(doc){
+    const style=doc.createElement('style');
+    style.id='ddRouteGlovePaint';
+    style.textContent=':root:has(#ddRouteGlovePaint),:root:has(#ddRouteGlovePaint) *{cursor:none!important}';
+    doc.head.appendChild(style);
+    overrides.push(style);
+  }
+  function draw(event){
+    x=event.clientX;y=event.clientY;
+    routeCursorGlove.style.transform='translate3d('+(x-2)+'px,'+(y-2)+'px,0)';
+    routeCursorGlove.hidden=false;
+  }
+  function release(){
+    listeners.abort();
+    for(const style of overrides)style.remove();
+    routeCursorGlove.hidden=true;
+    if(releasePaintedGlove===release)releasePaintedGlove=null;
+  }
+  function leave(event){if(!event.relatedTarget)release();}
+  suppressNative(oldDoc);
+  draw(click);
+  oldDoc.addEventListener('pointermove',draw,options);
+  oldDoc.addEventListener('pointerout',leave,options);
+  oldDoc.addEventListener('keydown',release,options);
+  window.addEventListener('blur',()=>{if(!document.hasFocus())release();},options);
+  releasePaintedGlove=release;
+  return function handoff(doc){
+    if(listeners.signal.aborted)return;
+    oldDoc.removeEventListener('pointerout',leave,true);
+    suppressNative(doc);
+    doc.addEventListener('pointermove',event=>{
+      if(event.clientX!==x||event.clientY!==y)release();
+    },options);
+    doc.addEventListener('pointerout',leave,options);
+    for(const name of ['pointerdown','keydown','wheel'])doc.addEventListener(name,release,options);
+  };
+}
+
+// Keep the clickable outgoing document until the incoming header and glove
+// are painted. Replacing the document under a stationary pointer lets Chromium
+// show its native arrow even when both documents have the correct cursor CSS.
+function stageDesktopPage(target,click){
+  const previous=frame;
+  const next=document.createElement('iframe');
+  next.id='duoduoPendingPage';
+  next.title=previous.title;
+  next.allow=previous.allow;
+  next.referrerPolicy=previous.referrerPolicy;
+  next.inert=true;
+  next.setAttribute('aria-hidden','true');
+  next.src=target.href;
+  const handoff=paintRouteGlove(click,previous.contentDocument);
+  let tick=0;
+  let deadline=0;
+  function cancel(){
+    cancelAnimationFrame(tick);
+    clearTimeout(deadline);
+    next.remove();
+    releasePaintedGlove?.();
+    cancelPendingPage=null;
+  }
+  cancelPendingPage=cancel;
+  previous.after(next);
+  function adopt(doc){
+    if(cancelPendingPage!==cancel)return;
+    cancelAnimationFrame(tick);
+    clearTimeout(deadline);
+    const hadFocus=document.activeElement===previous;
+    if(doc?.head)handoff?.(doc);
+    else releasePaintedGlove?.();
+    previous.removeAttribute('id');
+    frame=next;
+    next.id='duoduoSite';
+    next.inert=false;
+    next.removeAttribute('aria-hidden');
+    next.style.removeProperty('opacity');
+    next.addEventListener('load',handleInnerLoad);
+    cancelPendingPage=null;
+    previous.remove();
+    if(hadFocus)next.focus({preventScroll:true});
+    wirePage();
+    synchronizeFromFrame();
+  }
+  async function prepare(doc){
+    const cursorFiles=['cursor-default.png','cursor-hover-1.png','cursor-hover-2.png','cursor-pressed.png'];
+    await Promise.allSettled(cursorFiles.map(file=>{
+      const image=new doc.defaultView.Image();
+      image.src=new URL('cursor-ui/'+file,siteBase).href;
+      return image.decode();
+    }));
+    if(cancelPendingPage!==cancel)return;
+    if(next.contentDocument!==doc){tick=requestAnimationFrame(check);return;}
+    next.style.opacity='1';
+    tick=requestAnimationFrame(()=>{tick=requestAnimationFrame(()=>adopt(doc));});
+  }
+  function check(){
+    const doc=next.contentDocument;
+    if(doc?.body && safePage(doc.URL) && doc.querySelector('header.site-header')?.getBoundingClientRect().height &&
+       doc.defaultView.getComputedStyle(doc.documentElement).cursor.includes('cursor-default.png')){
+      prepare(doc);return;
+    }
+    tick=requestAnimationFrame(check);
+  }
+  tick=requestAnimationFrame(check);
+  // Preserve the browser's error page if CSS fails. Reuse the request already
+  // in flight on a slow connection, leaving the outgoing links usable.
+  deadline=setTimeout(()=>{
+    const doc=next.contentDocument;
+    if(doc && (!doc.body||doc.URL==='about:blank')){
+      next.addEventListener('load',()=>adopt(next.contentDocument),{once:true});
+    }else adopt(doc);
+  },8000);
+}
 window.duoduoRefreshCloudFrame=function(requestingWindow){
   try{if(sessionStorage.getItem('duoduo_maintenance_admin_preview_v1')==='1' && sessionStorage.getItem('duoduo_admin_session'))return true;}catch(_){}
   if(!frame || requestingWindow!==frame.contentWindow)return false;
-  if(cloudFrameRefreshing)return true;
+  if(cloudFrameRefreshing||cancelPendingPage)return true;
   const current=currentInner();
   if(!current)return false;
   cloudFrameRefreshing=true;
@@ -1421,9 +1548,11 @@ function showCurrentPage(inner){
   const relative=inner.pathname.slice(siteRoot.length);
   byId('pageTitle').textContent=`目前：${pageNames[relative]||'官網頁面'}`;
 }
-function changeInner(to,method='push'){
+function changeInner(to,method='push',click=null){
   const target=safePage(to);
   if(!target)return false;
+  cancelPendingPage?.();
+  releasePaintedGlove?.();
   ++navigationGeneration;
   const current=currentInner();
   // Count actual user navigation to another site section, not iframe refresh,
@@ -1451,11 +1580,16 @@ function changeInner(to,method='push'){
       return true;
     }catch{}
   }
-  try{frame.contentWindow.location.replace(target.href);}catch{frame.src=target.href;}
+  if(current && window.matchMedia('(hover: hover) and (pointer: fine)').matches){
+    stageDesktopPage(target,click);
+  }else{
+    try{frame.contentWindow.location.replace(target.href);}catch{frame.src=target.href;}
+  }
   showCurrentPage(target);
   return true;
 }
 function synchronizeFromFrame(){
+  if(cancelPendingPage)return;
   const current=currentInner();
   if(!current)return;
   updateAddress(current,'replace');
@@ -1476,7 +1610,7 @@ function wirePage(){
     const url=safePage(a.getAttribute('href'),doc.baseURI);
     if(!url)return;
     event.preventDefault();
-    changeInner(url,'push');
+    changeInner(url,'push',event);
   },true);
   // Some pages (e.g. news details) call history.pushState themselves.
   // Their iframe already creates a session-history entry: mirror with replace,
@@ -1492,7 +1626,11 @@ function wirePage(){
     }catch{}
   }
   win.addEventListener('pagehide',()=>{
-    if(frame.contentWindow===win)holdRouteCursorUntilReady(doc);
+    if(frame.contentWindow===win){
+      cancelPendingPage?.();
+      releasePaintedGlove?.();
+      holdRouteCursorUntilReady(doc);
+    }
   });
   win.addEventListener('popstate',synchronizeFromFrame);
   win.addEventListener('hashchange',synchronizeFromFrame);
@@ -1517,7 +1655,7 @@ window.addEventListener('popstate',()=>{
   const want=fromLocation();
   if(!want)return;
   const have=currentInner();
-  if(!have||have.href!==want.href)changeInner(want,'replace');
+  if(cancelPendingPage||!have||have.href!==want.href)changeInner(want,'replace');
   else showCurrentPage(want);
 });
 // Don't load the old homepage before the requested shareable subpage.
