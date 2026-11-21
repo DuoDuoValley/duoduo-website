@@ -1638,6 +1638,15 @@ function wirePage(){
       event.preventDefault();
       if(win.DuoDuoNavSelectDownload(url.href))return;
     }
+    // The shell's capture listener may run before dd-navigation.js. Record
+    // a cross-page Downloads submenu handoff here so the next iframe can
+    // restore the open dropdown instead of briefly closing it.
+    if(current?.pathname!==url.pathname&&url.pathname.endsWith('/downloads.html')&&
+       url.searchParams.has('ddnav')&&doc.getElementById('dd-nav-menu')?.contains(a)){
+      try{sessionStorage.setItem('dd_download_nav_menu_handoff_v1',JSON.stringify({
+        target:url.searchParams.get('ddnav'),at:Date.now()
+      }));}catch(_){}
+    }
     event.preventDefault();
     changeInner(url,'push',event);
   },true);
