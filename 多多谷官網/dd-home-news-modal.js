@@ -32,7 +32,7 @@ async function pageLoadNews(){
 const pageTagClass=t=>({'重要消息':'category-important','維護通知':'category-maintenance','更新說明':'category-update','活動資訊':'category-event','序號發放':'category-code','處分名單':'category-punishment'}[String(t||'')]||'category-default');
 const NEWS_HEADINGS = {
   '活動時間':'calendar', '活動地點':'map-pin', '活動時程':'calendar', '活動方式':'list', '活動內容':'list',
-  '活動規則':'shield', '活動提醒':'info', '活動獎勵':'gift', '獎勵內容':'gift',
+  '活動規則':'shield', '活動提醒':'info', '活動獎勵':'gift', '獎勵內容':'gift', '獎勵領取說明':'info', '最高累積獎勵':'gift',
    '排名獎勵':'gift', '名次獎勵':'gift', '積分區間':'gift', '積分獎勵':'gift',
   '補償內容':'gift', '補償獎勵':'gift', '序號內容物':'gift', '獎勵清單':'gift',
   '兌換序號':'ticket', '序號兌換':'ticket', '序號資訊':'ticket',
@@ -226,19 +226,20 @@ function newsGroupedRewardLine(line){
   // 僅在獎勵段落辨識完整的條件句，不對一般敘述或道具名稱猜測。
   const divider=raw.match(/^(.+?)\s*[｜|]\s*(.+)$/);
   const ox=divider?null:raw.match(/^(每\s*(?:答對|答錯|完成)\s*\d+\s*(?:題|次))\s*[,，：:]\s*額外(?:可)?獲得\s*(.+)$/u);
-  if(!divider&&!ox)return null;
-  const label=(divider?divider[1]:ox[1]).trim().replace(/\s+/g,' ');
+  const accumulated=divider||ox?null:raw.match(/^(累積答對\s*\d+\s*題)\s*[,，、：:]?\s*額外(?:可)?獲得\s*(.+)$/u);
+  if(!divider&&!ox&&!accumulated)return null;
+  const label=(divider?divider[1]:ox?ox[1]:accumulated[1]).trim().replace(/\s+/g,' ');
   const rank=/^(?:參加獎|參與獎|報名獎|入圍獎|完賽獎|安慰獎|參加獎勵|參與獎勵|第\s*\d+\s*(?:[-－~～至]\s*\d+\s*)?名(?:\s*[(（]含[)）])?\s*(?:以後|以上)?)$/u;
   const points=/^(?:\d+\s*[-－~～至]\s*\d+\s*積分|\d+\s*積分\s*(?:以上|以下))$/u;
   const extra=/^每\s*(?:答對|完成)\s*\d+\s*(?:題|次)(?:\s*額外獲得)?$/u;
-  if(!rank.test(label)&&!points.test(label)&&!extra.test(label))return null;
-  const rewards=newsRewardItems(divider?divider[2]:ox[2]);
+  if(!rank.test(label)&&!points.test(label)&&!extra.test(label)&&!/^累積答對\s*\d+\s*題$/u.test(label))return null;
+  const rewards=newsRewardItems(divider?divider[2]:ox?ox[2]:accumulated[2]);
   if(!rewards||!rewards.length)return null;
   return {label,rewards};
 }
 function newsGroupedRewardCards(groups){
   if(!groups.length)return '';
-  return `<div class="news-ranked-rewards">${groups.map(group=>`<div class="news-rank-row"><div class="news-rank-label">${pageEsc(group.label)}</div><div class="news-rank-items">${group.rewards.map(item=>`<div class="news-rank-item"><span class="news-reward-description">${newsItemThumb(item.label)}<span class="news-reward-name">${newsInline(item.richLabel||newsDisplayItemName(item.label),false)}</span></span><strong>×${newsInline(item.richQuantity||item.quantity,false)}</strong></div>`).join('')}</div></div>`).join('')}</div>`;
+  return `<div class="news-ranked-rewards">${groups.map(group=>`<div class="news-rank-row${/^累積答對/.test(group.label)?' news-rank-bonus':''}"><div class="news-rank-label">${pageEsc(group.label)}</div><div class="news-rank-items">${group.rewards.map(item=>`<div class="news-rank-item"><span class="news-reward-description">${newsItemThumb(item.label)}<span class="news-reward-name">${newsInline(item.richLabel||newsDisplayItemName(item.label),false)}</span></span><strong>×${newsInline(item.richQuantity||item.quantity,false)}</strong></div>`).join('')}</div></div>`).join('')}</div>`;
 }
 function newsRewardGrid(items){
   return `<div class="news-reward-grid">${items.map(x=>`<div class="news-reward-item"><span class="news-reward-description">${newsItemThumb(x.label)}<span class="news-reward-name">${newsInline(x.richLabel||newsDisplayItemName(x.label),false)}</span></span>${x.quantity?`<strong>×${newsInline(x.richQuantity||x.quantity,false)}</strong>`:''}</div>`).join('')}</div>`;
@@ -269,7 +270,7 @@ function newsRenderedBody(raw){
     const heading=newsHeading(line);
     if(heading){finishSection();currentHeading=heading.name;continue;}
     if(!line){finishParagraph();finishList();finishGroup();finishGrouped();continue;}
-    const rewardSection=/^(序號內容物|獎勵內容|活動獎勵|補償內容|補償獎勵|獎勵清單|排名獎勵|名次獎勵|積分獎勵|積分區間)$/.test(currentHeading);
+    const rewardSection=/^(序號內容物|獎勵內容|活動獎勵|補償內容|補償獎勵|獎勵清單|排名獎勵|名次獎勵|積分獎勵|積分區間|最高累積獎勵)$/.test(currentHeading);
     const tier=rewardSection?newsGroupedRewardLine(line):null;
     if(tier){finishParagraph();finishList();finishGroup();grouped.push(tier);continue;}
     finishGrouped();
@@ -393,6 +394,25 @@ function newsRewardCards(raw){
  }
  flushCards();flushTiers();flushFree();return `<div class="news-rewards-content">${out.join('')}</div>`;
 }
+/* Only convert the explicit "highest cumulative rewards" line to item cards. */
+function newsClaimCards(raw){
+ const lines=String(raw??'').replace(/\r\n?/g,'\n').split('\n');
+ const clean=line=>newsRewardRichLine(line).text.trim();
+ const index=lines.findIndex(line=>clean(line)==='最高累積獎勵');
+ if(index<0||lines.filter(line=>clean(line)==='最高累積獎勵').length!==1)return '';
+ let next=index+1;
+ while(next<lines.length&&!clean(lines[next]))next++;
+ if(next>=lines.length)return '';
+ const rich=newsRewardRichLine(lines[next]);
+ const prizes=newsRewardItems(rich.text.trim());
+ if(!prizes||prizes.length>16)return '';
+ newsRestoreRewardFormats(prizes,rich);
+ const before=lines.slice(0,index).join('\n'),after=lines.slice(next+1).join('\n');
+ return (before.trim()?newsPlainContent(before):'')+
+  '<div class="news-claim-heading">最高累積獎勵</div>'+
+  newsRewardGrid(prizes)+(after.trim()?newsPlainContent(after):'');
+}
+
 function newsSerialCopyValue(value){
  return String(value||'').replace(/\[\[DDFMT:([A-Z]+)\]\]/g,(token,key)=>
   key==='END'||NEWS_REWARD_FORMAT_KEYS.has(key)?'':token).trim();
@@ -411,7 +431,7 @@ function newsStructuredBody(n){
   const title=String(item.title||'').trim()||'公告內容';
   const body=String(item.body||'');
   const gift=/(?:^|\b)(rewards|compensation)(?:$|\b)/.test(String(item.type||'')) || /^(?:活動獎勵|獎勵內容|排名獎勵|名次獎勵|積分獎勵|積分區間)$/.test(title);
-  out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg(item.icon,title)}<span>${pageEsc(title)}</span></h3>${gift?newsRewardCards(body):newsPlainContent(body)}</section>`;
+  out+=`<section class="news-detail-block"><h3 class="news-section-heading">${newsSectionSvg(item.icon,title)}<span>${pageEsc(title)}</span></h3>${gift?newsRewardCards(body):(title==='獎勵領取說明'?(newsClaimCards(body)||newsPlainContent(body)):newsPlainContent(body))}</section>`;
  }
  if(hasCode){
   const s=serial;
