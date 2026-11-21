@@ -1575,6 +1575,23 @@ function changeInner(to,method='push',click=null){
   releasePaintedGlove?.();
   ++navigationGeneration;
   const current=currentInner();
+  if(current && current.pathname!==target.pathname){
+    // Close the old dropdown immediately, including while the old iframe
+    // remains visible during the desktop crossfade.
+    try{
+      const win=frame.contentWindow;
+      if(typeof win.DuoDuoNavCloseForRoute==='function')win.DuoDuoNavCloseForRoute();
+      else{
+        const menu=frame.contentDocument?.getElementById('dd-nav-menu');
+        if(menu)menu.hidden=true;
+      }
+    }catch(_){}
+    // The destination may fire mouseenter below the stationary pointer when
+    // its iframe is adopted. Prevent reopening until a genuine new hover.
+    try{sessionStorage.setItem('dd_nav_close_after_route_v1',JSON.stringify({
+      path:target.pathname,at:Date.now()
+    }));}catch(_){}
+  }
   // Count actual user navigation to another site section, not iframe refresh,
   // anchor changes, video tabs or GitHub automatic updates.
   if(method==='push'&&current&&target.pathname!==current.pathname)
@@ -1637,15 +1654,6 @@ function wirePage(){
        url.searchParams.has('ddnav')&&typeof win.DuoDuoNavSelectDownload==='function'){
       event.preventDefault();
       if(win.DuoDuoNavSelectDownload(url.href))return;
-    }
-    // The shell's capture listener may run before dd-navigation.js. Record
-    // a cross-page Downloads submenu handoff here so the next iframe can
-    // restore the open dropdown instead of briefly closing it.
-    if(current?.pathname!==url.pathname&&url.pathname.endsWith('/downloads.html')&&
-       url.searchParams.has('ddnav')&&doc.getElementById('dd-nav-menu')?.contains(a)){
-      try{sessionStorage.setItem('dd_download_nav_menu_handoff_v1',JSON.stringify({
-        target:url.searchParams.get('ddnav'),at:Date.now()
-      }));}catch(_){}
     }
     event.preventDefault();
     changeInner(url,'push',event);
