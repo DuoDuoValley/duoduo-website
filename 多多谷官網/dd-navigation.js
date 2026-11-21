@@ -199,20 +199,52 @@ if(inTools||inJobs||inLegion||inItempedia||inBossGuides){
  document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')loadPublishedNav()});
 }
 
+// A new iframe can emit a synthetic mouseenter under the stationary pointer.
+// A real page navigation must arrive with the menu closed until the visitor
+// deliberately moves to another heading or exits/re-enters the header.
+const NAV_ROUTE_CLOSE_KEY='dd_nav_close_after_route_v1';
+let suppressArrivalHover=false,arrivalPointerDistance=0;
+try{
+ const raw=sessionStorage.getItem(NAV_ROUTE_CLOSE_KEY);
+ if(raw){
+  sessionStorage.removeItem(NAV_ROUTE_CLOSE_KEY);
+  const marker=JSON.parse(raw),age=Date.now()-Number(marker?.at);
+  suppressArrivalHover=marker?.path===location.pathname&&age>=0&&age<15000;
+ }
+ // Remove the old download-only handoff; cross-page links now all close.
+ sessionStorage.removeItem('dd_download_nav_menu_handoff_v1');
+}catch(_){}
 const mobileToggle=nav.querySelector('.dd-mobile-toggle');
 const hoverLinks=Array.from(nav.querySelectorAll('[data-dd-nav]'));
 function align(){if(innerWidth<=700)return;const n=nav.getBoundingClientRect(),h=header.getBoundingClientRect();menu.style.setProperty('--dd-nav-left',`${Math.round(n.left-h.left)}px`);menu.style.setProperty('--dd-nav-width',`${Math.round(n.width)}px`)}
-function open(){clearTimeout(closeTimer);align();menu.hidden=false;mobileToggle?.setAttribute('aria-expanded','true')}
+function open(force=false){
+ if(suppressArrivalHover&&!force){close();return;}
+ clearTimeout(closeTimer);align();menu.hidden=false;mobileToggle?.setAttribute('aria-expanded','true');
+}
 function close(){clearTimeout(closeTimer);menu.hidden=true;mobileToggle?.setAttribute('aria-expanded','false')}
+window.DuoDuoNavCloseForRoute=close;
 function scheduleClose(){clearTimeout(closeTimer);closeTimer=setTimeout(close,170)}
 for(const a of hoverLinks){
  if(a.dataset.ddNav==='home'){a.addEventListener('mouseenter',close);a.addEventListener('focus',close);continue}
  a.addEventListener('mouseenter',()=>{if(matchMedia('(hover:hover)').matches)open()});
- a.addEventListener('focus',()=>{if(matchMedia('(hover:hover)').matches)open()});
+ a.addEventListener('focus',()=>{if(matchMedia('(hover:hover)').matches)open(true)});
  // Main headings are real links to the top of the destination page, never to first submenu item.
 }
-mobileToggle?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(menu.hidden)open();else close()});
-header.addEventListener('mouseleave',scheduleClose);
+mobileToggle?.addEventListener('click',e=>{e.preventDefault();e.stopPropagation();if(menu.hidden)open(true);else close()});
+header.addEventListener('mouseleave',()=>{
+ suppressArrivalHover=false;arrivalPointerDistance=0;scheduleClose();
+});
+header.addEventListener('pointermove',event=>{
+ if(!suppressArrivalHover||!event.isTrusted)return;
+ arrivalPointerDistance+=Math.abs(event.movementX||0)+Math.abs(event.movementY||0);
+ if(arrivalPointerDistance<12)return;
+ // Ignore synthetic mouseenter after iframe adoption. Only a fresh,
+ // deliberate pointer move onto a main heading should reopen the menu.
+ const link=event.target?.closest?.('a[data-dd-nav]');
+ if(!link)return;
+ suppressArrivalHover=false;arrivalPointerDistance=0;
+ if(link.dataset.ddNav!=='home'&&matchMedia('(hover:hover)').matches)open();
+});
 menu.addEventListener('mouseenter',()=>clearTimeout(closeTimer));
 menu.addEventListener('mouseleave',scheduleClose);
 document.addEventListener('pointerdown',e=>{if(!header.contains(e.target))close()});
@@ -221,9 +253,7 @@ window.addEventListener('resize',()=>{if(!menu.hidden)align()});
 window.addEventListener('scroll',()=>{if(!menu.hidden&&innerWidth>700)align()},{passive:true});
 // Recalculate when parent shell/grid/header dimensions change.
 if(typeof ResizeObserver==='function'){new ResizeObserver(()=>{if(!menu.hidden)align()}).observe(nav)}
-// Preserve the submenu through a desktop iframe transition to Downloads only.
-// Same-page selections use history + smooth scrolling instead of rebuilding the iframe.
-const DOWNLOAD_MENU_HANDOFF='dd_download_nav_menu_handoff_v1';
+// Same-page download selections keep the menu; cross-page transitions close it.
 let downloadScrollSerial=0;
 function scrollDownloadRequest(request){
  if(!request)return;
@@ -251,18 +281,6 @@ function scrollDownloadRequest(request){
   }));
  },100);
 }
-function restoreDownloadMenu(){
- if(!location.pathname.endsWith('/downloads.html'))return;
- let pending=null;
- try{
-  const raw=sessionStorage.getItem(DOWNLOAD_MENU_HANDOFF);
-  sessionStorage.removeItem(DOWNLOAD_MENU_HANDOFF);
-  if(raw)pending=JSON.parse(raw);
- }catch(_){return;}
- const selected=new URLSearchParams(location.search).get('ddnav');
- if(pending?.target!==selected||Date.now()-Number(pending?.at)>15000||Date.now()<Number(pending?.at))return;
- if(window.matchMedia('(hover: hover) and (pointer: fine)').matches)open();
-}
 function downloadSubmenuClick(event){
  if(event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)return;
  const element=event.target?.nodeType===1?event.target:event.target?.parentElement;
@@ -275,9 +293,6 @@ function downloadSubmenuClick(event){
  if(location.pathname.endsWith('/downloads.html')){
   event.preventDefault();
   window.DuoDuoNavSelectDownload?.(url.href);
- }else{
-  // A different page must load, so the new document restores this same menu.
-  try{sessionStorage.setItem(DOWNLOAD_MENU_HANDOFF,JSON.stringify({target:request,at:Date.now()}));}catch(_){}
  }
 }
 // Also callable by the persistent shell's capture-phase router when it was
@@ -338,7 +353,6 @@ if(inTools&&request){onceVisibleTarget(()=>{
  return null;
 },null)}
 if(location.pathname.endsWith('/downloads.html')){
- restoreDownloadMenu();
  if(request)scrollDownloadRequest(request);
  window.addEventListener('popstate',()=>{
   scrollDownloadRequest(new URLSearchParams(location.search).get('ddnav'));
