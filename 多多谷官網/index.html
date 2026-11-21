@@ -1444,6 +1444,9 @@ window.duoduoRefreshCloudFrame=function(requestingWindow){
   return true;
 };
 
+// Every outer-shell load gets a single cache identity for embedded HTML.
+// This never changes public share links or the deployment monitor's revision.
+const EMBED_PAGE_CACHE_REV=Date.now().toString(36);
 function safePage(raw,base=siteBase){
   try{
     if(!raw||/^\s*(?:javascript:|data:)/i.test(String(raw)))return null;
@@ -1453,7 +1456,9 @@ function safePage(raw,base=siteBase){
     if(!relative||relative==='index.html')relative='home.html';
     if(relative==='boss-guides-private.html')relative='boss-guides.html'; // legacy bookmarks
     if(!ROUTE_PAGES.has(relative))return null;
-    return new URL(relative+result.search+result.hash,siteBase);
+    const inner=new URL(relative+result.search+result.hash,siteBase);
+    inner.searchParams.set('_dd_page_cache',EMBED_PAGE_CACHE_REV);
+    return inner;
   }catch{return null;}
 }
 // V3.9: canonical, readable share links. The embedded pages retain their own
@@ -1499,9 +1504,11 @@ function routeKey(url){
 function outwardUrl(inner){
   const address=new URL('./',siteBase);
   const path=inner.pathname.slice(siteRoot.length);
-  if(path==='home.html'&&!inner.search&&!inner.hash)return address;
-  address.searchParams.set('page',SHORT_PAGES[path]||path);
   const rest=new URLSearchParams(inner.search);
+  // The cache identity is internal to the iframe and never enters share URLs.
+  rest.delete('_dd_page_cache');
+  if(path==='home.html'&&!rest.toString()&&!inner.hash)return address;
+  address.searchParams.set('page',SHORT_PAGES[path]||path);
   for(const [key,value] of rest){
     if(key==='page')continue;
     if(key==='ddnav'&&path==='news.html')address.searchParams.append('category',NEWS_SLUGS[value]||value);
