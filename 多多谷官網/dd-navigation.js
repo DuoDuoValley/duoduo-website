@@ -221,6 +221,73 @@ window.addEventListener('resize',()=>{if(!menu.hidden)align()});
 window.addEventListener('scroll',()=>{if(!menu.hidden&&innerWidth>700)align()},{passive:true});
 // Recalculate when parent shell/grid/header dimensions change.
 if(typeof ResizeObserver==='function'){new ResizeObserver(()=>{if(!menu.hidden)align()}).observe(nav)}
+// Preserve the submenu through a desktop iframe transition to Downloads only.
+// Same-page selections use history + smooth scrolling instead of rebuilding the iframe.
+const DOWNLOAD_MENU_HANDOFF='dd_download_nav_menu_handoff_v1';
+let downloadScrollSerial=0;
+function scrollDownloadRequest(request){
+ if(!request)return;
+ const serial=++downloadScrollSerial;
+ let tries=0;
+ const poll=setInterval(()=>{
+  if(serial!==downloadScrollSerial){clearInterval(poll);return;}
+  // The outer shell preloads the next page in an invisible iframe. Beginning
+  // the animation now would finish before the player sees the new page.
+  try{if(window.frameElement?.id==='duoduoPendingPage')return;}catch(_){/* standalone */}
+  const target=findNamed(request);
+  if(!target){
+   if(++tries<90)return;
+   clearInterval(poll);
+   const toast=document.createElement('div');toast.className='dd-nav-toast';
+   toast.textContent='這個下載項目目前尚未在頁面公開，請以下載專區現有項目為準。';
+   document.body.appendChild(toast);setTimeout(()=>toast.remove(),4800);return;
+  }
+  clearInterval(poll);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+   if(serial!==downloadScrollSerial||!target.isConnected)return;
+   const reduced=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+   target.style.scrollMarginTop='110px';
+   target.scrollIntoView({behavior:reduced?'instant':'smooth',block:'start'});
+  }));
+ },100);
+}
+function restoreDownloadMenu(){
+ if(!location.pathname.endsWith('/downloads.html'))return;
+ let pending=null;
+ try{
+  const raw=sessionStorage.getItem(DOWNLOAD_MENU_HANDOFF);
+  sessionStorage.removeItem(DOWNLOAD_MENU_HANDOFF);
+  if(raw)pending=JSON.parse(raw);
+ }catch(_){return;}
+ const selected=new URLSearchParams(location.search).get('ddnav');
+ if(pending?.target!==selected||Date.now()-Number(pending?.at)>15000||Date.now()<Number(pending?.at))return;
+ if(window.matchMedia('(hover: hover) and (pointer: fine)').matches)open();
+}
+function downloadSubmenuClick(event){
+ if(event.defaultPrevented||event.button!==0||event.ctrlKey||event.metaKey||event.altKey||event.shiftKey)return;
+ const element=event.target?.nodeType===1?event.target:event.target?.parentElement;
+ const anchor=element?.closest?.('#dd-nav-menu a[href]');
+ if(!anchor||anchor.target==='_blank'||anchor.hasAttribute('download'))return;
+ let url;
+ try{url=new URL(anchor.href)}catch(_){return;}
+ if(url.origin!==location.origin||!url.pathname.endsWith('/downloads.html'))return;
+ const request=url.searchParams.get('ddnav');if(!request)return;
+ if(location.pathname.endsWith('/downloads.html')){
+  event.preventDefault();
+  // Keep the iframe session cache identity internal. The outer router strips it
+  // from public share URLs while retaining Back/Forward support.
+  const cache=new URLSearchParams(location.search).get('_dd_page_cache');
+  if(cache)url.searchParams.set('_dd_page_cache',cache);
+  if(url.href!==location.href)history.pushState(history.state,'',url.href);
+  scrollDownloadRequest(request);
+ }else{
+  // A different page must load, so the new document restores this same menu.
+  try{sessionStorage.setItem(DOWNLOAD_MENU_HANDOFF,JSON.stringify({target:request,at:Date.now()}));}catch(_){}
+ }
+}
+// Register before the shell's navigation capture handler (installed on frame
+// load), so same-document download clicks are not misclassified as page swaps.
+document.addEventListener('click',downloadSubmenuClick,true);
 function scrollTarget(target){if(!target)return false;target.style.scrollMarginTop='110px';target.scrollIntoView({behavior:'instant',block:'start'});return true}
 function findNamed(target){
  const cards=Array.from(document.querySelectorAll('#download-grid .download-card'));
@@ -262,8 +329,12 @@ if(inTools&&request){onceVisibleTarget(()=>{
  if(tab){tab.click();return document.getElementById(request)||document.querySelector('.tabbar')}
  return null;
 },null)}
-if(location.pathname.endsWith('/downloads.html')&&request){
- onceVisibleTarget(()=>findNamed(request),'這個下載項目目前尚未在頁面公開，請以下載專區現有項目為準。');
+if(location.pathname.endsWith('/downloads.html')){
+ restoreDownloadMenu();
+ if(request)scrollDownloadRequest(request);
+ window.addEventListener('popstate',()=>{
+  scrollDownloadRequest(new URLSearchParams(location.search).get('ddnav'));
+ });
 }
 if(location.pathname.endsWith('/guide.html')){
  // Resources are created by the site's existing app.js without changing their embed timing.
