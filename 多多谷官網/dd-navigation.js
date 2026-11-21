@@ -135,7 +135,7 @@ function applyNavSettings(cfg){
  groups=defaultGroups.map(g=>{
   const section=sections[g.key]||{};
   const storedItems=Array.isArray(section.items)?section.items:g.items.map((x,i)=>({id:g.key+'-'+i,label:x[0],href:x[1],enabled:true}));
-  const items=g.key==='news'&&Array.isArray(section.items)?window.DuoDuoNavEnsureNewsPunishment(window.DuoDuoNavEnsureNewsSerial(storedItems,saved.newsSerialAdded)):g.key==='boss'&&Array.isArray(section.items)?window.DuoDuoNavEnsureBossGuides(storedItems):g.key==='guide'&&Array.isArray(section.items)?window.DuoDuoNavEnsureItempedia(window.DuoDuoNavEnsureLegion(window.DuoDuoNavEnsureGuideChecklist(storedItems,saved.guideChecklistAdded))):storedItems;
+  const items=g.key==='news'&&Array.isArray(section.items)?window.DuoDuoNavEnsureNewsPunishment(window.DuoDuoNavEnsureNewsSerial(storedItems,saved.newsSerialAdded)):g.key==='boss'&&Array.isArray(section.items)?window.DuoDuoNavEnsureBossGuides(storedItems):g.key==='guide'&&Array.isArray(section.items)?window.DuoDuoNavEnsureItempedia(window.DuoDuoNavEnsureLegion(window.DuoDuoNavEnsureGuideChecklist(storedItems,saved.guideChecklistAdded))):g.key==='downloads'?(window.DuoDuoNavNormalizeDownloadTargets?.(storedItems)||storedItems):storedItems;
   return {...g,items:items.filter(x=>x&&x.enabled!==false&&cleanHref(x.href))
    .slice(0,20).map(x=>({id:String(x.id||''),label:currentJobsLabel(x).slice(0,50),href:String(x.href)}))};
  }).sort((a,b)=>sorted.indexOf(a.key)-sorted.indexOf(b.key));
@@ -223,11 +223,29 @@ window.addEventListener('scroll',()=>{if(!menu.hidden&&innerWidth>700)align()},{
 if(typeof ResizeObserver==='function'){new ResizeObserver(()=>{if(!menu.hidden)align()}).observe(nav)}
 function scrollTarget(target){if(!target)return false;target.style.scrollMarginTop='110px';target.scrollIntoView({behavior:'instant',block:'start'});return true}
 function findNamed(target){
- const id=document.getElementById('dd-download-'+target);if(id)return id;
- if(target==='manager')return Array.from(document.querySelectorAll('.download-card')).find(c=>/遊戲橘子|主程式|遊戲本體/.test(c.querySelector('h3')?.textContent||''))||null;
- const cards=Array.from(document.querySelectorAll('.download-card'));
- const match={patch281to282:['281','282'],patch2824:['282.4','手動更新'],launcher:['登入器'],pack:['整合包']}[target]||[];
- return cards.find(c=>match.some(term=>c.textContent.includes(term)))||null;
+ const cards=Array.from(document.querySelectorAll('#download-grid .download-card'));
+ const requested=String(target||'');
+ // Old player bookmarks and old published dropdowns remain supported.
+ const kind=requested==='patch'||/^patch\d+to\d+$/i.test(requested)?'patch':
+   requested==='manual'||/^patch\d+(?:[._-]\d+)?$/i.test(requested)?'manual':null;
+ if(kind){
+  const title=card=>String(card.querySelector('h3')?.textContent||'').trim();
+  const find=kind==='manual'
+   ?cards.find(card=>/手動\s*更新/.test(title(card)))
+   :cards.find(card=>/更新檔|更新包|版本更新/.test(title(card))&&!/手動\s*更新/.test(title(card)));
+  // A version-independent destination must follow the current card title.
+  if(find)return find;
+  // If the title was customized, identify by its stable/legacy ID.
+  return cards.find(card=>{
+   const id=String(card.id||'').replace(/^dd-download-/,'');
+   return kind==='patch'?/^patch\d+to\d+$/i.test(id):
+     /^patch\d+(?:[._-]\d+)?$/i.test(id);
+  })||null;
+ }
+ const exact=document.getElementById('dd-download-'+requested);
+ if(exact)return exact;
+ const terms={manager:['遊戲橘子','主程式','遊戲本體'],launcher:['登入器'],pack:['整合包']}[requested]||[];
+ return cards.find(card=>terms.some(term=>card.querySelector('h3')?.textContent?.includes(term)))||null;
 }
 function onceVisibleTarget(get,missMsg){let tick=0;let done=false;const timer=setInterval(()=>{
   if(done)return;
