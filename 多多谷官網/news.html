@@ -665,6 +665,14 @@ ul.news-readable-list{list-style-type:disc}
 .news-reward-item{display:flex;align-items:center;justify-content:space-between;gap:12px;min-width:0;border:1px solid var(--line);border-radius:10px;padding:9px 12px;background:rgba(100,150,185,.065)}
 .news-reward-item span{min-width:0;overflow-wrap:anywhere}
 .news-reward-item strong{color:var(--text);font-variant-numeric:tabular-nums;white-space:nowrap;font-size:15px}
+
+/* Cumulative milestone bonuses use compact two-column cards; ordinary ranks remain full width. */
+.news-ranked-rewards{grid-template-columns:repeat(2,minmax(0,1fr))}
+.news-ranked-rewards>.news-rank-row{grid-column:1/-1}
+.news-ranked-rewards>.news-rank-bonus{grid-column:auto;grid-template-columns:minmax(0,1fr)}
+.news-claim-heading{color:var(--muted);font-weight:700;font-size:14px;margin:19px 0 10px;line-height:1.6}
+@media(max-width:700px){.news-ranked-rewards{grid-template-columns:minmax(0,1fr)}}
+
 .news-code-box{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px;background:rgba(95,165,200,.08);border:1px solid var(--line);border-radius:12px}
 .news-code-box code{background:none;padding:0;font-weight:750;font-size:17px;color:var(--text);word-break:break-all}
 .news-code-copy{display:inline-flex;align-items:center;gap:5px;flex:none;border:1px solid #65a8c8;background:rgba(50,125,170,.12);border-radius:9px;padding:8px 11px;color:var(--text);font:inherit;font-size:13px;cursor:pointer}
