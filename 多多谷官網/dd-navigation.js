@@ -274,17 +274,25 @@ function downloadSubmenuClick(event){
  const request=url.searchParams.get('ddnav');if(!request)return;
  if(location.pathname.endsWith('/downloads.html')){
   event.preventDefault();
-  // Keep the iframe session cache identity internal. The outer router strips it
-  // from public share URLs while retaining Back/Forward support.
-  const cache=new URLSearchParams(location.search).get('_dd_page_cache');
-  if(cache)url.searchParams.set('_dd_page_cache',cache);
-  if(url.href!==location.href)history.pushState(history.state,'',url.href);
-  scrollDownloadRequest(request);
+  window.DuoDuoNavSelectDownload?.(url.href);
  }else{
   // A different page must load, so the new document restores this same menu.
   try{sessionStorage.setItem(DOWNLOAD_MENU_HANDOFF,JSON.stringify({target:request,at:Date.now()}));}catch(_){}
  }
 }
+// Also callable by the persistent shell's capture-phase router when it was
+// wired before this file loaded; never rebuild the iframe for download tabs.
+window.DuoDuoNavSelectDownload=function(targetURL){
+ if(!location.pathname.endsWith('/downloads.html'))return false;
+ let url;try{url=new URL(String(targetURL||''),location.href)}catch(_){return false;}
+ if(url.origin!==location.origin||url.pathname!==location.pathname)return false;
+ const request=url.searchParams.get('ddnav');if(!request)return false;
+ const cache=new URLSearchParams(location.search).get('_dd_page_cache');
+ if(cache)url.searchParams.set('_dd_page_cache',cache);
+ if(url.href!==location.href)history.pushState(history.state,'',url.href);
+ scrollDownloadRequest(request);
+ return true;
+};
 // Register before the shell's navigation capture handler (installed on frame
 // load), so same-document download clicks are not misclassified as page swaps.
 document.addEventListener('click',downloadSubmenuClick,true);
