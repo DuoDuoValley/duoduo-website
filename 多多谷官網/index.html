@@ -1261,20 +1261,28 @@ function paintRouteGlove(click,oldDoc){
     routeCursorGlove.hidden=true;
     if(releasePaintedGlove===release)releasePaintedGlove=null;
   }
-  function leave(event){if(!event.relatedTarget)release();}
+  function leave(event){
+    if(!event.relatedTarget && (event.clientX<=0 || event.clientY<=0 ||
+       event.clientX>=window.innerWidth-1 || event.clientY>=window.innerHeight-1))release();
+  }
+  // A document swap itself emits pointerout and blur at the old coordinates.
+  // Only a real exit from the viewport or entry into a shell control ends the glove.
+  document.addEventListener('pointerover',event=>{
+    if(event.target.closest?.('#player,#mini,#ddPersistentVideo'))release();
+  },options);
   suppressNative(oldDoc);
   draw(click);
   oldDoc.addEventListener('pointermove',draw,options);
   oldDoc.addEventListener('pointerout',leave,options);
   oldDoc.addEventListener('keydown',release,options);
-  window.addEventListener('blur',()=>{if(!document.hasFocus())release();},options);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)release();},options);
   releasePaintedGlove=release;
   return function handoff(doc){
     if(listeners.signal.aborted)return;
     oldDoc.removeEventListener('pointerout',leave,true);
     suppressNative(doc);
     doc.addEventListener('pointermove',event=>{
-      if(event.clientX!==x||event.clientY!==y)release();
+      if(Math.abs(event.clientX-x)>1 || Math.abs(event.clientY-y)>1)release();
     },options);
     doc.addEventListener('pointerout',leave,options);
     for(const name of ['pointerdown','keydown','wheel'])doc.addEventListener(name,release,options);
