@@ -68,7 +68,7 @@ body { background:#07111f; }
 #duoduoSite { width:100%; height:100%; height:100dvh; border:0; display:block; background:#07111f; visibility:hidden; cursor:url('cursor-ui/cursor-default.png') 2 2, auto; }
 html.duoduo-site-ready #duoduoSite { visibility:visible; }
 /* The BGM shell keeps the Maple cursor during an iframe document switch. */
-#duoduoRouteCursorGuard { position:fixed; inset:0; z-index:2; pointer-events:none; background:transparent;
+#duoduoRouteCursorGuard { position:fixed; inset:0; z-index:2; pointer-events:auto; background:transparent;
   cursor:url('cursor-ui/cursor-default.png') 2 2, auto !important; }
 #duoduoRouteCursorGuard[hidden] { display:none !important; }
 #player { position:fixed; bottom:max(18px,env(safe-area-inset-bottom)); right:max(18px,env(safe-area-inset-right)); z-index:2147483000; width:min(355px,calc(100vw - 36px)); color:var(--text); background:linear-gradient(145deg,rgba(23,39,61,.98),rgba(11,23,39,.98)); border:1px solid var(--line); box-shadow:0 12px 45px rgba(0,0,0,.48); border-radius:19px; padding:15px; backdrop-filter:blur(16px); }
@@ -414,6 +414,10 @@ body.collapsed #mini {display:grid;}
   position:absolute;inset:0;border-radius:inherit;
   will-change:opacity;backface-visibility:hidden;-webkit-backface-visibility:hidden;
   transform:translateZ(0);-webkit-transform:translateZ(0);
+}
+/* Paint the existing neutral palette even before the first track arrives. */
+#player.bgm-composited-glass #bgmGlassBase{
+  background:linear-gradient(148deg,rgb(var(--bgm-glass-top)),rgb(var(--bgm-glass-bottom)));
 }
 #player.bgm-composited-glass #bgmGlassIncoming{opacity:0;}
 #player.bgm-composited-glass::before{z-index:1;}
@@ -1189,55 +1193,34 @@ let activeFrameDocument=null;
 const routeCursorGuard=byId('duoduoRouteCursorGuard');
 const routeCursorGlove=new Image();
 routeCursorGlove.src=new URL('cursor-ui/cursor-default.png',siteBase).href;
-// Keep the cursor image in the persistent shell while its inner iframe changes
-// document. An iframe can replace its pointer layer *after* its ready class is
-// set, so a ready class alone is not an adequate handoff signal.
-let routeCursorPoll=null, routeCursorLimit=null, routeCursorToken=0;
+// The outgoing document keeps its own cursor and links until pagehide.
+let routeCursorFrame=0, routeCursorLimit=0;
 function clearRouteCursorGuard(){
-  ++routeCursorToken;
-  if(routeCursorPoll!==null){clearInterval(routeCursorPoll);routeCursorPoll=null;}
-  if(routeCursorLimit!==null){clearTimeout(routeCursorLimit);routeCursorLimit=null;}
+  cancelAnimationFrame(routeCursorFrame);
+  clearTimeout(routeCursorLimit);
   routeCursorGuard.hidden=true;
 }
-function holdRouteCursorUntilReady(destination=null){
+function holdRouteCursorUntilReady(outgoing){
   if(!window.matchMedia('(hover: hover) and (pointer: fine)').matches)return;
-  // Do not restart a currently active transition on the outgoing document's
-  // beforeunload event (which would otherwise reset the same guard's timers).
-  if(!routeCursorGuard.hidden)return;
   clearRouteCursorGuard();
-  const token=routeCursorToken;
-  const outgoingDocument=frame?.contentDocument||null;
   routeCursorGuard.hidden=false;
-  let releaseScheduled=false;
-  function releaseWhenStyled(){
-    if(token!==routeCursorToken||releaseScheduled)return;
+  function checkDestination(){
     try{
-      const doc=frame?.contentDocument;
-      if(!doc || doc===outgoingDocument || doc.readyState==='loading')return;
-      // The destination may normalize its query/hash during initialization;
-      // the replacement document and known route are safer than exact URL equality.
-      if(!safePage(doc.URL))return;
-      if(!doc.documentElement.classList.contains('duoduo-cursor-ready'))return;
-      const cursorStylesLoaded=Array.from(doc.styleSheets).some(sheet=>
-        sheet.href && sheet.href.includes('/cursor-ui/cursor.css'));
-      if(!cursorStylesLoaded)return;
-      const cursor=frame.contentWindow.getComputedStyle(doc.documentElement).cursor;
-      if(!cursor.includes('cursor-default.png'))return;
-      if(!routeCursorGlove.complete||!routeCursorGlove.naturalWidth)return;
-      releaseScheduled=true;
-      // Two animation frames in the *new iframe* ensure it has really painted;
-      // scheduling just on the parent can run before the inner document paints.
-      const inner=frame.contentWindow;
-      inner.requestAnimationFrame(()=>inner.requestAnimationFrame(()=>{
-        setTimeout(()=>{if(token===routeCursorToken)clearRouteCursorGuard();},180);
-      }));
-    }catch(_){/* Keep the persistent glove until ready or bounded fallback. */}
+      const doc=frame.contentDocument;
+      if(doc && doc!==outgoing && doc.body && doc.URL!=='about:blank'){
+        // Blocking cursor CSS is effective before deferred page scripts or media finish.
+        const cursor=doc.defaultView.getComputedStyle(doc.documentElement).cursor;
+        if((cursor.includes('cursor-default.png') && routeCursorGlove.naturalWidth) ||
+           doc.readyState==='complete'){
+          clearRouteCursorGuard();
+          return;
+        }
+      }
+    }catch(_){clearRouteCursorGuard();return;}
+    routeCursorFrame=requestAnimationFrame(checkDestination);
   }
-  routeCursorPoll=setInterval(releaseWhenStyled,35);
-  routeCursorLimit=setTimeout(()=>{
-    if(token===routeCursorToken)clearRouteCursorGuard();
-  },15000);
-  releaseWhenStyled();
+  routeCursorFrame=requestAnimationFrame(checkDestination);
+  routeCursorLimit=setTimeout(clearRouteCursorGuard,2000);
 }
 
 // Cloud data can arrive after the first page has already painted. Do not
@@ -1296,7 +1279,6 @@ window.duoduoRefreshCloudFrame=function(requestingWindow){
     // fading it in; the old page stays fully visible underneath.
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       if(frame!==oldFrame||generation!==navigationGeneration){candidate.remove();cloudFrameRefreshing=false;return;}
-      holdRouteCursorUntilReady();
       candidate.style.opacity='1';
       setTimeout(()=>{
         if(frame!==oldFrame||generation!==navigationGeneration){candidate.remove();cloudFrameRefreshing=false;return;}
@@ -1469,7 +1451,6 @@ function changeInner(to,method='push'){
       return true;
     }catch{}
   }
-  holdRouteCursorUntilReady(target);
   try{frame.contentWindow.location.replace(target.href);}catch{frame.src=target.href;}
   showCurrentPage(target);
   return true;
@@ -1510,8 +1491,8 @@ function wirePage(){
       };
     }catch{}
   }
-  win.addEventListener('beforeunload',()=>{
-    if(routeCursorGuard.hidden)holdRouteCursorUntilReady();
+  win.addEventListener('pagehide',()=>{
+    if(frame.contentWindow===win)holdRouteCursorUntilReady(doc);
   });
   win.addEventListener('popstate',synchronizeFromFrame);
   win.addEventListener('hashchange',synchronizeFromFrame);
